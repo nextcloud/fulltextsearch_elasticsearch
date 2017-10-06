@@ -1,6 +1,6 @@
 # fullnextsearch_elasticsearch
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/daita/files_fullnextsearch/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/daita/files_fullnextsearch/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/daita/fullnextsearch_elasticsearch/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/daita/fullnextsearch_elasticsearch/?branch=master)
 
 ### Note:
 
