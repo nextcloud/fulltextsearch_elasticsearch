@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>fullnextsearch_elasticsearch</id>
+	<name>Full Next Search - Elastic Search Platform</name>
+	<summary>Summary of Full Next Search - Elastic Search Platform</summary>
+	<description><![CDATA[
+
+	Description of Full Next Search - Elastic Search Platform
+
+]]>
+	</description>
+	<version>0.0.2</version>
+	<licence>agpl</licence>
+	<author>Maxence Lange</author>
+	<namespace>FullNextSearch_ElasticSearch</namespace>
+	<documentation>
+		<admin>https://github.com/daita/fullnextsearch/wiki</admin>
+	</documentation>
+	<category>tools</category>
+	<website>https://github.com/daita/fullnextsearch</website>
+	<bugs>https://github.com/daita/fullnextsearch/issues</bugs>
+	<repository>https://github.com/daita/fullnextsearch.git</repository>
+	<!--<screenshot>-->
+	<!--</screenshot>-->
+	<dependencies>
+		<nextcloud min-version="12" max-version="13"/>
+	</dependencies>
+
+	<commands>
+		<command>OCA\FullNextSearch_ElasticSearch\Command\Elastic</command>
+	</commands>
+
+	<settings>
+		<admin>OCA\FullNextSearch_ElasticSearch\Settings\Admin</admin>
+		<admin-section>OCA\FullNextSearch_ElasticSearch\Settings\AdminSection</admin-section>
+	</settings>
+
+	<fullnextsearch>
+		<platform>OCA\FullNextSearch_ElasticSearch\Platform\ElasticSearchPlatform</platform>
+	</fullnextsearch>
+
+</info>
