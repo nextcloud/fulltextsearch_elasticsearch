@@ -254,8 +254,11 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			$this->generateSearchQueryAccess($access);
 		$params['body']['query']['bool'] = $bool;
 
+		$params['body']['highlight'] = $this->generateSearchHighlighting();
+
 		return $params;
 	}
+
 
 	/**
 	 * @param string $string
@@ -292,6 +295,14 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
+	private function generateSearchHighlighting() {
+		return [
+			'fields'    => ['content' => new \stdClass()],
+			'pre_tags'  => [''],
+			'post_tags' => ['']
+		];
+	}
+
 	/**
 	 * @param array $result
 	 *
@@ -317,7 +328,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 		$document = new SearchDocument($entry['_id']);
 		$document->setAccess($access);
-		$document->setContent($entry['_source']['content']);
+		$document->setExcerpts($entry['highlight']['content']);
+
 		$document->setScore($entry['_score']);
 		$document->setTitle($entry['_source']['title']);
 
