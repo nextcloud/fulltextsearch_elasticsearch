@@ -28,13 +28,16 @@
 namespace OCA\FullNextSearch_ElasticSearch\Service;
 
 use OCA\FullNextSearch_ElasticSearch\AppInfo\Application;
+use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCP\IConfig;
 use OCP\Util;
 
 class ConfigService {
 
+	const ELASTIC_HOST = 'elastic_host';
 
 	private $defaults = [
+		self::ELASTIC_HOST => ''
 	];
 
 	/** @var IConfig */
@@ -58,6 +61,18 @@ class ConfigService {
 		$this->userId = $userId;
 		$this->miscService = $miscService;
 	}
+
+
+	public function getElasticHost() {
+
+		$host = $this->getAppValue(self::ELASTIC_HOST);
+		if ($host === '') {
+			throw new ConfigurationException('Your elastic search is not configured properly');
+		}
+
+		return $host;
+	}
+
 
 	/**
 	 * Get a value by key

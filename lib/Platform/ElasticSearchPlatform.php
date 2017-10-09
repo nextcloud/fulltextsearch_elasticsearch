@@ -39,17 +39,23 @@ use OCA\FullNextSearch\Model\DocumentAccess;
 use OCA\FullNextSearch\Model\ExtendedBase;
 use OCA\FullNextSearch\Model\SearchDocument;
 use OCA\FullNextSearch\Model\SearchResult;
+use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullNextSearch_ElasticSearch\Service\ConfigService;
 use OCA\FullNextSearch_ElasticSearch\Service\MiscService;
 use OCA\FullNextSearch_ElasticSearch\AppInfo\Application;
 
 
 class ElasticSearchPlatform implements INextSearchPlatform {
 
+	/** @var ConfigService */
+	private $configService;
+
 	/** @var MiscService */
 	private $miscService;
 
 	/** @var Client */
 	private $client;
+
 
 	/**
 	 * {@inheritdoc}
@@ -58,25 +64,28 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		$app = new Application();
 
 		$container = $app->getContainer();
+		$this->configService = $container->query(ConfigService::class);
 		$this->miscService = $container->query(MiscService::class);
 
 		try {
+			$this->connectToElastic($this->configService->getElasticHost());
+		} catch (ConfigurationException $e) {
+			throw $e;
+		}
+	}
 
-			$hosts = [
-				[
-					'host'   => '127.0.0.1',
-					'port'   => '9200',
-					'scheme' => 'http',
-					'user'   => 'username',
-					'pass'   => 'password'
-				]
-			];
 
+	/**
+	 * @param string $host
+	 */
+	private function connectToElastic($host) {
+
+		try {
+			$hosts = [MiscService::noEndSlash($host)];
 			$this->client = ClientBuilder::create()
 										 ->setHosts($hosts)
 										 ->setRetries(2)
 										 ->build();
-
 
 		} catch (CouldNotConnectToHost $e) {
 			echo 'CouldNotConnectToHost';
@@ -110,7 +119,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	public function initProvider(INextSearchProvider $provider) {
 		$map = $this->generateGlobalMap($provider);
-
 		if (method_exists($provider, 'improveMappingForElasticSearch')) {
 			$map = $provider->improveMappingForElasticSearch($map);
 		}
@@ -120,7 +128,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			$this->client->indices()
 						 ->create($map);
 		}
-
 
 	}
 
