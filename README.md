@@ -27,4 +27,7 @@ Set ElasticSearch as the platform
 Set the address to reach elastic search 
 >     ./occ config:app:set --value 'http://username:password@localhost:9200' fullnextsearch_elasticsearch elastic_host
 
+Set the index for this nextcloud 
+>     ./occ config:app:set --value 'my_index' fullnextsearch_elasticsearch elastic_index
+
 

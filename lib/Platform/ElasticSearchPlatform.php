@@ -29,6 +29,7 @@ namespace OCA\FullNextSearch_ElasticSearch\Platform;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
@@ -102,14 +103,20 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function resetProvider(INextSearchProvider $provider) {
-		$map = $this->generateGlobalMap($provider, false);
+	public function reset($provider) {
+		$map = $this->generateGlobalMap(false);
+
+		if ($provider instanceof INextSearchProvider) {
+			$map['type'] = $provider->getId();
+		}
 
 		try {
 			$this->client->indices()
 						 ->delete($map);
+		} catch (BadRequest400Exception $e) {
+			throw $e;
 		} catch (Missing404Exception $e) {
-			/* 404Exception will means that the index for that provider does not exist */
+			/* 404Exception will means that the mapping for that provider does not exist */
 		}
 	}
 
@@ -117,20 +124,19 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function initProvider(INextSearchProvider $provider) {
-		$map = $this->generateGlobalMap($provider);
-		if (method_exists($provider, 'improveMappingForElasticSearch')) {
-			$map = $provider->improveMappingForElasticSearch($map);
-		}
+	public function init() {
+		$map = $this->generateGlobalMap();
 
-		if (!$this->client->indices()
-						  ->exists($this->generateGlobalMap($provider, false))) {
-			$this->client->indices()
-						 ->create($map);
+		try {
+			if (!$this->client->indices()
+							  ->exists($this->generateGlobalMap(false))) {
+				$this->client->indices()
+							 ->create($map);
+			}
+		} catch (BadRequest400Exception $e) {
+			throw new ConfigurationException('Check your user/password and the index assigned to that cloud');
 		}
-
 	}
-
 
 	/**
 	 * {@inheritdoc}
@@ -157,9 +163,9 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 		$access = $document->getAccess();
 		$index = array();
-		$index['index'] = $provider->getId();
+		$index['index'] = $this->configService->getElasticIndex();
 		$index['id'] = $document->getId();
-		$index['type'] = 'notype';
+		$index['type'] = $provider->getId();
 		$index['body'] = [
 			'title'   => $document->getTitle(),
 			'content' => $document->getContent(),
@@ -238,13 +244,11 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 *
 	 * @return array
 	 */
-	private function generateSearchQuery(
-		INextSearchProvider $provider, DocumentAccess $access, $str
-	) {
+	private function generateSearchQuery(INextSearchProvider $provider, DocumentAccess $access, $str) {
 
 		$params = [
-			'index' => $provider->getId(),
-			'type'  => 'notype'
+			'index' => $this->configService->getElasticIndex(),
+			'type'  => $provider->getId()
 		];
 
 		$bool = [];
@@ -329,7 +333,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		$document = new SearchDocument($entry['_id']);
 		$document->setAccess($access);
 		$document->setExcerpts($entry['highlight']['content']);
-
 		$document->setScore($entry['_score']);
 		$document->setTitle($entry['_source']['title']);
 
@@ -337,9 +340,10 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
-	private function generateGlobalMap(INextSearchProvider $provider, $complete = true) {
+	private function generateGlobalMap($complete = true) {
+
 		$params = [
-			'index' => $provider->getId()
+			'index' => $this->configService->getElasticIndex()
 		];
 
 		if ($complete === false) {
@@ -367,7 +371,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 						]
 					],
 					'analyzer'    => [
-						$provider->getId() => [
+						'analyzer' => [
 							'type'      => 'custom',
 							'tokenizer' => 'standard',
 							'filter'    => ['lowercase', 'stop', 'kstem']
@@ -380,43 +384,43 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 					'properties' => [
 						'title'    => [
 							'type'        => 'text',
-							'analyzer'    => $provider->getId(),
+							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
 						'content'  => [
 							'type'        => 'text',
-							'analyzer'    => $provider->getId(),
+							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
 						'owner'    => [
 							'type'        => 'text',
-							'analyzer'    => $provider->getId(),
+							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
 						'users'    => [
 							'type'        => 'text',
-							'analyzer'    => $provider->getId(),
+							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
 						'groups'   => [
 							'type'        => 'text',
-							'analyzer'    => $provider->getId(),
+							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
 						'circles'  => [
 							'type'        => 'text',
-							'analyzer'    => $provider->getId(),
+							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
 						'combined' => [
 							'type'        => 'text',
-							'analyzer'    => $provider->getId(),
+							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes'
 						],
 						'topics'   => [
