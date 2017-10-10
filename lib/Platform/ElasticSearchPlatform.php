@@ -58,10 +58,33 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	private $client;
 
 
+
+
 	/**
-	 * {@inheritdoc}
+	 * return a unique Id of the platform.
 	 */
-	public function load() {
+	public function getId() {
+		return 'elastic_search';
+	}
+
+	/**
+	 * return a unique Id of the platform.
+	 */
+	public function getName() {
+		return 'ElasticSearch';
+	}
+
+
+
+
+	/**
+	 * Called when loading the platform.
+	 *
+	 * Loading some container and connect to ElasticSearch.
+	 *
+	 * @throws ConfigurationException
+	 */
+	public function loadPlatform() {
 		$app = new Application();
 
 		$container = $app->getContainer();
@@ -76,34 +99,48 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
+
+
+
 	/**
-	 * @param string $host
+	 * not used yet.
 	 */
-	private function connectToElastic($host) {
-
-		try {
-			$hosts = [MiscService::noEndSlash($host)];
-			$this->client = ClientBuilder::create()
-										 ->setHosts($hosts)
-										 ->setRetries(2)
-										 ->build();
-
-		} catch (CouldNotConnectToHost $e) {
-			echo 'CouldNotConnectToHost';
-			$previous = $e->getPrevious();
-			if ($previous instanceof MaxRetriesException) {
-				echo "Max retries!";
-			}
-		} catch (Exception $e) {
-			echo ' ElasticSearchPlatform::load() Exception --- ' . $e->getMessage() . "\n";
-		}
+	public function testPlatform() {
 	}
 
 
 	/**
-	 * {@inheritdoc}
+	 * called on init of the platform
+	 *
+	 * We create a general index.
 	 */
-	public function reset($provider) {
+	public function initPlatform() {
+		$map = $this->generateGlobalMap();
+
+		try {
+			if (!$this->client->indices()
+							  ->exists($this->generateGlobalMap(false))) {
+				$this->client->indices()
+							 ->create($map);
+			}
+		} catch (BadRequest400Exception $e) {
+			throw new ConfigurationException(
+				'Check your user/password and the index assigned to that cloud'
+			);
+		}
+	}
+
+
+
+	/**
+	 * resetPlatform();
+	 *
+	 * Called when admin wants to reset the index, specific to a $provider.
+	 * $provider can be null, meaning a reset of the whole index.
+	 *
+	 * @param INextSearchProvider|null $provider
+	 */
+	public function resetPlatform($provider) {
 		$map = $this->generateGlobalMap(false);
 
 		if ($provider instanceof INextSearchProvider) {
@@ -121,24 +158,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
-	/**
-	 * {@inheritdoc}
-	 */
-	public function init() {
-		$map = $this->generateGlobalMap();
-
-		try {
-			if (!$this->client->indices()
-							  ->exists($this->generateGlobalMap(false))) {
-				$this->client->indices()
-							 ->create($map);
-			}
-		} catch (BadRequest400Exception $e) {
-			throw new ConfigurationException(
-				'Check your user/password and the index assigned to that cloud'
-			);
-		}
-	}
 
 	/**
 	 * {@inheritdoc}
@@ -183,47 +202,13 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
-	/**
-	 * @param ExtendedBase $command
-	 */
-	private function interactWithCommandDuringIndex(ExtendedBase $command) {
 
-	}
 
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getId() {
-		return 'elastic_search';
-	}
-
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function create() {
-	}
-
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function test() {
-	}
-
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function upgrade() {
-	}
-
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function search(INextSearchProvider $provider, DocumentAccess $access, $string) {
+	public function searchDocuments(INextSearchProvider $provider, DocumentAccess $access, $string) {
 
 		$params = $this->generateSearchQuery($provider, $access, $string);
 
@@ -236,6 +221,39 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		}
 
 		return $searchResult;
+	}
+
+
+
+	/**
+	 * @param string $host
+	 */
+	private function connectToElastic($host) {
+
+		try {
+			$hosts = [MiscService::noEndSlash($host)];
+			$this->client = ClientBuilder::create()
+										 ->setHosts($hosts)
+										 ->setRetries(2)
+										 ->build();
+
+		} catch (CouldNotConnectToHost $e) {
+			echo 'CouldNotConnectToHost';
+			$previous = $e->getPrevious();
+			if ($previous instanceof MaxRetriesException) {
+				echo "Max retries!";
+			}
+		} catch (Exception $e) {
+			echo ' ElasticSearchPlatform::load() Exception --- ' . $e->getMessage() . "\n";
+		}
+	}
+
+
+	/**
+	 * @param ExtendedBase $command
+	 */
+	private function interactWithCommandDuringIndex(ExtendedBase $command) {
+
 	}
 
 
