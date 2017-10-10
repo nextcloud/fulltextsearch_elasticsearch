@@ -107,14 +107,14 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		$map = $this->generateGlobalMap(false);
 
 		if ($provider instanceof INextSearchProvider) {
-			$map['type'] = $provider->getId();
+			// TODO: need to specify the map to remove
+			// TODO: need to remove entries with type=providerId
+			return;
 		}
 
 		try {
 			$this->client->indices()
 						 ->delete($map);
-		} catch (BadRequest400Exception $e) {
-			throw $e;
 		} catch (Missing404Exception $e) {
 			/* 404Exception will means that the mapping for that provider does not exist */
 		}
@@ -134,7 +134,9 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 							 ->create($map);
 			}
 		} catch (BadRequest400Exception $e) {
-			throw new ConfigurationException('Check your user/password and the index assigned to that cloud');
+			throw new ConfigurationException(
+				'Check your user/password and the index assigned to that cloud'
+			);
 		}
 	}
 
