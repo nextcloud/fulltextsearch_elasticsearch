@@ -58,8 +58,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	private $client;
 
 
-
-
 	/**
 	 * return a unique Id of the platform.
 	 */
@@ -73,8 +71,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	public function getName() {
 		return 'ElasticSearch';
 	}
-
-
 
 
 	/**
@@ -97,9 +93,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			throw $e;
 		}
 	}
-
-
-
 
 
 	/**
@@ -131,7 +124,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
-
 	/**
 	 * resetPlatform();
 	 *
@@ -156,7 +148,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			/* 404Exception will means that the mapping for that provider does not exist */
 		}
 	}
-
 
 
 	/**
@@ -190,7 +181,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		$index['body'] = [
 			'title'   => $document->getTitle(),
 			'content' => $document->getContent(),
-			'owner'   => $access->getOwner(),
+			'owner'   => $access->getOwnerId(),
 			'users'   => $access->getUsers(),
 			'groups'  => $access->getGroups(),
 			'circles' => $access->getCircles()
@@ -217,12 +208,13 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		$searchResult->setProvider($provider);
 
 		foreach ($result['hits']['hits'] as $entry) {
-			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewer()));
+			$searchResult->addDocument(
+				$this->parseSearchEntry($provider->getId(), $entry, $access->getViewerId())
+			);
 		}
 
 		return $searchResult;
 	}
-
 
 
 	/**
@@ -304,8 +296,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	private function generateSearchQueryAccess(DocumentAccess $access) {
 
 		$query = [];
-		$query[] = ['match' => ['owner' => $access->getViewer()]];
-		$query[] = ['match' => ['users' => $access->getViewer()]];
+		$query[] = ['match' => ['owner' => $access->getViewerId()]];
+		$query[] = ['match' => ['users' => $access->getViewerId()]];
 
 		foreach ($access->getGroups() as $group) {
 			$query[] = ['match' => ['groups' => $group]];
@@ -341,16 +333,17 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 
 	/**
+	 * @param string $providerId
 	 * @param array $entry
 	 * @param string $viewerId
 	 *
 	 * @return SearchDocument
 	 */
-	private function parseSearchEntry($entry, $viewerId) {
+	private function parseSearchEntry($providerId, $entry, $viewerId) {
 		$access = new DocumentAccess();
-		$access->setViewer($viewerId);
+		$access->setViewerId($viewerId);
 
-		$document = new SearchDocument($entry['_id']);
+		$document = new SearchDocument($providerId, $entry['_id']);
 		$document->setAccess($access);
 		$document->setExcerpts($entry['highlight']['content']);
 		$document->setScore($entry['_score']);
@@ -360,6 +353,11 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
+	/**
+	 * @param bool $complete
+	 *
+	 * @return array
+	 */
 	private function generateGlobalMap($complete = true) {
 
 		$params = [
