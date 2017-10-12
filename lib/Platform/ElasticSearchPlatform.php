@@ -37,6 +37,7 @@ use Exception;
 use OCA\FullNextSearch\INextSearchPlatform;
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
+use OCA\FullNextSearch\Model\DocumentIndex;
 use OCA\FullNextSearch\Model\ExtendedBase;
 use OCA\FullNextSearch\Model\SearchDocument;
 use OCA\FullNextSearch\Model\SearchResult;
@@ -154,6 +155,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * {@inheritdoc}
 	 */
 	public function indexDocuments(INextSearchProvider $provider, $documents, $command) {
+
+		$index = [];
 		foreach ($documents as $document) {
 
 			if ($command !== null) {
@@ -162,14 +165,15 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 				$this->interactWithCommandDuringIndex($command);
 			}
 
-			$this->indexDocument($provider, $document);
+			$index[] = $this->indexDocument($provider, $document);
 		}
+
+		return $index;
 	}
 
 
 	/**
-	 * @param INextSearchProvider $provider
-	 * @param SearchDocument $document
+	 * {@inheritdoc}
 	 */
 	public function indexDocument(INextSearchProvider $provider, SearchDocument $document) {
 
@@ -187,13 +191,27 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			'circles' => $access->getCircles()
 		];
 
-		//echo json_encode($index);
 		$result = $this->client->index($index);
 		echo 'Indexing: ' . json_encode($result) . "\n";
+
+		return $this->parseIndexResult($provider->getId(), $document->getId(), $result);
 	}
 
 
+	/**
+	 * @param string $providerId
+	 * @param string $documentId
+	 * @param array $result
+	 *
+	 * @return DocumentIndex
+	 */
+	private function parseIndexResult($providerId, $documentId, array $result) {
+		$index = new DocumentIndex($providerId, $documentId);
+		$index->setLastIndex();
+		$index->setStatus(1);
 
+		return $index;
+	}
 
 
 	/**
