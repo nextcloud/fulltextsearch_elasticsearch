@@ -37,9 +37,9 @@ use Exception;
 use OCA\FullNextSearch\INextSearchPlatform;
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
-use OCA\FullNextSearch\Model\DocumentIndex;
+use OCA\FullNextSearch\Model\Index;
 use OCA\FullNextSearch\Model\ExtendedBase;
-use OCA\FullNextSearch\Model\SearchDocument;
+use OCA\FullNextSearch\Model\IndexDocument;
 use OCA\FullNextSearch\Model\SearchResult;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullNextSearch_ElasticSearch\Service\ConfigService;
@@ -104,11 +104,11 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 
 	/**
-	 * called on init of the platform
+	 * called before any index
 	 *
 	 * We create a general index.
 	 */
-	public function initPlatform() {
+	public function initializeIndex() {
 		$map = $this->generateGlobalMap();
 
 		try {
@@ -126,14 +126,14 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 
 	/**
-	 * resetPlatform();
+	 * removeIndex();
 	 *
-	 * Called when admin wants to reset the index, specific to a $provider.
+	 * Called when admin wants to remove an index specific to a $provider.
 	 * $provider can be null, meaning a reset of the whole index.
 	 *
 	 * @param INextSearchProvider|null $provider
 	 */
-	public function resetPlatform($provider) {
+	public function removeIndex($provider) {
 		$map = $this->generateGlobalMap(false);
 
 		if ($provider instanceof INextSearchProvider) {
@@ -155,29 +155,34 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * {@inheritdoc}
 	 */
 	public function indexDocuments(INextSearchProvider $provider, $documents, $command) {
-
-		$index = [];
+		$indexes = [];
 		foreach ($documents as $document) {
-
 			if ($command !== null) {
 				$command->hasBeenInterrupted();
 
 				$this->interactWithCommandDuringIndex($command);
 			}
 
-			$index[] = $this->indexDocument($provider, $document);
+			$index = $this->indexDocument($provider, $document);
+			if ($index !== null) {
+				$indexes[] = $index;
+			}
 		}
 
-		return $index;
+		return $indexes;
 	}
 
 
 	/**
 	 * {@inheritdoc}
 	 */
-	public function indexDocument(INextSearchProvider $provider, SearchDocument $document) {
+	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
 
 		$access = $document->getAccess();
+		if ($access === null) {
+			return null;
+		}
+
 		$index = array();
 		$index['index'] = $this->configService->getElasticIndex();
 		$index['id'] = $document->getId();
@@ -203,10 +208,10 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param string $documentId
 	 * @param array $result
 	 *
-	 * @return DocumentIndex
+	 * @return Index
 	 */
 	private function parseIndexResult($providerId, $documentId, array $result) {
-		$index = new DocumentIndex($providerId, $documentId);
+		$index = new Index($providerId, $documentId);
 		$index->setLastIndex();
 		$index->setStatus(1);
 
@@ -355,13 +360,13 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param array $entry
 	 * @param string $viewerId
 	 *
-	 * @return SearchDocument
+	 * @return IndexDocument
 	 */
 	private function parseSearchEntry($providerId, $entry, $viewerId) {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 
-		$document = new SearchDocument($providerId, $entry['_id']);
+		$document = new IndexDocument($providerId, $entry['_id']);
 		$document->setAccess($access);
 		$document->setExcerpts($entry['highlight']['content']);
 		$document->setScore($entry['_score']);
