@@ -74,6 +74,11 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
+	public function getClient() {
+		return $this->client;
+	}
+
+
 	/**
 	 * Called when loading the platform.
 	 *
@@ -107,8 +112,12 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * called before any index
 	 *
 	 * We create a general index.
+	 *
+	 * @param INextSearchProvider $provider
+	 *
+	 * @throws ConfigurationException
 	 */
-	public function initializeIndex() {
+	public function initializeIndex(INextSearchProvider $provider) {
 		$map = $this->generateGlobalMap();
 
 		try {
@@ -122,6 +131,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 				'Check your user/password and the index assigned to that cloud'
 			);
 		}
+
+		$provider->onInitializingIndex($this);
 	}
 
 
@@ -139,7 +150,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		if ($provider instanceof INextSearchProvider) {
 			// TODO: need to specify the map to remove
 			// TODO: need to remove entries with type=providerId
-			return;
+			$provider->onRemovingIndex($this);
 		}
 
 		try {
@@ -148,7 +159,9 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		} catch (Missing404Exception $e) {
 			/* 404Exception will means that the mapping for that provider does not exist */
 		}
+
 	}
+
 
 
 	/**
@@ -196,7 +209,10 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			'circles' => $access->getCircles()
 		];
 
-		$result = $this->client->index($index);
+		$document->setInfo('__current_index', $index);
+		$provider->onIndexingDocument($this, $document);
+		$result = $this->client->index($document->getInfo('__current_index'));
+
 		echo 'Indexing: ' . json_encode($result) . "\n";
 
 		return $this->parseIndexResult($provider->getId(), $document->getId(), $result);
@@ -479,4 +495,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 		return $params;
 	}
+
+
 }
