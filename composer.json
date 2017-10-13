@@ -1,6 +1,6 @@
 {
-  "name": "nextcloud/fullnextsearch",
-  "description": "description_text",
+  "name": "nextcloud/fullnextsearch_elasticsearch",
+  "description": "fullnextsearch_elasticsearch",
   "minimum-stability": "stable",
   "license": "agpl",
   "authors": [
