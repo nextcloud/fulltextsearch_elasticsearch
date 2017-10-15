@@ -125,6 +125,9 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 							  ->exists($this->generateGlobalMap(false))) {
 				$this->client->indices()
 							 ->create($map);
+				$ingest = $this->generateFilesAttachment();
+				$this->client->ingest()
+							 ->putPipeline($ingest);
 			}
 		} catch (BadRequest400Exception $e) {
 			throw new ConfigurationException(
@@ -154,6 +157,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		}
 
 		try {
+//			$this->client->ingest()
+//						 ->deletePipeline($this->generateFilesAttachment(false));
 			$this->client->indices()
 						 ->delete($map);
 		} catch (Missing404Exception $e) {
@@ -161,7 +166,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		}
 
 	}
-
 
 
 	/**
@@ -191,31 +195,50 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
 
-		$access = $document->getAccess();
-		if ($access === null) {
-			return null;
-		}
-
-		$index = array();
+		$index = [];
 		$index['index'] = $this->configService->getElasticIndex();
 		$index['id'] = $document->getId();
 		$index['type'] = $provider->getId();
-		$index['body'] = [
-			'title'   => $document->getTitle(),
-			'content' => $document->getContent(),
-			'owner'   => $access->getOwnerId(),
-			'users'   => $access->getUsers(),
-			'groups'  => $access->getGroups(),
-			'circles' => $access->getCircles()
-		];
+		$index['body'] = $this->generateIndexBody($document);
 
-		$document->setInfo('__current_index', $index);
-		$provider->onIndexingDocument($this, $document);
-		$result = $this->client->index($document->getInfo('__current_index'));
+		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
+			$document->setInfo('pipeline', 'attachment');
+		}
+
+		$provider->onIndexingDocument($this, ['index' => $index]);
+
+		$result = $this->client->index($index);
 
 		echo 'Indexing: ' . json_encode($result) . "\n";
 
 		return $this->parseIndexResult($provider->getId(), $document->getId(), $result);
+	}
+
+
+	/**
+	 * @param IndexDocument $document
+	 *
+	 * @return array
+	 */
+	private function generateIndexBody(IndexDocument $document) {
+
+		$access = $document->getAccess();
+		if ($access === null) {
+			return [];
+		}
+
+		$body = array_merge(
+			$document->getInfoAll(), [
+									   'title'   => $document->getTitle(),
+									   'content' => $document->getContent(),
+									   'owner'   => $access->getOwnerId(),
+									   'users'   => $access->getUsers(),
+									   'groups'  => $access->getGroups(),
+									   'circles' => $access->getCircles()
+								   ]
+		);
+
+		return $body;
 	}
 
 
@@ -241,6 +264,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	public function searchDocuments(INextSearchProvider $provider, DocumentAccess $access, $string) {
 
 		$params = $this->generateSearchQuery($provider, $access, $string);
+		$provider->onSearchingQuery($this, ['params' => $params]);
 
 		$result = $this->client->search($params);
 		$searchResult = $this->generateSearchResultFromResult($result);
@@ -496,5 +520,38 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		return $params;
 	}
 
+
+	/**
+	 * @param bool $complete
+	 *
+	 * @return array
+	 */
+	private function generateFilesAttachment($complete = true) {
+
+		$params = ['id' => 'attachment'];
+
+		if ($complete === false) {
+			return $params;
+		}
+
+		$params['body'] = [
+			'description' => 'attachment',
+			'processors'  => [
+				[
+					'attachment' => [
+						'field'         => 'content',
+						'indexed_chars' => -1
+					],
+					'set'        => [
+						'field' => 'content',
+						'value' => '{{ attachment.content }}'
+					],
+					'remove'     => ['field' => 'attachment.content']
+				]
+			]
+		];
+
+		return $params;
+	}
 
 }
