@@ -195,19 +195,22 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
 
-		$index = [];
-		$index['index'] = $this->configService->getElasticIndex();
-		$index['id'] = $document->getId();
-		$index['type'] = $provider->getId();
-		$index['body'] = $this->generateIndexBody($document);
+		$index = [
+			'index' =>
+				[
+					'index' => $this->configService->getElasticIndex(),
+					'id'    => $document->getId(),
+					'type'  => $provider->getId(),
+					'body'  => $this->generateIndexBody($document)
+				]
+		];
 
 		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
 			$document->setInfo('pipeline', 'attachment');
 		}
 
-		$provider->onIndexingDocument($this, ['index' => $index]);
-
-		$result = $this->client->index($index);
+		$provider->onIndexingDocument($this, $index);
+		$result = $this->client->index($index['index']);
 
 		echo 'Indexing: ' . json_encode($result) . "\n";
 
@@ -263,10 +266,15 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	public function searchDocuments(INextSearchProvider $provider, DocumentAccess $access, $string) {
 
-		$params = $this->generateSearchQuery($provider, $access, $string);
-		$provider->onSearchingQuery($this, ['params' => $params]);
+		$query = [
+			'params'    => $this->generateSearchQuery($provider, $access, $string),
+			'query'     => $string,
+			'requester' => $access->getViewerId()
+		];
 
-		$result = $this->client->search($params);
+		$provider->onSearchingQuery($this, $query);
+
+		$result = $this->client->search($query['params']);
 		$searchResult = $this->generateSearchResultFromResult($result);
 		$searchResult->setProvider($provider);
 
