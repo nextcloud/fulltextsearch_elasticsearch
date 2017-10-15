@@ -206,7 +206,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		];
 
 		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
-			$document->setInfo('pipeline', 'attachment');
+			$index['index']['pipeline'] = 'attachment';
 		}
 
 		$provider->onIndexingDocument($this, $index);
