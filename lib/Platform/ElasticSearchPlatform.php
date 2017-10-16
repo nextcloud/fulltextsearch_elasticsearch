@@ -118,16 +118,16 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @throws ConfigurationException
 	 */
 	public function initializeIndex(INextSearchProvider $provider) {
-		$map = $this->generateGlobalMap();
 
 		try {
 			if (!$this->client->indices()
 							  ->exists($this->generateGlobalMap(false))) {
+
 				$this->client->indices()
-							 ->create($map);
-				$ingest = $this->generateFilesAttachment();
+							 ->create($this->generateGlobalMap());
 				$this->client->ingest()
-							 ->putPipeline($ingest);
+							 ->putPipeline($this->generateGlobalIngest());
+
 			}
 		} catch (BadRequest400Exception $e) {
 			throw new ConfigurationException(
@@ -148,7 +148,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param INextSearchProvider|null $provider
 	 */
 	public function removeIndex($provider) {
-		$map = $this->generateGlobalMap(false);
 
 		if ($provider instanceof INextSearchProvider) {
 			// TODO: need to specify the map to remove
@@ -157,10 +156,15 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		}
 
 		try {
-//			$this->client->ingest()
-//						 ->deletePipeline($this->generateFilesAttachment(false));
+			$this->client->ingest()
+						 ->deletePipeline($this->generateGlobalIngest(false));
+		} catch (Missing404Exception $e) {
+			/* 404Exception will means that the mapping for that provider does not exist */
+		}
+
+		try {
 			$this->client->indices()
-						 ->delete($map);
+						 ->delete($this->generateGlobalMap(false));
 		} catch (Missing404Exception $e) {
 			/* 404Exception will means that the mapping for that provider does not exist */
 		}
@@ -534,7 +538,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 *
 	 * @return array
 	 */
-	private function generateFilesAttachment($complete = true) {
+	private function generateGlobalIngest($complete = true) {
 
 		$params = ['id' => 'attachment'];
 
