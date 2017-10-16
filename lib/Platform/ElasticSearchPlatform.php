@@ -216,7 +216,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		$provider->onIndexingDocument($this, $index);
 		$result = $this->client->index($index['index']);
 
-		echo 'Indexing: ' . json_encode($result) . "\n";
+		echo 'Indexing: ' . $document->getTitle() . ' ' . json_encode($result) . "\n";
 
 		return $this->parseIndexResult($provider->getId(), $document->getId(), $result);
 	}
@@ -258,6 +258,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	private function parseIndexResult($providerId, $documentId, array $result) {
 		$index = new Index($providerId, $documentId);
+
+		// TODO: parse result
 		$index->setLastIndex();
 		$index->setStatus(1);
 
