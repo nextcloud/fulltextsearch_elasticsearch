@@ -6,11 +6,11 @@
 	<summary>Summary of Full Next Search - Elastic Search Platform</summary>
 	<description><![CDATA[
 
-	Description of Full Next Search - Elastic Search Platform
+	ALPHA - DO NOT INSTALL ON PRODUCTION NEXTCLOUD
 
 ]]>
 	</description>
-	<version>0.0.2</version>
+	<version>0.1.0</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullNextSearch_ElasticSearch</namespace>
