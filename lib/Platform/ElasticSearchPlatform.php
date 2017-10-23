@@ -199,9 +199,14 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
 
-		if ($document->getIndex()
-					 ->isStatus(Index::STATUS_INDEX_DONE)) {
+		$index = $document->getIndex();
+
+		if ($index->isStatus(Index::STATUS_REMOVE_DOCUMENT)) {
+			$result = $this->indexDocumentRemove($provider, $document);
+
+		} else if ($index->isStatus(Index::STATUS_INDEX_DONE)) {
 			$result = $this->indexDocumentUpdate($provider, $document);
+
 		} else {
 			$result = $this->indexDocumentNew($provider, $document);
 		}
@@ -209,7 +214,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 		echo 'Indexing: ' . $document->getTitle() . ' ' . json_encode($result) . "\n";
 
-		return $this->parseIndexResult($provider->getId(), $document->getId(), $result);
+		return $this->parseIndexResult($document->getIndex(), $result);
 	}
 
 
@@ -259,6 +264,25 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
+	/**
+	 * @param INextSearchProvider $provider
+	 * @param IndexDocument $document
+	 *
+	 * @return array
+	 */
+	private function indexDocumentRemove(INextSearchProvider $provider, IndexDocument $document) {
+		$index = [
+			'index' =>
+				[
+					'index' => $this->configService->getElasticIndex(),
+					'id'    => $document->getId(),
+					'type'  => $provider->getId()
+				]
+		];
+
+		return $this->client->delete($index['index']);
+	}
+
 
 	/**
 	 * @param INextSearchProvider $provider
@@ -305,14 +329,18 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 
 	/**
-	 * @param string $providerId
-	 * @param string $documentId
+	 * @param Index $index
 	 * @param array $result
 	 *
 	 * @return Index
 	 */
-	private function parseIndexResult($providerId, $documentId, array $result) {
-		$index = new Index($providerId, $documentId);
+	private function parseIndexResult(Index $index, array $result) {
+
+		if ($index->isStatus(Index::STATUS_REMOVE_DOCUMENT)) {
+			$index->setStatus(Index::STATUS_DOCUMENT_REMOVED);
+
+			return $index;
+		}
 
 		// TODO: parse result
 		$index->setLastIndex();
