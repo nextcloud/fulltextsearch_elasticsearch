@@ -199,6 +199,27 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
 
+		if ($document->getIndex()
+					 ->isStatus(Index::STATUS_INDEX_DONE)) {
+			$result = $this->indexDocumentUpdate($provider, $document);
+		} else {
+			$result = $this->indexDocumentNew($provider, $document);
+		}
+
+
+		echo 'Indexing: ' . $document->getTitle() . ' ' . json_encode($result) . "\n";
+
+		return $this->parseIndexResult($provider->getId(), $document->getId(), $result);
+	}
+
+
+	/**
+	 * @param INextSearchProvider $provider
+	 * @param IndexDocument $document
+	 *
+	 * @return array
+	 */
+	private function indexDocumentNew(INextSearchProvider $provider, IndexDocument $document) {
 		$index = [
 			'index' =>
 				[
@@ -209,16 +230,47 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 				]
 		];
 
+		$this->onIndexingDocument($provider, $document, $index);
+
+		return $this->client->index($index['index']);
+	}
+
+
+	/**
+	 * @param INextSearchProvider $provider
+	 * @param IndexDocument $document
+	 *
+	 * @return array
+	 */
+	private function indexDocumentUpdate(INextSearchProvider $provider, IndexDocument $document) {
+		$index = [
+			'index' =>
+				[
+					'index' => $this->configService->getElasticIndex(),
+					'id'    => $document->getId(),
+					'type'  => $provider->getId(),
+					'body'  => ['doc' => $this->generateIndexBody($document)]
+				]
+		];
+
+		$this->onIndexingDocument($provider, $document, $index);
+
+		return $this->client->update($index['index']);
+	}
+
+
+
+	/**
+	 * @param INextSearchProvider $provider
+	 * @param IndexDocument $document
+	 * @param array $arr
+	 */
+	private function onIndexingDocument(INextSearchProvider $provider, IndexDocument $document, &$arr) {
 		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
-			$index['index']['pipeline'] = 'attachment';
+			$arr['index']['pipeline'] = 'attachment';
 		}
 
-		$provider->onIndexingDocument($this, $index);
-		$result = $this->client->index($index['index']);
-
-		echo 'Indexing: ' . $document->getTitle() . ' ' . json_encode($result) . "\n";
-
-		return $this->parseIndexResult($provider->getId(), $document->getId(), $result);
+		$provider->onIndexingDocument($this, $arr);
 	}
 
 
@@ -229,23 +281,26 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	private function generateIndexBody(IndexDocument $document) {
 
+		$body = [];
 		$access = $document->getAccess();
-		if ($access === null) {
-			return [];
+		if ($access !== null) {
+			$body = [
+				'owner'   => $access->getOwnerId(),
+				'users'   => $access->getUsers(),
+				'groups'  => $access->getGroups(),
+				'circles' => $access->getCircles()
+			];
 		}
 
-		$body = array_merge(
-			$document->getInfoAll(), [
-									   'title'   => $document->getTitle(),
-									   'content' => $document->getContent(),
-									   'owner'   => $access->getOwnerId(),
-									   'users'   => $access->getUsers(),
-									   'groups'  => $access->getGroups(),
-									   'circles' => $access->getCircles()
-								   ]
-		);
+		if ($document->getTitle() !== null) {
+			$body['title'] = $document->getTitle();
+		}
 
-		return $body;
+		if ($document->getContent() !== null) {
+			$body['content'] = $document->getContent();
+		}
+
+		return array_merge($document->getInfoAll(), $body);
 	}
 
 
@@ -261,7 +316,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 		// TODO: parse result
 		$index->setLastIndex();
-		$index->setStatus(1);
+		$index->setStatus(Index::STATUS_INDEX_DONE, true);
 
 		return $index;
 	}
