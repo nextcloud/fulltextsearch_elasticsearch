@@ -3,7 +3,7 @@
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>fullnextsearch_elasticsearch</id>
 	<name>Full Next Search - Elastic Search Platform</name>
-	<summary>Summary of Full Next Search - Elastic Search Platform</summary>
+	<summary>Index Full Next Search content using ElasticSearch</summary>
 	<description><![CDATA[
 
 	ALPHA - DO NOT INSTALL ON PRODUCTION NEXTCLOUD
