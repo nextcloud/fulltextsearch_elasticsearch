@@ -428,6 +428,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			$this->generateSearchQueryContent($str);
 		$bool['filter']['bool']['should'] =
 			$this->generateSearchQueryAccess($access);
+
 		$params['body']['query']['bool'] = $bool;
 
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
@@ -442,11 +443,37 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @return array
 	 */
 	private function generateSearchQueryContent($string) {
+		$queryTitle = $queryContent = [];
+		$words = explode(' ', $string);
+		foreach ($words as $word) {
+
+			$kw = 'prefix';
+			$this->modifySearchQueryContentOnCompleteWord($kw, $word);
+
+			array_push($queryTitle, [$kw => ['title' => $word]]);
+			array_push($queryContent, [$kw => ['content' => $word]]);
+		}
+
 		return [
-			['match' => ['title' => $string]],
-			['match' => ['content' => $string]]
+			['bool' => ['must' => $queryTitle]],
+			['bool' => ['must' => $queryContent]]
 		];
 	}
+
+
+	/**
+	 * @param string $kw
+	 * @param string $word
+	 */
+	private function modifySearchQueryContentOnCompleteWord(&$kw, &$word) {
+		if (substr($word, 0, 1) !== '"' || substr($word, -1) !== '"') {
+			return;
+		}
+
+		$kw = 'match';
+		$word = substr($word, 1, -1);
+	}
+
 
 	/**
 	 * @param DocumentAccess $access
