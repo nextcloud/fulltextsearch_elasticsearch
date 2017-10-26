@@ -532,9 +532,13 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 		$document = new IndexDocument($providerId, $entry['_id']);
 		$document->setAccess($access);
-		$document->setExcerpts($entry['highlight']['content']);
+		$document->setExcerpts(
+			(array_key_exists('highlight', $entry)) ? $entry['highlight']['content'] : []
+		);
 		$document->setScore($entry['_score']);
-		$document->setTitle($entry['_source']['title']);
+		$document->setTitle(
+			(array_key_exists('title', $entry['_source'])) ? $entry['_source']['title'] : ''
+		);
 
 		return $document;
 	}
