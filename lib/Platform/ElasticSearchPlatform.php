@@ -38,13 +38,13 @@ use OCA\FullNextSearch\INextSearchPlatform;
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
 use OCA\FullNextSearch\Model\Index;
-use OCA\FullNextSearch\Model\ExtendedBase;
 use OCA\FullNextSearch\Model\IndexDocument;
+use OCA\FullNextSearch\Model\Runner;
 use OCA\FullNextSearch\Model\SearchResult;
+use OCA\FullNextSearch_ElasticSearch\AppInfo\Application;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullNextSearch_ElasticSearch\Service\ConfigService;
 use OCA\FullNextSearch_ElasticSearch\Service\MiscService;
-use OCA\FullNextSearch_ElasticSearch\AppInfo\Application;
 
 
 class ElasticSearchPlatform implements INextSearchPlatform {
@@ -58,6 +58,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/** @var Client */
 	private $client;
 
+	/** @var Runner */
+	private $runner;
 
 	/**
 	 * return a unique Id of the platform.
@@ -76,6 +78,11 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 	public function getClient() {
 		return $this->client;
+	}
+
+
+	public function setRunner(Runner $runner) {
+		$this->runner = $runner;
 	}
 
 
@@ -175,14 +182,10 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function indexDocuments(INextSearchProvider $provider, $documents, $command) {
+	public function indexDocuments(INextSearchProvider $provider, $documents) {
 		$indexes = [];
 		foreach ($documents as $document) {
-			if ($command !== null) {
-				$command->hasBeenInterrupted();
-
-				$this->interactWithCommandDuringIndex($command);
-			}
+			$this->runner->update('indexDocuments');
 
 			$index = $this->indexDocument($provider, $document);
 			if ($index !== null) {
@@ -398,14 +401,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		} catch (Exception $e) {
 			echo ' ElasticSearchPlatform::load() Exception --- ' . $e->getMessage() . "\n";
 		}
-	}
-
-
-	/**
-	 * @param ExtendedBase $command
-	 */
-	private function interactWithCommandDuringIndex(ExtendedBase $command) {
-
 	}
 
 
