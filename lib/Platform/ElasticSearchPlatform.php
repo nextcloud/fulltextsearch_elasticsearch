@@ -101,6 +101,18 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 
 	/**
+	 * @param $line
+	 */
+	private function outputRunner($line) {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->output($line);
+	}
+
+
+	/**
 	 * Called when loading the platform.
 	 *
 	 * Loading some container and connect to ElasticSearch.
@@ -226,7 +238,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 		}
 
 
-		echo 'Indexing: ' . $document->getTitle() . ' ' . json_encode($result) . "\n";
+		$this->outputRunner('Indexing: ' . $document->getTitle() . ' ' . json_encode($result) . "\n");
 
 		return $this->parseIndexResult($document->getIndex(), $result);
 	}
