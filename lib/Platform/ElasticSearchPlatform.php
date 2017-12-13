@@ -81,8 +81,22 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	}
 
 
+	/**
+	 * @param Runner $runner
+	 */
 	public function setRunner(Runner $runner) {
 		$this->runner = $runner;
+	}
+
+	/**
+	 * @param $action
+	 */
+	private function updateRunner($action) {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->update($action);
 	}
 
 
@@ -185,8 +199,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	public function indexDocuments(INextSearchProvider $provider, $documents) {
 		$indexes = [];
 		foreach ($documents as $document) {
-			$this->runner->update('indexDocuments');
-
 			$index = $this->indexDocument($provider, $document);
 			if ($index !== null) {
 				$indexes[] = $index;
@@ -202,14 +214,13 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 */
 	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
 
+		$this->updateRunner('indexDocument');
 		$index = $document->getIndex();
 
 		if ($index->isStatus(Index::STATUS_REMOVE_DOCUMENT)) {
 			$result = $this->indexDocumentRemove($provider, $document);
-
 		} else if ($index->isStatus(Index::STATUS_INDEX_DONE)) {
 			$result = $this->indexDocumentUpdate($provider, $document);
-
 		} else {
 			$result = $this->indexDocumentNew($provider, $document);
 		}
