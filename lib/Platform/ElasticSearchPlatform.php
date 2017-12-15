@@ -342,6 +342,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			];
 		}
 
+		$body['tags'] = $document->getTags();
+
 		if ($document->getTitle() !== null) {
 			$body['title'] = $document->getTitle();
 		}
