@@ -463,8 +463,6 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 			$this->generateSearchQueryAccess($access);
 
 		$params['body']['query']['bool'] = $bool;
-
-		$this->miscService->log(json_encode($params));
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
 
 		return $params;
