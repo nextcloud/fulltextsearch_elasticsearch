@@ -30,6 +30,7 @@ namespace OCA\FullNextSearch_ElasticSearch\Service;
 use OCA\FullNextSearch_ElasticSearch\AppInfo\Application;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCP\IConfig;
+use OCP\PreConditionNotMetException;
 use OCP\Util;
 
 class ConfigService {
@@ -38,8 +39,8 @@ class ConfigService {
 	const ELASTIC_INDEX = 'elastic_index';
 
 	private $defaults = [
-		self::ELASTIC_HOST => '',
-				self::ELASTIC_INDEX => ''
+		self::ELASTIC_HOST  => '',
+		self::ELASTIC_INDEX => ''
 	];
 
 	/** @var IConfig */
@@ -50,6 +51,7 @@ class ConfigService {
 
 	/** @var MiscService */
 	private $miscService;
+
 
 	/**
 	 * ConfigService constructor.
@@ -65,6 +67,10 @@ class ConfigService {
 	}
 
 
+	/**
+	 * @return string
+	 * @throws ConfigurationException
+	 */
 	public function getElasticHost() {
 
 		$host = $this->getAppValue(self::ELASTIC_HOST);
@@ -76,7 +82,10 @@ class ConfigService {
 	}
 
 
-
+	/**
+	 * @return string
+	 * @throws ConfigurationException
+	 */
 	public function getElasticIndex() {
 
 		$index = $this->getAppValue(self::ELASTIC_INDEX);
@@ -152,6 +161,7 @@ class ConfigService {
 	 * @param string $value
 	 *
 	 * @return string
+	 * @throws PreConditionNotMetException
 	 */
 	public function setUserValue($key, $value) {
 		return $this->config->setUserValue($this->userId, Application::APP_NAME, $key, $value);
@@ -177,6 +187,7 @@ class ConfigService {
 	 * @param string $value
 	 *
 	 * @return string
+	 * @throws PreConditionNotMetException
 	 */
 	public function setValueForUser($userId, $key, $value) {
 		return $this->config->setUserValue($userId, Application::APP_NAME, $key, $value);

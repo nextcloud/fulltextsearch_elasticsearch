@@ -34,6 +34,8 @@ use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Exception;
+use OCA\FullNextSearch\Exceptions\InterruptException;
+use OCA\FullNextSearch\Exceptions\TickDoesNotExistException;
 use OCA\FullNextSearch\INextSearchPlatform;
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
@@ -45,6 +47,7 @@ use OCA\FullNextSearch_ElasticSearch\AppInfo\Application;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullNextSearch_ElasticSearch\Service\ConfigService;
 use OCA\FullNextSearch_ElasticSearch\Service\MiscService;
+use OCP\AppFramework\QueryException;
 
 
 class ElasticSearchPlatform implements INextSearchPlatform {
@@ -90,6 +93,9 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 	/**
 	 * @param $action
+	 *
+	 * @throws InterruptException
+	 * @throws TickDoesNotExistException
 	 */
 	private function updateRunner($action) {
 		if ($this->runner === null) {
@@ -118,6 +124,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * Loading some container and connect to ElasticSearch.
 	 *
 	 * @throws ConfigurationException
+	 * @throws QueryException
 	 */
 	public function loadPlatform() {
 		$app = new Application();
@@ -179,6 +186,8 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * $provider can be null, meaning a reset of the whole index.
 	 *
 	 * @param INextSearchProvider|null $provider
+	 *
+	 * @throws ConfigurationException
 	 */
 	public function removeIndex($provider) {
 
@@ -249,6 +258,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param IndexDocument $document
 	 *
 	 * @return array
+	 * @throws ConfigurationException
 	 */
 	private function indexDocumentNew(INextSearchProvider $provider, IndexDocument $document) {
 		$index = [
@@ -272,6 +282,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param IndexDocument $document
 	 *
 	 * @return array
+	 * @throws ConfigurationException
 	 */
 	private function indexDocumentUpdate(INextSearchProvider $provider, IndexDocument $document) {
 		$index = [
@@ -295,6 +306,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param IndexDocument $document
 	 *
 	 * @return array
+	 * @throws ConfigurationException
 	 */
 	private function indexDocumentRemove(INextSearchProvider $provider, IndexDocument $document) {
 		$index = [
@@ -435,6 +447,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param string $str
 	 *
 	 * @return array
+	 * @throws ConfigurationException
 	 */
 	private function generateSearchQuery(INextSearchProvider $provider, DocumentAccess $access, $str) {
 
@@ -451,6 +464,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 
 		$params['body']['query']['bool'] = $bool;
 
+		$this->miscService->log(json_encode($params));
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
 
 		return $params;
@@ -568,6 +582,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param bool $complete
 	 *
 	 * @return array
+	 * @throws ConfigurationException
 	 */
 	private function generateGlobalMap($complete = true) {
 
