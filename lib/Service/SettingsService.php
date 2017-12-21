@@ -25,10 +25,33 @@
  *
  */
 
-return [
-	'routes' => [
-		['name' => 'Settings#getSettingsAdmin', 'url' => '/admin/settings', 'verb' => 'GET']
-	]
-];
+namespace OCA\FullNextSearch_ElasticSearch\Service;
+
+use OCP\IConfig;
+
+class SettingsService {
 
 
+	/** @var IConfig */
+	private $config;
+
+	/** @var string */
+	private $userId;
+
+	/** @var MiscService */
+	private $miscService;
+
+	/**
+	 * ConfigService constructor.
+	 *
+	 * @param IConfig $config
+	 * @param string $userId
+	 * @param MiscService $miscService
+	 */
+	public function __construct(IConfig $config, $userId, MiscService $miscService) {
+		$this->config = $config;
+		$this->userId = $userId;
+		$this->miscService = $miscService;
+	}
+
+}

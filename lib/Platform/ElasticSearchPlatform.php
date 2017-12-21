@@ -64,6 +64,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/** @var Runner */
 	private $runner;
 
+
 	/**
 	 * return a unique Id of the platform.
 	 */

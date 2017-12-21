@@ -1,5 +1,4 @@
-<?php
-/**
+/*
  * FullNextSearch - Full Text Search your Nextcloud.
  *
  * This file is licensed under the Affero General Public License version 3 or
@@ -25,10 +24,19 @@
  *
  */
 
-return [
-	'routes' => [
-		['name' => 'Settings#getSettingsAdmin', 'url' => '/admin/settings', 'verb' => 'GET']
-	]
-];
+/** global: OCA */
+
+
+
+var elasticsearch_elements = {
+	elasticsearch_host: null,
+	elasticsearch_index: null,
+
+
+	init: function () {
+		elasticsearch_elements.elasticsearch_host = $('#elasticsearch_host');
+		elasticsearch_elements.elasticsearch_index = $('#elasticsearch_index');
+	}
+};
 
 

@@ -68,6 +68,21 @@ class ConfigService {
 
 
 	/**
+	 * @return array
+	 */
+	public function getConfig() {
+		$keys = array_keys($this->defaults);
+		$data = [];
+
+		foreach ($keys as $k) {
+			$data[$k] = $this->getAppValue($k);
+		}
+
+		return $data;
+	}
+
+
+	/**
 	 * @return string
 	 * @throws ConfigurationException
 	 */
