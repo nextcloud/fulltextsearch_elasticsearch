@@ -50,8 +50,8 @@ var elasticsearch_settings = {
 	/** @namespace result.elastic_index */
 	updateSettingPage: function (result) {
 
-		elasticsearch_elements.elasticsearch_host.val(result.elastic_host).fadeTo(300, 1);
-		elasticsearch_elements.elasticsearch_index.val(result.elastic_index).fadeTo(300, 1);
+		elasticsearch_elements.elasticsearch_host.val(result.elastic_host);
+		elasticsearch_elements.elasticsearch_index.val(result.elastic_index);
 
 		fns_admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
 	},

@@ -24,7 +24,7 @@ Util::addStyle(Application::APP_NAME, 'admin');
 			</div>
 			<div class="div-table-col">
 				<input type="text" id="elasticsearch_host"
-					   placeholder="http://username:password@localhost:9200/" class="hidden"/>
+					   placeholder="http://username:password@localhost:9200/"/>
 			</div>
 		</div>
 
@@ -35,7 +35,7 @@ Util::addStyle(Application::APP_NAME, 'admin');
 				<em>Name of your index.</em>
 			</div>
 			<div class="div-table-col">
-				<input type="text" id="elasticsearch_index" placeholder="my_index" class="hidden"/>
+				<input type="text" id="elasticsearch_index" placeholder="my_index"/>
 			</div>
 		</div>
 
