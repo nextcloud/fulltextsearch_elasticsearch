@@ -29,14 +29,30 @@
 
 
 var elasticsearch_elements = {
+	elasticsearch_div: null,
 	elasticsearch_host: null,
 	elasticsearch_index: null,
 
 
 	init: function () {
+		elasticsearch_elements.elasticsearch_div = $('#elastic_search');
 		elasticsearch_elements.elasticsearch_host = $('#elasticsearch_host');
 		elasticsearch_elements.elasticsearch_index = $('#elasticsearch_index');
+
+		elasticsearch_elements.elasticsearch_host.on('input', function () {
+			admin_settings.tagSettingsAsNotSaved($(this));
+		}).blur(function () {
+			elasticsearch_settings.saveSettings();
+		});
+
+		elasticsearch_elements.elasticsearch_index.on('input', function () {
+			admin_settings.tagSettingsAsNotSaved($(this));
+		}).blur(function () {
+			elasticsearch_settings.saveSettings();
+		});
 	}
+
+
 };
 
 

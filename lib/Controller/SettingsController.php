@@ -74,7 +74,6 @@ class SettingsController extends Controller {
 	 */
 	public function getSettingsAdmin() {
 		$data = $this->configService->getConfig();
-			$this->miscService->log('###2## ' . json_encode($data));
 
 		return new DataResponse($data, Http::STATUS_OK);
 	}
@@ -87,11 +86,13 @@ class SettingsController extends Controller {
 	 * @throws Exception
 	 */
 	public function setSettingsAdmin($data) {
-//		$this->configService->setAppValue(
-//			ConfigService::SEARCH_PLATFORM, $data[ConfigService::SEARCH_PLATFORM]
-//		);
+
+		if ($this->settingsService->checkConfig($data)) {
+			$this->configService->setConfig($data);
+		}
 
 		return $this->getSettingsAdmin();
 	}
+
 
 }

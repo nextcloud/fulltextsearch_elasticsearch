@@ -83,6 +83,20 @@ class ConfigService {
 
 
 	/**
+	 * @param array $save
+	 */
+	public function setConfig($save) {
+		$keys = array_keys($this->defaults);
+
+		foreach ($keys as $k) {
+			if (array_key_exists($k, $save)) {
+				$this->setAppValue($k, $save[$k]);
+			}
+		}
+	}
+
+
+	/**
 	 * @return string
 	 * @throws ConfigurationException
 	 */

@@ -54,4 +54,16 @@ class SettingsService {
 		$this->miscService = $miscService;
 	}
 
+	/**
+	 * @param $data
+	 *
+	 * @return bool
+	 */
+	public function checkConfig($data) {
+//			return false;
+
+		return true;
+	}
+
+
 }

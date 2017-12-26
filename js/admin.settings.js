@@ -52,7 +52,26 @@ var elasticsearch_settings = {
 		elasticsearch_elements.elasticsearch_host.val(result.elastic_host).fadeTo(300, 1);
 		elasticsearch_elements.elasticsearch_index.val(result.elastic_index).fadeTo(300, 1);
 
-		console.log(JSON.stringify(result));
+		admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
+	},
+
+
+	saveSettings: function () {
+
+		var data = {
+			elastic_host: elasticsearch_elements.elasticsearch_host.val(),
+			elastic_index: elasticsearch_elements.elasticsearch_index.val()
+		};
+
+		$.ajax({
+			method: 'POST',
+			url: OC.generateUrl('/apps/fullnextsearch_elasticsearch/admin/settings'),
+			data: {
+				data: data
+			}
+		}).done(function (res) {
+			elasticsearch_settings.updateSettingPage(res);
+		});
 
 	}
 
