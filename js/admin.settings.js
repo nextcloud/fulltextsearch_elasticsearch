@@ -26,6 +26,7 @@
 
 /** global: OCA */
 /** global: elasticsearch_elements */
+/** global: fns_admin_settings */
 
 
 
@@ -52,7 +53,7 @@ var elasticsearch_settings = {
 		elasticsearch_elements.elasticsearch_host.val(result.elastic_host).fadeTo(300, 1);
 		elasticsearch_elements.elasticsearch_index.val(result.elastic_index).fadeTo(300, 1);
 
-		admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
+		fns_admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
 	},
 
 

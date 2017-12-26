@@ -25,6 +25,7 @@
  */
 
 /** global: OCA */
+/** global: fns_admin_settings */
 
 
 
@@ -40,13 +41,13 @@ var elasticsearch_elements = {
 		elasticsearch_elements.elasticsearch_index = $('#elasticsearch_index');
 
 		elasticsearch_elements.elasticsearch_host.on('input', function () {
-			admin_settings.tagSettingsAsNotSaved($(this));
+			fns_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
 			elasticsearch_settings.saveSettings();
 		});
 
 		elasticsearch_elements.elasticsearch_index.on('input', function () {
-			admin_settings.tagSettingsAsNotSaved($(this));
+			fns_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
 			elasticsearch_settings.saveSettings();
 		});
