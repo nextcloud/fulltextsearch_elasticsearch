@@ -2,25 +2,25 @@
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>fullnextsearch_elasticsearch</id>
-	<name>Full Next Search - Elastic Search Platform</name>
+	<name>Full Next Search - Elastic Search Platform (BETA)</name>
 	<summary>Index Full Next Search content using ElasticSearch</summary>
 	<description><![CDATA[
 
-	ALPHA - DO NOT INSTALL ON PRODUCTION NEXTCLOUD
+FullNextSearch_ElasticSearch is the Platform-App to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>0.1.3</version>
+	<version>0.3.0</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullNextSearch_ElasticSearch</namespace>
 	<documentation>
-		<admin>https://github.com/daita/fullnextsearch/wiki</admin>
+		<admin>https://github.com/nextcloud/fullnextsearch_elasticsearch/wiki</admin>
 	</documentation>
 	<category>tools</category>
-	<website>https://github.com/daita/fullnextsearch</website>
-	<bugs>https://github.com/daita/fullnextsearch/issues</bugs>
-	<repository>https://github.com/daita/fullnextsearch.git</repository>
+	<website>https://github.com/nextcloud/fullnextsearch_elasticsearch</website>
+	<bugs>https://github.com/nextcloud/fullnextsearch_elasticsearch/issues</bugs>
+	<repository>https://github.com/nextcloud/fullnextsearch_elasticsearch.git</repository>
 	<!--<screenshot>-->
 	<!--</screenshot>-->
 	<dependencies>

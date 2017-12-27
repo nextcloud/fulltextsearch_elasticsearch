@@ -1,6 +1,6 @@
 <?php
 /**
- * FullNextSearch - Full Text Search your Nextcloud.
+ * FullNextSearch_ElasticSearch - Index with ElasticSearch
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -21,7 +21,6 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  *
  */
 
