@@ -25,6 +25,9 @@
  */
 
 /** global: OCA */
+/** global: elasticsearch_elements */
+/** global: elasticsearch_settings */
+
 
 (function () {
 

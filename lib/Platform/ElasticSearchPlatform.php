@@ -258,7 +258,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param INextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
-	 * @return array
+	 * @return callable
 	 * @throws ConfigurationException
 	 */
 	private function indexDocumentNew(INextSearchProvider $provider, IndexDocument $document) {
@@ -282,7 +282,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param INextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
-	 * @return array
+	 * @return callable
 	 * @throws ConfigurationException
 	 */
 	private function indexDocumentUpdate(INextSearchProvider $provider, IndexDocument $document) {
@@ -306,7 +306,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * @param INextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
-	 * @return array
+	 * @return callable
 	 * @throws ConfigurationException
 	 */
 	private function indexDocumentRemove(INextSearchProvider $provider, IndexDocument $document) {
@@ -473,7 +473,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * @param string $string
 	 *
-	 * @return array
+	 * @return array<string,array<string,array>>[]
 	 */
 	private function generateSearchQueryContent($string) {
 		$queryTitle = $queryContent = [];
@@ -511,7 +511,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * @param DocumentAccess $access
 	 *
-	 * @return array
+	 * @return array<string,array>[]
 	 */
 	private function generateSearchQueryAccess(DocumentAccess $access) {
 
@@ -580,7 +580,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * @param bool $complete
 	 *
-	 * @return array
+	 * @return array<string,string|array<string,array<string,array<string,array>>>>
 	 * @throws ConfigurationException
 	 */
 	private function generateGlobalMap($complete = true) {
@@ -686,7 +686,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * @param bool $complete
 	 *
-	 * @return array
+	 * @return array<string,string|array<string,string|array<string,array<string,string|integer>>[]>>
 	 */
 	private function generateGlobalIngest($complete = true) {
 

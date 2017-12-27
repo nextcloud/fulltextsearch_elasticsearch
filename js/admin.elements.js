@@ -26,7 +26,7 @@
 
 /** global: OCA */
 /** global: fns_admin_settings */
-
+/** global: elasticsearch_settings */
 
 
 var elasticsearch_elements = {
