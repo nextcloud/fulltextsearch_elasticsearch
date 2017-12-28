@@ -21,8 +21,7 @@ FullNextSearch_ElasticSearch is the Platform-App to communicate with ElasticSear
 	<website>https://github.com/nextcloud/fullnextsearch_elasticsearch</website>
 	<bugs>https://github.com/nextcloud/fullnextsearch_elasticsearch/issues</bugs>
 	<repository>https://github.com/nextcloud/fullnextsearch_elasticsearch.git</repository>
-	<!--<screenshot>-->
-	<!--</screenshot>-->
+	<screenshot>https://raw.githubusercontent.com/nextcloud/fullnextsearch/master/screenshots/0.3.0.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="12" max-version="14"/>
 	</dependencies>
