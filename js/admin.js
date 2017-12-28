@@ -28,7 +28,7 @@
 /** global: elasticsearch_settings */
 
 
-(function () {
+$(document).ready(function () {
 
 
 	/**
@@ -45,4 +45,4 @@
 	OCA.NextSearchAdmin.elasticSearch = ElasticSearchAdmin;
 	OCA.NextSearchAdmin.elasticSearch.settings = new ElasticSearchAdmin();
 
-})();
+});
