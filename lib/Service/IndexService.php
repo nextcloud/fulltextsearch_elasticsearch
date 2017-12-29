@@ -90,6 +90,7 @@ class IndexService {
 	 */
 	public function removeIndex(Client $client) {
 		try {
+
 			$client->ingest()
 				   ->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
 		} catch (Missing404Exception $e) {
@@ -145,6 +146,15 @@ class IndexService {
 	 */
 	public function parseIndexResult(Index $index, array $result) {
 
+		$index->setLastIndex();
+
+		if (array_key_exists('exception', $result)) {
+			$index->setStatus(Index::STATUS_INDEX_FAILED);
+
+			return $index;
+		}
+
+
 		if ($index->isStatus(Index::STATUS_REMOVE_DOCUMENT)) {
 			$index->setStatus(Index::STATUS_DOCUMENT_REMOVED);
 
@@ -152,7 +162,6 @@ class IndexService {
 		}
 
 		// TODO: parse result
-		$index->setLastIndex();
 		$index->setStatus(Index::STATUS_INDEX_DONE, true);
 
 		return $index;

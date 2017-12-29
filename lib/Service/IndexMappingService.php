@@ -274,15 +274,16 @@ class IndexMappingService {
 							'type'        => 'text',
 							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes'
-						],
-						'topics'   => [
-							'type'  => 'text',
-							'index' => 'not_analyzed'
-						],
-						'places'   => [
-							'type'  => 'text',
-							'index' => 'not_analyzed'
 						]
+						//						,
+						//						'topics'   => [
+						//							'type'  => 'text',
+						//							'index' => 'not_analyzed'
+						//						],
+						//						'places'   => [
+						//							'type'  => 'text',
+						//							'index' => 'not_analyzed'
+						//						]
 					]
 				]
 			]
@@ -317,7 +318,10 @@ class IndexMappingService {
 						'field' => 'content',
 						'value' => '{{ attachment.content }}'
 					],
-					'remove'     => ['field' => 'attachment.content']
+					'remove'     => [
+						'field'          => 'attachment.content',
+						'ignore_failure' => true
+					]
 				]
 			]
 		];

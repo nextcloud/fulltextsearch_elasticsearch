@@ -30,6 +30,7 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
+use Elasticsearch\Common\Exceptions\RuntimeException;
 use Exception;
 use OCA\FullNextSearch\Exceptions\InterruptException;
 use OCA\FullNextSearch\Exceptions\TickDoesNotExistException;
@@ -214,8 +215,19 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
 
 		$this->updateRunner('indexDocument');
-		$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
-		$this->outputRunner('Indexing: ' . $document->getTitle() . ' ' . json_encode($result) . "\n");
+		$this->outputRunner(' . Indexing: ' . $document->getTitle());
+
+		try {
+			$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
+		} catch (RuntimeException $e) {
+			$result =
+				[
+					'exception' => 'RuntimeException',
+					'message'   => $e->getMessage()
+				];
+		}
+
+		$this->outputRunner('  result: ' . json_encode($result));
 
 		return $this->indexService->parseIndexResult($document->getIndex(), $result);
 	}
