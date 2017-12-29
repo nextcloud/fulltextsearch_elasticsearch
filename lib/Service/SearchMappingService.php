@@ -62,6 +62,8 @@ class SearchMappingService {
 	 */
 	public function generateSearchQuery(INextSearchProvider $provider, DocumentAccess $access, $str
 	) {
+		$str = strtolower($str);
+
 		$query =
 			[
 				'params'    => $this->generateSearchQueryParams($provider, $access, $str),
