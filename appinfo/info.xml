@@ -10,7 +10,7 @@ FullNextSearch_ElasticSearch is the Platform-App to communicate with ElasticSear
 
 ]]>
 	</description>
-	<version>0.3.0</version>
+	<version>0.3.1</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullNextSearch_ElasticSearch</namespace>
