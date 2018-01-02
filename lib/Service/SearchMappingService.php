@@ -28,6 +28,7 @@ namespace OCA\FullNextSearch_ElasticSearch\Service;
 
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
+use OCA\FullNextSearch\Model\SearchRequest;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 
@@ -55,14 +56,15 @@ class SearchMappingService {
 	/**
 	 * @param INextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param $str
+	 * @param SearchRequest $request
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateSearchQuery(INextSearchProvider $provider, DocumentAccess $access, $str
+	public function generateSearchQuery(
+		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		$str = strtolower($str);
+		$str = strtolower($request->getSearch());
 
 		$query =
 			[

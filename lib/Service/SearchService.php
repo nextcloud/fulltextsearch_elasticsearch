@@ -31,6 +31,7 @@ use OCA\FullNextSearch\INextSearchPlatform;
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
 use OCA\FullNextSearch\Model\IndexDocument;
+use OCA\FullNextSearch\Model\SearchRequest;
 use OCA\FullNextSearch\Model\SearchResult;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
@@ -63,17 +64,17 @@ class SearchService {
 	 * @param Client $client
 	 * @param INextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param $string
+	 * @param SearchRequest $request
 	 *
 	 * @return SearchResult
 	 * @throws ConfigurationException
 	 */
 	public function searchDocuments(
 		INextSearchPlatform $source, Client $client, INextSearchProvider $provider,
-		DocumentAccess $access, $string
+		DocumentAccess $access, SearchRequest $request
 	) {
 
-		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $string);
+		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
 
 		$provider->onSearchingQuery($source, $query);
 
