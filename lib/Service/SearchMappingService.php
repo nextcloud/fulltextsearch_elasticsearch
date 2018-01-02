@@ -64,12 +64,10 @@ class SearchMappingService {
 	public function generateSearchQuery(
 		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		$str = strtolower($request->getSearch());
-
 		$query =
 			[
-				'params'    => $this->generateSearchQueryParams($provider, $access, $str),
-				'query'     => $str,
+				'params'    => $this->generateSearchQueryParams($provider, $access, $request),
+				'request'   => $request,
 				'requester' => $access->getViewerId()
 			];
 
@@ -80,17 +78,21 @@ class SearchMappingService {
 	/**
 	 * @param INextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param string $str
+	 * @param SearchRequest $request
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateSearchQueryParams(INextSearchProvider $provider, DocumentAccess $access, $str
+	public function generateSearchQueryParams(
+		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
+		$str = strtolower($request->getSearch());
 
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
-			'type'  => $provider->getId()
+			'type'  => $provider->getId(),
+			'size'  => $request->getSize(),
+			'from'  => ($request->getPage() * $request->getSize())
 		];
 
 		$bool = [];
