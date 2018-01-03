@@ -104,7 +104,6 @@ class SearchMappingService {
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
 
-
 		return $params;
 	}
 

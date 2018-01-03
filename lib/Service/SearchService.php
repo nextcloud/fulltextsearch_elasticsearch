@@ -75,7 +75,6 @@ class SearchService {
 	) {
 
 		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
-
 		$provider->onSearchingQuery($source, $query);
 
 		$result = $client->search($query['params']);
@@ -100,6 +99,11 @@ class SearchService {
 	private function generateSearchResultFromResult($result) {
 		$searchResult = new SearchResult();
 		$searchResult->setRawResult(json_encode($result));
+
+		$searchResult->setTotal($result['hits']['total']);
+		$searchResult->setMaxScore($result['hits']['max_score']);
+		$searchResult->setTime($result['took']);
+		$searchResult->setTimedOut($result['timed_out']);
 
 		return $searchResult;
 	}
