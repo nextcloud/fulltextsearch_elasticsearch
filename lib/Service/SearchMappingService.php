@@ -92,7 +92,7 @@ class SearchMappingService {
 			'index' => $this->configService->getElasticIndex(),
 			'type'  => $provider->getId(),
 			'size'  => $request->getSize(),
-			'from'  => ($request->getPage() * $request->getSize())
+			'from'  => (($request->getPage() - 1) * $request->getSize())
 		];
 
 		$bool = [];
