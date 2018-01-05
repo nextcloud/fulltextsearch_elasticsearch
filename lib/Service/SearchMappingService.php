@@ -93,8 +93,10 @@ class SearchMappingService {
 		$bool = [];
 		$bool['must']['bool']['should'] =
 			$this->generateSearchQueryContent($str);
-		$bool['filter']['bool']['should'] =
+		$bool['filter'][]['bool']['should'] =
 			$this->generateSearchQueryAccess($access);
+		$bool['filter'][]['bool']['should'] =
+			$this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
@@ -163,6 +165,21 @@ class SearchMappingService {
 		return $query;
 	}
 
+
+	/**
+	 * @param array $tags
+	 *
+	 * @return array<string,array>
+	 */
+	private function generateSearchQueryTags($tags) {
+
+		$query = [];
+		foreach ($tags as $tag) {
+			$query[] = ['term' => ['tags' => $tag]];
+		}
+
+		return $query;
+	}
 
 	private function generateSearchHighlighting() {
 		return [
