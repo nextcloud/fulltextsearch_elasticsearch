@@ -64,12 +64,7 @@ class SearchMappingService {
 	public function generateSearchQuery(
 		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		$query =
-			[
-				'params'    => $this->generateSearchQueryParams($provider, $access, $request),
-				'request'   => $request,
-				'requester' => $access->getViewerId()
-			];
+		$query['params'] = $this->generateSearchQueryParams($provider, $access, $request);
 
 		return $query;
 	}

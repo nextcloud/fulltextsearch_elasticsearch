@@ -75,7 +75,7 @@ class SearchService {
 	) {
 
 		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
-		$provider->onSearchingQuery($source, $query);
+		$provider->onSearchingQuery($source, $request, $query);
 
 		$result = $client->search($query['params']);
 		$searchResult = $this->generateSearchResultFromResult($result);
