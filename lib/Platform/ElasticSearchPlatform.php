@@ -236,10 +236,10 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function searchDocuments(INextSearchProvider $provider, DocumentAccess $access, $string) {
+	public function searchDocuments(INextSearchProvider $provider, DocumentAccess $access, $request) {
 		try {
 			return $this->searchService->searchDocuments(
-				$this, $this->client, $provider, $access, $string
+				$this, $this->client, $provider, $access, $request
 			);
 		} catch (ConfigurationException $e) {
 			throw $e;

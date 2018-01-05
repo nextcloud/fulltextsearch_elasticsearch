@@ -31,6 +31,7 @@ use OCA\FullNextSearch\INextSearchPlatform;
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
 use OCA\FullNextSearch\Model\IndexDocument;
+use OCA\FullNextSearch\Model\SearchRequest;
 use OCA\FullNextSearch\Model\SearchResult;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
@@ -63,19 +64,18 @@ class SearchService {
 	 * @param Client $client
 	 * @param INextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param $string
+	 * @param SearchRequest $request
 	 *
 	 * @return SearchResult
 	 * @throws ConfigurationException
 	 */
 	public function searchDocuments(
 		INextSearchPlatform $source, Client $client, INextSearchProvider $provider,
-		DocumentAccess $access, $string
+		DocumentAccess $access, SearchRequest $request
 	) {
 
-		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $string);
-
-		$provider->onSearchingQuery($source, $query);
+		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
+		$provider->onSearchingQuery($source, $request, $query);
 
 		$result = $client->search($query['params']);
 		$searchResult = $this->generateSearchResultFromResult($result);
@@ -99,6 +99,11 @@ class SearchService {
 	private function generateSearchResultFromResult($result) {
 		$searchResult = new SearchResult();
 		$searchResult->setRawResult(json_encode($result));
+
+		$searchResult->setTotal($result['hits']['total']);
+		$searchResult->setMaxScore($result['hits']['max_score']);
+		$searchResult->setTime($result['took']);
+		$searchResult->setTimedOut($result['timed_out']);
 
 		return $searchResult;
 	}

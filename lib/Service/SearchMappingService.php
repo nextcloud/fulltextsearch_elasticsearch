@@ -28,6 +28,7 @@ namespace OCA\FullNextSearch_ElasticSearch\Service;
 
 use OCA\FullNextSearch\INextSearchProvider;
 use OCA\FullNextSearch\Model\DocumentAccess;
+use OCA\FullNextSearch\Model\SearchRequest;
 use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 
@@ -55,21 +56,15 @@ class SearchMappingService {
 	/**
 	 * @param INextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param $str
+	 * @param SearchRequest $request
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateSearchQuery(INextSearchProvider $provider, DocumentAccess $access, $str
+	public function generateSearchQuery(
+		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		$str = strtolower($str);
-
-		$query =
-			[
-				'params'    => $this->generateSearchQueryParams($provider, $access, $str),
-				'query'     => $str,
-				'requester' => $access->getViewerId()
-			];
+		$query['params'] = $this->generateSearchQueryParams($provider, $access, $request);
 
 		return $query;
 	}
@@ -78,28 +73,33 @@ class SearchMappingService {
 	/**
 	 * @param INextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param string $str
+	 * @param SearchRequest $request
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateSearchQueryParams(INextSearchProvider $provider, DocumentAccess $access, $str
+	public function generateSearchQueryParams(
+		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
+		$str = strtolower($request->getSearch());
 
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
-			'type'  => $provider->getId()
+			'type'  => $provider->getId(),
+			'size'  => $request->getSize(),
+			'from'  => (($request->getPage() - 1) * $request->getSize())
 		];
 
 		$bool = [];
 		$bool['must']['bool']['should'] =
 			$this->generateSearchQueryContent($str);
-		$bool['filter']['bool']['should'] =
+		$bool['filter'][]['bool']['should'] =
 			$this->generateSearchQueryAccess($access);
+		$bool['filter'][]['bool']['should'] =
+			$this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
-
 
 		return $params;
 	}
@@ -165,6 +165,21 @@ class SearchMappingService {
 		return $query;
 	}
 
+
+	/**
+	 * @param array $tags
+	 *
+	 * @return array<string,array>
+	 */
+	private function generateSearchQueryTags($tags) {
+
+		$query = [];
+		foreach ($tags as $tag) {
+			$query[] = ['term' => ['tags' => $tag]];
+		}
+
+		return $query;
+	}
 
 	private function generateSearchHighlighting() {
 		return [
