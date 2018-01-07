@@ -1,12 +1,12 @@
 <?php
 /**
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,20 +24,19 @@
  *
  */
 
-namespace OCA\FullNextSearch_ElasticSearch\AppInfo;
+namespace OCA\FullTextSearch_ElasticSearch\AppInfo;
 
 use OCP\AppFramework\App;
 
 class Application extends App {
 
-	const APP_NAME = 'fullnextsearch_elasticsearch';
+	const APP_NAME = 'fulltextsearch_elasticsearch';
 
 	/**
 	 * @param array $params
 	 */
 	public function __construct(array $params = array()) {
 		parent::__construct(self::APP_NAME, $params);
-
 	}
 
 	public function registerSettingsAdmin() {

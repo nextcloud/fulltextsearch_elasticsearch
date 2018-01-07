@@ -1,11 +1,11 @@
 /*
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,11 +20,11 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ *  
  */
 
 /** global: OCA */
-/** global: fns_admin_settings */
+/** global: fts_admin_settings */
 /** global: elasticsearch_settings */
 
 
@@ -40,13 +40,13 @@ var elasticsearch_elements = {
 		elasticsearch_elements.elasticsearch_index = $('#elasticsearch_index');
 
 		elasticsearch_elements.elasticsearch_host.on('input', function () {
-			fns_admin_settings.tagSettingsAsNotSaved($(this));
+			fts_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
 			elasticsearch_settings.saveSettings();
 		});
 
 		elasticsearch_elements.elasticsearch_index.on('input', function () {
-			fns_admin_settings.tagSettingsAsNotSaved($(this));
+			fts_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
 			elasticsearch_settings.saveSettings();
 		});
