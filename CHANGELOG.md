@@ -1,6 +1,13 @@
 # Changelog
 
 
+### v0.4.0
+
+- fullnextsearch -> fulltextsearch
+- Pagination
+
+
+
 ### v0.3.1
 
 - bugfixes.

@@ -1,12 +1,12 @@
 <?php
 /**
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,12 +24,12 @@
  *
  */
 
-namespace OCA\FullNextSearch_ElasticSearch\Service;
+namespace OCA\FullTextSearch_ElasticSearch\Service;
 
-use OCA\FullNextSearch\INextSearchProvider;
-use OCA\FullNextSearch\Model\DocumentAccess;
-use OCA\FullNextSearch\Model\SearchRequest;
-use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch\IFullTextSearchProvider;
+use OCA\FullTextSearch\Model\DocumentAccess;
+use OCA\FullTextSearch\Model\SearchRequest;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 
 class SearchMappingService {
@@ -54,7 +54,7 @@ class SearchMappingService {
 
 
 	/**
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param DocumentAccess $access
 	 * @param SearchRequest $request
 	 *
@@ -62,7 +62,7 @@ class SearchMappingService {
 	 * @throws ConfigurationException
 	 */
 	public function generateSearchQuery(
-		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
+		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
 		$query['params'] = $this->generateSearchQueryParams($provider, $access, $request);
 
@@ -71,7 +71,7 @@ class SearchMappingService {
 
 
 	/**
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param DocumentAccess $access
 	 * @param SearchRequest $request
 	 *
@@ -79,7 +79,7 @@ class SearchMappingService {
 	 * @throws ConfigurationException
 	 */
 	public function generateSearchQueryParams(
-		INextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
+		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
 		$str = strtolower($request->getSearch());
 
