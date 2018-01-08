@@ -1,11 +1,11 @@
 /*
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 
 /** global: OC */
 /** global: elasticsearch_elements */
-/** global: fns_admin_settings */
+/** global: fts_admin_settings */
 
 
 
@@ -38,7 +38,7 @@ var elasticsearch_settings = {
 
 		$.ajax({
 			method: 'GET',
-			url: OC.generateUrl('/apps/fullnextsearch_elasticsearch/admin/settings')
+			url: OC.generateUrl('/apps/fulltextsearch_elasticsearch/admin/settings')
 		}).done(function (res) {
 			elasticsearch_settings.updateSettingPage(res);
 		});
@@ -52,7 +52,7 @@ var elasticsearch_settings = {
 		elasticsearch_elements.elasticsearch_host.val(result.elastic_host);
 		elasticsearch_elements.elasticsearch_index.val(result.elastic_index);
 
-		fns_admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
+		fts_admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
 	},
 
 
@@ -65,7 +65,7 @@ var elasticsearch_settings = {
 
 		$.ajax({
 			method: 'POST',
-			url: OC.generateUrl('/apps/fullnextsearch_elasticsearch/admin/settings'),
+			url: OC.generateUrl('/apps/fulltextsearch_elasticsearch/admin/settings'),
 			data: {
 				data: data
 			}

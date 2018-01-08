@@ -1,12 +1,12 @@
 <?php
 /**
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,13 +24,13 @@
  *
  */
 
-namespace OCA\FullNextSearch_ElasticSearch\Service;
+namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
-use OCA\FullNextSearch\INextSearchPlatform;
-use OCA\FullNextSearch\INextSearchProvider;
-use OCA\FullNextSearch\Model\IndexDocument;
-use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch\IFullTextSearchPlatform;
+use OCA\FullTextSearch\IFullTextSearchProvider;
+use OCA\FullTextSearch\Model\IndexDocument;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 
 class IndexMappingService {
@@ -56,17 +56,17 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
-	 * @param INextSearchPlatform $source
+	 * @param IFullTextSearchPlatform $source
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
 	public function indexDocumentNew(
-		Client $client, INextSearchProvider $provider, IndexDocument $document,
-		INextSearchPlatform $source
+		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
+		IFullTextSearchPlatform $source
 	) {
 		$index = [
 			'index' =>
@@ -86,16 +86,16 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
-	 * @param INextSearchPlatform $source
+	 * @param IFullTextSearchPlatform $source
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
 	public function indexDocumentUpdate(
-		Client $client, INextSearchProvider $provider, IndexDocument $document,
-		INextSearchPlatform $source
+		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
+		IFullTextSearchPlatform $source
 	) {
 		$index = [
 			'index' =>
@@ -115,14 +115,14 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
 	public function indexDocumentRemove(
-		Client $client, INextSearchProvider $provider, IndexDocument $document
+		Client $client, IFullTextSearchProvider $provider, IndexDocument $document
 	) {
 		$index = [
 			'index' =>
@@ -138,13 +138,13 @@ class IndexMappingService {
 
 
 	/**
-	 * @param INextSearchPlatform $source
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchPlatform $source
+	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 * @param array $arr
 	 */
 	public function onIndexingDocument(
-		INextSearchPlatform $source, INextSearchProvider $provider, IndexDocument $document, &$arr
+		IFullTextSearchPlatform $source, IFullTextSearchProvider $provider, IndexDocument $document, &$arr
 	) {
 		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';

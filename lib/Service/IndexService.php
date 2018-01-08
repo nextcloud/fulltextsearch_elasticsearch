@@ -1,12 +1,12 @@
 <?php
 /**
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,16 +24,16 @@
  *
  */
 
-namespace OCA\FullNextSearch_ElasticSearch\Service;
+namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use OCA\FullNextSearch\INextSearchPlatform;
-use OCA\FullNextSearch\INextSearchProvider;
-use OCA\FullNextSearch\Model\Index;
-use OCA\FullNextSearch\Model\IndexDocument;
-use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch\IFullTextSearchPlatform;
+use OCA\FullTextSearch\IFullTextSearchProvider;
+use OCA\FullTextSearch\Model\Index;
+use OCA\FullTextSearch\Model\IndexDocument;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 class IndexService {
 
@@ -107,16 +107,16 @@ class IndexService {
 
 
 	/**
-	 * @param INextSearchPlatform $platform
+	 * @param IFullTextSearchPlatform $platform
 	 * @param Client $client
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
 	public function indexDocument(
-		INextSearchPlatform $platform, Client $client, INextSearchProvider $provider,
+		IFullTextSearchPlatform $platform, Client $client, IFullTextSearchProvider $provider,
 		IndexDocument $document
 	) {
 		$index = $document->getIndex();

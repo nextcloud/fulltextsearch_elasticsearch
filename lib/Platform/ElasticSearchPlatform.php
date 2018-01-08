@@ -1,12 +1,12 @@
 <?php
 /**
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
  *
  */
 
-namespace OCA\FullNextSearch_ElasticSearch\Platform;
+namespace OCA\FullTextSearch_ElasticSearch\Platform;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
@@ -32,23 +32,23 @@ use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
 use Elasticsearch\Common\Exceptions\RuntimeException;
 use Exception;
-use OCA\FullNextSearch\Exceptions\InterruptException;
-use OCA\FullNextSearch\Exceptions\TickDoesNotExistException;
-use OCA\FullNextSearch\INextSearchPlatform;
-use OCA\FullNextSearch\INextSearchProvider;
-use OCA\FullNextSearch\Model\DocumentAccess;
-use OCA\FullNextSearch\Model\IndexDocument;
-use OCA\FullNextSearch\Model\Runner;
-use OCA\FullNextSearch_ElasticSearch\AppInfo\Application;
-use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
-use OCA\FullNextSearch_ElasticSearch\Service\ConfigService;
-use OCA\FullNextSearch_ElasticSearch\Service\IndexService;
-use OCA\FullNextSearch_ElasticSearch\Service\MiscService;
-use OCA\FullNextSearch_ElasticSearch\Service\SearchService;
+use OCA\FullTextSearch\Exceptions\InterruptException;
+use OCA\FullTextSearch\Exceptions\TickDoesNotExistException;
+use OCA\FullTextSearch\IFullTextSearchPlatform;
+use OCA\FullTextSearch\IFullTextSearchProvider;
+use OCA\FullTextSearch\Model\DocumentAccess;
+use OCA\FullTextSearch\Model\IndexDocument;
+use OCA\FullTextSearch\Model\Runner;
+use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
+use OCA\FullTextSearch_ElasticSearch\Service\IndexService;
+use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
+use OCA\FullTextSearch_ElasticSearch\Service\SearchService;
 use OCP\AppFramework\QueryException;
 
 
-class ElasticSearchPlatform implements INextSearchPlatform {
+class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/** @var ConfigService */
 	private $configService;
@@ -160,11 +160,11 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 *
 	 * We create a general index.
 	 *
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function initializeIndex(INextSearchProvider $provider) {
+	public function initializeIndex(IFullTextSearchProvider $provider) {
 		$this->indexService->initializeIndex($this->client);
 
 		$provider->onInitializingIndex($this);
@@ -177,13 +177,13 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	 * Called when admin wants to remove an index specific to a $provider.
 	 * $provider can be null, meaning a reset of the whole index.
 	 *
-	 * @param INextSearchProvider|null $provider
+	 * @param IFullTextSearchProvider|null $provider
 	 *
 	 * @throws ConfigurationException
 	 */
 	public function removeIndex($provider) {
 
-		if ($provider instanceof INextSearchProvider) {
+		if ($provider instanceof IFullTextSearchProvider) {
 			// TODO: need to specify the map to remove
 			// TODO: need to remove entries with type=providerId
 			$provider->onRemovingIndex($this);
@@ -196,7 +196,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function indexDocuments(INextSearchProvider $provider, $documents) {
+	public function indexDocuments(IFullTextSearchProvider $provider, $documents) {
 		$indexes = [];
 		foreach ($documents as $document) {
 			$index = $this->indexDocument($provider, $document);
@@ -212,7 +212,7 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function indexDocument(INextSearchProvider $provider, IndexDocument $document) {
+	public function indexDocument(IFullTextSearchProvider $provider, IndexDocument $document) {
 
 		$this->updateRunner('indexDocument');
 		$this->outputRunner(' . Indexing: ' . $document->getTitle());
@@ -236,10 +236,10 @@ class ElasticSearchPlatform implements INextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function searchDocuments(INextSearchProvider $provider, DocumentAccess $access, $string) {
+	public function searchDocuments(IFullTextSearchProvider $provider, DocumentAccess $access, $request) {
 		try {
 			return $this->searchService->searchDocuments(
-				$this, $this->client, $provider, $access, $string
+				$this, $this->client, $provider, $access, $request
 			);
 		} catch (ConfigurationException $e) {
 			throw $e;

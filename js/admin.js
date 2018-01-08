@@ -1,11 +1,11 @@
 /*
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@ $(document).ready(function () {
 		elasticsearch_settings.refreshSettingPage();
 	};
 
-	OCA.NextSearchAdmin.elasticSearch = ElasticSearchAdmin;
-	OCA.NextSearchAdmin.elasticSearch.settings = new ElasticSearchAdmin();
+	OCA.FullTextSearchAdmin.elasticSearch = ElasticSearchAdmin;
+	OCA.FullTextSearchAdmin.elasticSearch.settings = new ElasticSearchAdmin();
 
 });
