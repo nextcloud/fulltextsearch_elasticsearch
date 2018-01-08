@@ -1,41 +1,41 @@
 <?xml version="1.0"?>
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>fullnextsearch_elasticsearch</id>
-	<name>Full Next Search - Elastic Search Platform (BETA)</name>
-	<summary>Index Full Next Search content using ElasticSearch</summary>
+	<id>fulltextsearch_elasticsearch</id>
+	<name>Full text search - Elasticsearch Platform (BETA)</name>
+	<summary>Index using ElasticSearch</summary>
 	<description><![CDATA[
 
 Extension to the _Full text search_ app to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>0.3.1</version>
+	<version>0.4.0</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
-	<namespace>FullNextSearch_ElasticSearch</namespace>
+	<namespace>FullTextSearch_ElasticSearch</namespace>
 	<documentation>
-		<admin>https://github.com/nextcloud/fullnextsearch_elasticsearch/wiki</admin>
+		<admin>https://github.com/nextcloud/fulltextsearch_elasticsearch/wiki</admin>
 	</documentation>
 	<category>tools</category>
-	<website>https://github.com/nextcloud/fullnextsearch_elasticsearch</website>
-	<bugs>https://github.com/nextcloud/fullnextsearch_elasticsearch/issues</bugs>
-	<repository>https://github.com/nextcloud/fullnextsearch_elasticsearch.git</repository>
-	<screenshot>https://raw.githubusercontent.com/nextcloud/fullnextsearch/master/screenshots/0.3.0.png</screenshot>
+	<website>https://github.com/nextcloud/fulltextsearch_elasticsearch</website>
+	<bugs>https://github.com/nextcloud/fulltextsearch_elasticsearch/issues</bugs>
+	<repository>https://github.com/nextcloud/fulltextsearch_elasticsearch.git</repository>
+	<screenshot>https://raw.githubusercontent.com/nextcloud/fulltextsearch/master/screenshots/0.3.0.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="12" max-version="14"/>
 	</dependencies>
 
 	<commands>
-		<command>OCA\FullNextSearch_ElasticSearch\Command\Elastic</command>
+		<command>OCA\FullTextSearch_ElasticSearch\Command\Elastic</command>
 	</commands>
 
 	<settings>
-		<admin>OCA\FullNextSearch_ElasticSearch\Settings\Admin</admin>
+		<admin>OCA\FullTextSearch_ElasticSearch\Settings\Admin</admin>
 	</settings>
 
-	<fullnextsearch>
-		<platform>OCA\FullNextSearch_ElasticSearch\Platform\ElasticSearchPlatform</platform>
-	</fullnextsearch>
+	<fulltextsearch>
+		<platform>OCA\FullTextSearch_ElasticSearch\Platform\ElasticSearchPlatform</platform>
+	</fulltextsearch>
 
 </info>

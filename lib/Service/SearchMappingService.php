@@ -1,12 +1,12 @@
 <?php
 /**
- * FullNextSearch_ElasticSearch - Index with ElasticSearch
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2017
+ * @copyright 2018
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,11 +24,12 @@
  *
  */
 
-namespace OCA\FullNextSearch_ElasticSearch\Service;
+namespace OCA\FullTextSearch_ElasticSearch\Service;
 
-use OCA\FullNextSearch\INextSearchProvider;
-use OCA\FullNextSearch\Model\DocumentAccess;
-use OCA\FullNextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch\IFullTextSearchProvider;
+use OCA\FullTextSearch\Model\DocumentAccess;
+use OCA\FullTextSearch\Model\SearchRequest;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 
 class SearchMappingService {
@@ -53,53 +54,52 @@ class SearchMappingService {
 
 
 	/**
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param $str
+	 * @param SearchRequest $request
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateSearchQuery(INextSearchProvider $provider, DocumentAccess $access, $str
+	public function generateSearchQuery(
+		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		$str = strtolower($str);
-
-		$query =
-			[
-				'params'    => $this->generateSearchQueryParams($provider, $access, $str),
-				'query'     => $str,
-				'requester' => $access->getViewerId()
-			];
+		$query['params'] = $this->generateSearchQueryParams($provider, $access, $request);
 
 		return $query;
 	}
 
 
 	/**
-	 * @param INextSearchProvider $provider
+	 * @param IFullTextSearchProvider $provider
 	 * @param DocumentAccess $access
-	 * @param string $str
+	 * @param SearchRequest $request
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateSearchQueryParams(INextSearchProvider $provider, DocumentAccess $access, $str
+	public function generateSearchQueryParams(
+		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
+		$str = strtolower($request->getSearch());
 
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
-			'type'  => $provider->getId()
+			'type'  => $provider->getId(),
+			'size'  => $request->getSize(),
+			'from'  => (($request->getPage() - 1) * $request->getSize())
 		];
 
 		$bool = [];
 		$bool['must']['bool']['should'] =
 			$this->generateSearchQueryContent($str);
-		$bool['filter']['bool']['should'] =
+		$bool['filter'][]['bool']['should'] =
 			$this->generateSearchQueryAccess($access);
+		$bool['filter'][]['bool']['should'] =
+			$this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
-
 
 		return $params;
 	}
@@ -165,6 +165,21 @@ class SearchMappingService {
 		return $query;
 	}
 
+
+	/**
+	 * @param array $tags
+	 *
+	 * @return array<string,array>
+	 */
+	private function generateSearchQueryTags($tags) {
+
+		$query = [];
+		foreach ($tags as $tag) {
+			$query[] = ['term' => ['tags' => $tag]];
+		}
+
+		return $query;
+	}
 
 	private function generateSearchHighlighting() {
 		return [
