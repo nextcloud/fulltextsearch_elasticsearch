@@ -10,6 +10,6 @@
     }
   ],
   "require": {
-    "elasticsearch/elasticsearch": "6.0.x-dev"
+    "elasticsearch/elasticsearch": "~6.0"
   }
 }

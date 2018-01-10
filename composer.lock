@@ -4,12 +4,12 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3ff0f821df696f62bc874c94e3489a13",
-    "content-hash": "6c680f1f5663d1d63fd495f067def815",
+    "hash": "ffb9a59a3c3b9a7943fe873cff7c9c4a",
+    "content-hash": "80b53c96853f077704a469b6481eef2f",
     "packages": [
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "6.0.x-dev",
+            "version": "v6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
@@ -262,9 +262,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "elasticsearch/elasticsearch": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
