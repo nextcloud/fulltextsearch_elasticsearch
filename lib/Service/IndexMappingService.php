@@ -29,6 +29,7 @@ namespace OCA\FullTextSearch_ElasticSearch\Service;
 use Elasticsearch\Client;
 use OCA\FullTextSearch\IFullTextSearchPlatform;
 use OCA\FullTextSearch\IFullTextSearchProvider;
+use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
@@ -97,6 +98,12 @@ class IndexMappingService {
 		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
 		IFullTextSearchPlatform $source
 	) {
+
+		if ($document->getIndex()
+					 ->isStatus(Index::INDEX_CONTENT)) {
+			return $this->indexDocumentNew($client, $provider, $document, $source);
+		}
+		
 		$index = [
 			'index' =>
 				[
@@ -144,7 +151,8 @@ class IndexMappingService {
 	 * @param array $arr
 	 */
 	public function onIndexingDocument(
-		IFullTextSearchPlatform $source, IFullTextSearchProvider $provider, IndexDocument $document, &$arr
+		IFullTextSearchPlatform $source, IFullTextSearchProvider $provider, IndexDocument $document,
+		&$arr
 	) {
 		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
