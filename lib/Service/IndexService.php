@@ -65,19 +65,26 @@ class IndexService {
 	 * @throws ConfigurationException
 	 */
 	public function initializeIndex(Client $client) {
+		$result = false;
 		try {
-			if (!$client->indices()
-						->exists($this->indexMappingService->generateGlobalMap(false))) {
+			$result = $client->indices()
+							 ->exists($this->indexMappingService->generateGlobalMap(false));
+		} catch (BadRequest400Exception $e) {
+			throw new ConfigurationException(
+				'Check your user/password and the index assigned to that cloud'
+			);
+		}
 
+		try {
+			if (!$result) {
 				$client->indices()
 					   ->create($this->indexMappingService->generateGlobalMap());
 				$client->ingest()
 					   ->putPipeline($this->indexMappingService->generateGlobalIngest());
-
 			}
 		} catch (BadRequest400Exception $e) {
 			throw new ConfigurationException(
-				'Check your user/password and the index assigned to that cloud'
+				'please add ingest-attachment plugin to elasticsearch'
 			);
 		}
 	}
@@ -90,11 +97,14 @@ class IndexService {
 	 */
 	public function removeIndex(Client $client) {
 		try {
-
 			$client->ingest()
 				   ->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
 		} catch (Missing404Exception $e) {
 			/* 404Exception will means that the mapping for that provider does not exist */
+		} catch (BadRequest400Exception $e) {
+			throw new ConfigurationException(
+				'Check your user/password and the index assigned to that cloud'
+			);
 		}
 
 		try {
