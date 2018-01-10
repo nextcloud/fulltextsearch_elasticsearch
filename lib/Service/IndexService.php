@@ -65,7 +65,6 @@ class IndexService {
 	 * @throws ConfigurationException
 	 */
 	public function initializeIndex(Client $client) {
-		$result = false;
 		try {
 			$result = $client->indices()
 							 ->exists($this->indexMappingService->generateGlobalMap(false));
