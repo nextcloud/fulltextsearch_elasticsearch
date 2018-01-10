@@ -120,10 +120,10 @@ class IndexService {
 		IndexDocument $document
 	) {
 		$index = $document->getIndex();
-		if ($index->isStatus(Index::STATUS_REMOVE_DOCUMENT)) {
+		if ($index->isStatus(Index::INDEX_REMOVE)) {
 			$result =
 				$this->indexMappingService->indexDocumentRemove($client, $provider, $document);
-		} else if ($index->isStatus(Index::STATUS_INDEX_DONE)) {
+		} else if ($index->isStatus(Index::INDEX_OK)) {
 			$result = $this->indexMappingService->indexDocumentUpdate(
 				$client, $provider, $document, $platform
 			);
@@ -149,20 +149,20 @@ class IndexService {
 		$index->setLastIndex();
 
 		if (array_key_exists('exception', $result)) {
-			$index->setStatus(Index::STATUS_INDEX_FAILED);
+			$index->setStatus(Index::INDEX_FAILED);
 
 			return $index;
 		}
 
 
-		if ($index->isStatus(Index::STATUS_REMOVE_DOCUMENT)) {
-			$index->setStatus(Index::STATUS_DOCUMENT_REMOVED);
+		if ($index->isStatus(Index::INDEX_REMOVE)) {
+			$index->setStatus(Index::INDEX_OK);
 
 			return $index;
 		}
 
 		// TODO: parse result
-		$index->setStatus(Index::STATUS_INDEX_DONE, true);
+		$index->setStatus(Index::INDEX_OK, true);
 
 		return $index;
 	}
