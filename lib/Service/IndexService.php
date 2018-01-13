@@ -130,9 +130,9 @@ class IndexService {
 	) {
 		$index = $document->getIndex();
 		if ($index->isStatus(Index::INDEX_REMOVE)) {
-			$result =
-				$this->indexMappingService->indexDocumentRemove($client, $provider, $document);
-		} else if ($index->isStatus(Index::INDEX_OK)) {
+			$result = $this->indexMappingService->indexDocumentRemove($client, $provider, $document);
+
+		} else if ($index->isStatus(Index::INDEX_OK) && !$index->isStatus(Index::INDEX_CONTENT)) {
 			$result = $this->indexMappingService->indexDocumentUpdate(
 				$client, $provider, $document, $platform
 			);
@@ -163,15 +163,8 @@ class IndexService {
 			return $index;
 		}
 
-
-		if ($index->isStatus(Index::INDEX_REMOVE)) {
-			$index->setStatus(Index::INDEX_OK);
-
-			return $index;
-		}
-
 		// TODO: parse result
-		$index->setStatus(Index::INDEX_OK, true);
+		$index->setStatus(Index::INDEX_DONE);
 
 		return $index;
 	}

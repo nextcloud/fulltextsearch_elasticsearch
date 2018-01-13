@@ -98,12 +98,6 @@ class IndexMappingService {
 		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
 		IFullTextSearchPlatform $source
 	) {
-
-		if ($document->getIndex()
-					 ->isStatus(Index::INDEX_CONTENT)) {
-			return $this->indexDocumentNew($client, $provider, $document, $source);
-		}
-		
 		$index = [
 			'index' =>
 				[
