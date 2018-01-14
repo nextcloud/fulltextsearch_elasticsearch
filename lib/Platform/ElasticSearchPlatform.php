@@ -31,12 +31,14 @@ use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
 use Elasticsearch\Common\Exceptions\RuntimeException;
+use Elasticsearch\Common\Exceptions\ServerErrorResponseException;
 use Exception;
 use OCA\FullTextSearch\Exceptions\InterruptException;
 use OCA\FullTextSearch\Exceptions\TickDoesNotExistException;
 use OCA\FullTextSearch\IFullTextSearchPlatform;
 use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\DocumentAccess;
+use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch\Model\Runner;
 use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
@@ -219,15 +221,39 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		try {
 			$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
-		} catch (RuntimeException $e) {
-			$result =
-				[
-					'exception' => 'RuntimeException',
-					'message'   => $e->getMessage()
-				];
+			$this->outputRunner('  result: ' . json_encode($result));
+
+			return $this->indexService->parseIndexResult($document->getIndex(), $result);
+		} catch (Exception $e) {
+			return $this->indexDocumentError($provider, $document, $e);
 		}
 
-		$this->outputRunner('  result: ' . json_encode($result));
+	}
+
+
+	private function indexDocumentError(
+		IFullTextSearchProvider $provider, IndexDocument $document, Exception $e
+	) {
+		$message = [
+			'exception' => get_class($e),
+			'message'   => $e->getMessage()
+		];
+
+		$document->setContent(null);
+		$index = $document->getIndex();
+		$index->unsetStatus(Index::INDEX_CONTENT);
+		$index->setMessage(json_encode($message));
+
+		try {
+			$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
+		} catch (Exception $e) {
+			$result = [
+				'exception' => get_class($e),
+				'message'   => $e->getMessage()
+			];
+		}
+
+		$this->outputRunner('  result with no content: ' . json_encode($result));
 
 		return $this->indexService->parseIndexResult($document->getIndex(), $result);
 	}
@@ -236,7 +262,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function searchDocuments(IFullTextSearchProvider $provider, DocumentAccess $access, $request) {
+	public function searchDocuments(IFullTextSearchProvider $provider, DocumentAccess $access, $request
+	) {
 		try {
 			return $this->searchService->searchDocuments(
 				$this, $this->client, $provider, $access, $request
