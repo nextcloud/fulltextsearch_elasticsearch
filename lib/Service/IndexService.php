@@ -159,6 +159,8 @@ class IndexService {
 
 		if (array_key_exists('exception', $result)) {
 			$index->setStatus(Index::INDEX_FAILED);
+			$index->incrementError();
+			$index->setMessage(json_encode($result));
 
 			return $index;
 		}
