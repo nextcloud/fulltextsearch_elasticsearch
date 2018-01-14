@@ -231,6 +231,14 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	}
 
 
+	/**
+	 * @param IFullTextSearchProvider $provider
+	 * @param IndexDocument $document
+	 * @param Exception $e
+	 *
+	 * @return Index
+	 * @throws ConfigurationException
+	 */
 	private function indexDocumentError(
 		IFullTextSearchProvider $provider, IndexDocument $document, Exception $e
 	) {
@@ -244,15 +252,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$index->unsetStatus(Index::INDEX_CONTENT);
 		$index->setMessage(json_encode($message));
 
-		try {
-			$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
-		} catch (Exception $e) {
-			$result = [
-				'exception' => get_class($e),
-				'message'   => $e->getMessage()
-			];
-		}
-
+		$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
 		$this->outputRunner('  result with no content: ' . json_encode($result));
 
 		return $this->indexService->parseIndexResult($document->getIndex(), $result);
