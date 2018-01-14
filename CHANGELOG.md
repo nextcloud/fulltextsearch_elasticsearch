@@ -1,6 +1,13 @@
 # Changelog
 
 
+
+### 0.5.0
+
+- managing errors
+
+
+
 ### v0.4.0
 
 - fullnextsearch -> fulltextsearch
