@@ -27,6 +27,7 @@
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OCA\FullTextSearch\IFullTextSearchPlatform;
 use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\Index;
@@ -109,8 +110,11 @@ class IndexMappingService {
 		];
 
 		$this->onIndexingDocument($source, $provider, $document, $index);
-
-		return $client->update($index['index']);
+		try {
+			return $client->update($index['index']);
+		} catch (Missing404Exception $e) {
+			return $this->indexDocumentNew($client, $provider, $document, $source);
+		}
 	}
 
 
