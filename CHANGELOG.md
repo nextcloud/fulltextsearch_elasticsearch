@@ -1,6 +1,11 @@
 # Changelog
 
 
+### 0.5.1
+
+- bugfixes
+
+
 
 ### 0.5.0
 
