@@ -153,6 +153,7 @@ class SearchMappingService {
 		$query = [];
 		$query[] = ['match' => ['owner' => $access->getViewerId()]];
 		$query[] = ['match' => ['users' => $access->getViewerId()]];
+		$query[] = ['match' => ['users' => '__all']];
 
 		foreach ($access->getGroups() as $group) {
 			$query[] = ['match' => ['groups' => $group]];
