@@ -94,7 +94,7 @@ class IndexService {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function removeIndex(Client $client) {
+	public function resetIndex(Client $client) {
 		try {
 			$client->ingest()
 				   ->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
@@ -116,6 +116,21 @@ class IndexService {
 
 
 	/**
+	 * @param Client $client
+	 * @param Index[] $indexes
+	 *
+	 * @throws ConfigurationException
+	 */
+	public function deleteIndexes($client, $indexes) {
+		foreach ($indexes as $index) {
+			$this->indexMappingService->indexDocumentRemove(
+				$client, $index->getProviderId(), $index->getDocumentId()
+			);
+		}
+	}
+
+
+	/**
 	 * @param IFullTextSearchPlatform $platform
 	 * @param Client $client
 	 * @param IFullTextSearchProvider $provider
@@ -130,8 +145,9 @@ class IndexService {
 	) {
 		$index = $document->getIndex();
 		if ($index->isStatus(Index::INDEX_REMOVE)) {
-			$result = $this->indexMappingService->indexDocumentRemove($client, $provider, $document);
-
+			$result = $this->indexMappingService->indexDocumentRemove(
+				$client, $provider->getId(), $document->getId()
+			);
 		} else if ($index->isStatus(Index::INDEX_OK) && !$index->isStatus(Index::INDEX_CONTENT)) {
 			$result = $this->indexMappingService->indexDocumentUpdate(
 				$client, $provider, $document, $platform
@@ -141,7 +157,6 @@ class IndexService {
 				$client, $provider, $document, $platform
 			);
 		}
-
 
 		return $result;
 	}

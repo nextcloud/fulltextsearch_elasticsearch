@@ -183,15 +183,15 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function removeIndex($provider) {
+	public function resetIndex($provider) {
 
 		if ($provider instanceof IFullTextSearchProvider) {
 			// TODO: need to specify the map to remove
 			// TODO: need to remove entries with type=providerId
-			$provider->onRemovingIndex($this);
+			$provider->onResettingIndex($this);
 		}
 
-		$this->indexService->removeIndex($this->client);
+		$this->indexService->resetIndex($this->client);
 	}
 
 
@@ -256,6 +256,18 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->outputRunner('  result with no content: ' . json_encode($result));
 
 		return $this->indexService->parseIndexResult($document->getIndex(), $result);
+	}
+
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function deleteIndexes($indexes) {
+		try {
+			$this->indexService->deleteIndexes($this->client, $indexes);
+		} catch (ConfigurationException $e) {
+			throw $e;
+		}
 	}
 
 

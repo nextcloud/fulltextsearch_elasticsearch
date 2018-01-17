@@ -120,21 +120,19 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param IFullTextSearchProvider $provider
-	 * @param IndexDocument $document
+	 * @param string $providerId
+	 * @param string|int $documentId
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function indexDocumentRemove(
-		Client $client, IFullTextSearchProvider $provider, IndexDocument $document
-	) {
+	public function indexDocumentRemove(Client $client, $providerId, $documentId) {
 		$index = [
 			'index' =>
 				[
 					'index' => $this->configService->getElasticIndex(),
-					'id'    => $document->getId(),
-					'type'  => $provider->getId()
+					'id'    => $documentId,
+					'type'  => $providerId
 				]
 		];
 
