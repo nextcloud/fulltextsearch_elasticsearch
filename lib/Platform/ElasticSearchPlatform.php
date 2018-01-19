@@ -30,8 +30,6 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
-use Elasticsearch\Common\Exceptions\RuntimeException;
-use Elasticsearch\Common\Exceptions\ServerErrorResponseException;
 use Exception;
 use OCA\FullTextSearch\Exceptions\InterruptException;
 use OCA\FullTextSearch\Exceptions\TickDoesNotExistException;
@@ -82,13 +80,20 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * return a unique Id of the platform.
 	 */
 	public function getName() {
-		return 'ElasticSearch';
+		return 'Elasticsearch';
 	}
 
 
-	public function getClient() {
-		return $this->client;
+	/**
+	 * @return string
+	 */
+	public function getVersion() {
+		return $this->configService->getAppValue('installed_version');
 	}
+
+//	public function getClient() {
+//		return $this->client;
+//	}
 
 
 	/**
@@ -174,7 +179,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * removeIndex();
+	 * resetIndex();
 	 *
 	 * Called when admin wants to remove an index specific to a $provider.
 	 * $provider can be null, meaning a reset of the whole index.
