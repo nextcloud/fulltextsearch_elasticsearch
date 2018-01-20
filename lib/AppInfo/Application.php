@@ -39,10 +39,5 @@ class Application extends App {
 		parent::__construct(self::APP_NAME, $params);
 	}
 
-	public function registerSettingsAdmin() {
-		\OCP\App::registerAdmin(self::APP_NAME, 'lib/admin');
-	}
-
-
 }
 

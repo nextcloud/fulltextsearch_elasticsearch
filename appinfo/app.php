@@ -28,6 +28,4 @@ namespace OCA\FullTextSearch_ElasticSearch\AppInfo;
 
 require_once __DIR__ . '/autoload.php';
 
-$app = new Application();
-
-$app->registerSettingsAdmin();
+new Application();
