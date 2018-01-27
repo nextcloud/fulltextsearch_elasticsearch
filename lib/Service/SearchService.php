@@ -82,9 +82,7 @@ class SearchService {
 		$searchResult->setProvider($provider);
 
 		foreach ($result['hits']['hits'] as $entry) {
-			$searchResult->addDocument(
-				$this->parseSearchEntry($provider->getId(), $entry, $access->getViewerId())
-			);
+			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
 		}
 
 		return $searchResult;
@@ -110,17 +108,17 @@ class SearchService {
 
 
 	/**
-	 * @param string $providerId
 	 * @param array $entry
 	 * @param string $viewerId
 	 *
 	 * @return IndexDocument
 	 */
-	private function parseSearchEntry($providerId, $entry, $viewerId) {
+	private function parseSearchEntry($entry, $viewerId) {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 
-		$document = new IndexDocument($providerId, $entry['_id']);
+		list($providerId, $documentId) = explode(':', $entry['_id'], 2);
+		$document = new IndexDocument($providerId, $documentId);
 		$document->setAccess($access);
 		$document->setExcerpts(
 			(array_key_exists('highlight', $entry)) ? $entry['highlight']['content'] : []

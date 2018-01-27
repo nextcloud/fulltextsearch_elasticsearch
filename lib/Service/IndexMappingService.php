@@ -30,8 +30,8 @@ use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OCA\FullTextSearch\IFullTextSearchPlatform;
 use OCA\FullTextSearch\IFullTextSearchProvider;
-use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 
@@ -65,6 +65,7 @@ class IndexMappingService {
 	 *
 	 * @return array
 	 * @throws ConfigurationException
+	 * @throws AccessIsEmptyException
 	 */
 	public function indexDocumentNew(
 		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
@@ -74,8 +75,8 @@ class IndexMappingService {
 			'index' =>
 				[
 					'index' => $this->configService->getElasticIndex(),
-					'id'    => $document->getId(),
-					'type'  => $provider->getId(),
+					'id'    => $document->getProviderId() . ':' . $document->getId(),
+					'type'  => 'standard',
 					'body'  => $this->generateIndexBody($document)
 				]
 		];
@@ -94,6 +95,7 @@ class IndexMappingService {
 	 *
 	 * @return array
 	 * @throws ConfigurationException
+	 * @throws AccessIsEmptyException
 	 */
 	public function indexDocumentUpdate(
 		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
@@ -103,8 +105,8 @@ class IndexMappingService {
 			'index' =>
 				[
 					'index' => $this->configService->getElasticIndex(),
-					'id'    => $document->getId(),
-					'type'  => $provider->getId(),
+					'id'    => $document->getProviderId() . ':' . $document->getId(),
+					'type'  => 'standard',
 					'body'  => ['doc' => $this->generateIndexBody($document)]
 				]
 		];
@@ -131,8 +133,8 @@ class IndexMappingService {
 			'index' =>
 				[
 					'index' => $this->configService->getElasticIndex(),
-					'id'    => $documentId,
-					'type'  => $providerId
+					'id'    => $providerId . ':' . $documentId,
+					'type'  => 'standard'
 				]
 		];
 
@@ -162,24 +164,35 @@ class IndexMappingService {
 	 * @param IndexDocument $document
 	 *
 	 * @return array
+	 * @throws AccessIsEmptyException
 	 */
 	public function generateIndexBody(IndexDocument $document) {
 
-		$body = [];
 		$access = $document->getAccess();
-		if ($access !== null) {
-			$body = [
-				'owner'   => $access->getOwnerId(),
-				'users'   => $access->getUsers(),
-				'groups'  => $access->getGroups(),
-				'circles' => $access->getCircles()
-			];
+		if ($access === null) {
+			throw new AccessIsEmptyException('DocumentAccess is Empty');
 		}
 
-		$body['tags'] = $document->getTags();
+		$body = [
+			'owner'    => $access->getOwnerId(),
+			'users'    => $access->getUsers(),
+			'groups'   => $access->getGroups(),
+			'circles'  => $access->getCircles(),
+			'tags'     => $document->getTags(),
+			'provider' => $document->getProviderId()
+		];
+
+
+		if ($document->getSource() !== null) {
+			$body['source'] = $document->getSource();
+		}
 
 		if ($document->getTitle() !== null) {
 			$body['title'] = $document->getTitle();
+		}
+
+		if ($document->getSource() !== null) {
+			$body['source'] = $document->getSource();
 		}
 
 		if ($document->getContent() !== null) {
@@ -236,13 +249,27 @@ class IndexMappingService {
 				]
 			],
 			'mappings' => [
-				'_default_' => [
+				'standard' => [
 					'properties' => [
+						'source'   => [
+							'type'        => 'text',
+							'analyzer'    => 'analyzer',
+							'term_vector' => 'yes',
+							'copy_to'     => 'combined'
+						],
 						'title'    => [
 							'type'        => 'text',
 							'analyzer'    => 'analyzer',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
+						],
+						'provider' => [
+							'type'    => 'text',
+							'copy_to' => 'combined'
+						],
+						'tags'     => [
+							'type'    => 'text',
+							'copy_to' => 'combined'
 						],
 						'content'  => [
 							'type'        => 'text',
@@ -251,28 +278,20 @@ class IndexMappingService {
 							'copy_to'     => 'combined'
 						],
 						'owner'    => [
-							'type'        => 'text',
-							'analyzer'    => 'analyzer',
-							'term_vector' => 'yes',
-							'copy_to'     => 'combined'
+							'type'    => 'text',
+							'copy_to' => 'combined'
 						],
 						'users'    => [
-							'type'        => 'text',
-							'analyzer'    => 'analyzer',
-							'term_vector' => 'yes',
-							'copy_to'     => 'combined'
+							'type'    => 'text',
+							'copy_to' => 'combined'
 						],
 						'groups'   => [
-							'type'        => 'text',
-							'analyzer'    => 'analyzer',
-							'term_vector' => 'yes',
-							'copy_to'     => 'combined'
+							'type'    => 'text',
+							'copy_to' => 'combined'
 						],
 						'circles'  => [
-							'type'        => 'text',
-							'analyzer'    => 'analyzer',
-							'term_vector' => 'yes',
-							'copy_to'     => 'combined'
+							'type'    => 'text',
+							'copy_to' => 'combined'
 						],
 						'combined' => [
 							'type'        => 'text',

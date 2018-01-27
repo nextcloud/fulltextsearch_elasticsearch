@@ -40,6 +40,7 @@ use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch\Model\Runner;
 use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
 use OCA\FullTextSearch_ElasticSearch\Service\IndexService;
@@ -243,6 +244,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @return Index
 	 * @throws ConfigurationException
+	 * @throws AccessIsEmptyException
 	 */
 	private function indexDocumentError(
 		IFullTextSearchProvider $provider, IndexDocument $document, Exception $e

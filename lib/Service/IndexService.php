@@ -33,6 +33,7 @@ use OCA\FullTextSearch\IFullTextSearchPlatform;
 use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 
 class IndexService {
@@ -138,6 +139,7 @@ class IndexService {
 	 *
 	 * @return array
 	 * @throws ConfigurationException
+	 * @throws AccessIsEmptyException
 	 */
 	public function indexDocument(
 		IFullTextSearchPlatform $platform, Client $client, IFullTextSearchProvider $provider,

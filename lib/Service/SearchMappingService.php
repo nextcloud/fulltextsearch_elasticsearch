@@ -85,7 +85,7 @@ class SearchMappingService {
 
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
-			'type'  => $provider->getId(),
+			'type'  => 'standard',
 			'size'  => $request->getSize(),
 			'from'  => (($request->getPage() - 1) * $request->getSize())
 		];
@@ -93,6 +93,8 @@ class SearchMappingService {
 		$bool = [];
 		$bool['must']['bool']['should'] =
 			$this->generateSearchQueryContent($str);
+
+		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $provider->getId()]];
 		$bool['filter'][]['bool']['should'] =
 			$this->generateSearchQueryAccess($access);
 		$bool['filter'][]['bool']['should'] =
@@ -151,16 +153,16 @@ class SearchMappingService {
 	private function generateSearchQueryAccess(DocumentAccess $access) {
 
 		$query = [];
-		$query[] = ['match' => ['owner' => $access->getViewerId()]];
-		$query[] = ['match' => ['users' => $access->getViewerId()]];
-		$query[] = ['match' => ['users' => '__all']];
+		$query[] = ['term' => ['owner' => $access->getViewerId()]];
+		$query[] = ['term' => ['users' => $access->getViewerId()]];
+		$query[] = ['term' => ['users' => '__all']];
 
 		foreach ($access->getGroups() as $group) {
-			$query[] = ['match' => ['groups' => $group]];
+			$query[] = ['term' => ['groups' => $group]];
 		}
 
 		foreach ($access->getCircles() as $circle) {
-			['match' => ['circles' => $circle]];
+			$query[] = ['term' => ['circles' => $circle]];
 		}
 
 		return $query;
