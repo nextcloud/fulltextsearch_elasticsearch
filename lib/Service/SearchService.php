@@ -124,9 +124,8 @@ class SearchService {
 			(array_key_exists('highlight', $entry)) ? $entry['highlight']['content'] : []
 		);
 		$document->setScore($entry['_score']);
-		$document->setTitle(
-			(array_key_exists('title', $entry['_source'])) ? $entry['_source']['title'] : ''
-		);
+		$document->setSource(MiscService::get($entry['_source'], 'source'));
+		$document->setTitle(MiscService::get($entry['_source'], 'title'));
 
 		return $document;
 	}
