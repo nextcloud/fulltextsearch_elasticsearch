@@ -92,9 +92,26 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return $this->configService->getAppValue('installed_version');
 	}
 
-//	public function getClient() {
-//		return $this->client;
-//	}
+
+	/**
+	 * @return array
+	 * @throws ConfigurationException
+	 */
+	public function getConfiguration() {
+
+		$parsedHost = parse_url($this->configService->getElasticHost());
+		$safeHost = $parsedHost['scheme'] . '://';
+		if (array_key_exists('user', $parsedHost)) {
+			$safeHost .= $parsedHost['user'] . ':' . '********' . '@';
+		}
+		$safeHost .= $parsedHost['host'];
+		$safeHost .= ':' . $parsedHost['port'];
+
+		return [
+			'host'  => $safeHost,
+			'index' => $this->configService->getElasticIndex()
+		];
+	}
 
 
 	/**
@@ -226,7 +243,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->outputRunner(' . Indexing: ' . $document->getTitle());
 
 		try {
-			$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
+			$result =
+				$this->indexService->indexDocument($this, $this->client, $provider, $document);
 			$this->outputRunner('  result: ' . json_encode($result));
 
 			return $this->indexService->parseIndexResult($document->getIndex(), $result);
@@ -281,7 +299,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function searchDocuments(IFullTextSearchProvider $provider, DocumentAccess $access, $request
+	public function searchDocuments(
+		IFullTextSearchProvider $provider, DocumentAccess $access, $request
 	) {
 		try {
 			return $this->searchService->searchDocuments(
