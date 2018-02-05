@@ -83,9 +83,8 @@ class IndexService {
 					   ->putPipeline($this->indexMappingService->generateGlobalIngest());
 			}
 		} catch (BadRequest400Exception $e) {
-			throw new ConfigurationException(
-				'please add ingest-attachment plugin to elasticsearch'
-			);
+			$this->resetIndex($client);
+			$this->parseBadRequest400($e);
 		}
 	}
 
@@ -188,5 +187,24 @@ class IndexService {
 		return $index;
 	}
 
+
+	/**
+	 * @param BadRequest400Exception $e
+	 *
+	 * @throws ConfigurationException
+	 */
+	private function parseBadRequest400(BadRequest400Exception $e) {
+
+		$data = json_decode($e->getMessage(), true);
+		$rootCause = $data['error']['root_cause'][0];
+
+		if ($rootCause['type'] === 'parse_exception') {
+			throw new ConfigurationException(
+				'please add ingest-attachment plugin to elasticsearch'
+			);
+		}
+
+		throw new ConfigurationException($rootCause['reason']);
+	}
 
 }
