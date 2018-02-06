@@ -64,24 +64,23 @@ class IndexService {
 	 * @param Client $client
 	 *
 	 * @throws ConfigurationException
+	 * @throws BadRequest400Exception
 	 */
 	public function initializeIndex(Client $client) {
 		try {
-			$result = $client->indices()
-							 ->exists($this->indexMappingService->generateGlobalMap(false));
+			if ($client->indices()
+					   ->exists($this->indexMappingService->generateGlobalMap(false))) {
+				return;
+			}
 		} catch (BadRequest400Exception $e) {
-			throw new ConfigurationException(
-				'Check your user/password and the index assigned to that cloud'
-			);
+			$this->parseBadRequest400($e);
 		}
 
 		try {
-			if (!$result) {
-				$client->indices()
-					   ->create($this->indexMappingService->generateGlobalMap());
-				$client->ingest()
-					   ->putPipeline($this->indexMappingService->generateGlobalIngest());
-			}
+			$client->indices()
+				   ->create($this->indexMappingService->generateGlobalMap());
+			$client->ingest()
+				   ->putPipeline($this->indexMappingService->generateGlobalIngest());
 		} catch (BadRequest400Exception $e) {
 			$this->resetIndex($client);
 			$this->parseBadRequest400($e);
@@ -192,19 +191,28 @@ class IndexService {
 	 * @param BadRequest400Exception $e
 	 *
 	 * @throws ConfigurationException
+	 * @throws BadRequest400Exception
 	 */
 	private function parseBadRequest400(BadRequest400Exception $e) {
 
-		$data = json_decode($e->getMessage(), true);
-		$rootCause = $data['error']['root_cause'][0];
-
-		if ($rootCause['type'] === 'parse_exception') {
+		if ($e->getMessage() === '') {
 			throw new ConfigurationException(
-				'please add ingest-attachment plugin to elasticsearch'
+				'Check your user/password and the index assigned to that cloud'
 			);
 		}
 
-		throw new ConfigurationException($rootCause['reason']);
+
+		$error = json_decode($e->getMessage(), true)['error'];
+
+		if ($error['type'] === 'parse_exception') {
+			if ($error['reason'] === 'No processor type exists with name [attachment]') {
+				throw new ConfigurationException(
+					'please add ingest-attachment plugin to elasticsearch'
+				);
+			}
+		}
+
+		throw $e;
 	}
 
 }
