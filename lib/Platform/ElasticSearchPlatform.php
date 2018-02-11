@@ -108,8 +108,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$safeHost .= ':' . $parsedHost['port'];
 
 		return [
-			'host'  => $safeHost,
-			'index' => $this->configService->getElasticIndex()
+			'elastic_host'  => $safeHost,
+			'elastic_index' => $this->configService->getElasticIndex()
 		];
 	}
 

@@ -26,39 +26,75 @@
 
 namespace OCA\FullTextSearch_ElasticSearch\Command;
 
+use Exception;
 use OC\Core\Command\Base;
+use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
 use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 
-class Elastic extends Base {
+class Configure extends Base {
+
+	/** @var ConfigService */
+	private $configService;
 
 	/** @var MiscService */
 	private $miscService;
 
 
 	/**
-	 * Elastic constructor.
+	 * Index constructor.
 	 *
+	 * @param ConfigService $configService
 	 * @param MiscService $miscService
 	 */
-	public function __construct(MiscService $miscService) {
+	public function __construct(ConfigService $configService, MiscService $miscService) {
 		parent::__construct();
 
+		$this->configService = $configService;
 		$this->miscService = $miscService;
 	}
 
 
+	/**
+	 *
+	 */
 	protected function configure() {
 		parent::configure();
-		$this->setName('fulltextsearch:elastic')
-			 ->setDescription('Useless');
+		$this->setName('fulltextsearch_elasticsearch:configure')
+			 ->addArgument('json', InputArgument::REQUIRED, 'set config')
+			 ->setDescription('Configure the installation');
 	}
 
 
+	/**
+	 * @param InputInterface $input
+	 * @param OutputInterface $output
+	 *
+	 * @return int|null|void
+	 * @throws Exception
+	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
-		$output->writeln('elastic');
+		$json = $input->getArgument('json');
+
+		$config = json_decode($json, true);
+
+		if ($config === null) {
+			$output->writeln('Invalid JSON');
+
+			return;
+		}
+
+		$ak = array_keys($config);
+		foreach ($ak as $k) {
+			if (array_key_exists($k, $this->configService->defaults)) {
+				$this->configService->setAppValue($k, $config[$k]);
+			}
+		}
+
+		$output->writeln(json_encode($this->configService->getConfig(), JSON_PRETTY_PRINT));
 	}
 
 

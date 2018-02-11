@@ -37,8 +37,8 @@ class ConfigService {
 	const ELASTIC_HOST = 'elastic_host';
 	const ELASTIC_INDEX = 'elastic_index';
 
-	private $defaults = [
-		self::ELASTIC_HOST  => '',
+	public $defaults = [
+		self::ELASTIC_HOST => '',
 		self::ELASTIC_INDEX => ''
 	];
 
@@ -103,7 +103,9 @@ class ConfigService {
 
 		$host = $this->getAppValue(self::ELASTIC_HOST);
 		if ($host === '') {
-			throw new ConfigurationException('Your ElasticSearchPlatform is not configured properly');
+			throw new ConfigurationException(
+				'Your ElasticSearchPlatform is not configured properly'
+			);
 		}
 
 		return $host;
@@ -118,7 +120,9 @@ class ConfigService {
 
 		$index = $this->getAppValue(self::ELASTIC_INDEX);
 		if ($index === '') {
-			throw new ConfigurationException('Your ElasticSearchPlatform is not configured properly');
+			throw new ConfigurationException(
+				'Your ElasticSearchPlatform is not configured properly'
+			);
 		}
 
 		return $index;

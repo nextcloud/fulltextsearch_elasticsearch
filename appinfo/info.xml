@@ -27,7 +27,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 	</dependencies>
 
 	<commands>
-		<command>OCA\FullTextSearch_ElasticSearch\Command\Elastic</command>
+		<command>OCA\FullTextSearch_ElasticSearch\Command\Configure</command>
 	</commands>
 
 	<settings>
