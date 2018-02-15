@@ -3,7 +3,7 @@
 
 ### 0.6.1
 
-- bugfixes
+- bugfix: access verification as a keyword
 
 
 
