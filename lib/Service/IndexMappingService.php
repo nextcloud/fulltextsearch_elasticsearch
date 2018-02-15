@@ -264,12 +264,10 @@ class IndexMappingService {
 							'copy_to'     => 'combined'
 						],
 						'provider' => [
-							'type'    => 'text',
-							'copy_to' => 'combined'
+							'type' => 'keyword'
 						],
 						'tags'     => [
-							'type'    => 'text',
-							'copy_to' => 'combined'
+							'type' => 'keyword'
 						],
 						'content'  => [
 							'type'        => 'text',
@@ -278,20 +276,16 @@ class IndexMappingService {
 							'copy_to'     => 'combined'
 						],
 						'owner'    => [
-							'type'    => 'text',
-							'copy_to' => 'combined'
+							'type' => 'keyword'
 						],
 						'users'    => [
-							'type'    => 'text',
-							'copy_to' => 'combined'
+							'type' => 'keyword'
 						],
 						'groups'   => [
-							'type'    => 'text',
-							'copy_to' => 'combined'
+							'type' => 'keyword'
 						],
 						'circles'  => [
-							'type'    => 'text',
-							'copy_to' => 'combined'
+							'type' => 'keyword'
 						],
 						'combined' => [
 							'type'        => 'text',
