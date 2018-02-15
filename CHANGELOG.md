@@ -1,6 +1,12 @@
 # Changelog
 
 
+### 0.6.1
+
+- bugfixes
+
+
+
 ### 0.6.0
 
 - Cleaner error managment
