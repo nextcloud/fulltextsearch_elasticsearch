@@ -232,7 +232,7 @@ class IndexMappingService {
 						],
 						'title'    => [
 							'type'        => 'text',
-							'analyzer'    => 'analyzer',
+							'analyzer'    => 'keyword',
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
