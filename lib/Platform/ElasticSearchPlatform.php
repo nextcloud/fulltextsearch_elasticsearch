@@ -28,6 +28,7 @@ namespace OCA\FullTextSearch_ElasticSearch\Platform;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
 use Elasticsearch\Common\Exceptions\MaxRetriesException;
 use Exception;
@@ -39,6 +40,7 @@ use OCA\FullTextSearch\Model\DocumentAccess;
 use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch\Model\Runner;
+use OCA\FullTextSearch\Model\SearchRequest;
 use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
@@ -108,7 +110,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$safeHost .= ':' . $parsedHost['port'];
 
 		return [
-			'elastic_host'  => $safeHost,
+			'elastic_host' => $safeHost,
 			'elastic_index' => $this->configService->getElasticIndex()
 		];
 	}
@@ -185,14 +187,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * We create a general index.
 	 *
-	 * @param IFullTextSearchProvider $provider
-	 *
 	 * @throws ConfigurationException
+	 * @throws BadRequest400Exception
 	 */
-	public function initializeIndex(IFullTextSearchProvider $provider) {
+	public function initializeIndex() {
 		$this->indexService->initializeIndex($this->client);
-
-		$provider->onInitializingIndex($this);
 	}
 
 
@@ -202,18 +201,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * Called when admin wants to remove an index specific to a $provider.
 	 * $provider can be null, meaning a reset of the whole index.
 	 *
-	 * @param IFullTextSearchProvider|null $provider
-	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex($provider) {
-
-		if ($provider instanceof IFullTextSearchProvider) {
-			// TODO: need to specify the map to remove
-			// TODO: need to remove entries with type=providerId
-			$provider->onResettingIndex($this);
-		}
-
+	public function resetIndex() {
 		$this->indexService->resetIndex($this->client);
 	}
 
@@ -244,7 +234,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		try {
 			$result =
-				$this->indexService->indexDocument($this, $this->client, $provider, $document);
+				$this->indexService->indexDocument($this->client, $provider, $document);
 			$this->outputRunner('  result: ' . json_encode($result));
 
 			return $this->indexService->parseIndexResult($document->getIndex(), $result);
@@ -277,7 +267,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$index->unsetStatus(Index::INDEX_CONTENT);
 		$index->setMessage(json_encode($message));
 
-		$result = $this->indexService->indexDocument($this, $this->client, $provider, $document);
+		$result = $this->indexService->indexDocument($this->client, $provider, $document);
 		$this->outputRunner('  result with no content: ' . json_encode($result));
 
 		return $this->indexService->parseIndexResult($document->getIndex(), $result);
@@ -300,11 +290,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * {@inheritdoc}
 	 */
 	public function searchDocuments(
-		IFullTextSearchProvider $provider, DocumentAccess $access, $request
+		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
 		try {
 			return $this->searchService->searchDocuments(
-				$this, $this->client, $provider, $access, $request
+				$this->client, $provider, $access, $request
 			);
 		} catch (ConfigurationException $e) {
 			throw $e;

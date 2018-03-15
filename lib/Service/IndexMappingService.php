@@ -58,19 +58,13 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
-	 *
-	 * @param IFullTextSearchPlatform $source
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocumentNew(
-		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
-		IFullTextSearchPlatform $source
-	) {
+	public function indexDocumentNew(Client $client, IndexDocument $document) {
 		$index = [
 			'index' =>
 				[
@@ -81,7 +75,7 @@ class IndexMappingService {
 				]
 		];
 
-		$this->onIndexingDocument($source, $provider, $document, $index);
+		$this->onIndexingDocument($document, $index);
 
 		return $client->index($index['index']);
 	}
@@ -89,18 +83,13 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
-	 * @param IFullTextSearchPlatform $source
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocumentUpdate(
-		Client $client, IFullTextSearchProvider $provider, IndexDocument $document,
-		IFullTextSearchPlatform $source
-	) {
+	public function indexDocumentUpdate(Client $client, IndexDocument $document) {
 		$index = [
 			'index' =>
 				[
@@ -111,11 +100,11 @@ class IndexMappingService {
 				]
 		];
 
-		$this->onIndexingDocument($source, $provider, $document, $index);
+		$this->onIndexingDocument($document, $index);
 		try {
 			return $client->update($index['index']);
 		} catch (Missing404Exception $e) {
-			return $this->indexDocumentNew($client, $provider, $document, $source);
+			return $this->indexDocumentNew($client, $document);
 		}
 	}
 
@@ -143,20 +132,15 @@ class IndexMappingService {
 
 
 	/**
-	 * @param IFullTextSearchPlatform $source
-	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 * @param array $arr
 	 */
-	public function onIndexingDocument(
-		IFullTextSearchPlatform $source, IFullTextSearchProvider $provider, IndexDocument $document,
-		&$arr
-	) {
+	public function onIndexingDocument(IndexDocument $document, &$arr) {
 		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
 		}
 
-		$provider->onIndexingDocument($source, $arr);
+	//	$provider->onIndexingDocument($source, $arr);
 	}
 
 
@@ -179,21 +163,10 @@ class IndexMappingService {
 			'groups'   => $access->getGroups(),
 			'circles'  => $access->getCircles(),
 			'tags'     => $document->getTags(),
-			'provider' => $document->getProviderId()
+			'provider' => $document->getProviderId(),
+			'source'   => $document->getSource(),
+			'title'    => $document->getTitle()
 		];
-
-
-		if ($document->getSource() !== null) {
-			$body['source'] = $document->getSource();
-		}
-
-		if ($document->getTitle() !== null) {
-			$body['title'] = $document->getTitle();
-		}
-
-		if ($document->getSource() !== null) {
-			$body['source'] = $document->getSource();
-		}
 
 		if ($document->getContent() !== null) {
 			$body['content'] = $document->getContent();

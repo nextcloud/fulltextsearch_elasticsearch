@@ -130,7 +130,6 @@ class IndexService {
 
 
 	/**
-	 * @param IFullTextSearchPlatform $platform
 	 * @param Client $client
 	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
@@ -139,9 +138,7 @@ class IndexService {
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocument(
-		IFullTextSearchPlatform $platform, Client $client, IFullTextSearchProvider $provider,
-		IndexDocument $document
+	public function indexDocument(Client $client, IFullTextSearchProvider $provider, IndexDocument $document
 	) {
 		$index = $document->getIndex();
 		if ($index->isStatus(Index::INDEX_REMOVE)) {
@@ -149,13 +146,9 @@ class IndexService {
 				$client, $provider->getId(), $document->getId()
 			);
 		} else if ($index->isStatus(Index::INDEX_OK) && !$index->isStatus(Index::INDEX_CONTENT)) {
-			$result = $this->indexMappingService->indexDocumentUpdate(
-				$client, $provider, $document, $platform
-			);
+			$result = $this->indexMappingService->indexDocumentUpdate($client, $document);
 		} else {
-			$result = $this->indexMappingService->indexDocumentNew(
-				$client, $provider, $document, $platform
-			);
+			$result = $this->indexMappingService->indexDocumentNew($client, $document);
 		}
 
 		return $result;

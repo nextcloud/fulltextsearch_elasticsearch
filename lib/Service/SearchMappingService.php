@@ -91,19 +91,66 @@ class SearchMappingService {
 		];
 
 		$bool = [];
-		$bool['must']['bool']['should'] =
-			$this->generateSearchQueryContent($str);
+		$bool['must']['bool']['should'] = $this->generateSearchQueryContent($str);
 
 		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $provider->getId()]];
-		$bool['filter'][]['bool']['should'] =
-			$this->generateSearchQueryAccess($access);
-		$bool['filter'][]['bool']['should'] =
-			$this->generateSearchQueryTags($request->getTags());
+		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
+		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
 
+		$this->improveSearchQuerying($request, $params['body']['query']);
+
 		return $params;
+	}
+
+
+	/**
+	 * @param SearchRequest $request
+	 * @param array $arr
+	 */
+	private function improveSearchQuerying(SearchRequest $request, &$arr) {
+		$this->improveSearchWildcardQueries($request, $arr);
+		$this->improveSearchWildcardFilters($request, $arr);
+	}
+
+
+	/**
+	 * @param SearchRequest $request
+	 * @param array $arr
+	 */
+	private function improveSearchWildcardQueries(SearchRequest $request, &$arr) {
+
+		$queries = $request->getWildcardQueries();
+		foreach ($queries as $query) {
+			$wildcards = [];
+			foreach ($query as $entry) {
+				$wildcards[] = ['wildcard' => $entry];
+			}
+
+			array_push($arr['bool']['must']['bool']['should'], $wildcards);
+		}
+
+	}
+
+
+	/**
+	 * @param SearchRequest $request
+	 * @param array $arr
+	 */
+	private function improveSearchWildcardFilters(SearchRequest $request, &$arr) {
+
+		$filters = $request->getWildcardFilters();
+		foreach ($filters as $filter) {
+			$wildcards = [];
+			foreach ($filter as $entry) {
+				$wildcards[] = ['wildcard' => $entry];
+			}
+
+			$arr['bool']['filter'][]['bool']['should'] = $wildcards;
+		}
+
 	}
 
 

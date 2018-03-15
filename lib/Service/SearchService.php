@@ -27,7 +27,6 @@
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
-use OCA\FullTextSearch\IFullTextSearchPlatform;
 use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\DocumentAccess;
 use OCA\FullTextSearch\Model\IndexDocument;
@@ -60,7 +59,6 @@ class SearchService {
 
 
 	/**
-	 * @param IFullTextSearchPlatform $source
 	 * @param Client $client
 	 * @param IFullTextSearchProvider $provider
 	 * @param DocumentAccess $access
@@ -70,16 +68,15 @@ class SearchService {
 	 * @throws ConfigurationException
 	 */
 	public function searchDocuments(
-		IFullTextSearchPlatform $source, Client $client, IFullTextSearchProvider $provider,
-		DocumentAccess $access, SearchRequest $request
+		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
+		SearchRequest $request
 	) {
 
 		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
-		$provider->onSearchingQuery($source, $request, $query);
+//		$provider->onSearchingQuery($source, $request, $query);
 
 		$result = $client->search($query['params']);
 		$searchResult = $this->generateSearchResultFromResult($result);
-		$searchResult->setProvider($provider);
 
 		foreach ($result['hits']['hits'] as $entry) {
 			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
