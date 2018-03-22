@@ -164,7 +164,7 @@ class SearchMappingService {
 		$words = explode(' ', $string);
 		foreach ($words as $word) {
 
-			$kw = 'prefix';
+			$kw = 'match_phrase_prefix';
 			$this->modifySearchQueryContentOnCompleteWord($kw, $word);
 
 			array_push($queryTitle, [$kw => ['title' => $word]]);
