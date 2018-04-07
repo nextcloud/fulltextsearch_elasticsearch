@@ -113,6 +113,7 @@ class SearchMappingService {
 	private function improveSearchQuerying(SearchRequest $request, &$arr) {
 		$this->improveSearchWildcardQueries($request, $arr);
 		$this->improveSearchWildcardFilters($request, $arr);
+		$this->improveSearchRegexFilters($request, $arr);
 	}
 
 
@@ -149,6 +150,25 @@ class SearchMappingService {
 			}
 
 			$arr['bool']['filter'][]['bool']['should'] = $wildcards;
+		}
+
+	}
+
+
+	/**
+	 * @param SearchRequest $request
+	 * @param array $arr
+	 */
+	private function improveSearchRegexFilters(SearchRequest $request, &$arr) {
+
+		$filters = $request->getRegexFilters();
+		foreach ($filters as $filter) {
+			$regex = [];
+			foreach ($filter as $entry) {
+				$regex[] = ['regexp' => $entry];
+			}
+
+			$arr['bool']['filter'][]['bool']['should'] = $regex;
 		}
 
 	}
