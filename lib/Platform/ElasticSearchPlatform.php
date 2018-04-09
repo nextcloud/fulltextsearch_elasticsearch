@@ -208,16 +208,17 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	}
 
 
-	/**
-	 * {@inheritdoc}
-	 */
 	public function indexDocuments(IFullTextSearchProvider $provider, $documents) {
 		$indexes = [];
 		foreach ($documents as $document) {
-			$index = $this->indexDocument($provider, $document);
-			if ($index !== null) {
+
+			try {
+				$index = $this->indexDocument($provider, $document);
 				$indexes[] = $index;
+			} catch (Exception $e) {
+				/** we do nohtin' */
 			}
+
 		}
 
 		return $indexes;
@@ -225,7 +226,14 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * {@inheritdoc}
+	 * @param IFullTextSearchProvider $provider
+	 * @param IndexDocument $document
+	 *
+	 * @return Index
+	 * @throws AccessIsEmptyException
+	 * @throws ConfigurationException
+	 * @throws InterruptException
+	 * @throws TickDoesNotExistException
 	 */
 	public function indexDocument(IFullTextSearchProvider $provider, IndexDocument $document) {
 
@@ -276,6 +284,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/**
 	 * {@inheritdoc}
+	 * @throws ConfigurationException
 	 */
 	public function deleteIndexes($indexes) {
 		try {
@@ -288,6 +297,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/**
 	 * {@inheritdoc}
+	 * @throws ConfigurationException
 	 */
 	public function searchDocuments(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
