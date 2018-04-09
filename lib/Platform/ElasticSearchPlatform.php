@@ -241,8 +241,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->outputRunner(' . Indexing: ' . $document->getTitle());
 
 		try {
-			$result =
-				$this->indexService->indexDocument($this->client, $provider, $document);
+			$result = $this->indexService->indexDocument($this->client, $provider, $document);
 			$this->outputRunner('  result: ' . json_encode($result));
 
 			return $this->indexService->parseIndexResult($document->getIndex(), $result);

@@ -137,11 +137,13 @@ class IndexService {
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocument(Client $client, IFullTextSearchProvider $provider, IndexDocument $document
+	public function indexDocument(
+		Client $client, IFullTextSearchProvider $provider, IndexDocument $document
 	) {
+		$result = [];
 		$index = $document->getIndex();
 		if ($index->isStatus(Index::INDEX_REMOVE)) {
-			$result = $this->indexMappingService->indexDocumentRemove(
+			$this->indexMappingService->indexDocumentRemove(
 				$client, $provider->getId(), $document->getId()
 			);
 		} else if ($index->isStatus(Index::INDEX_OK) && !$index->isStatus(Index::INDEX_CONTENT)) {

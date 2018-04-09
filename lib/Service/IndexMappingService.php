@@ -114,7 +114,6 @@ class IndexMappingService {
 	 * @param string $providerId
 	 * @param string|int $documentId
 	 *
-	 * @return array
 	 * @throws ConfigurationException
 	 */
 	public function indexDocumentRemove(Client $client, $providerId, $documentId) {
@@ -127,7 +126,10 @@ class IndexMappingService {
 				]
 		];
 
-		return $client->delete($index['index']);
+		try {
+			$client->delete($index['index']);
+		} catch (Missing404Exception $e) {
+		}
 	}
 
 
