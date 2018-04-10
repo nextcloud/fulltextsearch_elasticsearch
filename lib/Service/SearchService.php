@@ -71,9 +71,7 @@ class SearchService {
 		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
 		SearchRequest $request
 	) {
-
 		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
-//		$provider->onSearchingQuery($source, $request, $query);
 
 		$result = $client->search($query['params']);
 		$searchResult = $this->generateSearchResultFromResult($result);
