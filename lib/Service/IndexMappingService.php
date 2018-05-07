@@ -167,7 +167,8 @@ class IndexMappingService {
 			'tags'     => $document->getTags(),
 			'provider' => $document->getProviderId(),
 			'source'   => $document->getSource(),
-			'title'    => $document->getTitle()
+			'title'    => $document->getTitle(),
+			'parts'    => $document->getParts()
 		];
 
 		if ($document->getContent() !== null) {
