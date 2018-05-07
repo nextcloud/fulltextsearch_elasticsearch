@@ -28,8 +28,6 @@ namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use OCA\FullTextSearch\IFullTextSearchPlatform;
-use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
@@ -141,8 +139,6 @@ class IndexMappingService {
 		if ($document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
 		}
-
-	//	$provider->onIndexingDocument($source, $arr);
 	}
 
 
@@ -228,10 +224,7 @@ class IndexMappingService {
 				'standard' => [
 					'properties' => [
 						'source'   => [
-							'type'        => 'text',
-							'analyzer'    => 'analyzer',
-							'term_vector' => 'yes',
-							'copy_to'     => 'combined'
+							'type' => 'keyword'
 						],
 						'title'    => [
 							'type'        => 'text',
