@@ -81,8 +81,6 @@ class SearchMappingService {
 	public function generateSearchQueryParams(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		$str = strtolower($request->getSearch());
-
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
 			'type'  => 'standard',
@@ -91,7 +89,7 @@ class SearchMappingService {
 		];
 
 		$bool = [];
-		$bool['must']['bool']['should'] = $this->generateSearchQueryContent($str);
+		$bool['must']['bool']['should'] = $this->generateSearchQueryContent($request);
 
 		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $provider->getId()]];
 		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
@@ -175,26 +173,33 @@ class SearchMappingService {
 
 
 	/**
-	 * @param string $string
+	 * @param SearchRequest $request
 	 *
 	 * @return array<string,array<string,array>>
 	 */
-	private function generateSearchQueryContent($string) {
-		$queryTitle = $queryContent = [];
-		$words = explode(' ', $string);
+	private function generateSearchQueryContent(SearchRequest $request) {
+		$str = strtolower($request->getSearch());
+
+		$queryTitle = $queryContent = $kwParts = [];
+		$words = explode(' ', $str);
 		foreach ($words as $word) {
 
 			$kw = 'prefix';
 			$this->modifySearchQueryContentOnCompleteWord($kw, $word);
 
-			array_push($queryTitle, [$kw => ['title' => $word]]);
-			array_push($queryContent, [$kw => ['content' => $word]]);
+			$queryTitle[] = [$kw => ['title' => $word]];
+			$queryContent[] = [$kw => ['content' => $word]];
+			$kwParts[] = ['kw' => $kw, 'word' => $word];
 		}
 
-		return [
+		$query = [
 			['bool' => ['must' => $queryTitle]],
 			['bool' => ['must' => $queryContent]]
 		];
+
+		$query = array_merge($query, $this->complementSearchWithParts($request, $kwParts));
+
+		return $query;
 	}
 
 
@@ -209,6 +214,27 @@ class SearchMappingService {
 
 		$kw = 'match';
 		$word = substr($word, 1, -1);
+	}
+
+
+	/**
+	 * @param SearchRequest $request
+	 * @param array $kwParts
+	 *
+	 * @return array
+	 */
+	private function complementSearchWithParts(SearchRequest $request, $kwParts) {
+		$query = [];
+		foreach ($request->getParts() as $part) {
+			$queryParts = [];
+			foreach ($kwParts as $kwPart) {
+				$queryParts[] = [$kwPart['kw'] => ['parts.' . $part => $kwPart['word']]];
+			}
+
+			$query[] = ['bool' => ['must' => $queryParts]];
+		}
+
+		return $query;
 	}
 
 
