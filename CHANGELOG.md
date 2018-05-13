@@ -1,6 +1,16 @@
 # Changelog
 
 
+
+### 0.7.0
+
+- improvement in title indexing
+- improvement during the index removing
+- content (index and search) can be splited in Parts 
+- compat fulltextsearch 0.7.0 and fulltextsearch navigation app.
+
+
+
 ### 0.6.1
 
 - bugfix: access verification as a keyword
