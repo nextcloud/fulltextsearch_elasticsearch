@@ -54,7 +54,7 @@ Util::addStyle(Application::APP_NAME, 'admin');
 
 		<div class="div-table-row">
 			<div class="div-table-col div-table-col-left">
-				<span class="leftcol">Index :</span>
+				<span class="leftcol">Index:</span>
 				<br/>
 				<em>Name of your index.</em>
 			</div>
@@ -62,6 +62,18 @@ Util::addStyle(Application::APP_NAME, 'admin');
 				<input type="text" id="elasticsearch_index" placeholder="my_index"/>
 			</div>
 		</div>
+
+		<div class="div-table-row">
+			<div class="div-table-col div-table-col-left">
+				<span class="leftcol">[Advanced] Analyzer tokenizer:</span>
+				<br/>
+				<em>Some language might needs a specific tokenizer.</em>
+			</div>
+			<div class="div-table-col">
+				<input type="text" id="analyzer_tokenizer" />
+			</div>
+		</div>
+
 
 	</div>
 

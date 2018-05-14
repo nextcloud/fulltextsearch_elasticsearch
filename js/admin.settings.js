@@ -51,6 +51,7 @@ var elasticsearch_settings = {
 
 		elasticsearch_elements.elasticsearch_host.val(result.elastic_host);
 		elasticsearch_elements.elasticsearch_index.val(result.elastic_index);
+		elasticsearch_elements.analyzer_tokenizer.val(result.analyzer_tokenizer);
 
 		fts_admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
 	},
@@ -60,7 +61,8 @@ var elasticsearch_settings = {
 
 		var data = {
 			elastic_host: elasticsearch_elements.elasticsearch_host.val(),
-			elastic_index: elasticsearch_elements.elasticsearch_index.val()
+			elastic_index: elasticsearch_elements.elasticsearch_index.val(),
+			analyzer_tokenizer: elasticsearch_elements.analyzer_tokenizer.val()
 		};
 
 		$.ajax({

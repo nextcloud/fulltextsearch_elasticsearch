@@ -36,10 +36,12 @@ class ConfigService {
 
 	const ELASTIC_HOST = 'elastic_host';
 	const ELASTIC_INDEX = 'elastic_index';
+	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
 
 	public $defaults = [
-		self::ELASTIC_HOST => '',
-		self::ELASTIC_INDEX => ''
+		self::ELASTIC_HOST       => '',
+		self::ELASTIC_INDEX      => '',
+		self::ANALYZER_TOKENIZER => 'standard'
 	];
 
 	/** @var IConfig */

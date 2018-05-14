@@ -214,7 +214,9 @@ class IndexMappingService {
 					'analyzer'    => [
 						'analyzer' => [
 							'type'      => 'custom',
-							'tokenizer' => 'standard',
+							'tokenizer' => $this->configService->getAppValue(
+								ConfigService::ANALYZER_TOKENIZER
+							),
 							'filter'    => ['lowercase', 'stop', 'kstem']
 						]
 					]
