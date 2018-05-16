@@ -30,6 +30,7 @@ use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\DocumentAccess;
 use OCA\FullTextSearch\Model\SearchRequest;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
 
 
 class SearchMappingService {
@@ -60,6 +61,7 @@ class SearchMappingService {
 	 *
 	 * @return array
 	 * @throws ConfigurationException
+	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQuery(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
@@ -77,6 +79,7 @@ class SearchMappingService {
 	 *
 	 * @return array
 	 * @throws ConfigurationException
+	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQueryParams(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
@@ -176,32 +179,34 @@ class SearchMappingService {
 	 * @param SearchRequest $request
 	 *
 	 * @return array<string,array<string,array>>
+	 * @throws SearchQueryGenerationException
 	 */
 	private function generateSearchQueryContent(SearchRequest $request) {
 		$str = strtolower($request->getSearch());
 
-		$queryTitle = $queryContent = $kwParts = [];
-		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', $str, $words);
-
+		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', " $str ", $words);
+		$queryData = [];
 		foreach ($words[0] as $word) {
-			$word = str_replace('"', '', $word);
-
 			list($bool, $should, $match) = $this->generateSearchQueryOption($word);
 			if (strlen($word) === 0) {
 				continue;
 			}
 
-			$queryTitle[$bool][$should] = [$match => ['title' => $word]];
-			$queryContent[$bool][$should] = [$match => ['content' => $word]];
-			$kwParts[$bool][$should] = ['kw' => $match, 'word' => $word];
+			$queryData[] = [
+				'bool'   => $bool,
+				'should' => $should,
+				'match'  => $match,
+				'word'   => $word
+			];
 		}
 
-		$query = [
-			$queryTitle,
-			$queryContent
-		];
+		if (sizeof($queryData) === 0) {
+			throw new SearchQueryGenerationException();
+		}
 
-		$query = array_merge($query, $this->complementSearchWithParts($request, $kwParts));
+		$query = $this->generateSearchQueryContentFromOptions($request, $queryData);
+
+//		$query = array_merge($query, $this->complementSearchWithParts($request, $kwParts));
 
 		return $query;
 	}
@@ -219,8 +224,8 @@ class SearchMappingService {
 
 		$curr = substr($word, 0, 1);
 		$options = [
-			'+' => ['bool', 'must', 'match'],
-			'-' => ['bool', 'must_not', 'match']
+			'+' => ['bool', 'must', 'prefix'],
+			'-' => ['bool', 'must_not', 'prefix']
 		];
 
 		if (array_key_exists($curr, $options)) {
@@ -229,6 +234,15 @@ class SearchMappingService {
 			$match = $options[$curr][2];
 			$word = substr($word, 1);
 		}
+
+		if (substr($word, 0, 1) === '"') {
+			$match = 'match';
+			if (strpos($word, " ") > -1) {
+				$match = 'match_phrase_prefix';
+			}
+		}
+
+		$word = str_replace('"', '', $word);
 
 		return [$bool, $should, $match];
 	}
@@ -244,11 +258,39 @@ class SearchMappingService {
 		$query = [];
 		foreach ($request->getParts() as $part) {
 			$queryParts = [];
+
 			foreach ($kwParts as $kwPart) {
 				$queryParts[] = [$kwPart['kw'] => ['parts.' . $part => $kwPart['word']]];
 			}
 
 			$query[] = ['bool' => ['must' => $queryParts]];
+		}
+
+		return $query;
+	}
+
+
+	/**
+	 * @param SearchRequest $request
+	 * @param array $queryData
+	 *
+	 * @return array
+	 */
+	private function generateSearchQueryContentFromOptions(SearchRequest $request, $queryData) {
+		$query = [];
+		$fields = array_merge(['content', 'title'], $request->getParts());
+		foreach ($fields as $field) {
+			$queryField = [];
+			foreach ($queryData as $data) {
+				$bool = $data['bool'];
+				$should = $data['should'];
+				$match = $data['match'];
+				$word = $data['word'];
+
+				$queryField[$bool][$should][] = [$match => [$field => $word]];
+			}
+
+			$query[] = $queryField;
 		}
 
 		return $query;
