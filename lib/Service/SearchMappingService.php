@@ -181,20 +181,24 @@ class SearchMappingService {
 		$str = strtolower($request->getSearch());
 
 		$queryTitle = $queryContent = $kwParts = [];
-		$words = explode(' ', $str);
-		foreach ($words as $word) {
+		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', $str, $words);
 
-			$kw = 'match_phrase_prefix';
-			$this->modifySearchQueryContentOnCompleteWord($kw, $word);
+		foreach ($words[0] as $word) {
+			$word = str_replace('"', '', $word);
 
-			$queryTitle[] = [$kw => ['title' => $word]];
-			$queryContent[] = [$kw => ['content' => $word]];
-			$kwParts[] = ['kw' => $kw, 'word' => $word];
+			list($bool, $should, $match) = $this->generateSearchQueryOption($word);
+			if (strlen($word) === 0) {
+				continue;
+			}
+
+			$queryTitle[$bool][$should] = [$match => ['title' => $word]];
+			$queryContent[$bool][$should] = [$match => ['content' => $word]];
+			$kwParts[$bool][$should] = ['kw' => $match, 'word' => $word];
 		}
 
 		$query = [
-			['bool' => ['must' => $queryTitle]],
-			['bool' => ['must' => $queryContent]]
+			$queryTitle,
+			$queryContent
 		];
 
 		$query = array_merge($query, $this->complementSearchWithParts($request, $kwParts));
@@ -204,16 +208,29 @@ class SearchMappingService {
 
 
 	/**
-	 * @param string $kw
 	 * @param string $word
+	 *
+	 * @return array
 	 */
-	private function modifySearchQueryContentOnCompleteWord(&$kw, &$word) {
-		if (substr($word, 0, 1) !== '"' || substr($word, -1) !== '"') {
-			return;
+	private function generateSearchQueryOption(&$word) {
+		$bool = 'bool';
+		$should = 'should';
+		$match = 'match_phrase_prefix';
+
+		$curr = substr($word, 0, 1);
+		$options = [
+			'+' => ['bool', 'must', 'match'],
+			'-' => ['bool', 'must_not', 'match']
+		];
+
+		if (array_key_exists($curr, $options)) {
+			$bool = $options[$curr][0];
+			$should = $options[$curr][1];
+			$match = $options[$curr][2];
+			$word = substr($word, 1);
 		}
 
-		$kw = 'match';
-		$word = substr($word, 1, -1);
+		return [$bool, $should, $match];
 	}
 
 
