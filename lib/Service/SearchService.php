@@ -27,6 +27,7 @@
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
+use Exception;
 use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\DocumentAccess;
 use OCA\FullTextSearch\Model\IndexDocument;
@@ -67,6 +68,7 @@ class SearchService {
 	 *
 	 * @return SearchResult
 	 * @throws ConfigurationException
+	 * @throws Exception
 	 */
 	public function searchDocuments(
 		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
@@ -78,7 +80,15 @@ class SearchService {
 			return null;
 		}
 
-		$result = $client->search($query['params']);
+		try {
+			$result = $client->search($query['params']);
+		} catch (Exception $e) {
+			$this->miscService->log(
+				'debug - request: ' . json_encode($request) . '   - query: ' . json_encode($query)
+			);
+			throw $e;
+		}
+
 		$searchResult = $this->generateSearchResultFromResult($result);
 
 		foreach ($result['hits']['hits'] as $entry) {
