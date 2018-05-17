@@ -30,6 +30,9 @@ use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\DocumentAccess;
 use OCA\FullTextSearch\Model\SearchRequest;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\QueryContentGenerationException;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
+use OCA\FullTextSearch_ElasticSearch\Model\QueryContent;
 
 
 class SearchMappingService {
@@ -60,6 +63,7 @@ class SearchMappingService {
 	 *
 	 * @return array
 	 * @throws ConfigurationException
+	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQuery(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
@@ -77,6 +81,7 @@ class SearchMappingService {
 	 *
 	 * @return array
 	 * @throws ConfigurationException
+	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQueryParams(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
@@ -176,65 +181,90 @@ class SearchMappingService {
 	 * @param SearchRequest $request
 	 *
 	 * @return array<string,array<string,array>>
+	 * @throws SearchQueryGenerationException
 	 */
 	private function generateSearchQueryContent(SearchRequest $request) {
 		$str = strtolower($request->getSearch());
 
-		$queryTitle = $queryContent = $kwParts = [];
-		$words = explode(' ', $str);
-		foreach ($words as $word) {
-
-			$kw = 'match_phrase_prefix';
-			$this->modifySearchQueryContentOnCompleteWord($kw, $word);
-
-			$queryTitle[] = [$kw => ['title' => $word]];
-			$queryContent[] = [$kw => ['content' => $word]];
-			$kwParts[] = ['kw' => $kw, 'word' => $word];
+		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', " $str ", $words);
+		$queryContent = [];
+		foreach ($words[0] as $word) {
+			try {
+				$queryContent[] = $this->generateQueryContent($word);
+			} catch (QueryContentGenerationException $e) {
+				continue;
+			}
 		}
 
-		$query = [
-			['bool' => ['must' => $queryTitle]],
-			['bool' => ['must' => $queryContent]]
-		];
+		if (sizeof($queryContent) === 0) {
+			throw new SearchQueryGenerationException();
+		}
 
-		$query = array_merge($query, $this->complementSearchWithParts($request, $kwParts));
-
-		return $query;
+		return $this->generateSearchQueryFromQueryContent($request, $queryContent);
 	}
 
 
 	/**
-	 * @param string $kw
 	 * @param string $word
+	 *
+	 * @return QueryContent
+	 * @throws QueryContentGenerationException
 	 */
-	private function modifySearchQueryContentOnCompleteWord(&$kw, &$word) {
-		if (substr($word, 0, 1) !== '"' || substr($word, -1) !== '"') {
-			return;
+	private function generateQueryContent($word) {
+
+		$searchQueryContent = new QueryContent($word);
+		if (sizeof($searchQueryContent->getWord()) === 0) {
+			throw new QueryContentGenerationException();
 		}
 
-		$kw = 'match';
-		$word = substr($word, 1, -1);
+		return $searchQueryContent;
 	}
 
 
 	/**
 	 * @param SearchRequest $request
-	 * @param array $kwParts
+	 * @param QueryContent[] $queryContents
 	 *
 	 * @return array
 	 */
-	private function complementSearchWithParts(SearchRequest $request, $kwParts) {
-		$query = [];
-		foreach ($request->getParts() as $part) {
-			$queryParts = [];
-			foreach ($kwParts as $kwPart) {
-				$queryParts[] = [$kwPart['kw'] => ['parts.' . $part => $kwPart['word']]];
-			}
+	private function generateSearchQueryFromQueryContent(SearchRequest $request, $queryContents) {
+		$query = $queryWords = [];
 
-			$query[] = ['bool' => ['must' => $queryParts]];
+		$parts = array_map(
+			function($value) {
+				return 'parts.' . $value;
+			}, $request->getParts()
+		);
+		$fields = array_merge(['content', 'title'], $parts);
+
+		foreach ($queryContents as $queryContent) {
+			$queryWords[$queryContent->getShould()][] =
+				$this->generateQueryContentFields($queryContent, $fields);
 		}
 
-		return $query;
+		$listShould = array_keys($queryWords);
+		foreach ($listShould as $itemShould) {
+			$query[$itemShould][] = $queryWords[$itemShould];
+		}
+
+		return ['bool' => $query];
+	}
+
+
+	/**
+	 * @param QueryContent $queryContent
+	 * @param array $fields
+	 *
+	 * @return array
+	 */
+	private function generateQueryContentFields(QueryContent $queryContent, $fields) {
+		$queryFields = [];
+		foreach ($fields as $field) {
+			$queryFields[] =
+				[$queryContent->getMatch() => [$field => $queryContent->getWord()]];
+		}
+
+		return ['bool' => ['should' => $queryFields]];
 	}
 
 

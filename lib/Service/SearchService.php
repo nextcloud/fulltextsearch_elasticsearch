@@ -33,6 +33,7 @@ use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch\Model\SearchRequest;
 use OCA\FullTextSearch\Model\SearchResult;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
 
 class SearchService {
 
@@ -71,7 +72,11 @@ class SearchService {
 		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
 		SearchRequest $request
 	) {
-		$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
+		try {
+			$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
+		} catch (SearchQueryGenerationException $e) {
+			return null;
+		}
 
 		$result = $client->search($query['params']);
 		$searchResult = $this->generateSearchResultFromResult($result);
