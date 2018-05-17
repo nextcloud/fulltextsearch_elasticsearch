@@ -10,14 +10,13 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>0.7.0</version>
+	<version>0.7.1</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullTextSearch_ElasticSearch</namespace>
 	<documentation>
 		<admin>https://github.com/nextcloud/fulltextsearch_elasticsearch/wiki</admin>
 	</documentation>
-	<category>tools</category>
 	<category>search</category>
 	<website>https://github.com/nextcloud/fulltextsearch_elasticsearch</website>
 	<bugs>https://github.com/nextcloud/fulltextsearch_elasticsearch/issues</bugs>

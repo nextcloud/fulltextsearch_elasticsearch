@@ -1,6 +1,14 @@
 # Changelog
 
 
+### 0.7.1
+
+- searching all "block of text"
+- searching options: MUST/MUST_NOT using the +/-
+- search multi fields
+- tokenizer is now configurable (so chinese is indexeable)
+
+
 
 ### 0.7.0
 
