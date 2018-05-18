@@ -235,7 +235,7 @@ class SearchMappingService {
 				return 'parts.' . $value;
 			}, $request->getParts()
 		);
-		$fields = array_merge(['content', 'title'], $parts);
+		$fields = array_merge(['content', 'title'], $request->getFields(), $parts);
 
 		foreach ($queryContents as $queryContent) {
 			$queryWords[$queryContent->getShould()][] =
