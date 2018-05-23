@@ -213,7 +213,7 @@ class SearchMappingService {
 	private function generateQueryContent($word) {
 
 		$searchQueryContent = new QueryContent($word);
-		if (sizeof($searchQueryContent->getWord()) === 0) {
+		if (strlen($searchQueryContent->getWord()) === 0) {
 			throw new QueryContentGenerationException();
 		}
 
