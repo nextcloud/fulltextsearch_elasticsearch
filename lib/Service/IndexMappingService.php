@@ -161,6 +161,7 @@ class IndexMappingService {
 			'groups'   => $access->getGroups(),
 			'circles'  => $access->getCircles(),
 			'tags'     => $document->getTags(),
+			'hash'     => $document->getHash(),
 			'provider' => $document->getProviderId(),
 			'source'   => $document->getSource(),
 			'title'    => $document->getTitle(),
@@ -256,6 +257,9 @@ class IndexMappingService {
 							'type' => 'keyword'
 						],
 						'circles'  => [
+							'type' => 'keyword'
+						],
+						'hash'     => [
 							'type' => 'keyword'
 						],
 						'combined' => [

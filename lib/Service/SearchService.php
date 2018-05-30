@@ -133,6 +133,7 @@ class SearchService {
 		$document->setExcerpts(
 			(array_key_exists('highlight', $entry)) ? $entry['highlight']['content'] : []
 		);
+		$document->setHash(MiscService::get($entry['_source'], 'hash'));
 		$document->setScore($entry['_score']);
 		$document->setSource(MiscService::get($entry['_source'], 'source'));
 		$document->setTitle(MiscService::get($entry['_source'], 'title'));

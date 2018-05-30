@@ -189,6 +189,7 @@ class SearchMappingService {
 		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', " $str ", $words);
 		$queryContent = [];
 		foreach ($words[0] as $word) {
+
 			try {
 				$queryContent[] = $this->generateQueryContent($word);
 			} catch (QueryContentGenerationException $e) {
