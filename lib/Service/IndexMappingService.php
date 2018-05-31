@@ -307,9 +307,10 @@ class IndexMappingService {
 						'indexed_chars' => -1
 					],
 					'convert'    => [
-						'field'        => 'attachment.content',
-						'type'         => 'string',
-						'target_field' => 'content'
+						'field'          => 'attachment.content',
+						'type'           => 'string',
+						'target_field'   => 'content',
+						'ignore_missing' => true
 					],
 					'remove'     => [
 						'field'          => 'attachment.content',
