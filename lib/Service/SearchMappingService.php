@@ -189,7 +189,6 @@ class SearchMappingService {
 		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', " $str ", $words);
 		$queryContent = [];
 		foreach ($words[0] as $word) {
-
 			try {
 				$queryContent[] = $this->generateQueryContent($word);
 			} catch (QueryContentGenerationException $e) {
@@ -229,18 +228,11 @@ class SearchMappingService {
 	 * @return array
 	 */
 	private function generateSearchQueryFromQueryContent(SearchRequest $request, $queryContents) {
+
 		$query = $queryWords = [];
-
-		$parts = array_map(
-			function($value) {
-				return 'parts.' . $value;
-			}, $request->getParts()
-		);
-		$fields = array_merge(['content', 'title'], $request->getFields(), $parts);
-
 		foreach ($queryContents as $queryContent) {
 			$queryWords[$queryContent->getShould()][] =
-				$this->generateQueryContentFields($queryContent, $fields);
+				$this->generateQueryContentFields($request, $queryContent);
 		}
 
 		$listShould = array_keys($queryWords);
@@ -253,16 +245,26 @@ class SearchMappingService {
 
 
 	/**
-	 * @param QueryContent $queryContent
-	 * @param array $fields
+	 * @param SearchRequest $request
+	 * @param QueryContent $content
 	 *
 	 * @return array
 	 */
-	private function generateQueryContentFields(QueryContent $queryContent, $fields) {
+	private function generateQueryContentFields(SearchRequest $request, QueryContent $content) {
+		$parts = array_map(
+			function($value) {
+				return 'parts.' . $value;
+			}, $request->getParts()
+		);
+		$fields = array_merge(['content', 'title'], $request->getFields(), $parts);
+
 		$queryFields = [];
 		foreach ($fields as $field) {
-			$queryFields[] =
-				[$queryContent->getMatch() => [$field => $queryContent->getWord()]];
+			$queryFields[] = [$content->getMatch() => [$field => $content->getWord()]];
+		}
+
+		foreach ($request->getWildcardFields() as $field) {
+			$queryFields[] = ['wildcard' => [$field => '*' . $content->getWord() . '*']];
 		}
 
 		return ['bool' => ['should' => $queryFields]];
