@@ -190,7 +190,7 @@ class SearchMappingService {
 		$queryContent = [];
 		foreach ($words[0] as $word) {
 			try {
-				$queryContent[] = $this->generateQueryContent($word);
+				$queryContent[] = $this->generateQueryContent(trim($word));
 			} catch (QueryContentGenerationException $e) {
 				continue;
 			}
