@@ -260,11 +260,15 @@ class SearchMappingService {
 
 		$queryFields = [];
 		foreach ($fields as $field) {
-			$queryFields[] = [$content->getMatch() => [$field => $content->getWord()]];
+			if (!$this->fieldIsOutLimit($request, $field)) {
+				$queryFields[] = [$content->getMatch() => [$field => $content->getWord()]];
+			}
 		}
 
 		foreach ($request->getWildcardFields() as $field) {
-			$queryFields[] = ['wildcard' => [$field => '*' . $content->getWord() . '*']];
+			if (!$this->fieldIsOutLimit($request, $field)) {
+				$queryFields[] = ['wildcard' => [$field => '*' . $content->getWord() . '*']];
+			}
 		}
 
 		return ['bool' => ['should' => $queryFields]];
@@ -292,6 +296,26 @@ class SearchMappingService {
 		}
 
 		return $query;
+	}
+
+
+	/**
+	 * @param SearchRequest $request
+	 * @param string $field
+	 *
+	 * @return bool
+	 */
+	private function fieldIsOutLimit(SearchRequest $request, $field) {
+		$limit = $request->getLimitFields();
+		if (sizeof($limit) === 0) {
+			return false;
+		}
+
+		if (in_array($field, $limit)) {
+			return false;
+		}
+
+		return true;
 	}
 
 
