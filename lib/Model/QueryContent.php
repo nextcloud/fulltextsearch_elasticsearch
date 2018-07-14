@@ -26,8 +26,8 @@ class QueryContent {
 
 	/** @var array */
 	private $options = [
-		'+' => [self::OPTION_MUST, 'must', 'prefix'],
-		'-' => [self::OPTION_MUST_NOT, 'must_not', 'prefix']
+               '+' => [self::OPTION_MUST, 'must', 'match'],
+               '-' => [self::OPTION_MUST_NOT, 'must_not', 'match']
 	];
 
 
@@ -45,7 +45,7 @@ class QueryContent {
 
 	private function init() {
 		$this->setShould('should');
-		$this->setMatch('match_phrase_prefix');
+               $this->setMatch('match');
 
 		$curr = substr($this->getWord(), 0, 1);
 
@@ -59,7 +59,7 @@ class QueryContent {
 		if (substr($this->getWord(), 0, 1) === '"') {
 			$this->setMatch('match');
 			if (strpos($this->getWord(), " ") > -1) {
-				$this->setMatch('match_phrase_prefix');
+                               $this->setMatch('match');
 			}
 		}
 
