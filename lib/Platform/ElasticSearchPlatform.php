@@ -101,16 +101,23 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	public function getConfiguration() {
 
-		$parsedHost = parse_url($this->configService->getElasticHost());
-		$safeHost = $parsedHost['scheme'] . '://';
-		if (array_key_exists('user', $parsedHost)) {
-			$safeHost .= $parsedHost['user'] . ':' . '********' . '@';
+		$result = [];
+		$hosts = $this->configService->getElasticHost();
+
+		foreach ($hosts as $host) {
+			$parsedHost = parse_url($host);
+			$safeHost = $parsedHost['scheme'] . '://';
+			if (array_key_exists('user', $parsedHost)) {
+				$safeHost .= $parsedHost['user'] . ':' . '********' . '@';
+			}
+			$safeHost .= $parsedHost['host'];
+			$safeHost .= ':' . $parsedHost['port'];
+
+			$result[] = $safeHost;
 		}
-		$safeHost .= $parsedHost['host'];
-		$safeHost .= ':' . $parsedHost['port'];
 
 		return [
-			'elastic_host'  => $safeHost,
+			'elastic_host'  => $result,
 			'elastic_index' => $this->configService->getElasticIndex()
 		];
 	}
@@ -314,12 +321,12 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @param string $host
+	 * @param array $hosts
 	 */
-	private function connectToElastic($host) {
+	private function connectToElastic($hosts) {
 
 		try {
-			$hosts = [MiscService::noEndSlash($host)];
+			$hosts = array_map([MiscService::class, 'noEndSlash'], $hosts);
 			$this->client = ClientBuilder::create()
 										 ->setHosts($hosts)
 										 ->setRetries(2)

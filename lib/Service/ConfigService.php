@@ -98,19 +98,21 @@ class ConfigService {
 
 
 	/**
-	 * @return string
+	 * @return array
 	 * @throws ConfigurationException
 	 */
 	public function getElasticHost() {
 
-		$host = $this->getAppValue(self::ELASTIC_HOST);
-		if ($host === '') {
+		$strHost = $this->getAppValue(self::ELASTIC_HOST);
+		if ($strHost === '') {
 			throw new ConfigurationException(
 				'Your ElasticSearchPlatform is not configured properly'
 			);
 		}
 
-		return $host;
+		$hosts = explode(',', $strHost);
+
+		return array_map('trim', $hosts);
 	}
 
 
