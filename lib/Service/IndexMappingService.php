@@ -225,6 +225,7 @@ class IndexMappingService {
 			],
 			'mappings' => [
 				'standard' => [
+					'dynamic' => true,
 					'properties' => [
 						'source'   => [
 							'type' => 'keyword'
