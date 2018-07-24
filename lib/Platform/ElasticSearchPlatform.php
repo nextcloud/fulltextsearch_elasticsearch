@@ -215,6 +215,13 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	}
 
 
+	/**
+	 * @param IFullTextSearchProvider $provider
+	 * @param IndexDocument[] $documents
+	 *
+	 * @return Index[]
+	 * @throws Exception
+	 */
 	public function indexDocuments(IFullTextSearchProvider $provider, $documents) {
 		$indexes = [];
 		foreach ($documents as $document) {
@@ -223,6 +230,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 				$index = $this->indexDocument($provider, $document);
 				$indexes[] = $index;
 			} catch (Exception $e) {
+				if ($this->runner->isStrict()) {
+					throw $e;
+				}
 				/** we do nohtin' */
 			}
 
