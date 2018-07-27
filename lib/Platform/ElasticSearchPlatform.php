@@ -29,8 +29,6 @@ namespace OCA\FullTextSearch_ElasticSearch\Platform;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
-use Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost;
-use Elasticsearch\Common\Exceptions\MaxRetriesException;
 use Exception;
 use OCA\FullTextSearch\Exceptions\InterruptException;
 use OCA\FullTextSearch\Exceptions\TickDoesNotExistException;
@@ -164,6 +162,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws ConfigurationException
 	 * @throws QueryException
+	 * @throws Exception
 	 */
 	public function loadPlatform() {
 		$app = new Application();
@@ -184,8 +183,12 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/**
 	 * not used yet.
+	 *
+	 * @return bool
+	 * @throws ConfigurationException
 	 */
 	public function testPlatform() {
+		return $this->indexService->testIndex($this->client);
 	}
 
 
@@ -208,10 +211,16 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * Called when admin wants to remove an index specific to a $provider.
 	 * $provider can be null, meaning a reset of the whole index.
 	 *
+	 * @param string $providerId
+	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex() {
-		$this->indexService->resetIndex($this->client);
+	public function resetIndex($providerId) {
+		if ($providerId === 'all') {
+			$this->indexService->resetIndexAll($this->client);
+		} else {
+			$this->indexService->resetIndex($this->client, $providerId);
+		}
 	}
 
 
@@ -316,22 +325,30 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 * @throws ConfigurationException
+	 * @throws Exception
 	 */
 	public function searchDocuments(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		try {
-			return $this->searchService->searchDocuments(
-				$this->client, $provider, $access, $request
-			);
-		} catch (ConfigurationException $e) {
-			throw $e;
-		}
+		return $this->searchService->searchDocuments($this->client, $provider, $access, $request);
+	}
+
+
+	/**
+	 * @param string $providerId
+	 * @param string $documentId
+	 *
+	 * @return IndexDocument
+	 */
+	public function getDocument($providerId, $documentId) {
+		return $this->searchService->getDocument($this->client, $providerId, $documentId);
 	}
 
 
 	/**
 	 * @param array $hosts
+	 *
+	 * @throws Exception
 	 */
 	private function connectToElastic($hosts) {
 
@@ -339,17 +356,19 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			$hosts = array_map([MiscService::class, 'noEndSlash'], $hosts);
 			$this->client = ClientBuilder::create()
 										 ->setHosts($hosts)
-										 ->setRetries(2)
+										 ->setRetries(3)
 										 ->build();
 
-		} catch (CouldNotConnectToHost $e) {
-			echo 'CouldNotConnectToHost';
-			$previous = $e->getPrevious();
-			if ($previous instanceof MaxRetriesException) {
-				echo "Max retries!";
-			}
+//		}
+//		catch (CouldNotConnectToHost $e) {
+//			$this 'CouldNotConnectToHost';
+//			$previous = $e->getPrevious();
+//			if ($previous instanceof MaxRetriesException) {
+//				echo "Max retries!";
+//			}
 		} catch (Exception $e) {
-			echo ' ElasticSearchPlatform::load() Exception --- ' . $e->getMessage() . "\n";
+			throw $e;
+//			echo ' ElasticSearchPlatform::load() Exception --- ' . $e->getMessage() . "\n";
 		}
 	}
 

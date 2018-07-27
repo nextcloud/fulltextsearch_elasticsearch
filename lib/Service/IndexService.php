@@ -29,6 +29,7 @@ namespace OCA\FullTextSearch_ElasticSearch\Service;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use OCA\FullTextSearch\Exceptions\IndexDoesNotExistException;
 use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
@@ -62,6 +63,23 @@ class IndexService {
 	/**
 	 * @param Client $client
 	 *
+	 * @return bool
+	 * @throws ConfigurationException
+	 */
+	public function testIndex(Client $client) {
+
+		$map = $this->indexMappingService->generateGlobalMap(false);
+		$map['client'] = [
+			'verbose' => true
+		];
+
+		return $client->indices()
+					  ->exists($map);
+	}
+
+	/**
+	 * @param Client $client
+	 *
 	 * @throws ConfigurationException
 	 * @throws BadRequest400Exception
 	 */
@@ -81,8 +99,23 @@ class IndexService {
 			$client->ingest()
 				   ->putPipeline($this->indexMappingService->generateGlobalIngest());
 		} catch (BadRequest400Exception $e) {
-			$this->resetIndex($client);
+			$this->resetIndexAll($client);
 			$this->parseBadRequest400($e);
+		}
+	}
+
+
+	/**
+	 * @param Client $client
+	 * @param $providerId
+	 *
+	 * @throws ConfigurationException
+	 */
+	public function resetIndex(Client $client, $providerId) {
+		try {
+			$client->deleteByQuery($this->indexMappingService->generateDeleteQuery($providerId));
+		} catch (Missing404Exception $e) {
+			/** we do nothin' */
 		}
 	}
 
@@ -92,7 +125,7 @@ class IndexService {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex(Client $client) {
+	public function resetIndexAll(Client $client) {
 		try {
 			$client->ingest()
 				   ->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
