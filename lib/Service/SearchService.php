@@ -100,6 +100,40 @@ class SearchService {
 
 
 	/**
+	 * @param Client $client
+	 * @param string $providerId
+	 * @param string $documentId
+	 *
+	 * @return IndexDocument
+	 */
+	public function getDocument(Client $client, $providerId, $documentId) {
+		$query = [
+			'index' => 'my_index',
+			'type'  => 'standard',
+			'id'    => $providerId . ':' . $documentId
+		];
+
+		$result = $client->get($query);
+
+		$access = new DocumentAccess($result['_source']['owner']);
+		$access->setUsers($result['_source']['users']);
+		$access->setGroups($result['_source']['groups']);
+		$access->setCircles($result['_source']['circles']);
+
+		$index = new IndexDocument($providerId, $documentId);
+		$index->setAccess($access);
+		$index->setTags($result['_source']['tags']);
+		$index->setHash($result['_source']['hash']);
+		$index->setSource($result['_source']['source']);
+		$index->setTitle($result['_source']['title']);
+		$index->setParts($result['_source']['parts']);
+		$index->setContent($result['_source']['content']);
+
+		return $index;
+	}
+
+
+	/**
 	 * @param array $result
 	 *
 	 * @return SearchResult

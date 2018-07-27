@@ -225,7 +225,7 @@ class IndexMappingService {
 			],
 			'mappings' => [
 				'standard' => [
-					'dynamic' => true,
+					'dynamic'    => true,
 					'properties' => [
 						'source'   => [
 							'type' => 'keyword'
@@ -319,6 +319,24 @@ class IndexMappingService {
 				]
 			]
 		];
+
+		return $params;
+	}
+
+
+	/**
+	 * @param string $providerId
+	 *
+	 * @return array
+	 * @throws ConfigurationException
+	 */
+	public function generateDeleteQuery($providerId) {
+		$params = [
+			'index' => $this->configService->getElasticIndex(),
+			'type'  => 'standard'
+		];
+
+		$params['body']['query']['match'] = ['provider' => $providerId];
 
 		return $params;
 	}
