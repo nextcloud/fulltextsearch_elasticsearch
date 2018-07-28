@@ -105,14 +105,10 @@ class SearchService {
 	 * @param string $documentId
 	 *
 	 * @return IndexDocument
+	 * @throws ConfigurationException
 	 */
 	public function getDocument(Client $client, $providerId, $documentId) {
-		$query = [
-			'index' => 'my_index',
-			'type'  => 'standard',
-			'id'    => $providerId . ':' . $documentId
-		];
-
+		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
 
 		$access = new DocumentAccess($result['_source']['owner']);

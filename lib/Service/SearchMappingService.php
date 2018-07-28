@@ -343,4 +343,20 @@ class SearchMappingService {
 	}
 
 
+	/**
+	 * @param $providerId
+	 * @param $documentId
+	 *
+	 * @return array
+	 * @throws ConfigurationException
+	 */
+	public function getDocumentQuery($providerId, $documentId) {
+		return [
+			'index' => $this->configService->getElasticIndex(),
+			'type'  => 'standard',
+			'id'    => $providerId . ':' . $documentId
+		];
+	}
+
+
 }
