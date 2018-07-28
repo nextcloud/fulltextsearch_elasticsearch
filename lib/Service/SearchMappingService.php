@@ -114,29 +114,29 @@ class SearchMappingService {
 	 * @param array $arr
 	 */
 	private function improveSearchQuerying(SearchRequest $request, &$arr) {
-		$this->improveSearchWildcardQueries($request, $arr);
+//		$this->improveSearchWildcardQueries($request, $arr);
 		$this->improveSearchWildcardFilters($request, $arr);
 		$this->improveSearchRegexFilters($request, $arr);
 	}
 
 
-	/**
-	 * @param SearchRequest $request
-	 * @param array $arr
-	 */
-	private function improveSearchWildcardQueries(SearchRequest $request, &$arr) {
-
-		$queries = $request->getWildcardQueries();
-		foreach ($queries as $query) {
-			$wildcards = [];
-			foreach ($query as $entry) {
-				$wildcards[] = ['wildcard' => $entry];
-			}
-
-			array_push($arr['bool']['must']['bool']['should'], $wildcards);
-		}
-
-	}
+//	/**
+//	 * @param SearchRequest $request
+//	 * @param array $arr
+//	 */
+//	private function improveSearchWildcardQueries(SearchRequest $request, &$arr) {
+//
+//		$queries = $request->getWildcardQueries();
+//		foreach ($queries as $query) {
+//			$wildcards = [];
+//			foreach ($query as $entry) {
+//				$wildcards[] = ['wildcard' => $entry];
+//			}
+//
+//			array_push($arr['bool']['must']['bool']['should'], $wildcards);
+//		}
+//
+//	}
 
 
 	/**
