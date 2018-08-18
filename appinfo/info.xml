@@ -2,7 +2,7 @@
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
 	<id>fulltextsearch_elasticsearch</id>
-	<name>Full text search - Elasticsearch Platform (BETA)</name>
+	<name>Full text search - Elasticsearch Platform</name>
 	<summary>Index using ElasticSearch</summary>
 	<description><![CDATA[
 
@@ -10,7 +10,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>0.8.1</version>
+	<version>0.99.0</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullTextSearch_ElasticSearch</namespace>

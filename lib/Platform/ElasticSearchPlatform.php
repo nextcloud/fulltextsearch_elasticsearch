@@ -130,28 +130,56 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/**
 	 * @param $action
+	 * @param bool $force
 	 *
 	 * @throws InterruptException
 	 * @throws TickDoesNotExistException
 	 */
-	private function updateRunner($action) {
+	private function updateRunnerAction($action, $force = false) {
 		if ($this->runner === null) {
 			return;
 		}
 
-		$this->runner->update($action);
+		$this->runner->updateAction($action, $force);
+	}
+
+	/**
+	 * @param string $info
+	 * @param string $value
+	 * @param string $color
+	 */
+	private function updateRunnerInfo($info, $value, $color = '') {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->setInfo($info, $value, $color);
+	}
+
+	/**
+	 * @param array $data
+	 */
+	private function updateRunnerInfoArray($data) {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->setInfoArray($data);
 	}
 
 
 	/**
-	 * @param $line
+	 * @param Index $index
+	 * @param string $message
+	 * @param string $exception
+	 * @param int $sev
 	 */
-	private function outputRunner($line) {
+	private function updateNewIndexError($index, $message, $exception, $sev) {
 		if ($this->runner === null) {
 			return;
 		}
 
-		$this->runner->output($line);
+		$this->runner->newIndexError($index, $message, $exception, $sev);
 	}
 
 
@@ -225,29 +253,12 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
+	 * @deprecated
 	 * @param IFullTextSearchProvider $provider
-	 * @param IndexDocument[] $documents
-	 *
-	 * @return Index[]
-	 * @throws Exception
+	 * @param $documents
 	 */
 	public function indexDocuments(IFullTextSearchProvider $provider, $documents) {
-		$indexes = [];
-		foreach ($documents as $document) {
 
-			try {
-				$index = $this->indexDocument($provider, $document);
-				$indexes[] = $index;
-			} catch (Exception $e) {
-				if ($this->runner->isStrict()) {
-					throw $e;
-				}
-				/** we do nohtin' */
-			}
-
-		}
-
-		return $indexes;
 	}
 
 
@@ -263,20 +274,42 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	public function indexDocument(IFullTextSearchProvider $provider, IndexDocument $document) {
 
-		$this->updateRunner('indexDocument');
-		$this->outputRunner(' . Indexing: ' . $document->getTitle());
-
 		$document->initHash();
 
 		try {
 			$result = $this->indexService->indexDocument($this->client, $provider, $document);
-			$this->outputRunner('  result: ' . json_encode($result));
+			$this->updateRunnerInfo('info', json_encode($result['_shards']));
 
-			return $this->indexService->parseIndexResult($document->getIndex(), $result);
+			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
+			$this->updateRunnerInfo('result', 'ok', 'success');
+
+			return $index;
 		} catch (Exception $e) {
-			return $this->indexDocumentError($provider, $document, $e);
+			$this->updateRunnerInfo(
+				'result', 'issue while indexing, testing with empty content', 'warning'
+			);
+			$document->getIndex()
+					 ->addError($e->getMessage(), get_class($e), Index::ERROR_SEV_3);
+			$this->updateNewIndexError(
+				$document->getIndex(), $e->getMessage(), get_class($e), Index::ERROR_SEV_3
+			);
 		}
 
+		try {
+			$index = $this->indexDocumentError($provider, $document, $e);
+			$this->updateRunnerInfo('result', 'ok', 'warning');
+
+			return $index;
+		} catch (Exception $e) {
+			$this->updateRunnerInfo('result', 'fail', 'error');
+			$document->getIndex()
+					 ->addError($e->getMessage(), get_class($e), Index::ERROR_SEV_3);
+			$this->updateNewIndexError(
+				$document->getIndex(), $e->getMessage(), get_class($e), Index::ERROR_SEV_3
+			);
+		}
+
+		return $document->getIndex();
 	}
 
 
@@ -286,24 +319,26 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param Exception $e
 	 *
 	 * @return Index
-	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
+	 * @throws ConfigurationException
+	 * @throws InterruptException
+	 * @throws TickDoesNotExistException
 	 */
 	private function indexDocumentError(
 		IFullTextSearchProvider $provider, IndexDocument $document, Exception $e
 	) {
-		$message = [
-			'exception' => get_class($e),
-			'message'   => $e->getMessage()
-		];
 
-		$document->setContent(null);
-		$index = $document->getIndex();
-		$index->unsetStatus(Index::INDEX_CONTENT);
-		$index->setMessage(json_encode($message));
+		$this->updateRunnerAction('indexDocumentWithoutContent', true);
+
+		$document->setContent('');
+//		$index = $document->getIndex();
+//		$index->unsetStatus(Index::INDEX_CONTENT);
 
 		$result = $this->indexService->indexDocument($this->client, $provider, $document);
-		$this->outputRunner('  result with no content: ' . json_encode($result));
+
+		$this->miscService->log('____1 ' . json_encode($result));
+
+		//$this->outputRunner('  result with no content: ' . json_encode($result));
 
 		return $this->indexService->parseIndexResult($document->getIndex(), $result);
 	}
@@ -339,6 +374,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param string $documentId
 	 *
 	 * @return IndexDocument
+	 * @throws ConfigurationException
 	 */
 	public function getDocument($providerId, $documentId) {
 		return $this->searchService->getDocument($this->client, $providerId, $documentId);

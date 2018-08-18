@@ -1,5 +1,20 @@
 # Changelog
 
+### 0.99.0 Release Candidate
+
+
+
+### 0.8.2
+
+- debug, testing tools
+- get document
+- multi-host
+
+
+### 0.8.0
+
+- debug
+
 
 ### 0.7.1
 

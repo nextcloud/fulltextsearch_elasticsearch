@@ -200,8 +200,11 @@ class IndexService {
 
 		if (array_key_exists('exception', $result)) {
 			$index->setStatus(Index::INDEX_FAILED);
-			$index->incrementError();
-			$index->setMessage(json_encode($result));
+			$index->addError(
+				$this->miscService->get($result, 'message', $result['exception']),
+				'',
+				Index::ERROR_SEV_3
+			);
 
 			return $index;
 		}
