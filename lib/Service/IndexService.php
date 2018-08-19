@@ -210,7 +210,9 @@ class IndexService {
 		}
 
 		// TODO: parse result
-		$index->setStatus(Index::INDEX_DONE);
+		if ($index->getErrorCount() === 0) {
+			$index->setStatus(Index::INDEX_DONE);
+		}
 
 		return $index;
 	}
