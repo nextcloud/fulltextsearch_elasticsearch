@@ -213,10 +213,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * not used yet.
 	 *
 	 * @return bool
-	 * @throws ConfigurationException
 	 */
 	public function testPlatform() {
-		return $this->indexService->testIndex($this->client);
+		return $this->client->ping();
 	}
 
 
@@ -254,6 +253,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/**
 	 * @deprecated
+	 *
 	 * @param IFullTextSearchProvider $provider
 	 * @param $documents
 	 */
@@ -288,11 +288,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			$this->updateRunnerInfo(
 				'result', 'issue while indexing, testing with empty content', 'warning'
 			);
-			$document->getIndex()
-					 ->addError($e->getMessage(), get_class($e), Index::ERROR_SEV_3);
-			$this->updateNewIndexError(
-				$document->getIndex(), $e->getMessage(), get_class($e), Index::ERROR_SEV_3
-			);
+			$this->manageIndexErrorException($document, $e);
 		}
 
 		try {
@@ -302,11 +298,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			return $index;
 		} catch (Exception $e) {
 			$this->updateRunnerInfo('result', 'fail', 'error');
-			$document->getIndex()
-					 ->addError($e->getMessage(), get_class($e), Index::ERROR_SEV_3);
-			$this->updateNewIndexError(
-				$document->getIndex(), $e->getMessage(), get_class($e), Index::ERROR_SEV_3
-			);
+			$this->manageIndexErrorException($document, $e);
 		}
 
 		return $document->getIndex();
@@ -336,11 +328,44 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$result = $this->indexService->indexDocument($this->client, $provider, $document);
 
-		$this->miscService->log('____1 ' . json_encode($result));
-
 		//$this->outputRunner('  result with no content: ' . json_encode($result));
 
 		return $this->indexService->parseIndexResult($document->getIndex(), $result);
+	}
+
+
+	/**
+	 * @param IndexDocument $document
+	 * @param Exception $e
+	 */
+	private function manageIndexErrorException(IndexDocument $document, Exception $e) {
+
+		$message = $this->parseIndexErrorException($e);
+		$document->getIndex()
+				 ->addError($message, get_class($e), Index::ERROR_SEV_3);
+		$this->updateNewIndexError(
+			$document->getIndex(), $message, get_class($e), Index::ERROR_SEV_3
+		);
+	}
+
+
+	/**
+	 * @param Exception $e
+	 *
+	 * @return string
+	 */
+	private function parseIndexErrorException(Exception $e) {
+
+		$arr = json_decode($e->getMessage(), true);
+		if (!is_array($arr)) {
+			return $e->getMessage();
+		}
+
+		if (array_key_exists('reason', $arr['error']['root_cause'][0])) {
+			return $arr['error']['root_cause'][0]['reason'];
+		}
+
+		return $e->getMessage();
 	}
 
 
