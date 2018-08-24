@@ -118,6 +118,8 @@ class SearchService {
 
 		$index = new IndexDocument($providerId, $documentId);
 		$index->setAccess($access);
+		$index->setMetaTags($result['_source']['metatags']);
+		$index->setSubTags($result['_source']['subtags']);
 		$index->setTags($result['_source']['tags']);
 		$index->setHash($result['_source']['hash']);
 		$index->setSource($result['_source']['source']);

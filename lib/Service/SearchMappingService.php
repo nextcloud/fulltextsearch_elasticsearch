@@ -98,7 +98,11 @@ class SearchMappingService {
 
 		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $provider->getId()]];
 		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
-		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
+		$bool['filter'][]['bool']['should'] =
+			$this->generateSearchQueryTags('metatags', $request->getMetaTags());
+		$bool['filter'][]['bool']['should'] =
+			$this->generateSearchQueryTags('subtags', $request->getSubTags(true));
+//		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting();
@@ -320,20 +324,25 @@ class SearchMappingService {
 
 
 	/**
+	 * @param string $k
 	 * @param array $tags
 	 *
 	 * @return array<string,array>
 	 */
-	private function generateSearchQueryTags($tags) {
+	private function generateSearchQueryTags($k, $tags) {
 
 		$query = [];
-		foreach ($tags as $tag) {
-			$query[] = ['term' => ['tags' => $tag]];
+		foreach ($tags as $t) {
+			$query[] = ['term' => [$k => $t]];
 		}
 
 		return $query;
 	}
 
+
+	/**
+	 * @return array
+	 */
 	private function generateSearchHighlighting() {
 		return [
 			'fields'    => ['content' => new \stdClass()],
