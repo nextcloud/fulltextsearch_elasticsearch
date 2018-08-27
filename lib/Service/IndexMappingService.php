@@ -136,7 +136,8 @@ class IndexMappingService {
 	 * @param array $arr
 	 */
 	public function onIndexingDocument(IndexDocument $document, &$arr) {
-		if ($document->getContent() !== '' && $document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
+		if ($document->getContent() !== ''
+			&& $document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
 		}
 	}
