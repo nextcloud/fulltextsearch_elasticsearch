@@ -1,5 +1,12 @@
 # Changelog
 
+### 0.99.1 Release Candidate 2
+
+- bugfix: issue on empty encrypted content
+- improvement: tags/metatags/subtags
+- improvement: better info during :index
+
+
 ### 0.99.0 Release Candidate
 
 - multi-host can be set as elasticsearch node in case of clustering.
