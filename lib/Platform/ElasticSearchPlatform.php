@@ -143,30 +143,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->runner->updateAction($action, $force);
 	}
 
-	/**
-	 * @param string $info
-	 * @param string $value
-	 * @param string $color
-	 */
-	private function updateRunnerInfo($info, $value, $color = '') {
-		if ($this->runner === null) {
-			return;
-		}
-
-		$this->runner->setInfo($info, $value, $color);
-	}
-
-	/**
-	 * @param array $data
-	 */
-	private function updateRunnerInfoArray($data) {
-		if ($this->runner === null) {
-			return;
-		}
-
-		$this->runner->setInfoArray($data);
-	}
-
 
 	/**
 	 * @param Index $index
@@ -180,6 +156,21 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		}
 
 		$this->runner->newIndexError($index, $message, $exception, $sev);
+	}
+
+
+	/**
+	 * @param Index $index
+	 * @param string $message
+	 * @param string $status
+	 * @param int $type
+	 */
+	private function updateNewIndexResult($index, $message, $status, $type) {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->newIndexResult($index, $message, $status, $type);
 	}
 
 
@@ -278,26 +269,39 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		try {
 			$result = $this->indexService->indexDocument($this->client, $provider, $document);
-			$this->updateRunnerInfo('info', json_encode($result['_shards']));
 
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
-			$this->updateRunnerInfo('result', 'ok', 'success');
+
+			$this->updateNewIndexResult(
+				$document->getIndex(), json_encode($result), 'ok',
+				Runner::RESULT_TYPE_SUCCESS
+			);
 
 			return $index;
 		} catch (Exception $e) {
-			$this->updateRunnerInfo(
-				'result', 'issue while indexing, testing with empty content', 'warning'
+			$this->updateNewIndexResult(
+				$document->getIndex(), '', 'issue while indexing, testing with empty content',
+				Runner::RESULT_TYPE_WARNING
 			);
+
 			$this->manageIndexErrorException($document, $e);
 		}
 
 		try {
-			$index = $this->indexDocumentError($provider, $document, $e);
-			$this->updateRunnerInfo('result', 'ok', 'warning');
+			$result = $this->indexDocumentError($provider, $document, $e);
+			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
+
+			$this->updateNewIndexResult(
+				$document->getIndex(), json_encode($result), 'ok',
+				Runner::RESULT_TYPE_WARNING
+			);
 
 			return $index;
 		} catch (Exception $e) {
-			$this->updateRunnerInfo('result', 'fail', 'error');
+			$this->updateNewIndexResult(
+				$document->getIndex(), '', 'fail',
+				Runner::RESULT_TYPE_FAIL
+			);
 			$this->manageIndexErrorException($document, $e);
 		}
 
@@ -310,7 +314,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param IndexDocument $document
 	 * @param Exception $e
 	 *
-	 * @return Index
+	 * @return array
 	 * @throws AccessIsEmptyException
 	 * @throws ConfigurationException
 	 * @throws InterruptException
@@ -328,9 +332,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$result = $this->indexService->indexDocument($this->client, $provider, $document);
 
-		//$this->outputRunner('  result with no content: ' . json_encode($result));
-
-		return $this->indexService->parseIndexResult($document->getIndex(), $result);
+		return $result;
 	}
 
 
