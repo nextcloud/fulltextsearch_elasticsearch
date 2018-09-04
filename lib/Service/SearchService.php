@@ -60,43 +60,113 @@ class SearchService {
 	}
 
 
+//	/**
+//	 * @param Client $client
+//	 * @param IFullTextSearchProvider $provider
+//	 * @param DocumentAccess $access
+//	 * @param SearchRequest $request
+//	 *
+//	 * @throws ConfigurationException
+//	 * @throws Exception
+//	 */
+//	public function searchDocuments(
+//		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
+//		SearchRequest $request
+//	) {
+//		try {
+//			$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
+//		} catch (SearchQueryGenerationException $e) {
+//			return null;
+//		}
+//
+//		try {
+//			$result = $client->search($query['params']);
+//		} catch (Exception $e) {
+//			$this->miscService->log(
+//				'debug - request: ' . json_encode($request) . '   - query: ' . json_encode($query)
+//			);
+//			throw $e;
+//		}
+//
+//		$searchResult = $this->generateSearchResultFromResult($result);
+//
+//		foreach ($result['hits']['hits'] as $entry) {
+//			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
+//		}
+//	}
+
 	/**
 	 * @param Client $client
-	 * @param IFullTextSearchProvider $provider
+	 * @param SearchResult $searchResult
 	 * @param DocumentAccess $access
-	 * @param SearchRequest $request
 	 *
-	 * @return SearchResult
-	 * @throws ConfigurationException
 	 * @throws Exception
 	 */
-	public function searchDocuments(
-		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
-		SearchRequest $request
+	public function searchRequest(Client $client, SearchResult $searchResult, DocumentAccess $access
 	) {
 		try {
-			$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
+			$query = $this->searchMappingService->generateSearchQuery(
+				$searchResult->getRequest(), $access, $searchResult->getProvider()
+			);
 		} catch (SearchQueryGenerationException $e) {
-			return null;
+			return;
 		}
 
 		try {
 			$result = $client->search($query['params']);
 		} catch (Exception $e) {
 			$this->miscService->log(
-				'debug - request: ' . json_encode($request) . '   - query: ' . json_encode($query)
+				'debug - request: ' . json_encode($searchResult->getRequest()) . '   - query: '
+				. json_encode($query)
 			);
 			throw $e;
 		}
 
-		$searchResult = $this->generateSearchResultFromResult($result);
+		$this->updateSearchResult($searchResult, $result);
 
 		foreach ($result['hits']['hits'] as $entry) {
 			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
 		}
-
-		return $searchResult;
 	}
+//	/**
+//	 * @param Client $client
+//	 * @param IFullTextSearchProvider $provider
+//	 * @param DocumentAccess $access
+//	 * @param SearchResult $result
+//	 *
+//	 * @return SearchResult
+//	 * @throws ConfigurationException
+//	 */
+//	public function fillSearchResult(
+//		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
+//		SearchResult $searchResult
+//	) {
+//		try {
+//			$query = $this->searchMappingService->generateSearchQuery(
+//				$provider, $access, $searchResult->getRequest()
+//			);
+//		} catch (SearchQueryGenerationException $e) {
+//			return null;
+//		}
+//
+//		try {
+//			$result = $client->search($query['params']);
+//		} catch (Exception $e) {
+//			$this->miscService->log(
+//				'debug - request: ' . json_encode($searchResult->getRequest()) . '   - query: '
+//				. json_encode($query)
+//			);
+//			throw $e;
+//		}
+//
+//		$this->updateSearchResult($searchResult, $result);
+//
+//		foreach ($result['hits']['hits'] as $entry) {
+//			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
+//		}
+//
+//		return $searchResult;
+//	}
 
 
 	/**
@@ -121,6 +191,8 @@ class SearchService {
 		$index->setMetaTags($result['_source']['metatags']);
 		$index->setSubTags($result['_source']['subtags']);
 		$index->setTags($result['_source']['tags']);
+		$index->setMore($result['_source']['more']);
+//		$index->setInfo($result['_source']['info']);
 		$index->setHash($result['_source']['hash']);
 		$index->setSource($result['_source']['source']);
 		$index->setTitle($result['_source']['title']);
@@ -132,20 +204,16 @@ class SearchService {
 
 
 	/**
+	 * @param SearchResult $searchResult
 	 * @param array $result
-	 *
-	 * @return SearchResult
 	 */
-	private function generateSearchResultFromResult($result) {
-		$searchResult = new SearchResult();
+	private function updateSearchResult(SearchResult $searchResult, $result) {
 		$searchResult->setRawResult(json_encode($result));
 
 		$searchResult->setTotal($result['hits']['total']);
 		$searchResult->setMaxScore($result['hits']['max_score']);
 		$searchResult->setTime($result['took']);
 		$searchResult->setTimedOut($result['timed_out']);
-
-		return $searchResult;
 	}
 
 

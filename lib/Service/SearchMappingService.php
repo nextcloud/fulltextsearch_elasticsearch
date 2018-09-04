@@ -65,10 +65,8 @@ class SearchMappingService {
 	 * @throws ConfigurationException
 	 * @throws SearchQueryGenerationException
 	 */
-	public function generateSearchQuery(
-		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
-	) {
-		$query['params'] = $this->generateSearchQueryParams($provider, $access, $request);
+	public function generateSearchQuery(SearchRequest $request, DocumentAccess $access, IFullTextSearchProvider $provider) {
+		$query['params'] = $this->generateSearchQueryParams($request, $access, $provider);
 
 		return $query;
 	}
@@ -84,7 +82,7 @@ class SearchMappingService {
 	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQueryParams(
-		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
+		SearchRequest $request, DocumentAccess $access, IFullTextSearchProvider $provider
 	) {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
