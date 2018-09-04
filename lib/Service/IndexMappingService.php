@@ -162,7 +162,7 @@ class IndexMappingService {
 			'groups'   => $access->getGroups(),
 			'circles'  => $access->getCircles(),
 			'metatags' => $document->getMetaTags(),
-			'subtags'  => $document->getSubTags(),
+			'subtags'  => $document->getSubTags(true),
 			'tags'     => $document->getTags(),
 			'hash'     => $document->getHash(),
 			'provider' => $document->getProviderId(),

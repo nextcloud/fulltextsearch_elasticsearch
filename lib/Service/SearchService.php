@@ -145,6 +145,10 @@ class SearchService {
 		$searchResult->setTime($result['took']);
 		$searchResult->setTimedOut($result['timed_out']);
 
+		foreach ($result['aggregations']['subtags']['buckets'] as $bucket) {
+			$searchResult->addAggregation("subtags", $bucket['key'], $bucket['doc_count']);
+		}
+
 		return $searchResult;
 	}
 
