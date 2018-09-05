@@ -30,8 +30,6 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Exception;
-use OCA\FullTextSearch\Exceptions\InterruptException;
-use OCA\FullTextSearch\Exceptions\TickDoesNotExistException;
 use OCA\FullTextSearch\IFullTextSearchPlatform;
 use OCA\FullTextSearch\IFullTextSearchProvider;
 use OCA\FullTextSearch\Model\DocumentAccess;
@@ -39,6 +37,7 @@ use OCA\FullTextSearch\Model\Index;
 use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch\Model\Runner;
 use OCA\FullTextSearch\Model\SearchRequest;
+use OCA\FullTextSearch\Model\SearchResult;
 use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
@@ -132,8 +131,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param $action
 	 * @param bool $force
 	 *
-	 * @throws InterruptException
-	 * @throws TickDoesNotExistException
+	 * @throws Exception
 	 */
 	private function updateRunnerAction($action, $force = false) {
 		if ($this->runner === null) {
@@ -258,10 +256,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param IndexDocument $document
 	 *
 	 * @return Index
-	 * @throws AccessIsEmptyException
-	 * @throws ConfigurationException
-	 * @throws InterruptException
-	 * @throws TickDoesNotExistException
 	 */
 	public function indexDocument(IFullTextSearchProvider $provider, IndexDocument $document) {
 
@@ -317,8 +311,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return array
 	 * @throws AccessIsEmptyException
 	 * @throws ConfigurationException
-	 * @throws InterruptException
-	 * @throws TickDoesNotExistException
+	 * @throws \Exception
 	 */
 	private function indexDocumentError(
 		IFullTextSearchProvider $provider, IndexDocument $document, Exception $e
@@ -392,7 +385,18 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	public function searchDocuments(
 		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
 	) {
-		return $this->searchService->searchDocuments($this->client, $provider, $access, $request);
+		return null;
+//		return $this->searchService->searchDocuments($this->client, $provider, $access, $request);
+	}
+
+
+
+	/**
+	 * {@inheritdoc}
+	 * @throws Exception
+	 */
+	public function searchRequest(SearchResult $result, DocumentAccess $access) {
+		$this->searchService->searchRequest($this->client, $result, $access);
 	}
 
 
