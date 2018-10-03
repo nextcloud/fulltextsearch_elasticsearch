@@ -69,6 +69,16 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	private $runner;
 
 
+	public function __construct(
+		ConfigService $configService, IndexService $indexService, SearchService $searchService,
+		MiscService $miscService
+	) {
+		$this->configService = $configService;
+		$this->indexService = $indexService;
+		$this->searchService = $searchService;
+		$this->miscService = $miscService;
+	}
+
 	/**
 	 * return a unique Id of the platform.
 	 */
@@ -183,12 +193,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	public function loadPlatform() {
 		$app = new Application();
-
-		$container = $app->getContainer();
-		$this->configService = $container->query(ConfigService::class);
-		$this->indexService = $container->query(IndexService::class);
-		$this->searchService = $container->query(SearchService::class);
-		$this->miscService = $container->query(MiscService::class);
 
 		try {
 			$this->connectToElastic($this->configService->getElasticHost());
@@ -388,7 +392,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return null;
 //		return $this->searchService->searchDocuments($this->client, $provider, $access, $request);
 	}
-
 
 
 	/**
