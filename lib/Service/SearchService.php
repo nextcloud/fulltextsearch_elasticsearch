@@ -189,7 +189,7 @@ class SearchService {
 		$index->setMetaTags($result['_source']['metatags']);
 		$index->setSubTags($result['_source']['subtags']);
 		$index->setTags($result['_source']['tags']);
-		$index->setMore($result['_source']['more']);
+//		$index->setMore($result['_source']['more']);
 //		$index->setInfo($result['_source']['info']);
 		$index->setHash($result['_source']['hash']);
 		$index->setSource($result['_source']['source']);
