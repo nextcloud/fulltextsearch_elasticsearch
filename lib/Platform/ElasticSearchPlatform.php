@@ -88,7 +88,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return string
 	 */
 	public function getVersion() {
-		return $this->configService->getAppValue('installed_version');
+		return '';
 	}
 
 
