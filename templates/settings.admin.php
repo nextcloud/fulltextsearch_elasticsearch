@@ -42,9 +42,9 @@ Util::addStyle(Application::APP_NAME, 'admin');
 
 		<div class="div-table-row">
 			<div class="div-table-col div-table-col-left">
-				<span class="leftcol">Address of the Servlet:</span>
+				<span class="leftcol"><?php p($l->t('Address of the Servlet')); ?>:</span>
 				<br/>
-				<em>Include your credential in case authentication is required.</em>
+				<em><?php p($l->t('Include your credential in case authentication is required.')); ?></em>
 			</div>
 			<div class="div-table-col">
 				<input type="text" id="elasticsearch_host"
@@ -54,9 +54,9 @@ Util::addStyle(Application::APP_NAME, 'admin');
 
 		<div class="div-table-row">
 			<div class="div-table-col div-table-col-left">
-				<span class="leftcol">Index:</span>
+				<span class="leftcol"><?php p($l->t('Index')); ?>:</span>
 				<br/>
-				<em>Name of your index.</em>
+				<em><?php p($l->t('Name of your index.')); ?></em>
 			</div>
 			<div class="div-table-col">
 				<input type="text" id="elasticsearch_index" placeholder="my_index"/>
@@ -65,9 +65,9 @@ Util::addStyle(Application::APP_NAME, 'admin');
 
 		<div class="div-table-row">
 			<div class="div-table-col div-table-col-left">
-				<span class="leftcol">[Advanced] Analyzer tokenizer:</span>
+				<span class="leftcol"><?php p($l->t('[Advanced] Analyzer tokenizer')); ?>:</span>
 				<br/>
-				<em>Some language might needs a specific tokenizer.</em>
+				<em><?php p($l->t('Some language might needs a specific tokenizer.')); ?></em>
 			</div>
 			<div class="div-table-col">
 				<input type="text" id="analyzer_tokenizer" />
