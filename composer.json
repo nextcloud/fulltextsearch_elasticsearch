@@ -10,6 +10,6 @@
     }
   ],
   "require": {
-    "elasticsearch/elasticsearch": "~5.0"
+    "elasticsearch/elasticsearch": "~6.0"
   }
 }
