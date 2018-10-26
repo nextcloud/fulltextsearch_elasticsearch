@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,28 +27,25 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Platform;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Exception;
-use OCA\FullTextSearch\IFullTextSearchPlatform;
-use OCA\FullTextSearch\IFullTextSearchProvider;
-use OCA\FullTextSearch\Model\DocumentAccess;
-use OCA\FullTextSearch\Model\Index;
-use OCA\FullTextSearch\Model\IndexDocument;
-use OCA\FullTextSearch\Model\Runner;
-use OCA\FullTextSearch\Model\SearchRequest;
-use OCA\FullTextSearch\Model\SearchResult;
-use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
 use OCA\FullTextSearch_ElasticSearch\Service\IndexService;
 use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
 use OCA\FullTextSearch_ElasticSearch\Service\SearchService;
-use OCP\AppFramework\QueryException;
+use OCP\FullTextSearch\IFullTextSearchPlatform;
+use OCP\FullTextSearch\Model\DocumentAccess;
+use OCP\FullTextSearch\Model\IIndex;
+use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\IRunner;
+use OCP\FullTextSearch\Model\ISearchResult;
 
 
 class ElasticSearchPlatform implements IFullTextSearchPlatform {
@@ -65,7 +65,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	/** @var Client */
 	private $client;
 
-	/** @var Runner */
+	/** @var IRunner */
 	private $runner;
 
 
@@ -82,23 +82,15 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * return a unique Id of the platform.
 	 */
-	public function getId() {
+	public function getId(): string {
 		return 'elastic_search';
 	}
 
 	/**
 	 * return a unique Id of the platform.
 	 */
-	public function getName() {
+	public function getName(): string {
 		return 'Elasticsearch';
-	}
-
-
-	/**
-	 * @return string
-	 */
-	public function getVersion() {
-		return '';
 	}
 
 
@@ -106,7 +98,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function getConfiguration() {
+	public function getConfiguration(): array {
 
 		$result = [];
 		$hosts = $this->configService->getElasticHost();
@@ -131,54 +123,10 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @param Runner $runner
+	 * @param IRunner $runner
 	 */
-	public function setRunner(Runner $runner) {
+	public function setRunner(IRunner $runner) {
 		$this->runner = $runner;
-	}
-
-	/**
-	 * @param $action
-	 * @param bool $force
-	 *
-	 * @throws Exception
-	 */
-	private function updateRunnerAction($action, $force = false) {
-		if ($this->runner === null) {
-			return;
-		}
-
-		$this->runner->updateAction($action, $force);
-	}
-
-
-	/**
-	 * @param Index $index
-	 * @param string $message
-	 * @param string $exception
-	 * @param int $sev
-	 */
-	private function updateNewIndexError($index, $message, $exception, $sev) {
-		if ($this->runner === null) {
-			return;
-		}
-
-		$this->runner->newIndexError($index, $message, $exception, $sev);
-	}
-
-
-	/**
-	 * @param Index $index
-	 * @param string $message
-	 * @param string $status
-	 * @param int $type
-	 */
-	private function updateNewIndexResult($index, $message, $status, $type) {
-		if ($this->runner === null) {
-			return;
-		}
-
-		$this->runner->newIndexResult($index, $message, $status, $type);
 	}
 
 
@@ -188,12 +136,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * Loading some container and connect to ElasticSearch.
 	 *
 	 * @throws ConfigurationException
-	 * @throws QueryException
 	 * @throws Exception
 	 */
 	public function loadPlatform() {
-		$app = new Application();
-
 		try {
 			$this->connectToElastic($this->configService->getElasticHost());
 		} catch (ConfigurationException $e) {
@@ -207,7 +152,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @return bool
 	 */
-	public function testPlatform() {
+	public function testPlatform(): bool {
 		return $this->client->ping();
 	}
 
@@ -235,7 +180,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex($providerId) {
+	public function resetIndex(string $providerId) {
 		if ($providerId === 'all') {
 			$this->indexService->resetIndexAll($this->client);
 		} else {
@@ -245,60 +190,48 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @deprecated
-	 *
-	 * @param IFullTextSearchProvider $provider
-	 * @param $documents
-	 */
-	public function indexDocuments(IFullTextSearchProvider $provider, $documents) {
-
-	}
-
-
-	/**
-	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
-	 * @return Index
+	 * @return IIndex
 	 */
-	public function indexDocument(IFullTextSearchProvider $provider, IndexDocument $document) {
+	public function indexDocument(IndexDocument $document): IIndex {
 
 		$document->initHash();
 
 		try {
-			$result = $this->indexService->indexDocument($this->client, $provider, $document);
+			$result = $this->indexService->indexDocument($this->client, $document);
 
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
 
 			$this->updateNewIndexResult(
 				$document->getIndex(), json_encode($result), 'ok',
-				Runner::RESULT_TYPE_SUCCESS
+				IRunner::RESULT_TYPE_SUCCESS
 			);
 
 			return $index;
 		} catch (Exception $e) {
 			$this->updateNewIndexResult(
 				$document->getIndex(), '', 'issue while indexing, testing with empty content',
-				Runner::RESULT_TYPE_WARNING
+				IRunner::RESULT_TYPE_WARNING
 			);
 
 			$this->manageIndexErrorException($document, $e);
 		}
 
 		try {
-			$result = $this->indexDocumentError($provider, $document, $e);
+			$result = $this->indexDocumentError($document, $e);
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
 
 			$this->updateNewIndexResult(
 				$document->getIndex(), json_encode($result), 'ok',
-				Runner::RESULT_TYPE_WARNING
+				IRunner::RESULT_TYPE_WARNING
 			);
 
 			return $index;
 		} catch (Exception $e) {
 			$this->updateNewIndexResult(
 				$document->getIndex(), '', 'fail',
-				Runner::RESULT_TYPE_FAIL
+				IRunner::RESULT_TYPE_FAIL
 			);
 			$this->manageIndexErrorException($document, $e);
 		}
@@ -308,7 +241,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 * @param Exception $e
 	 *
@@ -317,9 +249,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws ConfigurationException
 	 * @throws \Exception
 	 */
-	private function indexDocumentError(
-		IFullTextSearchProvider $provider, IndexDocument $document, Exception $e
-	) {
+	private function indexDocumentError(IndexDocument $document, Exception $e) {
 
 		$this->updateRunnerAction('indexDocumentWithoutContent', true);
 
@@ -327,7 +257,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 //		$index = $document->getIndex();
 //		$index->unsetStatus(Index::INDEX_CONTENT);
 
-		$result = $this->indexService->indexDocument($this->client, $provider, $document);
+		$result = $this->indexService->indexDocument($this->client, $document);
 
 		return $result;
 	}
@@ -341,9 +271,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$message = $this->parseIndexErrorException($e);
 		$document->getIndex()
-				 ->addError($message, get_class($e), Index::ERROR_SEV_3);
+				 ->addError($message, get_class($e), IIndex::ERROR_SEV_3);
 		$this->updateNewIndexError(
-			$document->getIndex(), $message, get_class($e), Index::ERROR_SEV_3
+			$document->getIndex(), $message, get_class($e), IIndex::ERROR_SEV_3
 		);
 	}
 
@@ -372,7 +302,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * {@inheritdoc}
 	 * @throws ConfigurationException
 	 */
-	public function deleteIndexes($indexes) {
+	public function deleteIndexes(array $indexes) {
 		try {
 			$this->indexService->deleteIndexes($this->client, $indexes);
 		} catch (ConfigurationException $e) {
@@ -383,22 +313,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/**
 	 * {@inheritdoc}
-	 * @throws ConfigurationException
 	 * @throws Exception
 	 */
-	public function searchDocuments(
-		IFullTextSearchProvider $provider, DocumentAccess $access, SearchRequest $request
-	) {
-		return null;
-//		return $this->searchService->searchDocuments($this->client, $provider, $access, $request);
-	}
-
-
-	/**
-	 * {@inheritdoc}
-	 * @throws Exception
-	 */
-	public function searchRequest(SearchResult $result, DocumentAccess $access) {
+	public function searchRequest(ISearchResult $result, DocumentAccess $access) {
 		$this->searchService->searchRequest($this->client, $result, $access);
 	}
 
@@ -410,7 +327,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return IndexDocument
 	 * @throws ConfigurationException
 	 */
-	public function getDocument($providerId, $documentId) {
+	public function getDocument(string $providerId, string $documentId): IndexDocument {
 		return $this->searchService->getDocument($this->client, $providerId, $documentId);
 	}
 
@@ -440,6 +357,53 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			throw $e;
 //			echo ' ElasticSearchPlatform::load() Exception --- ' . $e->getMessage() . "\n";
 		}
+	}
+
+
+	/**
+	 * @param string $action
+	 * @param bool $force
+	 *
+	 * @throws Exception
+	 */
+	private function updateRunnerAction(string $action, $force = false) {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->updateAction($action, $force);
+	}
+
+
+	/**
+	 * @param IIndex $index
+	 * @param string $message
+	 * @param string $exception
+	 * @param int $sev
+	 */
+	private function updateNewIndexError(IIndex $index, string $message, string $exception, int $sev
+	) {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->newIndexError($index, $message, $exception, $sev);
+	}
+
+
+	/**
+	 * @param IIndex $index
+	 * @param string $message
+	 * @param string $status
+	 * @param int $type
+	 */
+	private function updateNewIndexResult(IIndex $index, string $message, string $status, int $type
+	) {
+		if ($this->runner === null) {
+			return;
+		}
+
+		$this->runner->newIndexResult($index, $message, $status, $type);
 	}
 
 

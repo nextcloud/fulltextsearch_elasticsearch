@@ -28,11 +28,11 @@ namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
 use Exception;
-use OCA\FullTextSearch\Model\DocumentAccess;
-use OCA\FullTextSearch\Model\IndexDocument;
-use OCA\FullTextSearch\Model\SearchResult;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
+use OCP\FullTextSearch\Model\DocumentAccess;
+use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\ISearchResult;
 
 class SearchService {
 
@@ -57,54 +57,20 @@ class SearchService {
 		$this->miscService = $miscService;
 	}
 
-
-//	/**
-//	 * @param Client $client
-//	 * @param IFullTextSearchProvider $provider
-//	 * @param DocumentAccess $access
-//	 * @param SearchRequest $request
-//	 *
-//	 * @throws ConfigurationException
-//	 * @throws Exception
-//	 */
-//	public function searchDocuments(
-//		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
-//		SearchRequest $request
-//	) {
-//		try {
-//			$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
-//		} catch (SearchQueryGenerationException $e) {
-//			return null;
-//		}
-//
-//		try {
-//			$result = $client->search($query['params']);
-//		} catch (Exception $e) {
-//			$this->miscService->log(
-//				'debug - request: ' . json_encode($request) . '   - query: ' . json_encode($query)
-//			);
-//			throw $e;
-//		}
-//
-//		$searchResult = $this->generateSearchResultFromResult($result);
-//
-//		foreach ($result['hits']['hits'] as $entry) {
-//			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
-//		}
-//	}
-
 	/**
 	 * @param Client $client
-	 * @param SearchResult $searchResult
+	 * @param ISearchResult $searchResult
 	 * @param DocumentAccess $access
 	 *
 	 * @throws Exception
 	 */
-	public function searchRequest(Client $client, SearchResult $searchResult, DocumentAccess $access
+	public function searchRequest(
+		Client $client, ISearchResult $searchResult, DocumentAccess $access
 	) {
 		try {
 			$query = $this->searchMappingService->generateSearchQuery(
 				$searchResult->getRequest(), $access, $searchResult->getProvider()
+																   ->getId()
 			);
 		} catch (SearchQueryGenerationException $e) {
 			return;
@@ -195,21 +161,23 @@ class SearchService {
 		$index->setSource($result['_source']['source']);
 		$index->setTitle($result['_source']['title']);
 		$index->setParts($result['_source']['parts']);
-		$index->setContent($result['_source']['content']);
+
+		$content = $result['_source']['content'];
+		$index->setContent($content === null ? '' : $content);
 
 		return $index;
 	}
 
 
 	/**
-	 * @param SearchResult $searchResult
+	 * @param ISearchResult $searchResult
 	 * @param array $result
 	 */
-	private function updateSearchResult(SearchResult $searchResult, $result) {
+	private function updateSearchResult(ISearchResult $searchResult, $result) {
 		$searchResult->setRawResult(json_encode($result));
 
 		$searchResult->setTotal($result['hits']['total']);
-		$searchResult->setMaxScore($result['hits']['max_score']);
+		$searchResult->setMaxScore((int)$this->miscService->get($result['hits'], 'max_score', 0));
 		$searchResult->setTime($result['took']);
 		$searchResult->setTimedOut($result['timed_out']);
 	}

@@ -28,9 +28,9 @@ namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCP\FullTextSearch\Model\IndexDocument;
 
 
 class IndexMappingService {
@@ -110,7 +110,7 @@ class IndexMappingService {
 	/**
 	 * @param Client $client
 	 * @param string $providerId
-	 * @param string|int $documentId
+	 * @param string $documentId
 	 *
 	 * @throws ConfigurationException
 	 */
@@ -171,7 +171,7 @@ class IndexMappingService {
 			'parts'    => $document->getParts()
 		];
 
-		if ($document->getContent() !== null) {
+		if ($document->getContent() !== '') {
 			$body['content'] = $document->getContent();
 		}
 
@@ -251,6 +251,9 @@ class IndexMappingService {
 						'subtags'  => [
 							'type' => 'keyword'
 						],
+						//						'more'     => [
+						//							'type' => 'keyword'
+						//						],
 						'content'  => [
 							'type'        => 'text',
 							'analyzer'    => 'analyzer',
