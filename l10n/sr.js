@@ -1,6 +1,10 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
+    "Full text search - Elasticsearch Platform" : "Претрага свих текстова - Elasticsearch платформа",
+    "Index using ElasticSearch" : "Индексирај преко ElasticSearch-а",
+    "Elastic Search" : "Elastic Search",
+    "Address of the Servlet" : "Адреса сервлета",
     "Include your credential in case authentication is required." : "Dodajte Vaše podatke za slučaj da je potrebna autentikacija.",
     "Index" : "Indeks",
     "Name of your index." : "Naziv Vašeg indeksa."
