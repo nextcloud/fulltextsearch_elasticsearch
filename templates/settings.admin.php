@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,8 +27,11 @@
  *
  */
 
+
+
 use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
 use OCP\Util;
+
 
 Util::addScript(Application::APP_NAME, 'admin.elements');
 Util::addScript(Application::APP_NAME, 'admin.settings');

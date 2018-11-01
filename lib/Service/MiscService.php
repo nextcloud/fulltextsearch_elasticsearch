@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,52 +27,47 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Service;
+
 
 use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
 use OCP\ILogger;
 
+
+/**
+ * Class MiscService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class MiscService {
+
 
 	/** @var ILogger */
 	private $logger;
 
+
+	/**
+	 * MiscService constructor.
+	 *
+	 * @param ILogger $logger
+	 */
 	public function __construct(ILogger $logger) {
 		$this->logger = $logger;
 	}
 
-	public function log($message, $level = 2) {
-		$data = array(
-			'app'   => Application::APP_NAME,
-			'level' => $level
-		);
-
-		$this->logger->log($level, $message, $data);
-	}
 
 	/**
-	 * @param $arr
-	 * @param $k
-	 *
-	 * @param string $default
-	 *
-	 * @return array|string|integer
+	 * @param string $message
+	 * @param int $level
 	 */
-	public static function get($arr, $k, $default = '') {
-		if (!key_exists($k, $arr)) {
-			return $default;
-		}
+	public function log(string $message, int $level = 2) {
+		$data = [
+			'app'   => Application::APP_NAME,
+			'level' => $level
+		];
 
-		return $arr[$k];
-	}
-
-
-	public static function noEndSlash($path) {
-		if (substr($path, -1) === '/') {
-			$path = substr($path, 0, -1);
-		}
-
-		return $path;
+		$this->logger->log($level, $message, $data);
 	}
 
 }

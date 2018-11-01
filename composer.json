@@ -10,6 +10,7 @@
     }
   ],
   "require": {
-    "elasticsearch/elasticsearch": "~6.0"
+    "elasticsearch/elasticsearch": "~6.0",
+    "daita/my-small-php-tools": "dev-master"
   }
 }

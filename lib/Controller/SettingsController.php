@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,7 +27,9 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Controller;
+
 
 use Exception;
 use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
@@ -36,7 +41,14 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 
+
+/**
+ * Class SettingsController
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Controller
+ */
 class SettingsController extends Controller {
+
 
 	/** @var ConfigService */
 	private $configService;
@@ -49,7 +61,7 @@ class SettingsController extends Controller {
 
 
 	/**
-	 * NavigationController constructor.
+	 * SettingsController constructor.
 	 *
 	 * @param IRequest $request
 	 * @param ConfigService $configService
@@ -71,7 +83,7 @@ class SettingsController extends Controller {
 	 * @return DataResponse
 	 * @throws Exception
 	 */
-	public function getSettingsAdmin() {
+	public function getSettingsAdmin(): DataResponse {
 		$data = $this->configService->getConfig();
 
 		return new DataResponse($data, Http::STATUS_OK);
@@ -79,12 +91,12 @@ class SettingsController extends Controller {
 
 
 	/**
-	 * @param $data
+	 * @param array $data
 	 *
 	 * @return DataResponse
 	 * @throws Exception
 	 */
-	public function setSettingsAdmin($data) {
+	public function setSettingsAdmin(array $data): DataResponse {
 
 		if ($this->settingsService->checkConfig($data)) {
 			$this->configService->setConfig($data);
@@ -95,3 +107,4 @@ class SettingsController extends Controller {
 
 
 }
+

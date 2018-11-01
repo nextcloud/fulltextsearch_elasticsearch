@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,8 +27,15 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Exceptions;
 
+
+/**
+ * Class QueryContentGenerationException
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Exceptions
+ */
 class QueryContentGenerationException extends \Exception {
 
 }

@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,18 +27,30 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\AppInfo;
+
 
 use OCP\AppFramework\App;
 
+
+/**
+ * Class Application
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\AppInfo
+ */
 class Application extends App {
+
 
 	const APP_NAME = 'fulltextsearch_elasticsearch';
 
+
 	/**
+	 * Application constructor.
+	 *
 	 * @param array $params
 	 */
-	public function __construct(array $params = array()) {
+	public function __construct(array $params = []) {
 		parent::__construct(self::APP_NAME, $params);
 	}
 

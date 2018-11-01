@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_ElasticSearch\Platform;
 
+
+use daita\MySmallPhpTools\Traits\TPathTools;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
@@ -48,7 +50,16 @@ use OCP\FullTextSearch\Model\IRunner;
 use OCP\FullTextSearch\Model\ISearchResult;
 
 
+/**
+ * Class ElasticSearchPlatform
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Platform
+ */
 class ElasticSearchPlatform implements IFullTextSearchPlatform {
+
+
+	use TPathTools;
+
 
 	/** @var ConfigService */
 	private $configService;
@@ -69,6 +80,14 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	private $runner;
 
 
+	/**
+	 * ElasticSearchPlatform constructor.
+	 *
+	 * @param ConfigService $configService
+	 * @param IndexService $indexService
+	 * @param SearchService $searchService
+	 * @param MiscService $miscService
+	 */
 	public function __construct(
 		ConfigService $configService, IndexService $indexService, SearchService $searchService,
 		MiscService $miscService
@@ -79,12 +98,14 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->miscService = $miscService;
 	}
 
+
 	/**
 	 * return a unique Id of the platform.
 	 */
 	public function getId(): string {
 		return 'elastic_search';
 	}
+
 
 	/**
 	 * return a unique Id of the platform.
@@ -249,7 +270,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws ConfigurationException
 	 * @throws \Exception
 	 */
-	private function indexDocumentError(IndexDocument $document, Exception $e) {
+	private function indexDocumentError(IndexDocument $document, Exception $e): array {
 
 		$this->updateRunnerAction('indexDocumentWithoutContent', true);
 
@@ -283,7 +304,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @return string
 	 */
-	private function parseIndexErrorException(Exception $e) {
+	private function parseIndexErrorException(Exception $e): string {
 
 		$arr = json_decode($e->getMessage(), true);
 		if (!is_array($arr)) {
@@ -332,15 +353,19 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	}
 
 
+	private function cleanHost($host) {
+		return $this->withoutEndSlash($host, false, false);
+	}
+
 	/**
 	 * @param array $hosts
 	 *
 	 * @throws Exception
 	 */
-	private function connectToElastic($hosts) {
+	private function connectToElastic(array $hosts) {
 
 		try {
-			$hosts = array_map([MiscService::class, 'noEndSlash'], $hosts);
+			$hosts = array_map([$this, 'cleanHost'], $hosts);
 			$this->client = ClientBuilder::create()
 										 ->setHosts($hosts)
 										 ->setRetries(3)
@@ -366,7 +391,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws Exception
 	 */
-	private function updateRunnerAction(string $action, $force = false) {
+	private function updateRunnerAction(string $action, bool $force = false) {
 		if ($this->runner === null) {
 			return;
 		}

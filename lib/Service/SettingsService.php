@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,10 +27,18 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Service;
+
 
 use OCP\IConfig;
 
+
+/**
+ * Class SettingsService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class SettingsService {
 
 
@@ -40,8 +51,9 @@ class SettingsService {
 	/** @var MiscService */
 	private $miscService;
 
+
 	/**
-	 * ConfigService constructor.
+	 * SettingsService constructor.
 	 *
 	 * @param IConfig $config
 	 * @param string $userId
@@ -54,11 +66,11 @@ class SettingsService {
 	}
 
 	/**
-	 * @param $data
+	 * @param array $data
 	 *
 	 * @return bool
 	 */
-	public function checkConfig($data) {
+	public function checkConfig(array $data) {
 //			return false;
 
 		return true;
@@ -66,3 +78,4 @@ class SettingsService {
 
 
 }
+

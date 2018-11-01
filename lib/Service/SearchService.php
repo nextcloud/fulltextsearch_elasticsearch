@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,8 +27,11 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
+
+use daita\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Exception;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
@@ -34,7 +40,16 @@ use OCP\FullTextSearch\Model\DocumentAccess;
 use OCP\FullTextSearch\Model\IndexDocument;
 use OCP\FullTextSearch\Model\ISearchResult;
 
+
+/**
+ * Class SearchService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class SearchService {
+
+
+	use TArrayTools;
 
 
 	/** @var SearchMappingService */
@@ -92,6 +107,8 @@ class SearchService {
 			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
 		}
 	}
+
+
 //	/**
 //	 * @param Client $client
 //	 * @param IFullTextSearchProvider $provider
@@ -141,7 +158,8 @@ class SearchService {
 	 * @return IndexDocument
 	 * @throws ConfigurationException
 	 */
-	public function getDocument(Client $client, $providerId, $documentId) {
+	public function getDocument(Client $client, string $providerId, string $documentId
+	): IndexDocument {
 		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
 
@@ -173,11 +191,11 @@ class SearchService {
 	 * @param ISearchResult $searchResult
 	 * @param array $result
 	 */
-	private function updateSearchResult(ISearchResult $searchResult, $result) {
+	private function updateSearchResult(ISearchResult $searchResult, array $result) {
 		$searchResult->setRawResult(json_encode($result));
 
 		$searchResult->setTotal($result['hits']['total']);
-		$searchResult->setMaxScore((int)$this->miscService->get($result['hits'], 'max_score', 0));
+		$searchResult->setMaxScore($this->getInt('max_score', $result['hits'], 0));
 		$searchResult->setTime($result['took']);
 		$searchResult->setTimedOut($result['timed_out']);
 	}
@@ -189,7 +207,7 @@ class SearchService {
 	 *
 	 * @return IndexDocument
 	 */
-	private function parseSearchEntry($entry, $viewerId) {
+	private function parseSearchEntry(array $entry, string $viewerId): IndexDocument {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 
@@ -199,13 +217,14 @@ class SearchService {
 		$document->setExcerpts(
 			(array_key_exists('highlight', $entry)) ? $entry['highlight']['content'] : []
 		);
-		$document->setHash(MiscService::get($entry['_source'], 'hash'));
-		$document->setScore($entry['_score']);
-		$document->setSource(MiscService::get($entry['_source'], 'source'));
-		$document->setTitle(MiscService::get($entry['_source'], 'title'));
+		$document->setHash($this->get('hash', $entry['_source']));
+		$document->setScore($this->get('_score', $entry, '0'));
+		$document->setSource($this->get('source', $entry['_source']));
+		$document->setTitle($this->get('title', $entry['_source']));
 
 		return $document;
 	}
 
 
 }
+

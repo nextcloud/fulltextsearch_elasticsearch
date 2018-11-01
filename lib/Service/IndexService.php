@@ -30,16 +30,26 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
+
+use daita\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
-use OCP\FullTextSearch\IFullTextSearchProvider;
 use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IndexDocument;
 
+
+/**
+ * Class IndexService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class IndexService {
+
+
+	use TArrayTools;
 
 
 	/** @var IndexMappingService */
@@ -69,7 +79,7 @@ class IndexService {
 	 * @return bool
 	 * @throws ConfigurationException
 	 */
-	public function testIndex(Client $client) {
+	public function testIndex(Client $client): bool {
 
 		$map = $this->indexMappingService->generateGlobalMap(false);
 		$map['client'] = [
@@ -79,6 +89,7 @@ class IndexService {
 		return $client->indices()
 					  ->exists($map);
 	}
+
 
 	/**
 	 * @param Client $client
@@ -110,11 +121,11 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param $providerId
+	 * @param string $providerId
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex(Client $client, $providerId) {
+	public function resetIndex(Client $client, string $providerId) {
 		try {
 			$client->deleteByQuery($this->indexMappingService->generateDeleteQuery($providerId));
 		} catch (Missing404Exception $e) {
@@ -166,14 +177,13 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocument(Client $client, IndexDocument $document) {
+	public function indexDocument(Client $client, IndexDocument $document): array {
 		$result = [];
 		$index = $document->getIndex();
 		if ($index->isStatus(IIndex::INDEX_REMOVE)) {
@@ -196,14 +206,14 @@ class IndexService {
 	 *
 	 * @return IIndex
 	 */
-	public function parseIndexResult(IIndex $index, array $result) {
+	public function parseIndexResult(IIndex $index, array $result): IIndex {
 
 		$index->setLastIndex();
 
 		if (array_key_exists('exception', $result)) {
 			$index->setStatus(IIndex::INDEX_FAILED);
 			$index->addError(
-				$this->miscService->get($result, 'message', $result['exception']),
+				$this->get('message', $result, $result['exception']),
 				'',
 				IIndex::ERROR_SEV_3
 			);
