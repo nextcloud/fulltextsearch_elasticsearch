@@ -1,5 +1,10 @@
 # Changelog
 
+### 1.2.0 (NC15)
+
+- Compat NC15 + full php7.
+- Adding l10n at multiple place.
+
 
 ### 1.0.0
 
