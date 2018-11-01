@@ -1,6 +1,11 @@
 # Changelog
 
 
+### 1.0.2
+
+- Adding l10n at multiple place.
+
+
 ### 1.0.0
 
 First stable release
