@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,18 +27,29 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
+
+use daita\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use OCA\FullTextSearch\IFullTextSearchProvider;
-use OCA\FullTextSearch\Model\Index;
-use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCP\FullTextSearch\Model\IIndex;
+use OCP\FullTextSearch\Model\IndexDocument;
 
+
+/**
+ * Class IndexService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class IndexService {
+
+
+	use TArrayTools;
 
 
 	/** @var IndexMappingService */
@@ -65,7 +79,7 @@ class IndexService {
 	 * @return bool
 	 * @throws ConfigurationException
 	 */
-	public function testIndex(Client $client) {
+	public function testIndex(Client $client): bool {
 
 		$map = $this->indexMappingService->generateGlobalMap(false);
 		$map['client'] = [
@@ -75,6 +89,7 @@ class IndexService {
 		return $client->indices()
 					  ->exists($map);
 	}
+
 
 	/**
 	 * @param Client $client
@@ -106,11 +121,11 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param $providerId
+	 * @param string $providerId
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex(Client $client, $providerId) {
+	public function resetIndex(Client $client, string $providerId) {
 		try {
 			$client->deleteByQuery($this->indexMappingService->generateDeleteQuery($providerId));
 		} catch (Missing404Exception $e) {
@@ -147,11 +162,11 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param Index[] $indexes
+	 * @param IIndex[] $indexes
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function deleteIndexes($client, $indexes) {
+	public function deleteIndexes(Client $client, array $indexes) {
 		foreach ($indexes as $index) {
 			$this->indexMappingService->indexDocumentRemove(
 				$client, $index->getProviderId(), $index->getDocumentId()
@@ -162,23 +177,20 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param IFullTextSearchProvider $provider
 	 * @param IndexDocument $document
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocument(
-		Client $client, IFullTextSearchProvider $provider, IndexDocument $document
-	) {
+	public function indexDocument(Client $client, IndexDocument $document): array {
 		$result = [];
 		$index = $document->getIndex();
-		if ($index->isStatus(Index::INDEX_REMOVE)) {
+		if ($index->isStatus(IIndex::INDEX_REMOVE)) {
 			$this->indexMappingService->indexDocumentRemove(
-				$client, $provider->getId(), $document->getId()
+				$client, $document->getProviderId(), $document->getId()
 			);
-		} else if ($index->isStatus(Index::INDEX_OK) && !$index->isStatus(Index::INDEX_CONTENT)) {
+		} else if ($index->isStatus(IIndex::INDEX_OK) && !$index->isStatus(IIndex::INDEX_CONTENT)) {
 			$result = $this->indexMappingService->indexDocumentUpdate($client, $document);
 		} else {
 			$result = $this->indexMappingService->indexDocumentNew($client, $document);
@@ -189,21 +201,21 @@ class IndexService {
 
 
 	/**
-	 * @param Index $index
+	 * @param IIndex $index
 	 * @param array $result
 	 *
-	 * @return Index
+	 * @return IIndex
 	 */
-	public function parseIndexResult(Index $index, array $result) {
+	public function parseIndexResult(IIndex $index, array $result): IIndex {
 
 		$index->setLastIndex();
 
 		if (array_key_exists('exception', $result)) {
-			$index->setStatus(Index::INDEX_FAILED);
+			$index->setStatus(IIndex::INDEX_FAILED);
 			$index->addError(
-				$this->miscService->get($result, 'message', $result['exception']),
+				$this->get('message', $result, $result['exception']),
 				'',
-				Index::ERROR_SEV_3
+				IIndex::ERROR_SEV_3
 			);
 
 			return $index;
@@ -211,7 +223,7 @@ class IndexService {
 
 		// TODO: parse result
 		if ($index->getErrorCount() === 0) {
-			$index->setStatus(Index::INDEX_DONE);
+			$index->setStatus(IIndex::INDEX_DONE);
 		}
 
 		return $index;

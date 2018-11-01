@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,17 +27,29 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
+
+use daita\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Exception;
-use OCA\FullTextSearch\Model\DocumentAccess;
-use OCA\FullTextSearch\Model\IndexDocument;
-use OCA\FullTextSearch\Model\SearchResult;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
+use OCP\FullTextSearch\Model\DocumentAccess;
+use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\ISearchResult;
 
+
+/**
+ * Class SearchService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class SearchService {
+
+
+	use TArrayTools;
 
 
 	/** @var SearchMappingService */
@@ -57,54 +72,20 @@ class SearchService {
 		$this->miscService = $miscService;
 	}
 
-
-//	/**
-//	 * @param Client $client
-//	 * @param IFullTextSearchProvider $provider
-//	 * @param DocumentAccess $access
-//	 * @param SearchRequest $request
-//	 *
-//	 * @throws ConfigurationException
-//	 * @throws Exception
-//	 */
-//	public function searchDocuments(
-//		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
-//		SearchRequest $request
-//	) {
-//		try {
-//			$query = $this->searchMappingService->generateSearchQuery($provider, $access, $request);
-//		} catch (SearchQueryGenerationException $e) {
-//			return null;
-//		}
-//
-//		try {
-//			$result = $client->search($query['params']);
-//		} catch (Exception $e) {
-//			$this->miscService->log(
-//				'debug - request: ' . json_encode($request) . '   - query: ' . json_encode($query)
-//			);
-//			throw $e;
-//		}
-//
-//		$searchResult = $this->generateSearchResultFromResult($result);
-//
-//		foreach ($result['hits']['hits'] as $entry) {
-//			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
-//		}
-//	}
-
 	/**
 	 * @param Client $client
-	 * @param SearchResult $searchResult
+	 * @param ISearchResult $searchResult
 	 * @param DocumentAccess $access
 	 *
 	 * @throws Exception
 	 */
-	public function searchRequest(Client $client, SearchResult $searchResult, DocumentAccess $access
+	public function searchRequest(
+		Client $client, ISearchResult $searchResult, DocumentAccess $access
 	) {
 		try {
 			$query = $this->searchMappingService->generateSearchQuery(
 				$searchResult->getRequest(), $access, $searchResult->getProvider()
+																   ->getId()
 			);
 		} catch (SearchQueryGenerationException $e) {
 			return;
@@ -126,6 +107,8 @@ class SearchService {
 			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
 		}
 	}
+
+
 //	/**
 //	 * @param Client $client
 //	 * @param IFullTextSearchProvider $provider
@@ -175,7 +158,8 @@ class SearchService {
 	 * @return IndexDocument
 	 * @throws ConfigurationException
 	 */
-	public function getDocument(Client $client, $providerId, $documentId) {
+	public function getDocument(Client $client, string $providerId, string $documentId
+	): IndexDocument {
 		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
 
@@ -195,21 +179,23 @@ class SearchService {
 		$index->setSource($result['_source']['source']);
 		$index->setTitle($result['_source']['title']);
 		$index->setParts($result['_source']['parts']);
-		$index->setContent($result['_source']['content']);
+
+		$content = $result['_source']['content'];
+		$index->setContent($content === null ? '' : $content);
 
 		return $index;
 	}
 
 
 	/**
-	 * @param SearchResult $searchResult
+	 * @param ISearchResult $searchResult
 	 * @param array $result
 	 */
-	private function updateSearchResult(SearchResult $searchResult, $result) {
+	private function updateSearchResult(ISearchResult $searchResult, array $result) {
 		$searchResult->setRawResult(json_encode($result));
 
 		$searchResult->setTotal($result['hits']['total']);
-		$searchResult->setMaxScore($result['hits']['max_score']);
+		$searchResult->setMaxScore($this->getInt('max_score', $result['hits'], 0));
 		$searchResult->setTime($result['took']);
 		$searchResult->setTimedOut($result['timed_out']);
 	}
@@ -221,7 +207,7 @@ class SearchService {
 	 *
 	 * @return IndexDocument
 	 */
-	private function parseSearchEntry($entry, $viewerId) {
+	private function parseSearchEntry(array $entry, string $viewerId): IndexDocument {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 
@@ -231,13 +217,14 @@ class SearchService {
 		$document->setExcerpts(
 			(array_key_exists('highlight', $entry)) ? $entry['highlight']['content'] : []
 		);
-		$document->setHash(MiscService::get($entry['_source'], 'hash'));
-		$document->setScore($entry['_score']);
-		$document->setSource(MiscService::get($entry['_source'], 'source'));
-		$document->setTitle(MiscService::get($entry['_source'], 'title'));
+		$document->setHash($this->get('hash', $entry['_source']));
+		$document->setScore($this->get('_score', $entry, '0'));
+		$document->setSource($this->get('source', $entry['_source']));
+		$document->setTitle($this->get('title', $entry['_source']));
 
 		return $document;
 	}
 
 
 }
+

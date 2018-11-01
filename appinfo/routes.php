@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -23,6 +26,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 
 return [
 	'routes' => [

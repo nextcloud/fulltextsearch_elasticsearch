@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,17 +27,23 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
-use OCA\FullTextSearch\IFullTextSearchProvider;
-use OCA\FullTextSearch\Model\DocumentAccess;
-use OCA\FullTextSearch\Model\SearchRequest;
+
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\QueryContentGenerationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
 use OCA\FullTextSearch_ElasticSearch\Model\QueryContent;
+use OCP\FullTextSearch\Model\DocumentAccess;
+use OCP\FullTextSearch\Model\ISearchRequest;
 
 
+/**
+ * Class SearchMappingService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class SearchMappingService {
 
 	/** @var ConfigService */
@@ -45,7 +54,7 @@ class SearchMappingService {
 
 
 	/**
-	 * MappingService constructor.
+	 * SearchMappingService constructor.
 	 *
 	 * @param ConfigService $configService
 	 * @param MiscService $miscService
@@ -57,33 +66,35 @@ class SearchMappingService {
 
 
 	/**
-	 * @param IFullTextSearchProvider $provider
+	 * @param ISearchRequest $request
 	 * @param DocumentAccess $access
-	 * @param SearchRequest $request
+	 * @param string $providerId
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws SearchQueryGenerationException
 	 */
-	public function generateSearchQuery(SearchRequest $request, DocumentAccess $access, IFullTextSearchProvider $provider) {
-		$query['params'] = $this->generateSearchQueryParams($request, $access, $provider);
+	public function generateSearchQuery(
+		ISearchRequest $request, DocumentAccess $access, string $providerId
+	): array {
+		$query['params'] = $this->generateSearchQueryParams($request, $access, $providerId);
 
 		return $query;
 	}
 
 
 	/**
-	 * @param IFullTextSearchProvider $provider
+	 * @param ISearchRequest $request
 	 * @param DocumentAccess $access
-	 * @param SearchRequest $request
+	 * @param string $providerId
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQueryParams(
-		SearchRequest $request, DocumentAccess $access, IFullTextSearchProvider $provider
-	) {
+		ISearchRequest $request, DocumentAccess $access, string $providerId
+	): array {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
 			'type'  => 'standard',
@@ -94,7 +105,7 @@ class SearchMappingService {
 		$bool = [];
 		$bool['must']['bool']['should'] = $this->generateSearchQueryContent($request);
 
-		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $provider->getId()]];
+		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $providerId]];
 		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
 		$bool['filter'][]['bool']['should'] =
 			$this->generateSearchQueryTags('metatags', $request->getMetaTags());
@@ -112,10 +123,10 @@ class SearchMappingService {
 
 
 	/**
-	 * @param SearchRequest $request
+	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
-	private function improveSearchQuerying(SearchRequest $request, &$arr) {
+	private function improveSearchQuerying(ISearchRequest $request, array &$arr) {
 //		$this->improveSearchWildcardQueries($request, $arr);
 		$this->improveSearchWildcardFilters($request, $arr);
 		$this->improveSearchRegexFilters($request, $arr);
@@ -142,10 +153,10 @@ class SearchMappingService {
 
 
 	/**
-	 * @param SearchRequest $request
+	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
-	private function improveSearchWildcardFilters(SearchRequest $request, &$arr) {
+	private function improveSearchWildcardFilters(ISearchRequest $request, array &$arr) {
 
 		$filters = $request->getWildcardFilters();
 		foreach ($filters as $filter) {
@@ -161,10 +172,10 @@ class SearchMappingService {
 
 
 	/**
-	 * @param SearchRequest $request
+	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
-	private function improveSearchRegexFilters(SearchRequest $request, &$arr) {
+	private function improveSearchRegexFilters(ISearchRequest $request, array &$arr) {
 
 		$filters = $request->getRegexFilters();
 		foreach ($filters as $filter) {
@@ -180,12 +191,12 @@ class SearchMappingService {
 
 
 	/**
-	 * @param SearchRequest $request
+	 * @param ISearchRequest $request
 	 *
-	 * @return array<string,array<string,array>>
+	 * @return array
 	 * @throws SearchQueryGenerationException
 	 */
-	private function generateSearchQueryContent(SearchRequest $request) {
+	private function generateSearchQueryContent(ISearchRequest $request): array {
 		$str = strtolower($request->getSearch());
 
 		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', " $str ", $words);
@@ -212,7 +223,7 @@ class SearchMappingService {
 	 * @return QueryContent
 	 * @throws QueryContentGenerationException
 	 */
-	private function generateQueryContent($word) {
+	private function generateQueryContent(string $word): QueryContent {
 
 		$searchQueryContent = new QueryContent($word);
 		if (strlen($searchQueryContent->getWord()) === 0) {
@@ -224,12 +235,14 @@ class SearchMappingService {
 
 
 	/**
-	 * @param SearchRequest $request
+	 * @param ISearchRequest $request
 	 * @param QueryContent[] $queryContents
 	 *
 	 * @return array
 	 */
-	private function generateSearchQueryFromQueryContent(SearchRequest $request, $queryContents) {
+	private function generateSearchQueryFromQueryContent(
+		ISearchRequest $request, array $queryContents
+	): array {
 
 		$query = $queryWords = [];
 		foreach ($queryContents as $queryContent) {
@@ -247,12 +260,13 @@ class SearchMappingService {
 
 
 	/**
-	 * @param SearchRequest $request
+	 * @param ISearchRequest $request
 	 * @param QueryContent $content
 	 *
 	 * @return array
 	 */
-	private function generateQueryContentFields(SearchRequest $request, QueryContent $content) {
+	private function generateQueryContentFields(ISearchRequest $request, QueryContent $content
+	): array {
 		$parts = array_map(
 			function($value) {
 				return 'parts.' . $value;
@@ -280,9 +294,9 @@ class SearchMappingService {
 	/**
 	 * @param DocumentAccess $access
 	 *
-	 * @return array<string,array>
+	 * @return array
 	 */
-	private function generateSearchQueryAccess(DocumentAccess $access) {
+	private function generateSearchQueryAccess(DocumentAccess $access): array {
 
 		$query = [];
 		$query[] = ['term' => ['owner' => $access->getViewerId()]];
@@ -302,12 +316,12 @@ class SearchMappingService {
 
 
 	/**
-	 * @param SearchRequest $request
+	 * @param ISearchRequest $request
 	 * @param string $field
 	 *
 	 * @return bool
 	 */
-	private function fieldIsOutLimit(SearchRequest $request, $field) {
+	private function fieldIsOutLimit(ISearchRequest $request, string $field): bool {
 		$limit = $request->getLimitFields();
 		if (sizeof($limit) === 0) {
 			return false;
@@ -325,9 +339,9 @@ class SearchMappingService {
 	 * @param string $k
 	 * @param array $tags
 	 *
-	 * @return array<string,array>
+	 * @return array
 	 */
-	private function generateSearchQueryTags($k, $tags) {
+	private function generateSearchQueryTags(string $k, array $tags): array {
 
 		$query = [];
 		foreach ($tags as $t) {
@@ -341,7 +355,7 @@ class SearchMappingService {
 	/**
 	 * @return array
 	 */
-	private function generateSearchHighlighting() {
+	private function generateSearchHighlighting(): array {
 		return [
 			'fields'    => ['content' => new \stdClass()],
 			'pre_tags'  => [''],
@@ -351,13 +365,13 @@ class SearchMappingService {
 
 
 	/**
-	 * @param $providerId
-	 * @param $documentId
+	 * @param string $providerId
+	 * @param string $documentId
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function getDocumentQuery($providerId, $documentId) {
+	public function getDocumentQuery(string $providerId, string $documentId): array {
 		return [
 			'index' => $this->configService->getElasticIndex(),
 			'type'  => 'standard',
@@ -367,3 +381,4 @@ class SearchMappingService {
 
 
 }
+

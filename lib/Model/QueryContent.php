@@ -1,9 +1,41 @@
 <?php
+declare(strict_types=1);
+
+
+/**
+ * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ *
+ * This file is licensed under the Affero General Public License version 3 or
+ * later. See the COPYING file.
+ *
+ * @author Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2018
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 
 namespace OCA\FullTextSearch_ElasticSearch\Model;
 
 
+/**
+ * Class QueryContent
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Model
+ */
 class QueryContent {
 
 
@@ -32,17 +64,20 @@ class QueryContent {
 
 
 	/**
-	 * SearchQueryContent constructor.
+	 * QueryContent constructor.
 	 *
 	 * @param string $word
 	 */
-	function __construct($word) {
+	function __construct(string $word) {
 		$this->word = $word;
 
 		$this->init();
 	}
 
 
+	/**
+	 *
+	 */
 	private function init() {
 		$this->setShould('should');
 		$this->setMatch('match_phrase_prefix');
@@ -70,22 +105,26 @@ class QueryContent {
 	/**
 	 * @return string
 	 */
-	public function getWord() {
+	public function getWord(): string {
 		return $this->word;
 	}
 
 	/**
 	 * @param string $word
+	 *
+	 * @return $this
 	 */
-	public function setWord($word) {
+	public function setWord(string $word): QueryContent {
 		$this->word = $word;
+
+		return $this;
 	}
 
 
 	/**
 	 * @return string
 	 */
-	public function getShould() {
+	public function getShould(): string {
 		return $this->should;
 	}
 
@@ -94,7 +133,7 @@ class QueryContent {
 	 *
 	 * @return QueryContent
 	 */
-	public function setShould($should) {
+	public function setShould(string $should): QueryContent {
 		$this->should = $should;
 
 		return $this;
@@ -104,7 +143,7 @@ class QueryContent {
 	/**
 	 * @return string
 	 */
-	public function getMatch() {
+	public function getMatch(): string {
 		return $this->match;
 	}
 
@@ -113,7 +152,7 @@ class QueryContent {
 	 *
 	 * @return QueryContent
 	 */
-	public function setMatch($match) {
+	public function setMatch(string $match): QueryContent {
 		$this->match = $match;
 
 		return $this;
@@ -123,7 +162,7 @@ class QueryContent {
 	/**
 	 * @return int
 	 */
-	public function getOption() {
+	public function getOption(): int {
 		return $this->option;
 	}
 
@@ -132,7 +171,7 @@ class QueryContent {
 	 *
 	 * @return QueryContent
 	 */
-	public function setOption($option) {
+	public function setOption(int $option): QueryContent {
 		$this->option = $option;
 
 		return $this;

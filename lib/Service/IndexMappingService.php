@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,16 +27,24 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\Service;
+
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use OCA\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCP\FullTextSearch\Model\IndexDocument;
 
 
+/**
+ * Class IndexMappingService
+ *
+ * @package OCA\FullTextSearch_ElasticSearch\Service
+ */
 class IndexMappingService {
+
 
 	/** @var ConfigService */
 	private $configService;
@@ -43,7 +54,7 @@ class IndexMappingService {
 
 
 	/**
-	 * MappingService constructor.
+	 * IndexMappingService constructor.
 	 *
 	 * @param ConfigService $configService
 	 * @param MiscService $miscService
@@ -62,7 +73,7 @@ class IndexMappingService {
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocumentNew(Client $client, IndexDocument $document) {
+	public function indexDocumentNew(Client $client, IndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
@@ -87,7 +98,7 @@ class IndexMappingService {
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocumentUpdate(Client $client, IndexDocument $document) {
+	public function indexDocumentUpdate(Client $client, IndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
@@ -110,11 +121,11 @@ class IndexMappingService {
 	/**
 	 * @param Client $client
 	 * @param string $providerId
-	 * @param string|int $documentId
+	 * @param string $documentId
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function indexDocumentRemove(Client $client, $providerId, $documentId) {
+	public function indexDocumentRemove(Client $client, string $providerId, string $documentId) {
 		$index = [
 			'index' =>
 				[
@@ -135,7 +146,7 @@ class IndexMappingService {
 	 * @param IndexDocument $document
 	 * @param array $arr
 	 */
-	public function onIndexingDocument(IndexDocument $document, &$arr) {
+	public function onIndexingDocument(IndexDocument $document, array &$arr) {
 		if ($document->getContent() !== ''
 			&& $document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
@@ -149,7 +160,7 @@ class IndexMappingService {
 	 * @return array
 	 * @throws AccessIsEmptyException
 	 */
-	public function generateIndexBody(IndexDocument $document) {
+	public function generateIndexBody(IndexDocument $document): array {
 
 		$access = $document->getAccess();
 		if ($access === null) {
@@ -171,7 +182,7 @@ class IndexMappingService {
 			'parts'    => $document->getParts()
 		];
 
-		if ($document->getContent() !== null) {
+		if ($document->getContent() !== '') {
 			$body['content'] = $document->getContent();
 		}
 
@@ -182,10 +193,10 @@ class IndexMappingService {
 	/**
 	 * @param bool $complete
 	 *
-	 * @return array<string,string|array<string,array<string,array<string,array>>>>
+	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateGlobalMap($complete = true) {
+	public function generateGlobalMap(bool $complete = true): array {
 
 		$params = [
 			'index' => $this->configService->getElasticIndex()
@@ -251,6 +262,9 @@ class IndexMappingService {
 						'subtags'  => [
 							'type' => 'keyword'
 						],
+						//						'more'     => [
+						//							'type' => 'keyword'
+						//						],
 						'content'  => [
 							'type'        => 'text',
 							'analyzer'    => 'analyzer',
@@ -298,9 +312,9 @@ class IndexMappingService {
 	/**
 	 * @param bool $complete
 	 *
-	 * @return array<string,string|array<string,string|array<string,array<string,string|integer>>>>
+	 * @return array
 	 */
-	public function generateGlobalIngest($complete = true) {
+	public function generateGlobalIngest(bool $complete = true): array {
 
 		$params = ['id' => 'attachment'];
 
@@ -339,7 +353,7 @@ class IndexMappingService {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function generateDeleteQuery($providerId) {
+	public function generateDeleteQuery(string $providerId): array {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
 			'type'  => 'standard'
@@ -351,3 +365,4 @@ class IndexMappingService {
 	}
 
 }
+

@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+
 /**
  * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
  *
@@ -24,8 +27,12 @@
  *
  */
 
+
 namespace OCA\FullTextSearch_ElasticSearch\AppInfo;
+
 
 require_once __DIR__ . '/autoload.php';
 
+
 new Application();
+
