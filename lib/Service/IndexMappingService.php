@@ -172,6 +172,7 @@ class IndexMappingService {
 			'users'    => $access->getUsers(),
 			'groups'   => $access->getGroups(),
 			'circles'  => $access->getCircles(),
+			'links'    => $access->getLinks(),
 			'metatags' => $document->getMetaTags(),
 			'subtags'  => $document->getSubTags(true),
 			'tags'     => $document->getTags(),
@@ -281,6 +282,9 @@ class IndexMappingService {
 							'type' => 'keyword'
 						],
 						'circles'  => [
+							'type' => 'keyword'
+						],
+						'links'  => [
 							'type' => 'keyword'
 						],
 						'hash'     => [

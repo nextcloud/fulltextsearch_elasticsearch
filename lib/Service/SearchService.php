@@ -167,6 +167,7 @@ class SearchService {
 		$access->setUsers($result['_source']['users']);
 		$access->setGroups($result['_source']['groups']);
 		$access->setCircles($result['_source']['circles']);
+		$access->setLinks($result['_source']['links']);
 
 		$index = new IndexDocument($providerId, $documentId);
 		$index->setAccess($access);
@@ -180,8 +181,8 @@ class SearchService {
 		$index->setTitle($result['_source']['title']);
 		$index->setParts($result['_source']['parts']);
 
-		$content = $result['_source']['content'];
-		$index->setContent($content === null ? '' : $content);
+		$content = $this->get('content', $result['_source'], '');
+		$index->setContent($content);
 
 		return $index;
 	}
