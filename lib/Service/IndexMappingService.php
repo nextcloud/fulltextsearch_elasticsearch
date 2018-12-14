@@ -263,9 +263,6 @@ class IndexMappingService {
 						'subtags'  => [
 							'type' => 'keyword'
 						],
-						//						'more'     => [
-						//							'type' => 'keyword'
-						//						],
 						'content'  => [
 							'type'        => 'text',
 							'analyzer'    => 'analyzer',

@@ -1,5 +1,11 @@
 # Changelog
 
+
+### 1.2.1
+
+- Store links
+
+
 ### 1.2.0 (NC15)
 
 - Compat NC15 + full php7.
