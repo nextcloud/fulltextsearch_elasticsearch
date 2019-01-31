@@ -35,6 +35,7 @@ use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IndexDocument;
 
 
@@ -167,6 +168,10 @@ class IndexMappingService {
 			throw new AccessIsEmptyException('DocumentAccess is Empty');
 		}
 
+		// TODO: check if we can just update META or just update CONTENT.
+//		$index = $document->getIndex();
+//		$body = [];
+//		if ($index->isStatus(IIndex::INDEX_META)) {
 		$body = [
 			'owner'    => $access->getOwnerId(),
 			'users'    => $access->getUsers(),
@@ -182,10 +187,12 @@ class IndexMappingService {
 			'title'    => $document->getTitle(),
 			'parts'    => $document->getParts()
 		];
+//		}
 
-		if ($document->getContent() !== '') {
-			$body['content'] = $document->getContent();
-		}
+//		if ($index->isStatus(IIndex::INDEX_CONTENT)) {
+		$body['content'] = $document->getContent();
+
+//		}
 
 		return array_merge($document->getInfoAll(), $body);
 	}
@@ -281,7 +288,7 @@ class IndexMappingService {
 						'circles'  => [
 							'type' => 'keyword'
 						],
-						'links'  => [
+						'links'    => [
 							'type' => 'keyword'
 						],
 						'hash'     => [

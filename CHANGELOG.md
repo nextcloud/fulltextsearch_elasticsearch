@@ -1,6 +1,12 @@
 # Changelog
 
 
+### 1.2.3
+
+- composer update
+- l10n
+
+
 ### 1.2.1
 
 - Store links
