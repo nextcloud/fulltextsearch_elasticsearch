@@ -116,7 +116,6 @@ class SearchMappingService {
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting($request);
 
-		$this->miscService->log('### ' . json_encode($params['body']['highlight']));
 		$this->improveSearchQuerying($request, $params['body']['query']);
 
 		return $params;
