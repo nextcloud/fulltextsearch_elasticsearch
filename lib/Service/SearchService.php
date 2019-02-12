@@ -215,17 +215,29 @@ class SearchService {
 		list($providerId, $documentId) = explode(':', $entry['_id'], 2);
 		$document = new IndexDocument($providerId, $documentId);
 		$document->setAccess($access);
-		$document->setExcerpts(
-			(array_key_exists('highlight', $entry)) ? $entry['highlight']['content'] : []
-		);
 		$document->setHash($this->get('hash', $entry['_source']));
 		$document->setScore($this->get('_score', $entry, '0'));
 		$document->setSource($this->get('source', $entry['_source']));
 		$document->setTitle($this->get('title', $entry['_source']));
 
+		$document->setExcerpts(
+			$this->parseSearchEntryExcerpts(
+				(array_key_exists('highlight', $entry)) ? $entry['highlight'] : []
+			)
+		);
+
 		return $document;
 	}
 
+
+	private function parseSearchEntryExcerpts(array $highlight): array {
+		$result = [];
+		foreach (array_keys($highlight) as $k) {
+			$result = array_merge($highlight[$k]);
+		}
+
+		return $result;
+	}
 
 }
 
