@@ -114,8 +114,9 @@ class SearchMappingService {
 //		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
-		$params['body']['highlight'] = $this->generateSearchHighlighting();
+		$params['body']['highlight'] = $this->generateSearchHighlighting($request);
 
+		$this->miscService->log('### ' . json_encode($params['body']['highlight']));
 		$this->improveSearchQuerying($request, $params['body']['query']);
 
 		return $params;
@@ -267,11 +268,7 @@ class SearchMappingService {
 	 */
 	private function generateQueryContentFields(ISearchRequest $request, QueryContent $content
 	): array {
-		$parts = array_map(
-			function($value) {
-				return 'parts.' . $value;
-			}, $request->getParts()
-		);
+		$parts = $this->getPartsFields($request);
 		$fields = array_merge(['content', 'title'], $request->getFields(), $parts);
 
 		$queryFields = [];
@@ -353,11 +350,20 @@ class SearchMappingService {
 
 
 	/**
+	 * @param ISearchRequest $request
+	 *
 	 * @return array
 	 */
-	private function generateSearchHighlighting(): array {
+	private function generateSearchHighlighting(ISearchRequest $request): array {
+
+		$parts = $this->getPartsFields($request);
+		$fields = ['content' => new \stdClass()];
+		foreach ($parts as $part) {
+			$fields[$part] = new \stdClass();
+		}
+
 		return [
-			'fields'    => ['content' => new \stdClass()],
+			'fields'    => $fields,
 			'pre_tags'  => [''],
 			'post_tags' => ['']
 		];
@@ -379,6 +385,19 @@ class SearchMappingService {
 		];
 	}
 
+
+	/**
+	 * @param ISearchRequest $request
+	 *
+	 * @return array
+	 */
+	private function getPartsFields(ISearchRequest $request) {
+		return array_map(
+			function($value) {
+				return 'parts.' . $value;
+			}, $request->getParts()
+		);
+	}
 
 }
 
