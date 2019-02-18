@@ -267,10 +267,9 @@ class SearchMappingService {
 	 */
 	private function generateQueryContentFields(ISearchRequest $request, QueryContent $content
 	): array {
-		$parts = $this->getPartsFields($request);
-		$fields = array_merge(['content', 'title'], $request->getFields(), $parts);
-
 		$queryFields = [];
+
+		$fields = array_merge(['content', 'title'], $request->getFields());
 		foreach ($fields as $field) {
 			if (!$this->fieldIsOutLimit($request, $field)) {
 				$queryFields[] = [$content->getMatch() => [$field => $content->getWord()]];
@@ -281,6 +280,22 @@ class SearchMappingService {
 			if (!$this->fieldIsOutLimit($request, $field)) {
 				$queryFields[] = ['wildcard' => [$field => '*' . $content->getWord() . '*']];
 			}
+		}
+
+		$parts = [];
+		foreach ($this->getPartsFields($request) as $field) {
+			if (!$this->fieldIsOutLimit($request, $field)) {
+				$parts[] = $field;
+			}
+		}
+
+		if (sizeof($parts) > 0) {
+			$queryFields[] = [
+				'query_string' => [
+					'fields' => $parts,
+					'query'  => $content->getWord()
+				]
+			];
 		}
 
 		return ['bool' => ['should' => $queryFields]];
