@@ -38,7 +38,7 @@ use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCP\FullTextSearch\Model\IIndex;
-use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\IIndexDocument;
 
 
 /**
@@ -177,13 +177,13 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocument(Client $client, IndexDocument $document): array {
+	public function indexDocument(Client $client, IIndexDocument $document): array {
 		$result = [];
 		$index = $document->getIndex();
 		if ($index->isStatus(IIndex::INDEX_REMOVE)) {

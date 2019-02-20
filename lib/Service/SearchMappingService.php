@@ -35,7 +35,7 @@ use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\QueryContentGenerationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
 use OCA\FullTextSearch_ElasticSearch\Model\QueryContent;
-use OCP\FullTextSearch\Model\DocumentAccess;
+use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\ISearchRequest;
 
 
@@ -67,7 +67,7 @@ class SearchMappingService {
 
 	/**
 	 * @param ISearchRequest $request
-	 * @param DocumentAccess $access
+	 * @param IDocumentAccess $access
 	 * @param string $providerId
 	 *
 	 * @return array
@@ -75,7 +75,7 @@ class SearchMappingService {
 	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQuery(
-		ISearchRequest $request, DocumentAccess $access, string $providerId
+		ISearchRequest $request, IDocumentAccess $access, string $providerId
 	): array {
 		$query['params'] = $this->generateSearchQueryParams($request, $access, $providerId);
 
@@ -85,7 +85,7 @@ class SearchMappingService {
 
 	/**
 	 * @param ISearchRequest $request
-	 * @param DocumentAccess $access
+	 * @param IDocumentAccess $access
 	 * @param string $providerId
 	 *
 	 * @return array
@@ -93,7 +93,7 @@ class SearchMappingService {
 	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQueryParams(
-		ISearchRequest $request, DocumentAccess $access, string $providerId
+		ISearchRequest $request, IDocumentAccess $access, string $providerId
 	): array {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
@@ -303,11 +303,11 @@ class SearchMappingService {
 
 
 	/**
-	 * @param DocumentAccess $access
+	 * @param IDocumentAccess $access
 	 *
 	 * @return array
 	 */
-	private function generateSearchQueryAccess(DocumentAccess $access): array {
+	private function generateSearchQueryAccess(IDocumentAccess $access): array {
 
 		$query = [];
 		$query[] = ['term' => ['owner' => $access->getViewerId()]];
