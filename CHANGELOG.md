@@ -1,6 +1,13 @@
 # Changelog
 
 
+### 1.2.4
+
+- [hotfix] index content on meta update
+- [api] parts accepts wildcard in filename
+- [api] retrieve highlight from parts
+
+
 ### 1.2.3
 
 - composer update
