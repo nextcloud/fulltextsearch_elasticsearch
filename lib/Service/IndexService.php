@@ -190,7 +190,8 @@ class IndexService {
 			$this->indexMappingService->indexDocumentRemove(
 				$client, $document->getProviderId(), $document->getId()
 			);
-		} else if ($index->isStatus(IIndex::INDEX_OK) && !$index->isStatus(IIndex::INDEX_CONTENT)) {
+		} else if ($index->isStatus(IIndex::INDEX_OK) && !$index->isStatus(IIndex::INDEX_CONTENT)
+				   && !$index->isStatus(IIndex::INDEX_META)) {
 			$result = $this->indexMappingService->indexDocumentUpdate($client, $document);
 		} else {
 			$result = $this->indexMappingService->indexDocumentNew($client, $document);
