@@ -191,13 +191,16 @@ class SearchService {
 	}
 
 
-	private function parseSearchEntryExcerpts(array $highlight): array {
+	private function parseSearchEntryExcerpts(array $highlights): array {
 		$result = [];
-		foreach (array_keys($highlight) as $k) {
-			$result[] = [
-				'source'  => $k,
-				'excerpt' => $highlight[$k]
-			];
+		foreach (array_keys($highlights) as $source) {
+			foreach ($highlights[$source] as $highlight) {
+				$result[] =
+					[
+						'source'  => $source,
+						'excerpt' => $highlight
+					];
+			}
 		}
 
 		return $result;
