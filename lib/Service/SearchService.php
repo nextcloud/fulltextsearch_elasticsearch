@@ -34,10 +34,12 @@ namespace OCA\FullTextSearch_ElasticSearch\Service;
 use daita\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Exception;
+use OC\FullTextSearch\Model\DocumentAccess;
+use OC\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
-use OCP\FullTextSearch\Model\DocumentAccess;
-use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\IDocumentAccess;
+use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\ISearchResult;
 
 
@@ -75,12 +77,12 @@ class SearchService {
 	/**
 	 * @param Client $client
 	 * @param ISearchResult $searchResult
-	 * @param DocumentAccess $access
+	 * @param IDocumentAccess $access
 	 *
 	 * @throws Exception
 	 */
 	public function searchRequest(
-		Client $client, ISearchResult $searchResult, DocumentAccess $access
+		Client $client, ISearchResult $searchResult, IDocumentAccess $access
 	) {
 		try {
 			$query = $this->searchMappingService->generateSearchQuery(
@@ -109,57 +111,16 @@ class SearchService {
 	}
 
 
-//	/**
-//	 * @param Client $client
-//	 * @param IFullTextSearchProvider $provider
-//	 * @param DocumentAccess $access
-//	 * @param SearchResult $result
-//	 *
-//	 * @return SearchResult
-//	 * @throws ConfigurationException
-//	 */
-//	public function fillSearchResult(
-//		Client $client, IFullTextSearchProvider $provider, DocumentAccess $access,
-//		SearchResult $searchResult
-//	) {
-//		try {
-//			$query = $this->searchMappingService->generateSearchQuery(
-//				$provider, $access, $searchResult->getRequest()
-//			);
-//		} catch (SearchQueryGenerationException $e) {
-//			return null;
-//		}
-//
-//		try {
-//			$result = $client->search($query['params']);
-//		} catch (Exception $e) {
-//			$this->miscService->log(
-//				'debug - request: ' . json_encode($searchResult->getRequest()) . '   - query: '
-//				. json_encode($query)
-//			);
-//			throw $e;
-//		}
-//
-//		$this->updateSearchResult($searchResult, $result);
-//
-//		foreach ($result['hits']['hits'] as $entry) {
-//			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
-//		}
-//
-//		return $searchResult;
-//	}
-
-
 	/**
 	 * @param Client $client
 	 * @param string $providerId
 	 * @param string $documentId
 	 *
-	 * @return IndexDocument
+	 * @return IIndexDocument
 	 * @throws ConfigurationException
 	 */
 	public function getDocument(Client $client, string $providerId, string $documentId
-	): IndexDocument {
+	): IIndexDocument {
 		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
 
@@ -206,9 +167,9 @@ class SearchService {
 	 * @param array $entry
 	 * @param string $viewerId
 	 *
-	 * @return IndexDocument
+	 * @return IIndexDocument
 	 */
-	private function parseSearchEntry(array $entry, string $viewerId): IndexDocument {
+	private function parseSearchEntry(array $entry, string $viewerId): IIndexDocument {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 
@@ -230,10 +191,16 @@ class SearchService {
 	}
 
 
-	private function parseSearchEntryExcerpts(array $highlight): array {
+	private function parseSearchEntryExcerpts(array $highlights): array {
 		$result = [];
-		foreach (array_keys($highlight) as $k) {
-			$result = array_merge($highlight[$k]);
+		foreach (array_keys($highlights) as $source) {
+			foreach ($highlights[$source] as $highlight) {
+				$result[] =
+					[
+						'source'  => $source,
+						'excerpt' => $highlight
+					];
+			}
 		}
 
 		return $result;

@@ -35,8 +35,7 @@ use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
-use OCP\FullTextSearch\Model\IIndex;
-use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\IIndexDocument;
 
 
 /**
@@ -68,13 +67,13 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocumentNew(Client $client, IndexDocument $document): array {
+	public function indexDocumentNew(Client $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
@@ -93,13 +92,13 @@ class IndexMappingService {
 
 	/**
 	 * @param Client $client
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 *
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
 	 */
-	public function indexDocumentUpdate(Client $client, IndexDocument $document): array {
+	public function indexDocumentUpdate(Client $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
@@ -144,24 +143,24 @@ class IndexMappingService {
 
 
 	/**
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 * @param array $arr
 	 */
-	public function onIndexingDocument(IndexDocument $document, array &$arr) {
+	public function onIndexingDocument(IIndexDocument $document, array &$arr) {
 		if ($document->getContent() !== ''
-			&& $document->isContentEncoded() === IndexDocument::ENCODED_BASE64) {
+			&& $document->isContentEncoded() === IIndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
 		}
 	}
 
 
 	/**
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 *
 	 * @return array
 	 * @throws AccessIsEmptyException
 	 */
-	public function generateIndexBody(IndexDocument $document): array {
+	public function generateIndexBody(IIndexDocument $document): array {
 
 		$access = $document->getAccess();
 		if ($access === null) {

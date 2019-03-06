@@ -43,9 +43,9 @@ use OCA\FullTextSearch_ElasticSearch\Service\IndexService;
 use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
 use OCA\FullTextSearch_ElasticSearch\Service\SearchService;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
-use OCP\FullTextSearch\Model\DocumentAccess;
+use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
-use OCP\FullTextSearch\Model\IndexDocument;
+use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\IRunner;
 use OCP\FullTextSearch\Model\ISearchResult;
 
@@ -211,11 +211,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 *
 	 * @return IIndex
 	 */
-	public function indexDocument(IndexDocument $document): IIndex {
+	public function indexDocument(IIndexDocument $document): IIndex {
 
 		$document->initHash();
 
@@ -262,7 +262,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 * @param Exception $e
 	 *
 	 * @return array
@@ -270,7 +270,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws ConfigurationException
 	 * @throws \Exception
 	 */
-	private function indexDocumentError(IndexDocument $document, Exception $e): array {
+	private function indexDocumentError(IIndexDocument $document, Exception $e): array {
 
 		$this->updateRunnerAction('indexDocumentWithoutContent', true);
 
@@ -285,10 +285,10 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @param IndexDocument $document
+	 * @param IIndexDocument $document
 	 * @param Exception $e
 	 */
-	private function manageIndexErrorException(IndexDocument $document, Exception $e) {
+	private function manageIndexErrorException(IIndexDocument $document, Exception $e) {
 
 		$message = $this->parseIndexErrorException($e);
 		$document->getIndex()
@@ -336,7 +336,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * {@inheritdoc}
 	 * @throws Exception
 	 */
-	public function searchRequest(ISearchResult $result, DocumentAccess $access) {
+	public function searchRequest(ISearchResult $result, IDocumentAccess $access) {
 		$this->searchService->searchRequest($this->client, $result, $access);
 	}
 
@@ -345,10 +345,10 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param string $providerId
 	 * @param string $documentId
 	 *
-	 * @return IndexDocument
+	 * @return IIndexDocument
 	 * @throws ConfigurationException
 	 */
-	public function getDocument(string $providerId, string $documentId): IndexDocument {
+	public function getDocument(string $providerId, string $documentId): IIndexDocument {
 		return $this->searchService->getDocument($this->client, $providerId, $documentId);
 	}
 
