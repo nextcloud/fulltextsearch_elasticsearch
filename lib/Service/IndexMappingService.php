@@ -262,7 +262,7 @@ class IndexMappingService {
 						],
 						'content'  => [
 							'type'        => 'text',
-							'analyzer'    => ConfigService::ANALYZER_TOKENIZER,
+							'analyzer'    => $this->configService->getAppValue(ConfigService::ANALYZER_TOKENIZER),
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
@@ -286,7 +286,7 @@ class IndexMappingService {
 						],
 						'combined' => [
 							'type'        => 'text',
-							'analyzer'    => ConfigService::ANALYZER_TOKENIZER,
+							'analyzer'    => $this->configService->getAppValue(ConfigService::ANALYZER_TOKENIZER),
 							'term_vector' => 'yes'
 						]
 						//						,
