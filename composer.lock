@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "e01e4653ff3f4bc7d7915c753c265ce9",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/daita/my-small-php-tools.git",
-                "reference": "5e0ceb160cf7a8778a005f8d9fac996e782e87d2"
+                "reference": "8343ac12c13de7e01e3207ecd1c78a61eebe229d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/5e0ceb160cf7a8778a005f8d9fac996e782e87d2",
-                "reference": "5e0ceb160cf7a8778a005f8d9fac996e782e87d2",
+                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/8343ac12c13de7e01e3207ecd1c78a61eebe229d",
+                "reference": "8343ac12c13de7e01e3207ecd1c78a61eebe229d",
                 "shasum": ""
             },
             "require": {
@@ -40,20 +40,20 @@
                 }
             ],
             "description": "My small PHP Tools",
-            "time": "2019-04-03T13:40:20+00:00"
+            "time": "2019-04-25T12:22:38+00:00"
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v6.1.0",
+            "version": "v6.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "b237a37b2cdf23a5a17fd3576cdea771394ad00d"
+                "reference": "8bde3f3b821361ec75e08a3746231d87230a2d3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/b237a37b2cdf23a5a17fd3576cdea771394ad00d",
-                "reference": "b237a37b2cdf23a5a17fd3576cdea771394ad00d",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/8bde3f3b821361ec75e08a3746231d87230a2d3a",
+                "reference": "8bde3f3b821361ec75e08a3746231d87230a2d3a",
                 "shasum": ""
             },
             "require": {
@@ -63,12 +63,12 @@
                 "psr/log": "~1.0"
             },
             "require-dev": {
-                "cpliakas/git-wrapper": "~1.0",
+                "cpliakas/git-wrapper": "^1.7 || ^2.1",
                 "doctrine/inflector": "^1.1",
-                "mockery/mockery": "0.9.4",
-                "phpstan/phpstan-shim": "0.8.3",
-                "phpunit/phpunit": "6.3.0",
-                "squizlabs/php_codesniffer": "3.0.2",
+                "mockery/mockery": "^1.2",
+                "phpstan/phpstan-shim": "^0.9 || ^0.11",
+                "phpunit/phpunit": "^5.7 || ^6.5",
+                "squizlabs/php_codesniffer": "^3.4",
                 "symfony/finder": "^2.8",
                 "symfony/yaml": "^2.8"
             },
@@ -89,6 +89,9 @@
             "authors": [
                 {
                     "name": "Zachary Tong"
+                },
+                {
+                    "name": "Enrico Zimuel"
                 }
             ],
             "description": "PHP Client for Elasticsearch",
@@ -97,7 +100,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2019-01-08T18:53:46+00:00"
+            "time": "2019-04-29T15:14:22+00:00"
         },
         {
             "name": "guzzlehttp/ringphp",
