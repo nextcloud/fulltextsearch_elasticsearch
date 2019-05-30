@@ -156,7 +156,12 @@ class SearchService {
 	private function updateSearchResult(ISearchResult $searchResult, array $result) {
 		$searchResult->setRawResult(json_encode($result));
 
-		$searchResult->setTotal($result['hits']['total']);
+		$total = $result['hits']['total'];
+		if (is_array($total)) {
+			$total = $total['value'];
+		}
+
+		$searchResult->setTotal($total);
 		$searchResult->setMaxScore($this->getInt('max_score', $result['hits'], 0));
 		$searchResult->setTime($result['took']);
 		$searchResult->setTimedOut($result['timed_out']);
