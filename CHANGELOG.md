@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.3.1
+
+- compat ES 7.x
+
 
 ### 1.2.3
 
