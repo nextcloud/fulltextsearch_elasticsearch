@@ -213,6 +213,7 @@ class IndexMappingService {
 			return $params;
 		}
 
+		$params['include_type_name'] = true;
 		$params['body'] = [
 			'settings' => [
 				'analysis' => [
