@@ -45,6 +45,7 @@ use OCP\PreConditionNotMetException;
 class ConfigService {
 
 
+	const FIELDS_LIMIT = 'fields_limit';
 	const ELASTIC_HOST = 'elastic_host';
 	const ELASTIC_INDEX = 'elastic_index';
 	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
@@ -53,6 +54,7 @@ class ConfigService {
 	public $defaults = [
 		self::ELASTIC_HOST       => '',
 		self::ELASTIC_INDEX      => '',
+		self::FIELDS_LIMIT       => '10000',
 		self::ANALYZER_TOKENIZER => 'standard'
 	];
 
