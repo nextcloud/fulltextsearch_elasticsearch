@@ -216,7 +216,8 @@ class IndexMappingService {
 		$params['include_type_name'] = true;
 		$params['body'] = [
 			'settings' => [
-				'analysis' => [
+				'index.mapping.total_fields.limit' => $this->configService->getAppValue(ConfigService::FIELDS_LIMIT),
+				'analysis'                         => [
 					'filter'      => [
 						'shingle' => [
 							'type' => 'shingle'
