@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.2.6
+
+- set fields limit
+
 
 ### 1.2.4
 
