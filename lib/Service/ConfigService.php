@@ -48,14 +48,16 @@ class ConfigService {
 	const FIELDS_LIMIT = 'fields_limit';
 	const ELASTIC_HOST = 'elastic_host';
 	const ELASTIC_INDEX = 'elastic_index';
+	const ELASTIC_VER_BELOW66 = 'es_ver_below66';
 	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
 
 
 	public $defaults = [
-		self::ELASTIC_HOST       => '',
-		self::ELASTIC_INDEX      => '',
-		self::FIELDS_LIMIT       => '10000',
-		self::ANALYZER_TOKENIZER => 'standard'
+		self::ELASTIC_HOST        => '',
+		self::ELASTIC_INDEX       => '',
+		self::FIELDS_LIMIT        => '10000',
+		self::ELASTIC_VER_BELOW66 => '0',
+		self::ANALYZER_TOKENIZER  => 'standard'
 	];
 
 	/** @var IConfig */
