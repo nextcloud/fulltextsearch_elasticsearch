@@ -1,5 +1,10 @@
 # Changelog
 
+### 1.3.4
+
+- compat with old ES
+
+
 ### 1.3.3
 
 - set fields limit

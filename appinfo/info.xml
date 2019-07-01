@@ -10,7 +10,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>1.3.3</version>
+	<version>1.3.4</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullTextSearch_ElasticSearch</namespace>
