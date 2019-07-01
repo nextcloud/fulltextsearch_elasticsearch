@@ -213,10 +213,15 @@ class IndexMappingService {
 			return $params;
 		}
 
-		$params['include_type_name'] = true;
+		if ($this->configService->getAppValue(ConfigService::ELASTIC_VER_BELOW66) !== '1') {
+			$params['include_type_name'] = true;
+		}
+
 		$params['body'] = [
 			'settings' => [
-				'index.mapping.total_fields.limit' => $this->configService->getAppValue(ConfigService::FIELDS_LIMIT),
+				'index.mapping.total_fields.limit' => $this->configService->getAppValue(
+					ConfigService::FIELDS_LIMIT
+				),
 				'analysis'                         => [
 					'filter'      => [
 						'shingle' => [

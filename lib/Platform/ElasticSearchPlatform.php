@@ -120,10 +120,10 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws ConfigurationException
 	 */
 	public function getConfiguration(): array {
+		$result = $this->configService->getConfig();
 
-		$result = [];
+		$sanitizedHosts = [];
 		$hosts = $this->configService->getElasticHost();
-
 		foreach ($hosts as $host) {
 			$parsedHost = parse_url($host);
 			$safeHost = $parsedHost['scheme'] . '://';
@@ -133,13 +133,12 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			$safeHost .= $parsedHost['host'];
 			$safeHost .= ':' . $parsedHost['port'];
 
-			$result[] = $safeHost;
+			$sanitizedHosts[] = $safeHost;
 		}
 
-		return [
-			'elastic_host'  => $result,
-			'elastic_index' => $this->configService->getElasticIndex()
-		];
+		$result['elastic_host'] = $sanitizedHosts;
+
+		return $result;
 	}
 
 
