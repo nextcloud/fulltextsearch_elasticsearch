@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e01e4653ff3f4bc7d7915c753c265ce9",
+    "content-hash": "57388bd9a851b729919ed968d548d828",
     "packages": [
         {
             "name": "daita/my-small-php-tools",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/daita/my-small-php-tools.git",
-                "reference": "6e8f346a2ee488655316d1e4139c27417d6b7e4d"
+                "reference": "6ba571ffa6bda6f32fcc6529a474ccc777eb1fb2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/6e8f346a2ee488655316d1e4139c27417d6b7e4d",
-                "reference": "6e8f346a2ee488655316d1e4139c27417d6b7e4d",
+                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/6ba571ffa6bda6f32fcc6529a474ccc777eb1fb2",
+                "reference": "6ba571ffa6bda6f32fcc6529a474ccc777eb1fb2",
                 "shasum": ""
             },
             "require": {
@@ -40,37 +40,37 @@
                 }
             ],
             "description": "My small PHP Tools",
-            "time": "2019-05-29T20:52:05+00:00"
+            "time": "2019-07-12T20:21:51+00:00"
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v6.7.1",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "7be453dd36d1b141b779f2cb956715f8e04ac2f4"
+                "reference": "ee0c3a8311c76d200c7ebf556b4d3019afc2b9bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/7be453dd36d1b141b779f2cb956715f8e04ac2f4",
-                "reference": "7be453dd36d1b141b779f2cb956715f8e04ac2f4",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/ee0c3a8311c76d200c7ebf556b4d3019afc2b9bd",
+                "reference": "ee0c3a8311c76d200c7ebf556b4d3019afc2b9bd",
                 "shasum": ""
             },
             "require": {
                 "ext-json": ">=1.3.7",
                 "guzzlehttp/ringphp": "~1.0",
-                "php": "^7.0",
+                "php": "^7.1",
                 "psr/log": "~1.0"
             },
             "require-dev": {
-                "cpliakas/git-wrapper": "^1.7 || ^2.1",
-                "doctrine/inflector": "^1.1",
+                "cpliakas/git-wrapper": "~2.0",
+                "doctrine/inflector": "^1.3",
                 "mockery/mockery": "^1.2",
-                "phpstan/phpstan-shim": "^0.9 || ^0.11",
-                "phpunit/phpunit": "^5.7 || ^6.5",
+                "phpstan/phpstan-shim": "^0.11",
+                "phpunit/phpunit": "^7.5",
                 "squizlabs/php_codesniffer": "^3.4",
-                "symfony/finder": "^2.8",
-                "symfony/yaml": "^2.8"
+                "symfony/finder": "~4.0",
+                "symfony/yaml": "~4.0"
             },
             "suggest": {
                 "ext-curl": "*",
@@ -100,7 +100,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2019-05-20T14:15:55+00:00"
+            "time": "2019-07-12T14:27:10+00:00"
         },
         {
             "name": "guzzlehttp/ringphp",
