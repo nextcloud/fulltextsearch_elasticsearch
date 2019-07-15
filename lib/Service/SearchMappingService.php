@@ -37,6 +37,7 @@ use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
 use OCA\FullTextSearch_ElasticSearch\Model\QueryContent;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\ISearchRequest;
+use OCP\FullTextSearch\Model\ISearchRequestSimpleQuery;
 
 
 /**
@@ -112,6 +113,10 @@ class SearchMappingService {
 
 		$bool['filter'][]['bool']['must'] =
 			$this->generateSearchQueryTags('subtags', $request->getSubTags(true));
+
+		$bool['filter'][]['bool']['must'] =
+			$this->generateSearchSimpleQuery($request->getSimpleQueries());
+
 //		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
@@ -361,6 +366,46 @@ class SearchMappingService {
 		}
 
 		return $query;
+	}
+
+
+	/**
+	 * @param ISearchRequestSimpleQuery[] $queries
+	 *
+	 * @return array
+	 */
+	private function generateSearchSimpleQuery(array $queries): array {
+		$simpleQuery = [];
+		foreach ($queries as $query) {
+			// TODO: manage multiple entries array
+
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_GTE) {
+				$value = $query->getValues()[0];
+
+				$simpleQuery[] = ['range' => [$query->getField() => ['gte' => $value]]];
+			}
+
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_LTE) {
+				$value = $query->getValues()[0];
+
+				$simpleQuery[] = ['range' => [$query->getField() => ['lte' => $value]]];
+			}
+
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_GT) {
+				$value = $query->getValues()[0];
+
+				$simpleQuery[] = ['range' => [$query->getField() => ['gt' => $value]]];
+			}
+
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_LT) {
+				$value = $query->getValues()[0];
+
+				$simpleQuery[] = ['range' => [$query->getField() => ['lt' => $value]]];
+			}
+
+		}
+
+		return $simpleQuery;
 	}
 
 

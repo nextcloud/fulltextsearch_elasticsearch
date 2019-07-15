@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.4.0
+
+- Nextcloud 17
+- manage SimpleQuery
+
+
 ### 1.3.4
 
 - compat with old ES
