@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_ElasticSearch\Service;
 
 
+use daita\MySmallPhpTools\Traits\TArrayTools;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\QueryContentGenerationException;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\SearchQueryGenerationException;
@@ -45,6 +46,10 @@ use OCP\FullTextSearch\Model\ISearchRequest;
  * @package OCA\FullTextSearch_ElasticSearch\Service
  */
 class SearchMappingService {
+
+
+	use TArrayTools;
+
 
 	/** @var ConfigService */
 	private $configService;
@@ -180,12 +185,22 @@ class SearchMappingService {
 
 		$filters = $request->getRegexFilters();
 		foreach ($filters as $filter) {
+
 			$regex = [];
 			foreach ($filter as $entry) {
-				$regex[] = ['regexp' => $entry];
+
+				// Temporary FIX to missing SimpleQuery.
+				if (array_key_exists('info_date', $entry)) {
+					$bypass = $this->bypassSimpleQuery($entry['info_date']);
+					$arr['bool']['filter'][]['bool']['must'] = $bypass;
+				} else {
+					$regex[] = ['regexp' => $entry];
+				}
 			}
 
-			$arr['bool']['filter'][]['bool']['should'] = $regex;
+			if (!empty($regex)) {
+				$arr['bool']['filter'][]['bool']['should'] = $regex;
+			}
 		}
 
 	}
@@ -412,6 +427,31 @@ class SearchMappingService {
 				return 'parts.' . $value;
 			}, $request->getParts()
 		);
+	}
+
+
+	/**
+	 * @param string $infos
+	 *
+	 * @return array
+	 * @deprecated nc17
+	 */
+	private function bypassSimpleQuery(string $infos): array {
+
+		$data = json_decode($infos, true);
+
+		$startDate = $this->get('start', $data);
+		$endDate = $this->get('end', $data);
+		$bypass = [];
+		if ($startDate !== '0') {
+			$bypass[] = ['range' => ['info_tmp_date' => ['gte' => $startDate]]];
+		}
+
+		if ($endDate !== '0') {
+			$bypass[] = ['range' => ['info_tmp_date' => ['lte' => $endDate]]];
+		}
+
+		return $bypass;
 	}
 
 }
