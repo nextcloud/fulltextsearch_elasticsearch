@@ -136,16 +136,48 @@ class SearchService {
 		$index->setSubTags($result['_source']['subtags']);
 		$index->setTags($result['_source']['tags']);
 //		$index->setMore($result['_source']['more']);
-//		$index->setInfo($result['_source']['info']);
 		$index->setHash($result['_source']['hash']);
 		$index->setSource($result['_source']['source']);
 		$index->setTitle($result['_source']['title']);
 		$index->setParts($result['_source']['parts']);
 
+		$this->getDocumentInfos($index, $result['_source']);
+
 		$content = $this->get('content', $result['_source'], '');
 		$index->setContent($content);
 
 		return $index;
+	}
+
+
+	/**
+	 * @param IndexDocument $index
+	 * @param $source
+	 */
+	private function getDocumentInfos(IndexDocument $index, $source) {
+		$ak = array_keys($source);
+		foreach ($ak as $k) {
+			if (substr($k, 0, 5) !== 'info_') {
+				continue;
+			}
+			$value = $source[$k];
+			if (is_array($value)) {
+				$index->setInfoArray($k, $value);
+				continue;
+			}
+
+			if (is_bool($value)) {
+				$index->setInfoBool($k, $value);
+				continue;
+			}
+
+			if (is_numeric($value)) {
+				$index->setInfoInt($k, (int)$value);
+				continue;
+			}
+
+			$index->setInfo($k, (string)$value);
+		}
 	}
 
 

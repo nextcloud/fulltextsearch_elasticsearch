@@ -109,7 +109,8 @@ class SearchMappingService {
 		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
 		$bool['filter'][]['bool']['should'] =
 			$this->generateSearchQueryTags('metatags', $request->getMetaTags());
-		$bool['filter'][]['bool']['should'] =
+
+		$bool['filter'][]['bool']['must'] =
 			$this->generateSearchQueryTags('subtags', $request->getSubTags(true));
 //		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 

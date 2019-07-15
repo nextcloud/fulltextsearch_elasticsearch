@@ -35,6 +35,7 @@ use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
 use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
 use OCP\IConfig;
 use OCP\PreConditionNotMetException;
+use OCP\Util;
 
 
 /**
@@ -241,4 +242,15 @@ class ConfigService {
 		$this->config->setUserValue($userId, Application::APP_NAME, $key, $value);
 	}
 
+
+	/**
+	 * @return int
+	 */
+	public function getNcVersion(): int {
+		$ver = Util::getVersion();
+
+		return $ver[0];
+	}
+
 }
+
