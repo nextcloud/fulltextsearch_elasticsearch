@@ -108,7 +108,9 @@ class SearchMappingService {
 		];
 
 		$bool = [];
-		$bool['must']['bool']['should'] = $this->generateSearchQueryContent($request);
+		if ($request->getSearch() !== ':null') {
+			$bool['must']['bool']['should'] = $this->generateSearchQueryContent($request);
+		}
 
 		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $providerId]];
 		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
@@ -240,7 +242,6 @@ class SearchMappingService {
 	 * @throws QueryContentGenerationException
 	 */
 	private function generateQueryContent(string $word): QueryContent {
-
 		$searchQueryContent = new QueryContent($word);
 		if (strlen($searchQueryContent->getWord()) === 0) {
 			throw new QueryContentGenerationException();
