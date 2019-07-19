@@ -104,7 +104,9 @@ class SearchMappingService {
 		];
 
 		$bool = [];
-		$bool['must']['bool']['should'] = $this->generateSearchQueryContent($request);
+		if ($request->getSearch() !== '') {
+			$bool['must']['bool']['should'] = $this->generateSearchQueryContent($request);
+		}
 
 		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $providerId]];
 		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
@@ -379,27 +381,28 @@ class SearchMappingService {
 		foreach ($queries as $query) {
 			// TODO: manage multiple entries array
 
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_KEYWORD) {
+				$value = $query->getValues()[0];
+				$simpleQuery[] = ['term' => [$query->getField() => $value]];
+			}
+
 			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_GTE) {
 				$value = $query->getValues()[0];
-
 				$simpleQuery[] = ['range' => [$query->getField() => ['gte' => $value]]];
 			}
 
 			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_LTE) {
 				$value = $query->getValues()[0];
-
 				$simpleQuery[] = ['range' => [$query->getField() => ['lte' => $value]]];
 			}
 
 			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_GT) {
 				$value = $query->getValues()[0];
-
 				$simpleQuery[] = ['range' => [$query->getField() => ['gt' => $value]]];
 			}
 
 			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_LT) {
 				$value = $query->getValues()[0];
-
 				$simpleQuery[] = ['range' => [$query->getField() => ['lt' => $value]]];
 			}
 

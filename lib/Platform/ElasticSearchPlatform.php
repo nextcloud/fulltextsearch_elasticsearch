@@ -220,7 +220,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		try {
 			$result = $this->indexService->indexDocument($this->client, $document);
-
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
 
 			$this->updateNewIndexResult(
