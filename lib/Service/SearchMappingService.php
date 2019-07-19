@@ -386,6 +386,11 @@ class SearchMappingService {
 				$simpleQuery[] = ['term' => [$query->getField() => $value]];
 			}
 
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_EQ) {
+				$value = $query->getValues()[0];
+				$simpleQuery[] = ['term' => [$query->getField() => $value]];
+			}
+
 			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_GTE) {
 				$value = $query->getValues()[0];
 				$simpleQuery[] = ['range' => [$query->getField() => ['gte' => $value]]];
