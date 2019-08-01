@@ -192,8 +192,8 @@ class SearchMappingService {
 			foreach ($filter as $entry) {
 
 				// Temporary FIX to missing SimpleQuery.
-				if (array_key_exists('info_date', $entry)) {
-					$bypass = $this->bypassSimpleQuery($entry['info_date']);
+				if (array_key_exists('info_msg', $entry)) {
+					$bypass = $this->bypassSimpleQuery($entry['info_msg']);
 					$arr['bool']['filter'][]['bool']['must'] = $bypass;
 				} else {
 					$regex[] = ['regexp' => $entry];
@@ -438,19 +438,31 @@ class SearchMappingService {
 	 * @deprecated nc17
 	 */
 	private function bypassSimpleQuery(string $infos): array {
-
 		$data = json_decode($infos, true);
 
+		$author = $this->get('author', $data);
+		$recipient = $this->get('recipient', $data);
 		$startDate = $this->get('start', $data);
 		$endDate = $this->get('end', $data);
 		$bypass = [];
+
+		if ($author !== '') {
+			$bypass[] = ['wildcard' => ['info_msg_author' => '*' . $author.'*']];
+		}
+
+		if ($recipient !== '') {
+			$bypass[] = ['wildcard' => ['info_msg_recipient' => '*' . $recipient.'*']];
+		}
+
 		if ($startDate !== '0') {
-			$bypass[] = ['range' => ['info_tmp_date' => ['gte' => $startDate]]];
+			$bypass[] = ['range' => ['info_msg_date' => ['gte' => $startDate]]];
 		}
 
 		if ($endDate !== '0') {
-			$bypass[] = ['range' => ['info_tmp_date' => ['lte' => $endDate]]];
+			$bypass[] = ['range' => ['info_msg_date' => ['lte' => $endDate]]];
 		}
+
+		$this->miscService->log('### ' . json_encode($bypass));
 
 		return $bypass;
 	}
