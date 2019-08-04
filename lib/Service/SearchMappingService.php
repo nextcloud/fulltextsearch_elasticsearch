@@ -447,11 +447,11 @@ class SearchMappingService {
 		$bypass = [];
 
 		if ($author !== '') {
-			$bypass[] = ['wildcard' => ['info_msg_author' => '*' . $author.'*']];
+			$bypass[] = ['wildcard' => ['info_msg_author' => '*' . $author . '*']];
 		}
 
 		if ($recipient !== '') {
-			$bypass[] = ['wildcard' => ['info_msg_recipient' => '*' . $recipient.'*']];
+			$bypass[] = ['wildcard' => ['info_msg_recipient' => '*' . $recipient . '*']];
 		}
 
 		if ($startDate !== '0') {
@@ -461,8 +461,6 @@ class SearchMappingService {
 		if ($endDate !== '0') {
 			$bypass[] = ['range' => ['info_msg_date' => ['lte' => $endDate]]];
 		}
-
-		$this->miscService->log('### ' . json_encode($bypass));
 
 		return $bypass;
 	}
