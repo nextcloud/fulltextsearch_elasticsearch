@@ -239,15 +239,6 @@ class IndexMappingService {
 							'pattern'     => '\\b((?i:never|no|nothing|nowhere|noone|none|not|havent|hasnt|hadnt|cant|couldnt|shouldnt|wont|wouldnt|dont|doesnt|didnt|isnt|arent|aint))\\s+(\\w+)',
 							'replacement' => '$1 ~$2'
 						]
-					],
-					'analyzer'    => [
-						'analyzer' => [
-							'type'      => 'custom',
-							'tokenizer' => $this->configService->getAppValue(
-								ConfigService::ANALYZER_TOKENIZER
-							),
-							'filter'    => ['lowercase', 'stop', 'kstem']
-						]
 					]
 				]
 			],
@@ -278,7 +269,7 @@ class IndexMappingService {
 						],
 						'content'  => [
 							'type'        => 'text',
-							'analyzer'    => 'analyzer',
+							'analyzer'    => $this->configService->getAppValue(ConfigService::ANALYZER_TOKENIZER),
 							'term_vector' => 'yes',
 							'copy_to'     => 'combined'
 						],
@@ -302,7 +293,7 @@ class IndexMappingService {
 						],
 						'combined' => [
 							'type'        => 'text',
-							'analyzer'    => 'analyzer',
+							'analyzer'    => $this->configService->getAppValue(ConfigService::ANALYZER_TOKENIZER),
 							'term_vector' => 'yes'
 						]
 						//						,
