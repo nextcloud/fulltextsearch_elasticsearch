@@ -38,6 +38,7 @@ use OCA\FullTextSearch_ElasticSearch\Model\QueryContent;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\ISearchRequest;
 use OCP\FullTextSearch\Model\ISearchRequestSimpleQuery;
+use stdClass;
 
 
 /**
@@ -430,9 +431,9 @@ class SearchMappingService {
 	private function generateSearchHighlighting(ISearchRequest $request): array {
 
 		$parts = $this->getPartsFields($request);
-		$fields = ['content' => new \stdClass()];
+		$fields = ['content' => new stdClass()];
 		foreach ($parts as $part) {
-			$fields[$part] = new \stdClass();
+			$fields[$part] = new stdClass();
 		}
 
 		return [

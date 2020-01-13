@@ -31,12 +31,15 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_ElasticSearch\Exceptions;
 
 
+use Exception;
+
+
 /**
  * Class SearchQueryGenerationException
  *
  * @package OCA\FullTextSearch_ElasticSearch\Exceptions
  */
-class SearchQueryGenerationException extends \Exception {
+class SearchQueryGenerationException extends Exception {
 
 }
 

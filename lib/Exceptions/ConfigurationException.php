@@ -31,12 +31,15 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_ElasticSearch\Exceptions;
 
 
+use Exception;
+
+
 /**
  * Class ConfigurationException
  *
  * @package OCA\FullTextSearch_ElasticSearch\Exceptions
  */
-class ConfigurationException extends \Exception {
+class ConfigurationException extends Exception {
 
 }
 

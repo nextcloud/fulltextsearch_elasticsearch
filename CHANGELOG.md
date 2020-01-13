@@ -1,5 +1,11 @@
 # Changelog
 
+
+### 1.5.0 (nc18)
+
+- compat nc18
+
+
 ### 1.4.0
 
 - Nextcloud 17

@@ -266,7 +266,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return array
 	 * @throws AccessIsEmptyException
 	 * @throws ConfigurationException
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	private function indexDocumentError(IIndexDocument $document, Exception $e): array {
 
@@ -276,9 +276,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 //		$index = $document->getIndex();
 //		$index->unsetStatus(Index::INDEX_CONTENT);
 
-		$result = $this->indexService->indexDocument($this->client, $document);
-
-		return $result;
+		return $this->indexService->indexDocument($this->client, $document);
 	}
 
 
