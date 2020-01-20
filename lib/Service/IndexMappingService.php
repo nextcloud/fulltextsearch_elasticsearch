@@ -261,7 +261,7 @@ class IndexMappingService {
 						'title'    => [
 							'type'        => 'text',
 							'analyzer'    => 'keyword',
-							'term_vector' => 'yes',
+							'term_vector' => 'with_positions_offsets',
 							'copy_to'     => 'combined'
 						],
 						'provider' => [
@@ -279,7 +279,7 @@ class IndexMappingService {
 						'content'  => [
 							'type'        => 'text',
 							'analyzer'    => 'analyzer',
-							'term_vector' => 'yes',
+							'term_vector' => 'with_positions_offsets',
 							'copy_to'     => 'combined'
 						],
 						'owner'    => [
@@ -303,7 +303,7 @@ class IndexMappingService {
 						'combined' => [
 							'type'        => 'text',
 							'analyzer'    => 'analyzer',
-							'term_vector' => 'yes'
+							'term_vector' => 'with_positions_offsets'
 						]
 						//						,
 						//						'topics'   => [
