@@ -8,6 +8,8 @@ OC.L10N.register(
     "Address of the Servlet" : "Διεύθυνση του Servlet",
     "Include your credential in case authentication is required." : "Συμπεριλάβετε τα διαπιστευτήριά σας σε περίπτωση που απαιτείται πιστοποίηση.",
     "Index" : "Ευρετήριο",
-    "Name of your index." : "Όνομα του ευρετηρίου σας."
+    "Name of your index." : "Όνομα του ευρετηρίου σας.",
+    "[Advanced] Analyzer tokenizer" : "[Advanced]  Αναλυτής Λεξικής ανάλυσης",
+    "Some language might needs a specific tokenizer." : "Ορισμένες γλώσσες μπορεί να χρειάζονται μια συγκεκριμένη λεξική ανάλυση."
 },
 "nplurals=2; plural=(n != 1);");
