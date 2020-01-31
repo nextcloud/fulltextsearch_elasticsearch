@@ -1,5 +1,11 @@
 # Changelog
 
+
+### 1.4.1
+
+- fixing issue with not-yet defined (nc18) const
+
+
 ### 1.4.0
 
 - Nextcloud 17
