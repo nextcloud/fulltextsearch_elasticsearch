@@ -386,7 +386,7 @@ class SearchMappingService {
 				$simpleQuery[] = ['term' => [$query->getField() => $value]];
 			}
 
-			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_WILDCARD) {
+			if ($query->getType() === 11) {
 				$value = $query->getValues()[0];
 				$simpleQuery[] = ['wildcard' => [$query->getField() => $value]];
 			}
