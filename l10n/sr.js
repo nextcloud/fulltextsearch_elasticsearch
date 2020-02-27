@@ -8,7 +8,7 @@ OC.L10N.register(
     "Address of the Servlet" : "Адреса сервлета",
     "Include your credential in case authentication is required." : "Додајте Ваше податке за случај да је потребна провера идентитета.",
     "Index" : "Индекс",
-    "Name of your index." : "Naziv Vašeg indeksa.",
+    "Name of your index." : "Назив вашег индекса.",
     "[Advanced] Analyzer tokenizer" : "[Напредно] Анализатор токенизатора",
     "Some language might needs a specific tokenizer." : "Неким језицима треба конкретно токенизатор."
 },
