@@ -1,8 +1,8 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
-    "Full text search - Elasticsearch Platform" : "Ricerca del testo integrale - Piattaforma Elasticsearch",
-    "Index using ElasticSearch" : "Indicizza utilizzando Elasticsearch",
+    "Full text search - Elasticsearch Platform" : "Ricerca del testo integrale - Piattaforma ElasticSearch",
+    "Index using ElasticSearch" : "Indicizza utilizzando ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Estensione dell'applicazione di ricerca del testo integrale per comunicare con ElasticSearch.",
     "Elastic Search" : "Elastic Search",
     "Address of the Servlet" : "Indirizzo del servlet",
