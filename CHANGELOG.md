@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.5.1
+
+- more log during search request
+
 
 ### 1.5.0 (nc18)
 
