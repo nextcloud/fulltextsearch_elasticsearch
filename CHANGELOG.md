@@ -1,6 +1,11 @@
 # Changelog
 
 
+### 1.4.2
+
+- log during search request to ES
+
+
 ### 1.4.1
 
 - fixing issue with not-yet defined (nc18) const
