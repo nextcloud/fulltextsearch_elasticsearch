@@ -1,5 +1,11 @@
 # Changelog
 
+
+### 1.3.7
+
+- log during search request to ES
+
+
 ### 1.3.5
 
 - temp fix regarding missing IFullTextSearchSimpleQuery in NC16
