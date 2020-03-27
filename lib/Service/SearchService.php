@@ -85,6 +85,7 @@ class SearchService {
 		Client $client, ISearchResult $searchResult, IDocumentAccess $access
 	) {
 		try {
+			$this->miscService->log('New Search Request; SearchResult Model: ' . json_encode($searchResult), 0);
 			$query = $this->searchMappingService->generateSearchQuery(
 				$searchResult->getRequest(), $access, $searchResult->getProvider()
 																   ->getId()
@@ -94,6 +95,8 @@ class SearchService {
 		}
 
 		try {
+			$this->miscService->log('Searching ES: ' . json_encode($query['params']), 0);
+
 			$result = $client->search($query['params']);
 		} catch (Exception $e) {
 			$this->miscService->log(
@@ -103,11 +106,14 @@ class SearchService {
 			throw $e;
 		}
 
+		$this->miscService->log('Result from ES: ' . json_encode($result), 0);
 		$this->updateSearchResult($searchResult, $result);
 
 		foreach ($result['hits']['hits'] as $entry) {
 			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
 		}
+
+		$this->miscService->log('Filled SearchResult Model: ' . json_encode($searchResult), 0);
 	}
 
 
