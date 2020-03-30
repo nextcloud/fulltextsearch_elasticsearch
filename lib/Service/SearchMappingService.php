@@ -40,7 +40,6 @@ use OCP\FullTextSearch\Model\ISearchRequest;
 use OCP\FullTextSearch\Model\ISearchRequestSimpleQuery;
 use stdClass;
 
-
 /**
  * Class SearchMappingService
  *
@@ -54,16 +53,20 @@ class SearchMappingService {
 	/** @var MiscService */
 	private $miscService;
 
+	/** @var IUserStoragesService */
+	private $userStoragesService;
 
 	/**
 	 * SearchMappingService constructor.
 	 *
 	 * @param ConfigService $configService
 	 * @param MiscService $miscService
+	 * @param IUserStoragesService $userStoragesService
 	 */
-	public function __construct(ConfigService $configService, MiscService $miscService) {
+	public function __construct(ConfigService $configService, MiscService $miscService, IUserStoragesService $userStoragesService = null) {
 		$this->configService = $configService;
 		$this->miscService = $miscService;
+		$this->userStoragesService = $userStoragesService;
 	}
 
 
@@ -332,7 +335,33 @@ class SearchMappingService {
 			$query[] = ['term' => ['circles' => $circle]];
 		}
 
+		// TODO :: normally we should check if user want's to search 
+		// external files with "$request->getOption('files_external', '1') === '1'"
+		$externalFileShares = $this->getExternalFileShares();
+
+		if ($externalFileShares){
+			$allowedExternalShares = [];
+			foreach($externalFileShares as $fileShare){
+				$allowedExternalShares[] = ['prefix' => ['title' => $fileShare]];
+			}
+			$externalFilesConditions = [];
+			$externalFilesConditions[] = ['term' => ['source' => 'files_external']];
+			$externalFilesConditions[] = ['term' => ['owner' => '']];
+			$externalFilesConditions[] = ['bool' => ['should' => $allowedExternalShares]];
+			$query[] = ['bool' => ['must' => $externalFilesConditions]];
+		}
+
 		return $query;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getExternalFileShares() : array {
+		if (!$this->userStoragesService) {
+			return [];
+		}
+		return $this->userStoragesService->getAllStoragesForUser();
 	}
 
 
