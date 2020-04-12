@@ -39,6 +39,7 @@ use OCA\FullTextSearch_ElasticSearch\Service\SearchMappingService;
 use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
 use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
 use OCA\FullTextSearch_ElasticSearch\Service\UserStoragesService;
+use OCA\Files_External\Service\UserGlobalStoragesService;
 
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -72,7 +73,7 @@ class Application extends App implements IBootstrap {
 		// if app is inactive or not installed.
 		$context->registerService(SearchMappingService::class, function($c) {
 			try{
-				$userStoragesService = $c->query(\OCA\Files_External\Service\UserGlobalStoragesService::class);
+				$userStoragesService = $c->query(UserGlobalStoragesService::class);
 				return new SearchMappingService(
 					$c->query(ConfigService::class),
 					$c->query(MiscService::class),

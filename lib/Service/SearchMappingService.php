@@ -61,7 +61,7 @@ class SearchMappingService {
 	 *
 	 * @param ConfigService $configService
 	 * @param MiscService $miscService
-	 * @param IUserStoragesService $userStoragesService
+	 * @param null|IUserStoragesService $userStoragesService
 	 */
 	public function __construct(ConfigService $configService, MiscService $miscService, IUserStoragesService $userStoragesService = null) {
 		$this->configService = $configService;
@@ -339,7 +339,7 @@ class SearchMappingService {
 		// external files with "$request->getOption('files_external', '1') === '1'"
 		$externalFileShares = $this->getExternalFileShares();
 
-		if ($externalFileShares){
+		if (!empty($externalFileShares)){
 			$allowedExternalShares = [];
 			foreach($externalFileShares as $fileShare){
 				$allowedExternalShares[] = ['prefix' => ['title' => $fileShare]];

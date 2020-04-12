@@ -39,7 +39,7 @@ class UserStoragesService implements IUserStoragesService {
     /** @var UserGlobalStoragesService */
     private $userGlobalStoragesService;
 
-    function __construct(UserGlobalStoragesService $userGlobalStoragesService) {
+    public function __construct(UserGlobalStoragesService $userGlobalStoragesService) {
         $this->userGlobalStoragesService = $userGlobalStoragesService;
     }
 
@@ -47,7 +47,7 @@ class UserStoragesService implements IUserStoragesService {
      * Returns an array of strings with all external mountpoints of the current user
      * @return array
      */
-    function getAllStoragesForUser() {
+    public function getAllStoragesForUser() {
         $userStorages = $this->userGlobalStoragesService->getAllStoragesForUser();
 		$mountPoints = [];
 		foreach($userStorages as $userStorage){
