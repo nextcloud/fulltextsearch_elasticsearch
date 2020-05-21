@@ -5,7 +5,7 @@ OC.L10N.register(
     "Index using ElasticSearch" : "Indexación usando ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extensión de la app _Búsqueda de text completo_ para que se comunique con ElasticSearch.",
     "Elastic Search" : "Elastic Search",
-    "Address of the Servlet" : "Dirección del servlet",
+    "Address of the Servlet" : "Dirección del Servlet",
     "Include your credential in case authentication is required." : "Incluye tu credencial por si se requiere autenticación.",
     "Index" : "Índice",
     "Name of your index." : "Nombre de tu índice",
