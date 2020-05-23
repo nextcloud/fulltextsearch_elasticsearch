@@ -281,7 +281,9 @@ class SearchMappingService {
 		$fields = array_merge(['content', 'title'], $request->getFields());
 		foreach ($fields as $field) {
 			if (!$this->fieldIsOutLimit($request, $field)) {
-				$queryFields[] = [$content->getMatch() => [$field => $content->getWord()]];
+                               $value = $content->getWord();
+                               $spec = [$field => ["query" => $value, "fuzziness" => "AUTO"]];
+                               $queryFields[] = [$content->getMatch() => $spec];
 			}
 		}
 
