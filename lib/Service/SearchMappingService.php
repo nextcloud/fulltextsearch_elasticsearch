@@ -106,7 +106,7 @@ class SearchMappingService {
 
 		$bool = [];
 		if ($request->getSearch() !== '') {
-			$bool['must']['bool']['should'] = $this->generateSearchQueryContent($request);
+			$bool['must'] = $this->generateSearchQueryContent($request);
 		}
 
 		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $providerId]];
@@ -255,16 +255,15 @@ class SearchMappingService {
 
 		$query = $queryWords = [];
 		foreach ($queryContents as $queryContent) {
-			$queryWords[$queryContent->getShould()][] =
+			$queryWords[] =
 				$this->generateQueryContentFields($request, $queryContent);
 		}
-
 		$listShould = array_keys($queryWords);
-		foreach ($listShould as $itemShould) {
-			$query[$itemShould][] = $queryWords[$itemShould];
-		}
 
-		return ['bool' => $query];
+		foreach ($listShould as $itemShould) {
+			$query[]['bool'] = $queryWords[$itemShould];
+		}
+		return $query;
 	}
 
 
@@ -306,8 +305,7 @@ class SearchMappingService {
 				]
 			];
 		}
-
-		return ['bool' => ['should' => $queryFields]];
+		return ['should' => $queryFields];
 	}
 
 
