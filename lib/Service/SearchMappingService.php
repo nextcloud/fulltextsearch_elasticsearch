@@ -335,22 +335,11 @@ class SearchMappingService {
 			$query[] = ['term' => ['circles' => $circle]];
 		}
 
-		// TODO :: normally we should check if user want's to search 
-		// external files with "$request->getOption('files_external', '1') === '1'"
-		$externalFileShares = $this->getExternalFileShares();
-
-		if (!empty($externalFileShares)){
-			$allowedExternalShares = [];
-			foreach($externalFileShares as $fileShare){
-				$allowedExternalShares[] = ['prefix' => ['title' => $fileShare]];
-			}
-			$externalFilesConditions = [];
-			$externalFilesConditions[] = ['term' => ['source' => 'files_external']];
-			$externalFilesConditions[] = ['term' => ['owner' => '']];
-			$externalFilesConditions[] = ['bool' => ['should' => $allowedExternalShares]];
+		$externalFilesConditions = $this->getExternalFilesConditions();
+		if (!empty($externalFilesConditions)) {
 			$query[] = ['bool' => ['must' => $externalFilesConditions]];
 		}
-
+		
 		return $query;
 	}
 
@@ -364,6 +353,36 @@ class SearchMappingService {
 		return $this->userStoragesService->getAllStoragesForUser();
 	}
 
+	/**
+	 * Generates condition array for external files
+	 * @return array
+	 */
+	private function getExternalFilesConditions(): array {
+		// TODO :: normally we should check if user want's to search 
+		// external files with "$request->getOption('files_external', '1') === '1'"
+		$externalFileShares = $this->getExternalFileShares();
+		if (empty($externalFileShares)) {
+			return [];
+		}
+		$allowedExternalShares = [];
+		foreach ($externalFileShares as $fileShare) {
+			// If any external share is mounted as root, every
+			// path is allowed
+			if ($fileShare === '/') {
+				$allowedExternalShares = [];
+				break;
+			}
+			$allowedExternalShares[] = ['prefix' => ['title' => $fileShare]];
+		}
+		$externalFilesConditions = [];
+		$externalFilesConditions[] = ['term' => ['source' => 'files_external']];
+		$externalFilesConditions[] = ['term' => ['owner' => '']];
+		if (!empty($allowedExternalShares)) {
+			$externalFilesConditions[] = ['bool' => ['should' => $allowedExternalShares]];
+		}
+
+		return $externalFilesConditions;
+	}
 
 	/**
 	 * @param ISearchRequest $request
