@@ -31,12 +31,15 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_ElasticSearch\Model;
 
 
+use JsonSerializable;
+
+
 /**
  * Class QueryContent
  *
  * @package OCA\FullTextSearch_ElasticSearch\Model
  */
-class QueryContent {
+class QueryContent implements JsonSerializable {
 
 
 	const OPTION_MUST = 1;
@@ -53,13 +56,13 @@ class QueryContent {
 	private $match;
 
 	/** @var int */
-	private $option;
+	private $option = 0;
 
 
 	/** @var array */
 	private $options = [
-		'+' => [self::OPTION_MUST, 'must', 'prefix'],
-		'-' => [self::OPTION_MUST_NOT, 'must_not', 'prefix']
+		'+' => [self::OPTION_MUST, 'must', 'match_phrase_prefix'],
+		'-' => [self::OPTION_MUST_NOT, 'must_not', 'match_phrase_prefix']
 	];
 
 
@@ -178,4 +181,17 @@ class QueryContent {
 	}
 
 
+	/**
+	 * @return array
+	 */
+	public function jsonSerialize(): array {
+		return [
+			'word'   => $this->getWord(),
+			'should' => $this->getShould(),
+			'match'  => $this->getMatch(),
+			'option' => $this->getOption()
+		];
+	}
+
 }
+
