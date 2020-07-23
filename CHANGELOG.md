@@ -1,5 +1,13 @@
 # Changelog
 
+
+
+### 1.5.2
+
+- compat nc19
+- compat ES 7.7+
+
+
 ### 1.5.1
 
 - more log during search request
