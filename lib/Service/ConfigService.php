@@ -49,6 +49,7 @@ class ConfigService {
 	const FIELDS_LIMIT = 'fields_limit';
 	const ELASTIC_HOST = 'elastic_host';
 	const ELASTIC_INDEX = 'elastic_index';
+	const ELASTIC_TYPE = 'elastic_type';
 	const ELASTIC_VER_BELOW66 = 'es_ver_below66';
 	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
 
@@ -56,6 +57,7 @@ class ConfigService {
 	public $defaults = [
 		self::ELASTIC_HOST        => '',
 		self::ELASTIC_INDEX       => '',
+		self::ELASTIC_TYPE        => 'standard',
 		self::FIELDS_LIMIT        => '10000',
 		self::ELASTIC_VER_BELOW66 => '0',
 		self::ANALYZER_TOKENIZER  => 'standard'
@@ -147,6 +149,25 @@ class ConfigService {
 		}
 
 		return $index;
+	}
+
+	/**
+	 * Return elasticsearch type document. If no type is configured, it
+	 * defaults to 'standard' for backward compatibility
+	 *
+	 * @return string
+	 * @throws ConfigurationException
+	 */
+	public function getElasticType(): string {
+
+		$type = $this->getAppValue(self::ELASTIC_TYPE);
+		if ($type === '') {
+			throw new ConfigurationException(
+				'Your ElasticSearchPlatform is not configured properly'
+			);
+		}
+
+		return $type;
 	}
 
 
@@ -253,4 +274,3 @@ class ConfigService {
 	}
 
 }
-

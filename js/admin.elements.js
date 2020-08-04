@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  */
 
 /** global: OCA */
@@ -32,6 +32,7 @@ var elasticsearch_elements = {
 	elasticsearch_div: null,
 	elasticsearch_host: null,
 	elasticsearch_index: null,
+	elasticsearch_type: null,
 	analyzer_tokenizer: null,
 
 
@@ -39,6 +40,7 @@ var elasticsearch_elements = {
 		elasticsearch_elements.elasticsearch_div = $('#elastic_search');
 		elasticsearch_elements.elasticsearch_host = $('#elasticsearch_host');
 		elasticsearch_elements.elasticsearch_index = $('#elasticsearch_index');
+		elasticsearch_elements.elasticsearch_type = $('#elasticsearch_type');
 		elasticsearch_elements.analyzer_tokenizer = $('#analyzer_tokenizer');
 
 		elasticsearch_elements.elasticsearch_host.on('input', function () {
@@ -53,6 +55,12 @@ var elasticsearch_elements = {
 			elasticsearch_settings.saveSettings();
 		});
 
+		elasticsearch_elements.elasticsearch_type.on('input', function () {
+			fts_admin_settings.tagSettingsAsNotSaved($(this));
+		}).blur(function () {
+			elasticsearch_settings.saveSettings();
+		});
+
 		elasticsearch_elements.analyzer_tokenizer.on('input', function () {
 			fts_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
@@ -62,5 +70,3 @@ var elasticsearch_elements = {
 
 
 };
-
-

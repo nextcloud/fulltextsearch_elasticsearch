@@ -71,6 +71,17 @@ Util::addStyle(Application::APP_NAME, 'admin');
 
 		<div class="div-table-row">
 			<div class="div-table-col div-table-col-left">
+				<span class="leftcol"><?php p($l->t('Type')); ?>:</span>
+				<br/>
+				<em><?php p($l->t('Name of your type. Please considere using _doc as type will no longer be supported.')); ?></em>
+			</div>
+			<div class="div-table-col">
+				<input type="text" id="elasticsearch_type" placeholder="my_type"/>
+			</div>
+		</div>
+
+		<div class="div-table-row">
+			<div class="div-table-col div-table-col-left">
 				<span class="leftcol"><?php p($l->t('[Advanced] Analyzer tokenizer')); ?>:</span>
 				<br/>
 				<em><?php p($l->t('Some language might needs a specific tokenizer.')); ?></em>

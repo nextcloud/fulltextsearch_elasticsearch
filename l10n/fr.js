@@ -9,6 +9,8 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Entrez vos informations d'identification si une authentification est demandée",
     "Index" : "Index",
     "Name of your index." : "Nom de votre index.",
+    "Type" : "Type",
+    "Name of your type. Please considere using _doc as type will no longer be supported.": "Nom du type. Les types ne seront plus supportés, il est préférable d'utiliser _doc."
     "[Advanced] Analyzer tokenizer" : "[Avancé] Analyseur de générateur de token",
     "Some language might needs a specific tokenizer." : "Certaines langues peuvent avoir besoin d'un jeton spécifique."
 },

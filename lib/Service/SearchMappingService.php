@@ -99,7 +99,7 @@ class SearchMappingService {
 	): array {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
-			'type'  => 'standard',
+			'type'  => $this->configService->getElasticType(),
 			'size'  => $request->getSize(),
 			'from'  => (($request->getPage() - 1) * $request->getSize())
 		];
@@ -455,7 +455,7 @@ class SearchMappingService {
 	public function getDocumentQuery(string $providerId, string $documentId): array {
 		return [
 			'index' => $this->configService->getElasticIndex(),
-			'type'  => 'standard',
+			'type'  => $this->configService->getElasticType(),
 			'id'    => $providerId . ':' . $documentId
 		];
 	}
@@ -475,4 +475,3 @@ class SearchMappingService {
 	}
 
 }
-
