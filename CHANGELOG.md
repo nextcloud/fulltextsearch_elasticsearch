@@ -1,6 +1,10 @@
 # Changelog
 
 
+### 2.0.0
+
+- compat nc20
+
 
 ### 1.5.2
 

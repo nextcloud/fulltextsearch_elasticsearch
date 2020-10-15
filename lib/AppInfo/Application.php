@@ -32,6 +32,12 @@ namespace OCA\FullTextSearch_ElasticSearch\AppInfo;
 
 
 use OCP\AppFramework\App;
+use OCP\AppFramework\Bootstrap\IBootContext;
+use OCP\AppFramework\Bootstrap\IBootstrap;
+use OCP\AppFramework\Bootstrap\IRegistrationContext;
+
+
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 
 /**
@@ -39,7 +45,7 @@ use OCP\AppFramework\App;
  *
  * @package OCA\FullTextSearch_ElasticSearch\AppInfo
  */
-class Application extends App {
+class Application extends App implements IBootstrap {
 
 
 	const APP_NAME = 'fulltextsearch_elasticsearch';
@@ -52,6 +58,18 @@ class Application extends App {
 	 */
 	public function __construct(array $params = []) {
 		parent::__construct(self::APP_NAME, $params);
+	}
+
+	/**
+	 * @param IRegistrationContext $context
+	 */
+	public function register(IRegistrationContext $context): void {
+	}
+
+	/**
+	 * @param IBootContext $context
+	 */
+	public function boot(IBootContext $context): void {
 	}
 
 }

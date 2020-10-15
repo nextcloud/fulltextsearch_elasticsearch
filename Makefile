@@ -10,11 +10,13 @@ cert_dir=$(HOME)/.nextcloud/certificates
 github_account=nextcloud
 branch=master
 codecov_token_dir=$(HOME)/.nextcloud/codecov_token
-version+=1.5.2
+version+=2.0.0
 
 all: appstore
 
 release: appstore github-release github-upload
+
+dev-setup: clean composer
 
 github-release:
 	github-release release \
@@ -35,24 +37,26 @@ github-upload:
 clean:
 	rm -rf $(build_dir)
 	rm -rf node_modules
+	rm -rf vendor
 
 composer:
 	composer install --prefer-dist
+	composer update --prefer-dist
 
 test: SHELL:=/bin/bash
-test: composer
+test:
 	phpunit --coverage-clover=coverage.xml --configuration=tests/phpunit.xml tests
 	@if [ -f $(codecov_token_dir)/$(app_name) ]; then \
 		bash <(curl -s https://codecov.io/bash) -t @$(codecov_token_dir)/$(app_name) ; \
 	fi
 
-appstore: composer clean
+appstore: dev-setup
 	mkdir -p $(sign_dir)
 	rsync -a \
 	--exclude=/build \
 	--exclude=/docs \
-	--exclude=/l10n/templates \
-	--exclude=/l10n/.tx \
+	--exclude=/translationfiles \
+	--exclude=/.tx \
 	--exclude=/tests \
 	--exclude=.git \
 	--exclude=/.github \

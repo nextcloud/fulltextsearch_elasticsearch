@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/daita/my-small-php-tools.git",
-                "reference": "a253279a181ae6c09be80d786377fdb7afd37741"
+                "reference": "ca9c257dd640576c072cb50282e15ae51147cfc2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/a253279a181ae6c09be80d786377fdb7afd37741",
-                "reference": "a253279a181ae6c09be80d786377fdb7afd37741",
+                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/ca9c257dd640576c072cb50282e15ae51147cfc2",
+                "reference": "ca9c257dd640576c072cb50282e15ae51147cfc2",
                 "shasum": ""
             },
             "require": {
@@ -40,20 +40,20 @@
                 }
             ],
             "description": "My small PHP Tools",
-            "time": "2020-07-07T11:06:29+00:00"
+            "time": "2020-09-29T15:30:16+00:00"
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v7.8.0",
+            "version": "v7.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "5c2d039ae7bdaa1e28f1e66971c5b3314fc36383"
+                "reference": "38e821f37491bd91fe06b18b88613128950a11bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/5c2d039ae7bdaa1e28f1e66971c5b3314fc36383",
-                "reference": "5c2d039ae7bdaa1e28f1e66971c5b3314fc36383",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/38e821f37491bd91fe06b18b88613128950a11bb",
+                "reference": "38e821f37491bd91fe06b18b88613128950a11bb",
                 "shasum": ""
             },
             "require": {
@@ -65,6 +65,7 @@
             "require-dev": {
                 "cpliakas/git-wrapper": "~2.0",
                 "doctrine/inflector": "^1.3",
+                "ext-yaml": "*",
                 "mockery/mockery": "^1.2",
                 "phpstan/phpstan": "^0.12",
                 "phpunit/phpunit": "^7.5",
@@ -103,7 +104,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2020-06-18T19:23:29+00:00"
+            "time": "2020-10-06T13:03:50+00:00"
         },
         {
             "name": "ezimuel/guzzlestreams",
