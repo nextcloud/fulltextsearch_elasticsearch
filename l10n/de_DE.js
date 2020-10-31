@@ -6,10 +6,10 @@ OC.L10N.register(
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Erweiterung für die _Full text search_ App um sich mit ElasticSearch zu verbinden.",
     "Elastic Search" : "ElasticSearch",
     "Address of the Servlet" : "Adresse des Servlets",
-    "Include your credential in case authentication is required." : "Geben Sie Ihre Anmeldedaten für den Fall, dass eine Anmeldung erforderlich ist ein.",
+    "Include your credential in case authentication is required." : "Geben Sie Ihre Anmeldedaten für den Fall, dass eine Anmeldung erforderlich ist, ein.",
     "Index" : "Index",
     "Name of your index." : "Name Ihres Indexes",
-    "[Advanced] Analyzer tokenizer" : "[Advanced]  Analyzer tokenizer",
+    "[Advanced] Analyzer tokenizer" : "[Advanced] Analyzer tokenizer",
     "Some language might needs a specific tokenizer." : "Einige Sprachen benötigen möglicherweise einen bestimmten Tokenizer."
 },
 "nplurals=2; plural=(n != 1);");
