@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,15 +28,15 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_ElasticSearch\Service;
+namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
 use daita\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
-use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IIndexDocument;
 
@@ -44,7 +44,7 @@ use OCP\FullTextSearch\Model\IIndexDocument;
 /**
  * Class IndexService
  *
- * @package OCA\FullTextSearch_ElasticSearch\Service
+ * @package OCA\FullTextSearch_Elasticsearch\Service
  */
 class IndexService {
 

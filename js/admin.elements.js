@@ -1,5 +1,5 @@
 /*
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -20,7 +20,7 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *  
+ *
  */
 
 /** global: OCA */

@@ -10,10 +10,10 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>2.0.0</version>
+	<version>20.0.0</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
-	<namespace>FullTextSearch_ElasticSearch</namespace>
+	<namespace>FullTextSearch_Elasticsearch</namespace>
 	<documentation>
 		<admin>https://github.com/nextcloud/fulltextsearch_elasticsearch/wiki</admin>
 	</documentation>
@@ -27,15 +27,15 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 	</dependencies>
 
 	<commands>
-		<command>OCA\FullTextSearch_ElasticSearch\Command\Configure</command>
+		<command>OCA\FullTextSearch_Elasticsearch\Command\Configure</command>
 	</commands>
 
 	<settings>
-		<admin>OCA\FullTextSearch_ElasticSearch\Settings\Admin</admin>
+		<admin>OCA\FullTextSearch_Elasticsearch\Settings\Admin</admin>
 	</settings>
 
 	<fulltextsearch>
-		<platform>OCA\FullTextSearch_ElasticSearch\Platform\ElasticSearchPlatform</platform>
+		<platform>OCA\FullTextSearch_Elasticsearch\Platform\ElasticSearchPlatform</platform>
 	</fulltextsearch>
 
 </info>

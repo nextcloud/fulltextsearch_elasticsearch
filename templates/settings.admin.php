@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 
 
-use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
+use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
 use OCP\Util;
 
 

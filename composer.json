@@ -3,14 +3,24 @@
   "description": "fulltextsearch_elasticsearch",
   "minimum-stability": "stable",
   "license": "agpl",
+  "config": {
+    "optimize-autoloader": true,
+    "classmap-authoritative": true,
+    "autoloader-suffix": "FullTextSearch_Elasticsearch"
+  },
   "authors": [
     {
       "name": "Maxence Lange",
       "email": "maxence@artificial-owl.com"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "OCA\\FullTextSearch_Elasticsearch\\": "lib/"
+    }
+  },
   "require": {
-    "elasticsearch/elasticsearch": "~7.5",
+    "elasticsearch/elasticsearch": "7.10.0",
     "daita/my-small-php-tools": "dev-master"
   }
 }

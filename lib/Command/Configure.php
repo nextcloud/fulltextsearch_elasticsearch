@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,13 +28,12 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_ElasticSearch\Command;
+namespace OCA\FullTextSearch_Elasticsearch\Command;
 
 
 use Exception;
 use OC\Core\Command\Base;
-use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
-use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
+use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,7 +42,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class Configure
  *
- * @package OCA\FullTextSearch_ElasticSearch\Command
+ * @package OCA\FullTextSearch_Elasticsearch\Command
  */
 class Configure extends Base {
 
@@ -51,21 +50,16 @@ class Configure extends Base {
 	/** @var ConfigService */
 	private $configService;
 
-	/** @var MiscService */
-	private $miscService;
-
 
 	/**
 	 * Configure constructor.
 	 *
 	 * @param ConfigService $configService
-	 * @param MiscService $miscService
 	 */
-	public function __construct(ConfigService $configService, MiscService $miscService) {
+	public function __construct(ConfigService $configService) {
 		parent::__construct();
 
 		$this->configService = $configService;
-		$this->miscService = $miscService;
 	}
 
 

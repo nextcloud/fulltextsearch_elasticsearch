@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,7 +28,7 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_ElasticSearch\AppInfo;
+namespace OCA\FullTextSearch_Elasticsearch\AppInfo;
 
 
 use OCP\AppFramework\App;
@@ -43,7 +43,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 /**
  * Class Application
  *
- * @package OCA\FullTextSearch_ElasticSearch\AppInfo
+ * @package OCA\FullTextSearch_Elasticsearch\AppInfo
  */
 class Application extends App implements IBootstrap {
 

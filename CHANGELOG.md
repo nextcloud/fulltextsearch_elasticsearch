@@ -1,5 +1,10 @@
 # Changelog
 
+### 20.0.0
+
+- upgrade deps
+- compat composer 2.0
+
 
 ### 2.0.0
 

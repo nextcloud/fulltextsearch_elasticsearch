@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,7 +28,7 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_ElasticSearch\Platform;
+namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
 use daita\MySmallPhpTools\Traits\TPathTools;
@@ -36,12 +36,12 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Exception;
-use OCA\FullTextSearch_ElasticSearch\Exceptions\AccessIsEmptyException;
-use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
-use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
-use OCA\FullTextSearch_ElasticSearch\Service\IndexService;
-use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
-use OCA\FullTextSearch_ElasticSearch\Service\SearchService;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
+use OCA\FullTextSearch_Elasticsearch\Service\IndexService;
+use OCA\FullTextSearch_Elasticsearch\Service\MiscService;
+use OCA\FullTextSearch_Elasticsearch\Service\SearchService;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -53,7 +53,7 @@ use OCP\FullTextSearch\Model\ISearchResult;
 /**
  * Class ElasticSearchPlatform
  *
- * @package OCA\FullTextSearch_ElasticSearch\Platform
+ * @package OCA\FullTextSearch_Elasticsearch\Platform
  */
 class ElasticSearchPlatform implements IFullTextSearchPlatform {
 

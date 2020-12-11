@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,11 +28,11 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_ElasticSearch\Service;
+namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
-use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
-use OCA\FullTextSearch_ElasticSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCP\IConfig;
 use OCP\PreConditionNotMetException;
 use OCP\Util;
@@ -41,7 +41,7 @@ use OCP\Util;
 /**
  * Class ConfigService
  *
- * @package OCA\FullTextSearch_ElasticSearch\Service
+ * @package OCA\FullTextSearch_Elasticsearch\Service
  */
 class ConfigService {
 
@@ -60,6 +60,7 @@ class ConfigService {
 		self::ELASTIC_VER_BELOW66 => '0',
 		self::ANALYZER_TOKENIZER  => 'standard'
 	];
+
 
 	/** @var IConfig */
 	private $config;

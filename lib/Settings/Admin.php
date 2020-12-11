@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,13 +28,13 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_ElasticSearch\Settings;
+namespace OCA\FullTextSearch_Elasticsearch\Settings;
 
 
 use Exception;
-use OCA\FullTextSearch_ElasticSearch\AppInfo\Application;
-use OCA\FullTextSearch_ElasticSearch\Service\ConfigService;
-use OCA\FullTextSearch_ElasticSearch\Service\MiscService;
+use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
+use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
+use OCA\FullTextSearch_Elasticsearch\Service\MiscService;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -44,7 +44,7 @@ use OCP\Settings\ISettings;
 /**
  * Class Admin
  *
- * @package OCA\FullTextSearch_ElasticSearch\Settings
+ * @package OCA\FullTextSearch_Elasticsearch\Settings
  */
 class Admin implements ISettings {
 
