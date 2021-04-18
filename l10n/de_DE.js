@@ -1,7 +1,7 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
-    "Full text search - Elasticsearch Platform" : "Volltextsuche - Elasticsearch Plattform",
+    "Full text search - Elasticsearch Platform" : "Volltextsuche - Elasticsearch-Plattform",
     "Index using ElasticSearch" : "Indizieren mittels ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Erweiterung für die _Full text search_ App um sich mit ElasticSearch zu verbinden.",
     "Elastic Search" : "ElasticSearch",
@@ -10,6 +10,6 @@ OC.L10N.register(
     "Index" : "Index",
     "Name of your index." : "Name Ihres Indexes",
     "[Advanced] Analyzer tokenizer" : "[Advanced] Analyzer tokenizer",
-    "Some language might needs a specific tokenizer." : "Einige Sprachen benötigen möglicherweise einen bestimmten Tokenizer."
+    "Some language might needs a specific tokenizer." : "Einige Sprachen benötigen möglicherweise ein bestimmtes Analyse-Modul (Tokenizer)."
 },
 "nplurals=2; plural=(n != 1);");
