@@ -79,7 +79,6 @@ class IndexMappingService {
 				[
 					'index' => $this->configService->getElasticIndex(),
 					'id'    => $document->getProviderId() . ':' . $document->getId(),
-					'type'  => 'standard',
 					'body'  => $this->generateIndexBody($document)
 				]
 		];
@@ -104,7 +103,6 @@ class IndexMappingService {
 				[
 					'index' => $this->configService->getElasticIndex(),
 					'id'    => $document->getProviderId() . ':' . $document->getId(),
-					'type'  => 'standard',
 					'body'  => ['doc' => $this->generateIndexBody($document)]
 				]
 		];
@@ -131,7 +129,6 @@ class IndexMappingService {
 				[
 					'index' => $this->configService->getElasticIndex(),
 					'id'    => $providerId . ':' . $documentId,
-					'type'  => 'standard'
 				]
 		];
 
@@ -369,8 +366,7 @@ class IndexMappingService {
 	 */
 	public function generateDeleteQuery(string $providerId): array {
 		$params = [
-			'index' => $this->configService->getElasticIndex(),
-			'type'  => 'standard'
+			'index' => $this->configService->getElasticIndex()
 		];
 
 		$params['body']['query']['match'] = ['provider' => $providerId];
