@@ -1,5 +1,8 @@
 # Changelog
 
+### 1.5.3
+
+- fix lib dependencies
 
 
 ### 1.5.2

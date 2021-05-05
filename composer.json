@@ -11,6 +11,6 @@
   ],
   "require": {
     "elasticsearch/elasticsearch": "~7.5",
-    "daita/my-small-php-tools": "dev-master"
+    "daita/my-small-php-tools": "~20"
   }
 }
