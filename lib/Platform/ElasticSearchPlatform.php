@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
+use daita\MySmallPhpTools\Traits\TArrayTools;
 use daita\MySmallPhpTools\Traits\TPathTools;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
@@ -59,6 +60,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	use TPathTools;
+	use TArrayTools;
 
 
 	/** @var ConfigService */
@@ -307,8 +309,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			return $e->getMessage();
 		}
 
-		if (array_key_exists('reason', $arr['error']['root_cause'][0])) {
-			return $arr['error']['root_cause'][0]['reason'];
+		$cause = $this->getArray('error.root_cause', $arr);
+		if (!empty($cause)) {
+			return $this->get('reason', $cause[0]);
 		}
 
 		return $e->getMessage();
