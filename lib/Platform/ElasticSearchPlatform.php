@@ -303,14 +303,13 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return string
 	 */
 	private function parseIndexErrorException(Exception $e): string {
-
 		$arr = json_decode($e->getMessage(), true);
 		if (!is_array($arr)) {
 			return $e->getMessage();
 		}
 
 		$cause = $this->getArray('error.root_cause', $arr);
-		if (!empty($cause)) {
+		if (!empty($cause) && $this->get('reason', $cause[0]) !== '') {
 			return $this->get('reason', $cause[0]);
 		}
 
