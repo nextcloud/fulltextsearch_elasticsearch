@@ -1,5 +1,11 @@
 # Changelog
 
+
+### 20.0.1
+
+- better management on error from ES
+
+
 ### 20.0.0
 
 - upgrade deps

@@ -4,26 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f201b5182a6fd30bcb7e38df34f26021",
+    "content-hash": "73ee3b4db2d0e2775ce72d926fec48ff",
     "packages": [
         {
             "name": "daita/my-small-php-tools",
-            "version": "dev-master",
+            "version": "v20.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/daita/my-small-php-tools.git",
-                "reference": "844b10da6abf50044ae9c40120cb5b927352bd95"
+                "reference": "313ce2a22dd034f14da42f8f8cd00ee0b99f41b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/844b10da6abf50044ae9c40120cb5b927352bd95",
-                "reference": "844b10da6abf50044ae9c40120cb5b927352bd95",
+                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/313ce2a22dd034f14da42f8f8cd00ee0b99f41b1",
+                "reference": "313ce2a22dd034f14da42f8f8cd00ee0b99f41b1",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0"
+                "php": ">=7.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -43,9 +42,9 @@
             "description": "My small PHP Tools",
             "support": {
                 "issues": "https://github.com/daita/my-small-php-tools/issues",
-                "source": "https://github.com/daita/my-small-php-tools/tree/master"
+                "source": "https://github.com/daita/my-small-php-tools/tree/v20.0.1"
             },
-            "time": "2020-12-02T14:37:02+00:00"
+            "time": "2021-04-26T12:46:18+00:00"
         },
         {
             "name": "elasticsearch/elasticsearch",
@@ -225,16 +224,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.1.3",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc"
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/0f73288fd15629204f9d42b7055f72dacbe811fc",
-                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/d49695b909c3b7628b6289db5479a1c204601f11",
+                "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
                 "shasum": ""
             },
             "require": {
@@ -258,7 +257,7 @@
             "authors": [
                 {
                     "name": "PHP-FIG",
-                    "homepage": "http://www.php-fig.org/"
+                    "homepage": "https://www.php-fig.org/"
                 }
             ],
             "description": "Common interface for logging libraries",
@@ -269,9 +268,9 @@
                 "psr-3"
             ],
             "support": {
-                "source": "https://github.com/php-fig/log/tree/1.1.3"
+                "source": "https://github.com/php-fig/log/tree/1.1.4"
             },
-            "time": "2020-03-23T09:12:05+00:00"
+            "time": "2021-05-03T11:20:27+00:00"
         },
         {
             "name": "react/promise",
@@ -327,9 +326,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "daita/my-small-php-tools": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
