@@ -1,6 +1,12 @@
 # Changelog
 
 
+### 21.0.1
+
+- removing type from request to ES
+- better management on error from ES
+
+
 ### 21.0.0
 
 - compat nc21
