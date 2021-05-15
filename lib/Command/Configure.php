@@ -79,6 +79,7 @@ class Configure extends Base {
 	 * @param OutputInterface $output
 	 *
 	 * @throws Exception
+	 * @return Integer
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output) {
 		$json = $input->getArgument('json');
@@ -88,7 +89,7 @@ class Configure extends Base {
 		if ($config === null) {
 			$output->writeln('Invalid JSON');
 
-			return;
+			return 1;
 		}
 
 		$ak = array_keys($config);
@@ -99,6 +100,7 @@ class Configure extends Base {
 		}
 
 		$output->writeln(json_encode($this->configService->getConfig(), JSON_PRETTY_PRINT));
+		return 0;
 	}
 
 
