@@ -1,6 +1,11 @@
 # Changelog
 
 
+### 20.0.2
+
+- display message on deleted index
+
+
 ### 20.0.1
 
 - better management on error from ES
