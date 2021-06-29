@@ -162,16 +162,14 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param IIndex[] $indexes
+	 * @param IIndex $index
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function deleteIndexes(Client $client, array $indexes) {
-		foreach ($indexes as $index) {
-			$this->indexMappingService->indexDocumentRemove(
-				$client, $index->getProviderId(), $index->getDocumentId()
-			);
-		}
+	public function deleteIndex(Client $client, IIndex $index) {
+		$this->indexMappingService->indexDocumentRemove(
+			$client, $index->getProviderId(), $index->getDocumentId()
+		);
 	}
 
 
