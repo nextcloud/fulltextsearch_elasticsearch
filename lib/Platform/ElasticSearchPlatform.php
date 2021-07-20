@@ -319,13 +319,17 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	/**
 	 * {@inheritdoc}
-	 * @throws ConfigurationException
 	 */
 	public function deleteIndexes(array $indexes) {
-		try {
-			$this->indexService->deleteIndexes($this->client, $indexes);
-		} catch (ConfigurationException $e) {
-			throw $e;
+		foreach ($indexes as $index) {
+			try {
+				$this->indexService->deleteIndex($this->client, $index);
+				$this->updateNewIndexResult($index, 'index deleted', 'success', IRunner::RESULT_TYPE_SUCCESS);
+			} catch (Exception $e) {
+				$this->updateNewIndexResult(
+					$index, 'index not deleted', 'issue while deleting index', IRunner::RESULT_TYPE_WARNING
+				);
+			}
 		}
 	}
 
@@ -420,8 +424,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param string $status
 	 * @param int $type
 	 */
-	private function updateNewIndexResult(IIndex $index, string $message, string $status, int $type
-	) {
+	private function updateNewIndexResult(IIndex $index, string $message, string $status, int $type) {
 		if ($this->runner === null) {
 			return;
 		}
