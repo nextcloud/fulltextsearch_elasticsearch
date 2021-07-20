@@ -1,15 +1,21 @@
 # Changelog
 
 
-### 21.0.1
+### 22.0.0
 
-- removing type from request to ES
-- better management on error from ES
+- compat nc23
+- display message on deleted index
 
 
 ### 21.0.0
 
 - compat nc21
+
+
+### 20.0.1
+
+- removing type from request to ES
+- better management on error from ES
 
 
 ### 20.0.0
@@ -124,7 +130,7 @@ First stable release
 
 - improvement in title indexing
 - improvement during the index removing
-- content (index and search) can be splited in Parts 
+- content (index and search) can be splited in Parts
 - compat fulltextsearch 0.7.0 and fulltextsearch navigation app.
 
 
