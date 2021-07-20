@@ -37,6 +37,7 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Exception;
+use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
@@ -304,8 +305,14 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	private function parseIndexErrorException(Exception $e): string {
 		$arr = json_decode($e->getMessage(), true);
-		if (!is_array($arr)) {
+		if (!is_array($arr) || !isset($arr['error'])) {
 			return $e->getMessage();
+		}
+
+		try {
+			return $this->parseCausedBy($arr['error']);
+		} catch (InvalidArgumentException $e) {
+			// unable to parse caused_by -> fallback to root_cause
 		}
 
 		$cause = $this->getArray('error.root_cause', $arr);
@@ -316,6 +323,20 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return $e->getMessage();
 	}
 
+	/**
+	 * @throws InvalidArgumentException
+	 */
+	private function parseCausedBy(array $error): string {
+		if (isset($error['caused_by'])) {
+			return $this->parseCausedBy($error['caused_by']);
+		}
+
+		if (isset($error['reason'])) {
+			return $error['reason'];
+		}
+
+		throw new InvalidArgumentException('Unable to parse given response structure');
+	}
 
 	/**
 	 * {@inheritdoc}
