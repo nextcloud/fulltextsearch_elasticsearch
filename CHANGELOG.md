@@ -1,7 +1,12 @@
 # Changelog
 
 
-### 21.0.1
+### 23.0.0
+
+- display message on deleted index
+
+
+### 20.0.1
 
 - removing type from request to ES
 - better management on error from ES
