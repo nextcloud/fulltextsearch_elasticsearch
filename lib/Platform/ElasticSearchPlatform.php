@@ -221,6 +221,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$document->initHash();
 
+		$index = null;
 		try {
 			$result = $this->indexService->indexDocument($this->client, $document);
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
@@ -232,11 +233,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 			return $index;
 		} catch (Exception $e) {
-			$this->updateNewIndexResult(
-				$document->getIndex(), '', 'issue while indexing, testing with empty content',
-				IRunner::RESULT_TYPE_WARNING
-			);
-
 			$this->manageIndexErrorException($document, $e);
 		}
 
@@ -288,55 +284,83 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param Exception $e
 	 */
 	private function manageIndexErrorException(IIndexDocument $document, Exception $e) {
+		[$level, $message, $status] = $this->parseIndexErrorException($e);
+		switch ($level) {
+			case 'error':
+				$document->getIndex()
+						 ->addError($message, get_class($e), IIndex::ERROR_SEV_3);
+				$this->updateNewIndexError(
+					$document->getIndex(), $message, get_class($e), IIndex::ERROR_SEV_3
+				);
+				break;
 
-		$message = $this->parseIndexErrorException($e);
-		$document->getIndex()
-				 ->addError($message, get_class($e), IIndex::ERROR_SEV_3);
-		$this->updateNewIndexError(
-			$document->getIndex(), $message, get_class($e), IIndex::ERROR_SEV_3
-		);
+			case 'notice':
+				$this->updateNewIndexResult(
+					$document->getIndex(),
+					$message,
+					$status,
+					IRunner::RESULT_TYPE_WARNING
+				);
+				break;
+		}
+
 	}
 
 
 	/**
 	 * @param Exception $e
 	 *
-	 * @return string
+	 * @return array
 	 */
-	private function parseIndexErrorException(Exception $e): string {
+	private function parseIndexErrorException(Exception $e): array {
 		$arr = json_decode($e->getMessage(), true);
-		if (!is_array($arr) || !isset($arr['error'])) {
-			return $e->getMessage();
+		if (empty($this->getArray('error', $arr))) {
+			return ['error', $e->getMessage()];
 		}
 
 		try {
 			return $this->parseCausedBy($arr['error']);
 		} catch (InvalidArgumentException $e) {
-			// unable to parse caused_by -> fallback to root_cause
 		}
 
 		$cause = $this->getArray('error.root_cause', $arr);
 		if (!empty($cause) && $this->get('reason', $cause[0]) !== '') {
-			return $this->get('reason', $cause[0]);
+			return ['error', $this->get('reason', $cause[0]), $this->get('type', $cause[0])];
 		}
 
-		return $e->getMessage();
+		return ['error', $e->getMessage()];
 	}
 
 	/**
 	 * @throws InvalidArgumentException
 	 */
-	private function parseCausedBy(array $error): string {
-		if (isset($error['caused_by'])) {
-			return $this->parseCausedBy($error['caused_by']);
+	private function parseCausedBy(array $error): array {
+		$causedBy = $this->getArray('caused_by.caused_by', $error);
+		if (empty($causedBy)) {
+			$causedBy = $this->getArray('caused_by', $error);
 		}
 
-		if (isset($error['reason'])) {
-			return $error['reason'];
+		if (empty($causedBy)) {
+			if ($this->get('reason', $error) === '') {
+				throw new InvalidArgumentException('Unable to parse given response structure');
+			}
+
+			return ['error', $this->get('reason', $error), $this->get('type', $error)];
 		}
 
-		throw new InvalidArgumentException('Unable to parse given response structure');
+		$warnings = [
+			'encrypted_document_exception',
+			'invalid_password_exception'
+		];
+
+		$level = 'error';
+		if (in_array($this->get('type', $causedBy), $warnings)) {
+			$level = 'notice';
+		}
+
+		return [$level, $this->get('reason', $causedBy), $this->get('type', $causedBy)];
 	}
+
 
 	/**
 	 * {@inheritdoc}
