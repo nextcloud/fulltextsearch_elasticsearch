@@ -1,5 +1,9 @@
 # Changelog
 
+### 20.0.3
+
+- no error on encrypted PDF
+
 
 ### 20.0.2
 
