@@ -1,5 +1,9 @@
 # Changelog
 
+### 22.0.1
+
+- fixing issue while parsing error message
+
 
 ### 22.0.0
 

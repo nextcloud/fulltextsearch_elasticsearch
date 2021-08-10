@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fcf1db4e32aeb356b63422d68d12ef06",
+    "content-hash": "673f37be2dffe271e55fd13cd8adede5",
     "packages": [
         {
-            "name": "daita/my-small-php-tools",
-            "version": "v21.0.1",
+            "name": "artificial-owl/my-small-php-tools",
+            "version": "v22.1.7",
             "source": {
                 "type": "git",
-                "url": "https://github.com/daita/my-small-php-tools.git",
-                "reference": "7d25743c2cd79521df3e3353a9358ec3931c6ad1"
+                "url": "https://github.com/ArtificialOwl/my-small-php-tools.git",
+                "reference": "104c3fe1a2c6aa8030e7fcb8ea46566c3efce3c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/daita/my-small-php-tools/zipball/7d25743c2cd79521df3e3353a9358ec3931c6ad1",
-                "reference": "7d25743c2cd79521df3e3353a9358ec3931c6ad1",
+                "url": "https://api.github.com/repos/ArtificialOwl/my-small-php-tools/zipball/104c3fe1a2c6aa8030e7fcb8ea46566c3efce3c9",
+                "reference": "104c3fe1a2c6aa8030e7fcb8ea46566c3efce3c9",
                 "shasum": ""
             },
             "require": {
@@ -41,10 +41,10 @@
             ],
             "description": "My small PHP Tools",
             "support": {
-                "issues": "https://github.com/daita/my-small-php-tools/issues",
-                "source": "https://github.com/daita/my-small-php-tools/tree/v21.0.1"
+                "issues": "https://github.com/ArtificialOwl/my-small-php-tools/issues",
+                "source": "https://github.com/ArtificialOwl/my-small-php-tools/tree/v22.1.7"
             },
-            "time": "2021-04-19T21:42:37+00:00"
+            "time": "2021-07-26T12:32:23+00:00"
         },
         {
             "name": "elasticsearch/elasticsearch",
