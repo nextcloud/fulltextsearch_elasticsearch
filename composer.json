@@ -21,6 +21,6 @@
   },
   "require": {
     "elasticsearch/elasticsearch": "7.12.0",
-    "daita/my-small-php-tools": "~22"
+    "artificial-owl/my-small-php-tools": "~22"
   }
 }
