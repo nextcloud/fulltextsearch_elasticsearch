@@ -31,7 +31,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
-use daita\MySmallPhpTools\Traits\TArrayTools;
+use ArtificialOwl\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Exception;
 use OC\FullTextSearch\Model\DocumentAccess;
