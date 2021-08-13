@@ -1,0 +1,15 @@
+OC.L10N.register(
+    "fulltextsearch_elasticsearch",
+    {
+    "Full text search - Elasticsearch Platform" : "Chirca de su testu integrale - Prataforma ElasticSearch",
+    "Index using ElasticSearch" : "Inditziza cun ElasticSearch",
+    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Estensione de s'aplicatzione de chirca de su testu integrale pro comunicare cun ElasticSearch.",
+    "Elastic Search" : "Elastic Search",
+    "Address of the Servlet" : "Indiritzu de su servlet",
+    "Include your credential in case authentication is required." : "Inclue is credentziales tuas s'in casu siat recherta s'autenticatzione.",
+    "Index" : "Ìnditze",
+    "Name of your index." : "Nùmene de s'ìnditze tuo.",
+    "[Advanced] Analyzer tokenizer" : "[Advanced] Generadore de token de s'analizadore",
+    "Some language might needs a specific tokenizer." : "B'at limbas chi diant pòdere rechèdere unu generadore ispetzìficu de token."
+},
+"nplurals=2; plural=(n != 1);");
