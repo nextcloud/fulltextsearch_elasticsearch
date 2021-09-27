@@ -31,7 +31,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
-use daita\MySmallPhpTools\Traits\TArrayTools;
+use ArtificialOwl\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
@@ -162,16 +162,14 @@ class IndexService {
 
 	/**
 	 * @param Client $client
-	 * @param IIndex[] $indexes
+	 * @param IIndex $index
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function deleteIndexes(Client $client, array $indexes) {
-		foreach ($indexes as $index) {
-			$this->indexMappingService->indexDocumentRemove(
-				$client, $index->getProviderId(), $index->getDocumentId()
-			);
-		}
+	public function deleteIndex(Client $client, IIndex $index) {
+		$this->indexMappingService->indexDocumentRemove(
+			$client, $index->getProviderId(), $index->getDocumentId()
+		);
 	}
 
 

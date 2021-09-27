@@ -20,7 +20,7 @@
     }
   },
   "require": {
-    "elasticsearch/elasticsearch": "7.10.0",
-    "daita/my-small-php-tools": "dev-master"
+    "elasticsearch/elasticsearch": "7.12.0",
+    "artificial-owl/my-small-php-tools": "~22"
   }
 }

@@ -31,11 +31,13 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
-use daita\MySmallPhpTools\Traits\TPathTools;
+use ArtificialOwl\MySmallPhpTools\Traits\TArrayTools;
+use ArtificialOwl\MySmallPhpTools\Traits\TPathTools;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Exception;
+use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
@@ -59,6 +61,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	use TPathTools;
+	use TArrayTools;
 
 
 	/** @var ConfigService */
@@ -218,6 +221,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$document->initHash();
 
+		$index = null;
 		try {
 			$result = $this->indexService->indexDocument($this->client, $document);
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
@@ -229,11 +233,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 			return $index;
 		} catch (Exception $e) {
-			$this->updateNewIndexResult(
-				$document->getIndex(), '', 'issue while indexing, testing with empty content',
-				IRunner::RESULT_TYPE_WARNING
-			);
-
 			$this->manageIndexErrorException($document, $e);
 		}
 
@@ -285,45 +284,101 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param Exception $e
 	 */
 	private function manageIndexErrorException(IIndexDocument $document, Exception $e) {
+		[$level, $message, $status] = $this->parseIndexErrorException($e);
+		switch ($level) {
+			case 'error':
+				$document->getIndex()
+						 ->addError($message, get_class($e), IIndex::ERROR_SEV_3);
+				$this->updateNewIndexError(
+					$document->getIndex(), $message, get_class($e), IIndex::ERROR_SEV_3
+				);
+				break;
 
-		$message = $this->parseIndexErrorException($e);
-		$document->getIndex()
-				 ->addError($message, get_class($e), IIndex::ERROR_SEV_3);
-		$this->updateNewIndexError(
-			$document->getIndex(), $message, get_class($e), IIndex::ERROR_SEV_3
-		);
+			case 'notice':
+				$this->updateNewIndexResult(
+					$document->getIndex(),
+					$message,
+					$status,
+					IRunner::RESULT_TYPE_WARNING
+				);
+				break;
+		}
+
 	}
 
 
 	/**
 	 * @param Exception $e
 	 *
-	 * @return string
+	 * @return array
 	 */
-	private function parseIndexErrorException(Exception $e): string {
-
+	private function parseIndexErrorException(Exception $e): array {
 		$arr = json_decode($e->getMessage(), true);
 		if (!is_array($arr)) {
-			return $e->getMessage();
+			return ['error', 'unknown error'];
 		}
 
-		if (array_key_exists('reason', $arr['error']['root_cause'][0])) {
-			return $arr['error']['root_cause'][0]['reason'];
+		if (empty($this->getArray('error', $arr))) {
+			return ['error', $e->getMessage()];
 		}
 
-		return $e->getMessage();
+		try {
+			return $this->parseCausedBy($arr['error']);
+		} catch (InvalidArgumentException $e) {
+		}
+
+		$cause = $this->getArray('error.root_cause', $arr);
+		if (!empty($cause) && $this->get('reason', $cause[0]) !== '') {
+			return ['error', $this->get('reason', $cause[0]), $this->get('type', $cause[0])];
+		}
+
+		return ['error', $e->getMessage()];
+	}
+
+	/**
+	 * @throws InvalidArgumentException
+	 */
+	private function parseCausedBy(array $error): array {
+		$causedBy = $this->getArray('caused_by.caused_by', $error);
+		if (empty($causedBy)) {
+			$causedBy = $this->getArray('caused_by', $error);
+		}
+
+		if (empty($causedBy)) {
+			if ($this->get('reason', $error) === '') {
+				throw new InvalidArgumentException('Unable to parse given response structure');
+			}
+
+			return ['error', $this->get('reason', $error), $this->get('type', $error)];
+		}
+
+		$warnings = [
+			'encrypted_document_exception',
+			'invalid_password_exception'
+		];
+
+		$level = 'error';
+		if (in_array($this->get('type', $causedBy), $warnings)) {
+			$level = 'notice';
+		}
+
+		return [$level, $this->get('reason', $causedBy), $this->get('type', $causedBy)];
 	}
 
 
 	/**
 	 * {@inheritdoc}
-	 * @throws ConfigurationException
 	 */
 	public function deleteIndexes(array $indexes) {
-		try {
-			$this->indexService->deleteIndexes($this->client, $indexes);
-		} catch (ConfigurationException $e) {
-			throw $e;
+		foreach ($indexes as $index) {
+			try {
+				$this->indexService->deleteIndex($this->client, $index);
+				$this->updateNewIndexResult($index, 'index deleted', 'success', IRunner::RESULT_TYPE_SUCCESS);
+			} catch (Exception $e) {
+				$this->updateNewIndexResult(
+					$index, 'index not deleted', 'issue while deleting index', IRunner::RESULT_TYPE_WARNING
+				);
+			}
 		}
 	}
 
@@ -418,8 +473,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @param string $status
 	 * @param int $type
 	 */
-	private function updateNewIndexResult(IIndex $index, string $message, string $status, int $type
-	) {
+	private function updateNewIndexResult(IIndex $index, string $message, string $status, int $type) {
 		if ($this->runner === null) {
 			return;
 		}
