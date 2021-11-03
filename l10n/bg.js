@@ -1,0 +1,15 @@
+OC.L10N.register(
+    "fulltextsearch_elasticsearch",
+    {
+    "Full text search - Elasticsearch Platform" : "Elasticsearch Platform - платформа за търсене на пълен текст",
+    "Index using ElasticSearch" : "Индексиране с помощта на ElasticSearch",
+    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Разширение към приложението _Full text search_ за комуникация с ElasticSearch.",
+    "Elastic Search" : "Elastic Search /Еластично търсене/",
+    "Address of the Servlet" : "Адрес на сървлета",
+    "Include your credential in case authentication is required." : "Включете вашите идентификационни данни, в случай че е нужно удостоверяване.",
+    "Index" : "Индекс",
+    "Name of your index." : "Име на вашия индекс.",
+    "[Advanced] Analyzer tokenizer" : "[Разширен] Анализатор токенизатор",
+    "Some language might needs a specific tokenizer." : "Някой език, може да се нуждае от специфичен токенизатор. "
+},
+"nplurals=2; plural=(n != 1);");
