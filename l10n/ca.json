@@ -1,13 +1,13 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Cerca de text complet - Plataforma Elasticsearch",
-    "Index using ElasticSearch" : "Índex utilitzant ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extensió a la _Full text search_ app per comunicar-se amb ElasticSearch.",
-    "Elastic Search" : "Cerca Elàstica",
-    "Address of the Servlet" : "Adreça del Servlet",
-    "Include your credential in case authentication is required." : "Inclou la vostra credencial en cas que calgui autenticació.",
+    "Full text search - Elasticsearch Platform" : "Cerca de text complet - Plataforma ElasticSearch",
+    "Index using ElasticSearch" : "Indexació mitjançant ElasticSearch",
+    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extensió de l'aplicació _Cerca de text complet_ per a comunicar-se amb ElasticSearch.",
+    "Elastic Search" : "ElasticSearch",
+    "Address of the Servlet" : "Adreça de la miniaplicació de servidor",
+    "Include your credential in case authentication is required." : "Incloeu les credencials si cal autenticació.",
     "Index" : "Índex",
-    "Name of your index." : "Nom del vostre índex.",
-    "[Advanced] Analyzer tokenizer" : "[Avançada] Demarcació (tokenizer) de l'analitzador",
-    "Some language might needs a specific tokenizer." : "Algun idioma pot necessitar un mecanisme específic per la demarcació (tokenizer)."
+    "Name of your index." : "Nom de l'índex.",
+    "[Advanced] Analyzer tokenizer" : "(Avançat) Lematitzador de l'analitzador",
+    "Some language might needs a specific tokenizer." : "És possible que algunes llengües requereixin un lematitzador específic."
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }
