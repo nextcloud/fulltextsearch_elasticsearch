@@ -12,4 +12,4 @@ OC.L10N.register(
     "[Advanced] Analyzer tokenizer" : "[Avanzato] Generatore di token dell'analizzatore",
     "Some language might needs a specific tokenizer." : "Alcune lingue potrebbero richiedere uno specifico generatore di token."
 },
-"nplurals=2; plural=(n != 1);");
+"nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");
