@@ -9,5 +9,5 @@
     "Name of your index." : "Nombre de tu índice",
     "[Advanced] Analyzer tokenizer" : "[Avanzado] Tokenizador del analizador",
     "Some language might needs a specific tokenizer." : "Algunos idiomas pueden necesitar un tokenizador específico."
-},"pluralForm" :"nplurals=2; plural=(n != 1);"
+},"pluralForm" :"nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }
