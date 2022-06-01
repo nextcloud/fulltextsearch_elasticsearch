@@ -344,7 +344,8 @@ class IndexMappingService {
 					'convert'    => [
 						'field'        => 'attachment.content',
 						'type'         => 'string',
-						'target_field' => 'content'
+						'target_field' => 'content',
+						'ignore_failure' => true
 					],
 					'remove'     => [
 						'field'          => 'attachment.content',
