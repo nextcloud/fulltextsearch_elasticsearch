@@ -6,6 +6,9 @@ _Full text search - Elasticsearch_ is an extension to the _Full text search_ fra
 
 It allows you to index your content into an Elasticsearch platform.
 
+## Compatibility
+
+- This app is currently only compatible with Elasticsearch 7
 
 
 ### Documentation
