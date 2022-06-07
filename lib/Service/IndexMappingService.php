@@ -35,6 +35,7 @@ use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\ReturnedTypeException;
 use OCP\FullTextSearch\Model\IIndexDocument;
 
 
@@ -72,6 +73,7 @@ class IndexMappingService {
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
+	 * @throws ReturnedTypeException
 	 */
 	public function indexDocumentNew(Client $client, IIndexDocument $document): array {
 		$index = [
@@ -85,7 +87,12 @@ class IndexMappingService {
 
 		$this->onIndexingDocument($document, $index);
 
-		return $client->index($index['index']);
+		$result = $client->index($index['index']);
+		if (!is_array($result)) {
+			throw new ReturnedTypeException('index should returns array, ' . json_encode($result) . ' returned');
+		}
+
+		return $result;
 	}
 
 
@@ -96,6 +103,7 @@ class IndexMappingService {
 	 * @return array
 	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
+	 * @throws ReturnedTypeException
 	 */
 	public function indexDocumentUpdate(Client $client, IIndexDocument $document): array {
 		$index = [
