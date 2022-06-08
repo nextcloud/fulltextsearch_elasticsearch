@@ -31,13 +31,13 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
-use ArtificialOwl\MySmallPhpTools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Exception;
 use OC\FullTextSearch\Model\DocumentAccess;
 use OC\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\SearchQueryGenerationException;
+use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\ISearchResult;
