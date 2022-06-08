@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "673f37be2dffe271e55fd13cd8adede5",
+    "content-hash": "c25cf87d8d5adb547c7d4988fb2f2471",
     "packages": [
         {
             "name": "artificial-owl/my-small-php-tools",
-            "version": "v22.1.7",
+            "version": "v23.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ArtificialOwl/my-small-php-tools.git",
-                "reference": "104c3fe1a2c6aa8030e7fcb8ea46566c3efce3c9"
+                "reference": "45b29e1c90d47ff3e89338135243d78e82dc7b6c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ArtificialOwl/my-small-php-tools/zipball/104c3fe1a2c6aa8030e7fcb8ea46566c3efce3c9",
-                "reference": "104c3fe1a2c6aa8030e7fcb8ea46566c3efce3c9",
+                "url": "https://api.github.com/repos/ArtificialOwl/my-small-php-tools/zipball/45b29e1c90d47ff3e89338135243d78e82dc7b6c",
+                "reference": "45b29e1c90d47ff3e89338135243d78e82dc7b6c",
                 "shasum": ""
             },
             "require": {
@@ -42,9 +42,9 @@
             "description": "My small PHP Tools",
             "support": {
                 "issues": "https://github.com/ArtificialOwl/my-small-php-tools/issues",
-                "source": "https://github.com/ArtificialOwl/my-small-php-tools/tree/v22.1.7"
+                "source": "https://github.com/ArtificialOwl/my-small-php-tools/tree/v23.0.11"
             },
-            "time": "2021-07-26T12:32:23+00:00"
+            "time": "2021-11-17T20:25:01+00:00"
         },
         {
             "name": "elasticsearch/elasticsearch",
@@ -331,5 +331,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.3.0"
 }
