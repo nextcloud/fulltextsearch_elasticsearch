@@ -100,7 +100,8 @@ class SearchMappingService {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
 			'size'  => $request->getSize(),
-			'from'  => (($request->getPage() - 1) * $request->getSize())
+			'from'  => (($request->getPage() - 1) * $request->getSize()),
+			'_source_excludes' => 'content'
 		];
 
 		$bool = [];
