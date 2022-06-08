@@ -20,7 +20,6 @@
     }
   },
   "require": {
-    "elasticsearch/elasticsearch": "7.12.0",
-    "artificial-owl/my-small-php-tools": "~22"
+    "elasticsearch/elasticsearch": "7.12.0"
   }
 }
