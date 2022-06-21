@@ -31,7 +31,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
-use ArtificialOwl\MySmallPhpTools\Traits\TArrayTools;
+use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
