@@ -9,8 +9,8 @@ cert_dir=$(HOME)/.nextcloud/certificates
 github_account=nextcloud
 release_account=nextcloud-releases
 branch=stable24
-version=24.0.0
-since_tag=23.0.0
+version=24.0.1
+since_tag=24.0.0
 
 all: appstore
 
