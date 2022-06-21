@@ -31,8 +31,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
-use ArtificialOwl\MySmallPhpTools\Traits\TArrayTools;
-use ArtificialOwl\MySmallPhpTools\Traits\TPathTools;
+use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
@@ -60,7 +59,6 @@ use OCP\FullTextSearch\Model\ISearchResult;
 class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
-	use TPathTools;
 	use TArrayTools;
 
 
@@ -404,8 +402,12 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	}
 
 
-	private function cleanHost($host) {
-		return $this->withoutEndSlash($host, false, false);
+	private function cleanHost(string $host): string {
+		if ($host === '/') {
+			return $host;
+		}
+
+		return trim(rtrim($host, '/'));
 	}
 
 	/**
