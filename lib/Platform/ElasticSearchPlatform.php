@@ -315,11 +315,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	private function parseIndexErrorException(Exception $e): array {
 		$arr = json_decode($e->getMessage(), true);
 		if (!is_array($arr)) {
-			return ['error', 'unknown error'];
+			return ['error', 'unknown error', ''];
 		}
 
 		if (empty($this->getArray('error', $arr))) {
-			return ['error', $e->getMessage()];
+			return ['error', $e->getMessage(), ''];
 		}
 
 		try {
@@ -332,7 +332,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			return ['error', $this->get('reason', $cause[0]), $this->get('type', $cause[0])];
 		}
 
-		return ['error', $e->getMessage()];
+		return ['error', $e->getMessage(), ''];
 	}
 
 	/**
