@@ -20,6 +20,6 @@
     }
   },
   "require": {
-    "elasticsearch/elasticsearch": "7.12.0"
+    "elasticsearch/elasticsearch": "8.4.0"
   }
 }
