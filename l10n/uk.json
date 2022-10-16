@@ -1,7 +1,7 @@
 { "translations": {
     "Full text search - Elasticsearch Platform" : "Повнотекстовий пошук - Elasticsearch Platform ",
     "Index using ElasticSearch" : "Індекс з використанням ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Розширення програми _Full text search_  для зв'язку з ElasticSearch. ",
+    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Розширення застосунку повнотекстового пошуку для роботи зі службою ElasticSearch. ",
     "Elastic Search" : "Гнучкий пошук",
     "Address of the Servlet" : "Адреса Servlet  ",
     "Include your credential in case authentication is required." : "Вкажіть свої облікові дані на випадок, якщо буде потрібна автентифікація.",
