@@ -1,6 +1,6 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 
 /**
  * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
@@ -27,49 +27,25 @@ declare(strict_types=1);
  *
  */
 
-
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
-
-use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
-use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
+use Elastic\Elasticsearch\Exception\MissingParameterException;
+use Elastic\Elasticsearch\Exception\ServerResponseException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IIndexDocument;
 
-
-/**
- * Class IndexService
- *
- * @package OCA\FullTextSearch_Elasticsearch\Service
- */
 class IndexService {
-
 
 	use TArrayTools;
 
-
-	/** @var IndexMappingService */
-	private $indexMappingService;
-
-	/** @var MiscService */
-	private $miscService;
-
-
-	/**
-	 * IndexService constructor.
-	 *
-	 * @param IndexMappingService $indexMappingService
-	 * @param MiscService $miscService
-	 */
 	public function __construct(
-		IndexMappingService $indexMappingService, MiscService $miscService
+		private IndexMappingService $indexMappingService
 	) {
-		$this->indexMappingService = $indexMappingService;
-		$this->miscService = $miscService;
 	}
 
 
@@ -77,17 +53,21 @@ class IndexService {
 	 * @param Client $client
 	 *
 	 * @return bool
+	 * @throws ClientResponseException
 	 * @throws ConfigurationException
+	 * @throws MissingParameterException
+	 * @throws ServerResponseException
 	 */
 	public function testIndex(Client $client): bool {
-
 		$map = $this->indexMappingService->generateGlobalMap(false);
 		$map['client'] = [
 			'verbose' => true
 		];
 
-		return $client->indices()
-					  ->exists($map);
+		$result = $client->indices()
+						 ->exists($map);
+
+		return $result->asBool();
 	}
 
 
@@ -95,26 +75,32 @@ class IndexService {
 	 * @param Client $client
 	 *
 	 * @throws ConfigurationException
-	 * @throws BadRequest400Exception
+	 * @throws MissingParameterException
+	 * @throws ServerResponseException
 	 */
-	public function initializeIndex(Client $client) {
+	public function initializeIndex(Client $client): void {
+		$client->indices();
 		try {
 			if ($client->indices()
-					   ->exists($this->indexMappingService->generateGlobalMap(false))) {
+					   ->exists($this->indexMappingService->generateGlobalMap(false))
+					   ->asBool()) {
 				return;
 			}
-		} catch (BadRequest400Exception $e) {
-			$this->parseBadRequest400($e);
+		} catch (ClientResponseException $e) {
 		}
 
 		try {
 			$client->indices()
 				   ->create($this->indexMappingService->generateGlobalMap());
+		} catch (ClientResponseException $e) {
+			$this->resetIndexAll($client);
+		}
+
+		try {
 			$client->ingest()
 				   ->putPipeline($this->indexMappingService->generateGlobalIngest());
-		} catch (BadRequest400Exception $e) {
+		} catch (ClientResponseException $e) {
 			$this->resetIndexAll($client);
-			$this->parseBadRequest400($e);
 		}
 	}
 
@@ -125,10 +111,10 @@ class IndexService {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex(Client $client, string $providerId) {
+	public function resetIndex(Client $client, string $providerId): void {
 		try {
 			$client->deleteByQuery($this->indexMappingService->generateDeleteQuery($providerId));
-		} catch (Missing404Exception $e) {
+		} catch (ClientResponseException $e) {
 			/** we do nothin' */
 		}
 	}
@@ -138,24 +124,20 @@ class IndexService {
 	 * @param Client $client
 	 *
 	 * @throws ConfigurationException
+	 * @throws MissingParameterException
+	 * @throws ServerResponseException
 	 */
-	public function resetIndexAll(Client $client) {
+	public function resetIndexAll(Client $client): void {
 		try {
 			$client->ingest()
 				   ->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
-		} catch (Missing404Exception $e) {
-			/* 404Exception will means that the mapping for that provider does not exist */
-		} catch (BadRequest400Exception $e) {
-			throw new ConfigurationException(
-				'Check your user/password and the index assigned to that cloud'
-			);
+		} catch (ClientResponseException $e) {
 		}
 
 		try {
 			$client->indices()
 				   ->delete($this->indexMappingService->generateGlobalMap(false));
-		} catch (Missing404Exception $e) {
-			/* 404Exception will means that the mapping for that provider does not exist */
+		} catch (ClientResponseException $e) {
 		}
 	}
 
@@ -166,9 +148,11 @@ class IndexService {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function deleteIndex(Client $client, IIndex $index) {
+	public function deleteIndex(Client $client, IIndex $index): void {
 		$this->indexMappingService->indexDocumentRemove(
-			$client, $index->getProviderId(), $index->getDocumentId()
+			$client,
+			$index->getProviderId(),
+			$index->getDocumentId()
 		);
 	}
 
@@ -206,7 +190,6 @@ class IndexService {
 	 * @return IIndex
 	 */
 	public function parseIndexResult(IIndex $index, array $result): IIndex {
-
 		$index->setLastIndex();
 
 		if (array_key_exists('exception', $result)) {
@@ -227,34 +210,4 @@ class IndexService {
 
 		return $index;
 	}
-
-
-	/**
-	 * @param BadRequest400Exception $e
-	 *
-	 * @throws ConfigurationException
-	 * @throws BadRequest400Exception
-	 */
-	private function parseBadRequest400(BadRequest400Exception $e) {
-
-		if ($e->getMessage() === '') {
-			throw new ConfigurationException(
-				'Check your user/password and the index assigned to that cloud'
-			);
-		}
-
-
-		$error = json_decode($e->getMessage(), true)['error'];
-
-		if ($error['type'] === 'parse_exception') {
-			if ($error['reason'] === 'No processor type exists with name [attachment]') {
-				throw new ConfigurationException(
-					'please add ingest-attachment plugin to elasticsearch'
-				);
-			}
-		}
-
-		throw $e;
-	}
-
 }

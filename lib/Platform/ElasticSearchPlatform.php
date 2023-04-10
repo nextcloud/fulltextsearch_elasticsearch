@@ -31,18 +31,16 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
-use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
+use Elastic\Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\Client;
 use Exception;
 use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use OCA\FullTextSearch_Elasticsearch\Service\IndexService;
-use OCA\FullTextSearch_Elasticsearch\Service\MiscService;
 use OCA\FullTextSearch_Elasticsearch\Service\SearchService;
+use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -61,42 +59,14 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	use TArrayTools;
 
+	private Client $client;
+	private ?IRunner $runner = null;
 
-	/** @var ConfigService */
-	private $configService;
-
-	/** @var IndexService */
-	private $indexService;
-
-	/** @var SearchService */
-	private $searchService;
-
-	/** @var MiscService */
-	private $miscService;
-
-	/** @var Client */
-	private $client;
-
-	/** @var IRunner */
-	private $runner;
-
-
-	/**
-	 * ElasticSearchPlatform constructor.
-	 *
-	 * @param ConfigService $configService
-	 * @param IndexService $indexService
-	 * @param SearchService $searchService
-	 * @param MiscService $miscService
-	 */
 	public function __construct(
-		ConfigService $configService, IndexService $indexService, SearchService $searchService,
-		MiscService $miscService
+		private ConfigService $configService,
+		private IndexService $indexService,
+		private SearchService $searchService,
 	) {
-		$this->configService = $configService;
-		$this->indexService = $indexService;
-		$this->searchService = $searchService;
-		$this->miscService = $miscService;
 	}
 
 
@@ -174,7 +144,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return bool
 	 */
 	public function testPlatform(): bool {
-		return $this->client->ping();
+		$ping = $this->client->ping();
+		return $ping->asBool();
 	}
 
 
@@ -216,7 +187,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return IIndex
 	 */
 	public function indexDocument(IIndexDocument $document): IIndex {
-
 		$document->initHash();
 
 		$index = null;
@@ -313,6 +283,10 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	private function parseIndexErrorException(Exception $e): array {
 		$arr = json_decode($e->getMessage(), true);
 		if (!is_array($arr)) {
+
+
+			//
+
 			return ['error', 'unknown error', ''];
 		}
 
@@ -419,10 +393,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		try {
 			$hosts = array_map([$this, 'cleanHost'], $hosts);
-			$this->client = ClientBuilder::create()
-										 ->setHosts($hosts)
-										 ->setRetries(3)
-										 ->build();
+			$cb = ClientBuilder::create()
+							   ->setHosts($hosts)
+							   ->setRetries(3);
+
+			$this->client = $cb->build();
 
 //		}
 //		catch (CouldNotConnectToHost $e) {

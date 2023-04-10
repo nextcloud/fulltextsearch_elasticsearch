@@ -1,6 +1,6 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 
 /**
  * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
@@ -27,15 +27,11 @@ declare(strict_types=1);
  *
  */
 
-
 namespace OCA\FullTextSearch_Elasticsearch\Controller;
-
 
 use Exception;
 use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
-use OCA\FullTextSearch_Elasticsearch\Service\MiscService;
-use OCA\FullTextSearch_Elasticsearch\Service\SettingsService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
@@ -49,35 +45,12 @@ use OCP\IRequest;
  */
 class SettingsController extends Controller {
 
-
-	/** @var ConfigService */
-	private $configService;
-
-	/** @var SettingsService */
-	private $settingsService;
-
-	/** @var MiscService */
-	private $miscService;
-
-
-	/**
-	 * SettingsController constructor.
-	 *
-	 * @param IRequest $request
-	 * @param ConfigService $configService
-	 * @param SettingsService $settingsService
-	 * @param MiscService $miscService
-	 */
 	public function __construct(
-		IRequest $request, ConfigService $configService, SettingsService $settingsService,
-		MiscService $miscService
+		IRequest $request,
+		private ConfigService $configService
 	) {
 		parent::__construct(Application::APP_NAME, $request);
-		$this->configService = $configService;
-		$this->settingsService = $settingsService;
-		$this->miscService = $miscService;
 	}
-
 
 	/**
 	 * @return DataResponse
@@ -89,7 +62,6 @@ class SettingsController extends Controller {
 		return new DataResponse($data, Http::STATUS_OK);
 	}
 
-
 	/**
 	 * @param array $data
 	 *
@@ -97,14 +69,11 @@ class SettingsController extends Controller {
 	 * @throws Exception
 	 */
 	public function setSettingsAdmin(array $data): DataResponse {
-
-		if ($this->settingsService->checkConfig($data)) {
+		if ($this->configService->checkConfig($data)) {
 			$this->configService->setConfig($data);
 		}
 
 		return $this->getSettingsAdmin();
 	}
-
-
 }
 
