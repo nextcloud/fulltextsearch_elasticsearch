@@ -1,6 +1,6 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 
 /**
  * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
@@ -27,29 +27,18 @@ declare(strict_types=1);
  *
  */
 
-
 namespace OCA\FullTextSearch_Elasticsearch\AppInfo;
-
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
-
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-
-/**
- * Class Application
- *
- * @package OCA\FullTextSearch_Elasticsearch\AppInfo
- */
 class Application extends App implements IBootstrap {
 
-
 	const APP_NAME = 'fulltextsearch_elasticsearch';
-
 
 	/**
 	 * Application constructor.
@@ -71,6 +60,5 @@ class Application extends App implements IBootstrap {
 	 */
 	public function boot(IBootContext $context): void {
 	}
-
 }
 
