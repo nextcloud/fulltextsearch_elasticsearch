@@ -1,5 +1,14 @@
 # Changelog
 
+### 26.0.0
+
+- compat nc26
+- compat es8
+
+### 25.0.0
+
+- compat nc25
+
 ### 24.0.1
 
 - improved search performance
