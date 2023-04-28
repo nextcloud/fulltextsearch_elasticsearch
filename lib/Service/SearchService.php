@@ -31,7 +31,10 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
+use Elastic\Elasticsearch\Exception\MissingParameterException;
+use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
 use OC\FullTextSearch\Model\DocumentAccess;
 use OC\FullTextSearch\Model\IndexDocument;
@@ -41,6 +44,7 @@ use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\ISearchResult;
+use Psr\Log\LoggerInterface;
 
 
 /**
@@ -49,29 +53,12 @@ use OCP\FullTextSearch\Model\ISearchResult;
  * @package OCA\FullTextSearch_Elasticsearch\Service
  */
 class SearchService {
-
-
 	use TArrayTools;
 
-
-	/** @var SearchMappingService */
-	private $searchMappingService;
-
-	/** @var MiscService */
-	private $miscService;
-
-
-	/**
-	 * SearchService constructor.
-	 *
-	 * @param SearchMappingService $searchMappingService
-	 * @param MiscService $miscService
-	 */
 	public function __construct(
-		SearchMappingService $searchMappingService, MiscService $miscService
+		private SearchMappingService $searchMappingService,
+		private LoggerInterface $logger
 	) {
-		$this->searchMappingService = $searchMappingService;
-		$this->miscService = $miscService;
 	}
 
 	/**
@@ -82,10 +69,12 @@ class SearchService {
 	 * @throws Exception
 	 */
 	public function searchRequest(
-		Client $client, ISearchResult $searchResult, IDocumentAccess $access
-	) {
+		Client $client,
+		ISearchResult $searchResult,
+		IDocumentAccess $access
+	): void {
 		try {
-			$this->miscService->log('New Search Request; SearchResult Model: ' . json_encode($searchResult), 0);
+			$this->logger->debug('New search request', ['searchResult' => $searchResult]);
 			$query = $this->searchMappingService->generateSearchQuery(
 				$searchResult->getRequest(), $access, $searchResult->getProvider()
 																   ->getId()
@@ -95,25 +84,28 @@ class SearchService {
 		}
 
 		try {
-			$this->miscService->log('Searching ES: ' . json_encode($query['params']), 0);
-
+			$this->logger->debug('Searching ES', ['params' => $query['params'] ?? []]);
 			$result = $client->search($query['params']);
 		} catch (Exception $e) {
-			$this->miscService->log(
-				'debug - request: ' . json_encode($searchResult->getRequest()) . '   - query: '
-				. json_encode($query)
+			$this->logger->debug(
+				'exception while searching',
+				[
+					'exception' => $e,
+					'searchResult.Request' => $searchResult->getRequest(),
+					'query' => $query
+				]
 			);
 			throw $e;
 		}
 
-		$this->miscService->log('Result from ES: ' . json_encode($result), 0);
-		$this->updateSearchResult($searchResult, $result);
+		$this->logger->debug('result from ES', ['result' => $result]);
+		$this->updateSearchResult($searchResult, $result->asArray());
 
 		foreach ($result['hits']['hits'] as $entry) {
 			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
 		}
 
-		$this->miscService->log('Filled SearchResult Model: ' . json_encode($searchResult), 0);
+		$this->logger->debug('Search Result', ['searchResult' => $searchResult]);
 	}
 
 
@@ -124,8 +116,14 @@ class SearchService {
 	 *
 	 * @return IIndexDocument
 	 * @throws ConfigurationException
+	 * @throws ClientResponseException
+	 * @throws MissingParameterException
+	 * @throws ServerResponseException
 	 */
-	public function getDocument(Client $client, string $providerId, string $documentId
+	public function getDocument(
+		Client $client,
+		string $providerId,
+		string $documentId
 	): IIndexDocument {
 		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
@@ -158,12 +156,12 @@ class SearchService {
 
 	/**
 	 * @param IndexDocument $index
-	 * @param $source
+	 * @param array $source
 	 */
-	private function getDocumentInfos(IndexDocument $index, $source) {
+	private function getDocumentInfos(IndexDocument $index, array $source): void {
 		$ak = array_keys($source);
 		foreach ($ak as $k) {
-			if (substr($k, 0, 5) !== 'info_') {
+			if (str_starts_with($k, 'info_')) {
 				continue;
 			}
 			$value = $source[$k];
@@ -191,7 +189,7 @@ class SearchService {
 	 * @param ISearchResult $searchResult
 	 * @param array $result
 	 */
-	private function updateSearchResult(ISearchResult $searchResult, array $result) {
+	private function updateSearchResult(ISearchResult $searchResult, array $result): void {
 		$searchResult->setRawResult(json_encode($result));
 
 		$total = $result['hits']['total'];
@@ -240,7 +238,7 @@ class SearchService {
 			foreach ($highlights[$source] as $highlight) {
 				$result[] =
 					[
-						'source'  => $source,
+						'source' => $source,
 						'excerpt' => $highlight
 					];
 			}
@@ -248,6 +246,5 @@ class SearchService {
 
 		return $result;
 	}
-
 }
 

@@ -48,22 +48,10 @@ use stdClass;
  */
 class SearchMappingService {
 
-	/** @var ConfigService */
-	private $configService;
-
-	/** @var MiscService */
-	private $miscService;
-
-
-	/**
-	 * SearchMappingService constructor.
-	 *
-	 * @param ConfigService $configService
-	 * @param MiscService $miscService
-	 */
-	public function __construct(ConfigService $configService, MiscService $miscService) {
-		$this->configService = $configService;
-		$this->miscService = $miscService;
+	public function __construct
+	(
+		private ConfigService $configService
+	) {
 	}
 
 
@@ -77,7 +65,9 @@ class SearchMappingService {
 	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQuery(
-		ISearchRequest $request, IDocumentAccess $access, string $providerId
+		ISearchRequest $request,
+		IDocumentAccess $access,
+		string $providerId
 	): array {
 		$query['params'] = $this->generateSearchQueryParams($request, $access, $providerId);
 
@@ -95,12 +85,14 @@ class SearchMappingService {
 	 * @throws SearchQueryGenerationException
 	 */
 	public function generateSearchQueryParams(
-		ISearchRequest $request, IDocumentAccess $access, string $providerId
+		ISearchRequest $request,
+		IDocumentAccess $access,
+		string $providerId
 	): array {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
-			'size'  => $request->getSize(),
-			'from'  => (($request->getPage() - 1) * $request->getSize()),
+			'size' => $request->getSize(),
+			'from' => (($request->getPage() - 1) * $request->getSize()),
 			'_source_excludes' => 'content'
 		];
 
@@ -135,7 +127,7 @@ class SearchMappingService {
 	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
-	private function improveSearchQuerying(ISearchRequest $request, array &$arr) {
+	private function improveSearchQuerying(ISearchRequest $request, array &$arr): void {
 //		$this->improveSearchWildcardQueries($request, $arr);
 		$this->improveSearchWildcardFilters($request, $arr);
 		$this->improveSearchRegexFilters($request, $arr);
@@ -165,8 +157,7 @@ class SearchMappingService {
 	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
-	private function improveSearchWildcardFilters(ISearchRequest $request, array &$arr) {
-
+	private function improveSearchWildcardFilters(ISearchRequest $request, array &$arr): void {
 		$filters = $request->getWildcardFilters();
 		foreach ($filters as $filter) {
 			$wildcards = [];
@@ -176,7 +167,6 @@ class SearchMappingService {
 
 			$arr['bool']['filter'][]['bool']['should'] = $wildcards;
 		}
-
 	}
 
 
@@ -184,8 +174,7 @@ class SearchMappingService {
 	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
-	private function improveSearchRegexFilters(ISearchRequest $request, array &$arr) {
-
+	private function improveSearchRegexFilters(ISearchRequest $request, array &$arr): void {
 		$filters = $request->getRegexFilters();
 		foreach ($filters as $filter) {
 			$regex = [];
@@ -195,7 +184,6 @@ class SearchMappingService {
 
 			$arr['bool']['filter'][]['bool']['should'] = $regex;
 		}
-
 	}
 
 
@@ -233,7 +221,6 @@ class SearchMappingService {
 	 * @throws QueryContentGenerationException
 	 */
 	private function generateQueryContent(string $word): QueryContent {
-
 		$searchQueryContent = new QueryContent($word);
 		if (strlen($searchQueryContent->getWord()) === 0) {
 			throw new QueryContentGenerationException();
@@ -303,7 +290,7 @@ class SearchMappingService {
 			$queryFields[] = [
 				'query_string' => [
 					'fields' => $parts,
-					'query'  => $content->getWord()
+					'query' => $content->getWord()
 				]
 			];
 		}
@@ -318,7 +305,6 @@ class SearchMappingService {
 	 * @return array
 	 */
 	private function generateSearchQueryAccess(IDocumentAccess $access): array {
-
 		$query = [];
 		$query[] = ['term' => ['owner' => $access->getViewerId()]];
 		$query[] = ['term' => ['users' => $access->getViewerId()]];
@@ -363,7 +349,6 @@ class SearchMappingService {
 	 * @return array
 	 */
 	private function generateSearchQueryTags(string $k, array $tags): array {
-
 		$query = [];
 		foreach ($tags as $t) {
 			$query[] = ['term' => [$k => $t]];
@@ -430,7 +415,6 @@ class SearchMappingService {
 	 * @return array
 	 */
 	private function generateSearchHighlighting(ISearchRequest $request): array {
-
 		$parts = $this->getPartsFields($request);
 		$fields = ['content' => new stdClass()];
 		foreach ($parts as $part) {
@@ -438,8 +422,8 @@ class SearchMappingService {
 		}
 
 		return [
-			'fields'    => $fields,
-			'pre_tags'  => [''],
+			'fields' => $fields,
+			'pre_tags' => [''],
 			'post_tags' => ['']
 		];
 	}
@@ -455,7 +439,7 @@ class SearchMappingService {
 	public function getDocumentQuery(string $providerId, string $documentId): array {
 		return [
 			'index' => $this->configService->getElasticIndex(),
-			'id'    => $providerId . ':' . $documentId
+			'id' => $providerId . ':' . $documentId
 		];
 	}
 
@@ -465,13 +449,12 @@ class SearchMappingService {
 	 *
 	 * @return array
 	 */
-	private function getPartsFields(ISearchRequest $request) {
+	private function getPartsFields(ISearchRequest $request): array {
 		return array_map(
-			function($value) {
+			function (string $value): string {
 				return 'parts.' . $value;
 			}, $request->getParts()
 		);
 	}
-
 }
 

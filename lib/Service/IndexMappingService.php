@@ -1,6 +1,6 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 
 /**
  * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
@@ -27,15 +27,14 @@ declare(strict_types=1);
  *
  */
 
-
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
-
-use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
+use Elastic\Elasticsearch\Exception\MissingParameterException;
+use Elastic\Elasticsearch\Exception\ServerResponseException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\ReturnedTypeException;
 use OCP\FullTextSearch\Model\IIndexDocument;
 
 
@@ -46,23 +45,9 @@ use OCP\FullTextSearch\Model\IIndexDocument;
  */
 class IndexMappingService {
 
-
-	/** @var ConfigService */
-	private $configService;
-
-	/** @var MiscService */
-	private $miscService;
-
-
-	/**
-	 * IndexMappingService constructor.
-	 *
-	 * @param ConfigService $configService
-	 * @param MiscService $miscService
-	 */
-	public function __construct(ConfigService $configService, MiscService $miscService) {
-		$this->configService = $configService;
-		$this->miscService = $miscService;
+	public function __construct(
+		private ConfigService $configService
+	) {
 	}
 
 
@@ -71,28 +56,26 @@ class IndexMappingService {
 	 * @param IIndexDocument $document
 	 *
 	 * @return array
-	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
-	 * @throws ReturnedTypeException
+	 * @throws ConfigurationException
+	 * @throws ClientResponseException
+	 * @throws MissingParameterException
+	 * @throws ServerResponseException
 	 */
 	public function indexDocumentNew(Client $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
 					'index' => $this->configService->getElasticIndex(),
-					'id'    => $document->getProviderId() . ':' . $document->getId(),
-					'body'  => $this->generateIndexBody($document)
+					'id' => $document->getProviderId() . ':' . $document->getId(),
+					'body' => $this->generateIndexBody($document)
 				]
 		];
 
 		$this->onIndexingDocument($document, $index);
-
 		$result = $client->index($index['index']);
-		if (!is_array($result)) {
-			throw new ReturnedTypeException('index should returns array, ' . json_encode($result) . ' returned');
-		}
 
-		return $result;
+		return $result->asArray();
 	}
 
 
@@ -101,24 +84,28 @@ class IndexMappingService {
 	 * @param IIndexDocument $document
 	 *
 	 * @return array
-	 * @throws ConfigurationException
 	 * @throws AccessIsEmptyException
-	 * @throws ReturnedTypeException
+	 * @throws ClientResponseException
+	 * @throws ConfigurationException
+	 * @throws MissingParameterException
+	 * @throws ServerResponseException
 	 */
 	public function indexDocumentUpdate(Client $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
 					'index' => $this->configService->getElasticIndex(),
-					'id'    => $document->getProviderId() . ':' . $document->getId(),
-					'body'  => ['doc' => $this->generateIndexBody($document)]
+					'id' => $document->getProviderId() . ':' . $document->getId(),
+					'body' => ['doc' => $this->generateIndexBody($document)]
 				]
 		];
 
 		$this->onIndexingDocument($document, $index);
 		try {
-			return $client->update($index['index']);
-		} catch (Missing404Exception $e) {
+			$result = $client->update($index['index']);
+
+			return $result->asArray();
+		} catch (ClientResponseException $e) {
 			return $this->indexDocumentNew($client, $document);
 		}
 	}
@@ -130,19 +117,21 @@ class IndexMappingService {
 	 * @param string $documentId
 	 *
 	 * @throws ConfigurationException
+	 * @throws MissingParameterException
+	 * @throws ServerResponseException
 	 */
-	public function indexDocumentRemove(Client $client, string $providerId, string $documentId) {
+	public function indexDocumentRemove(Client $client, string $providerId, string $documentId): void {
 		$index = [
 			'index' =>
 				[
 					'index' => $this->configService->getElasticIndex(),
-					'id'    => $providerId . ':' . $documentId,
+					'id' => $providerId . ':' . $documentId,
 				]
 		];
 
 		try {
 			$client->delete($index['index']);
-		} catch (Missing404Exception $e) {
+		} catch (ClientResponseException $e) {
 		}
 	}
 
@@ -151,7 +140,7 @@ class IndexMappingService {
 	 * @param IIndexDocument $document
 	 * @param array $arr
 	 */
-	public function onIndexingDocument(IIndexDocument $document, array &$arr) {
+	public function onIndexingDocument(IIndexDocument $document, array &$arr): void {
 		if ($document->getContent() !== ''
 			&& $document->isContentEncoded() === IIndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
@@ -166,38 +155,35 @@ class IndexMappingService {
 	 * @throws AccessIsEmptyException
 	 */
 	public function generateIndexBody(IIndexDocument $document): array {
-
 		$access = $document->getAccess();
-		if ($access === null) {
-			throw new AccessIsEmptyException('DocumentAccess is Empty');
-		}
 
 		// TODO: check if we can just update META or just update CONTENT.
 //		$index = $document->getIndex();
 //		$body = [];
+
+		// TODO: isStatus ALL or META (uncomment condition)
 //		if ($index->isStatus(IIndex::INDEX_META)) {
 		$body = [
-			'owner'    => $access->getOwnerId(),
-			'users'    => $access->getUsers(),
-			'groups'   => $access->getGroups(),
-			'circles'  => $access->getCircles(),
-			'links'    => $access->getLinks(),
+			'owner' => $access->getOwnerId(),
+			'users' => $access->getUsers(),
+			'groups' => $access->getGroups(),
+			'circles' => $access->getCircles(),
+			'links' => $access->getLinks(),
 			'metatags' => $document->getMetaTags(),
-			'subtags'  => $document->getSubTags(true),
-			'tags'     => $document->getTags(),
-			'hash'     => $document->getHash(),
+			'subtags' => $document->getSubTags(true),
+			'tags' => $document->getTags(),
+			'hash' => $document->getHash(),
 			'provider' => $document->getProviderId(),
-			'source'   => $document->getSource(),
-			'title'    => $document->getTitle(),
-			'parts'    => $document->getParts()
+			'source' => $document->getSource(),
+			'title' => $document->getTitle(),
+			'parts' => $document->getParts()
 		];
 //		}
 
+		// TODO: isStatus ALL or CONTENT (uncomment condition)
 //		if ($index->isStatus(IIndex::INDEX_CONTENT)) {
-		$body['content'] = $document->getContent();
-
+			$body['content'] = $document->getContent();
 //		}
-
 		return array_merge($document->getInfoAll(), $body);
 	}
 
@@ -209,7 +195,6 @@ class IndexMappingService {
 	 * @throws ConfigurationException
 	 */
 	public function generateGlobalMap(bool $complete = true): array {
-
 		$params = [
 			'index' => $this->configService->getElasticIndex()
 		];
@@ -218,107 +203,94 @@ class IndexMappingService {
 			return $params;
 		}
 
-		if ($this->configService->getAppValue(ConfigService::ELASTIC_VER_BELOW66) !== '1') {
-			$params['include_type_name'] = true;
-		}
-
 		$params['body'] = [
 			'settings' => [
 				'index.mapping.total_fields.limit' => $this->configService->getAppValue(
 					ConfigService::FIELDS_LIMIT
 				),
-				'analysis'                         => [
-					'filter'      => [
+				'analysis' => [
+					'filter' => [
 						'shingle' => [
 							'type' => 'shingle'
 						]
 					],
 					'char_filter' => [
-						'pre_negs'  => [
-							'type'        => 'pattern_replace',
-							'pattern'     => '(\\w+)\\s+((?i:never|no|nothing|nowhere|noone|none|not|havent|hasnt|hadnt|cant|couldnt|shouldnt|wont|wouldnt|dont|doesnt|didnt|isnt|arent|aint))\\b',
+						'pre_negs' => [
+							'type' => 'pattern_replace',
+							'pattern' => '(\\w+)\\s+((?i:never|no|nothing|nowhere|noone|none|not|havent|hasnt|hadnt|cant|couldnt|shouldnt|wont|wouldnt|dont|doesnt|didnt|isnt|arent|aint))\\b',
 							'replacement' => '~$1 $2'
 						],
 						'post_negs' => [
-							'type'        => 'pattern_replace',
-							'pattern'     => '\\b((?i:never|no|nothing|nowhere|noone|none|not|havent|hasnt|hadnt|cant|couldnt|shouldnt|wont|wouldnt|dont|doesnt|didnt|isnt|arent|aint))\\s+(\\w+)',
+							'type' => 'pattern_replace',
+							'pattern' => '\\b((?i:never|no|nothing|nowhere|noone|none|not|havent|hasnt|hadnt|cant|couldnt|shouldnt|wont|wouldnt|dont|doesnt|didnt|isnt|arent|aint))\\s+(\\w+)',
 							'replacement' => '$1 ~$2'
 						]
 					],
-					'analyzer'    => [
+					'analyzer' => [
 						'analyzer' => [
-							'type'      => 'custom',
+							'type' => 'custom',
 							'tokenizer' => $this->configService->getAppValue(
 								ConfigService::ANALYZER_TOKENIZER
 							),
-							'filter'    => ['lowercase', 'stop', 'kstem']
+							'filter' => ['lowercase', 'stop', 'kstem']
 						]
 					]
 				]
 			],
 			'mappings' => [
 				'standard' => [
-					'dynamic'    => true,
+					'dynamic' => true,
 					'properties' => [
-						'source'   => [
+						'source' => [
 							'type' => 'keyword'
 						],
-						'title'    => [
-							'type'        => 'text',
-							'analyzer'    => 'keyword',
+						'title' => [
+							'type' => 'text',
+							'analyzer' => 'keyword',
 							'term_vector' => 'with_positions_offsets',
-							'copy_to'     => 'combined'
+							'copy_to' => 'combined'
 						],
 						'provider' => [
 							'type' => 'keyword'
 						],
-						'tags'     => [
+						'tags' => [
 							'type' => 'keyword'
 						],
 						'metatags' => [
 							'type' => 'keyword'
 						],
-						'subtags'  => [
+						'subtags' => [
 							'type' => 'keyword'
 						],
-						'content'  => [
-							'type'        => 'text',
-							'analyzer'    => 'analyzer',
+						'content' => [
+							'type' => 'text',
+							'analyzer' => 'analyzer',
 							'term_vector' => 'with_positions_offsets',
-							'copy_to'     => 'combined'
+							'copy_to' => 'combined'
 						],
-						'owner'    => [
+						'owner' => [
 							'type' => 'keyword'
 						],
-						'users'    => [
+						'users' => [
 							'type' => 'keyword'
 						],
-						'groups'   => [
+						'groups' => [
 							'type' => 'keyword'
 						],
-						'circles'  => [
+						'circles' => [
 							'type' => 'keyword'
 						],
-						'links'    => [
+						'links' => [
 							'type' => 'keyword'
 						],
-						'hash'     => [
+						'hash' => [
 							'type' => 'keyword'
 						],
 						'combined' => [
-							'type'        => 'text',
-							'analyzer'    => 'analyzer',
+							'type' => 'text',
+							'analyzer' => 'analyzer',
 							'term_vector' => 'with_positions_offsets'
 						]
-						//						,
-						//						'topics'   => [
-						//							'type'  => 'text',
-						//							'index' => 'not_analyzed'
-						//						],
-						//						'places'   => [
-						//							'type'  => 'text',
-						//							'index' => 'not_analyzed'
-						//						]
 					]
 				]
 			]
@@ -334,7 +306,6 @@ class IndexMappingService {
 	 * @return array
 	 */
 	public function generateGlobalIngest(bool $complete = true): array {
-
 		$params = ['id' => 'attachment'];
 
 		if ($complete === false) {
@@ -343,20 +314,20 @@ class IndexMappingService {
 
 		$params['body'] = [
 			'description' => 'attachment',
-			'processors'  => [
+			'processors' => [
 				[
 					'attachment' => [
-						'field'         => 'content',
+						'field' => 'content',
 						'indexed_chars' => -1
 					],
-					'convert'    => [
-						'field'        => 'attachment.content',
-						'type'         => 'string',
+					'convert' => [
+						'field' => 'attachment.content',
+						'type' => 'string',
 						'target_field' => 'content',
 						'ignore_failure' => true
 					],
-					'remove'     => [
-						'field'          => 'attachment.content',
+					'remove' => [
+						'field' => 'attachment.content',
 						'ignore_failure' => true
 					]
 				]
@@ -382,6 +353,5 @@ class IndexMappingService {
 
 		return $params;
 	}
-
 }
 
