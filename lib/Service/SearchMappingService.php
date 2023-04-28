@@ -451,7 +451,7 @@ class SearchMappingService {
 	 */
 	private function getPartsFields(ISearchRequest $request): array {
 		return array_map(
-			function ($value) {
+			function (string $value): string {
 				return 'parts.' . $value;
 			}, $request->getParts()
 		);

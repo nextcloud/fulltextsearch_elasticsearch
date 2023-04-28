@@ -164,9 +164,14 @@ class ConfigService {
 		return $this->config->deleteAppValue(Application::APP_NAME, $key);
 	}
 
+	/**
+	 * TODO: check json sent by admin front-end are valid.
+	 *
+	 * @param array $data
+	 *
+	 * @return bool
+	 */
 	public function checkConfig(array $data): bool {
-//			return false;
-
 		return true;
 	}
 }

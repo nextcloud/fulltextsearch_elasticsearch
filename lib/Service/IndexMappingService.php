@@ -160,6 +160,8 @@ class IndexMappingService {
 		// TODO: check if we can just update META or just update CONTENT.
 //		$index = $document->getIndex();
 //		$body = [];
+
+		// TODO: isStatus ALL or META (uncomment condition)
 //		if ($index->isStatus(IIndex::INDEX_META)) {
 		$body = [
 			'owner' => $access->getOwnerId(),
@@ -178,8 +180,10 @@ class IndexMappingService {
 		];
 //		}
 
-		$body['content'] = $document->getContent();
-
+		// TODO: isStatus ALL or CONTENT (uncomment condition)
+//		if ($index->isStatus(IIndex::INDEX_CONTENT)) {
+			$body['content'] = $document->getContent();
+//		}
 		return array_merge($document->getInfoAll(), $body);
 	}
 
@@ -199,7 +203,6 @@ class IndexMappingService {
 			return $params;
 		}
 
-		$params['include_type_name'] = true;
 		$params['body'] = [
 			'settings' => [
 				'index.mapping.total_fields.limit' => $this->configService->getAppValue(

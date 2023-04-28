@@ -74,9 +74,7 @@ class SearchService {
 		IDocumentAccess $access
 	): void {
 		try {
-			$this->logger->log(
-				0, 'New Search Request; SearchResult Model: ' . json_encode($searchResult)
-			);
+			$this->logger->debug('New search request', ['searchResult' => $searchResult]);
 			$query = $this->searchMappingService->generateSearchQuery(
 				$searchResult->getRequest(), $access, $searchResult->getProvider()
 																   ->getId()
@@ -86,24 +84,28 @@ class SearchService {
 		}
 
 		try {
-			$this->logger->log(0, 'Searching ES: ' . json_encode($query['params']));
-
+			$this->logger->debug('Searching ES', ['params' => $query['params'] ?? []]);
 			$result = $client->search($query['params']);
 		} catch (Exception $e) {
-			$this->logger->log(
-				0, 'request: ' . json_encode($searchResult->getRequest()) . ' - query: ' . json_encode($query)
+			$this->logger->debug(
+				'exception while searching',
+				[
+					'exception' => $e,
+					'searchResult.Request' => $searchResult->getRequest(),
+					'query' => $query
+				]
 			);
 			throw $e;
 		}
 
-		$this->logger->log(0, 'Result from ES: ' . json_encode($result));
+		$this->logger->debug('result from ES', ['result' => $result]);
 		$this->updateSearchResult($searchResult, $result->asArray());
 
 		foreach ($result['hits']['hits'] as $entry) {
 			$searchResult->addDocument($this->parseSearchEntry($entry, $access->getViewerId()));
 		}
 
-		$this->logger->log(0, 'Filled SearchResult Model: ' . json_encode($searchResult));
+		$this->logger->debug('Search Result', ['searchResult' => $searchResult]);
 	}
 
 
@@ -156,10 +158,10 @@ class SearchService {
 	 * @param IndexDocument $index
 	 * @param array $source
 	 */
-	private function getDocumentInfos(IndexDocument $index, array $source):void {
+	private function getDocumentInfos(IndexDocument $index, array $source): void {
 		$ak = array_keys($source);
 		foreach ($ak as $k) {
-			if (str_starts_with('info_', $k)) {
+			if (str_starts_with($k, 'info_')) {
 				continue;
 			}
 			$value = $source[$k];

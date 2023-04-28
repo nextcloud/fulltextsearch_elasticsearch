@@ -36,6 +36,7 @@ use Elastic\Elasticsearch\Client;
 use Exception;
 use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\ClientException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use OCA\FullTextSearch_Elasticsearch\Service\IndexService;
@@ -59,7 +60,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	use TArrayTools;
 
-	private Client $client;
+	private ?Client $client = null;
 	private ?IRunner $runner = null;
 
 	public function __construct(
@@ -144,7 +145,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return bool
 	 */
 	public function testPlatform(): bool {
-		$ping = $this->client->ping();
+		$ping = $this->getClient()->ping();
 		return $ping->asBool();
 	}
 
@@ -158,7 +159,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws BadRequest400Exception
 	 */
 	public function initializeIndex() {
-		$this->indexService->initializeIndex($this->client);
+		$this->indexService->initializeIndex($this->getClient());
 	}
 
 
@@ -174,9 +175,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	public function resetIndex(string $providerId) {
 		if ($providerId === 'all') {
-			$this->indexService->resetIndexAll($this->client);
+			$this->indexService->resetIndexAll($this->getClient());
 		} else {
-			$this->indexService->resetIndex($this->client, $providerId);
+			$this->indexService->resetIndex($this->getClient(), $providerId);
 		}
 	}
 
@@ -191,7 +192,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$index = null;
 		try {
-			$result = $this->indexService->indexDocument($this->client, $document);
+			$result = $this->indexService->indexDocument($this->getClient(), $document);
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
 
 			$this->updateNewIndexResult(
@@ -243,7 +244,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 //		$index = $document->getIndex();
 //		$index->unsetStatus(Index::INDEX_CONTENT);
 
-		return $this->indexService->indexDocument($this->client, $document);
+		return $this->indexService->indexDocument($this->getClient(), $document);
 	}
 
 
@@ -283,10 +284,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	private function parseIndexErrorException(Exception $e): array {
 		$arr = json_decode($e->getMessage(), true);
 		if (!is_array($arr)) {
-
-
-			//
-
 			return ['error', 'unknown error', ''];
 		}
 
@@ -344,7 +341,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	public function deleteIndexes(array $indexes) {
 		foreach ($indexes as $index) {
 			try {
-				$this->indexService->deleteIndex($this->client, $index);
+				$this->indexService->deleteIndex($this->getClient(), $index);
 				$this->updateNewIndexResult($index, 'index deleted', 'success', IRunner::RESULT_TYPE_SUCCESS);
 			} catch (Exception $e) {
 				$this->updateNewIndexResult(
@@ -360,7 +357,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws Exception
 	 */
 	public function searchRequest(ISearchResult $result, IDocumentAccess $access) {
-		$this->searchService->searchRequest($this->client, $result, $access);
+		$this->searchService->searchRequest($this->getClient(), $result, $access);
 	}
 
 
@@ -372,7 +369,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws ConfigurationException
 	 */
 	public function getDocument(string $providerId, string $documentId): IIndexDocument {
-		return $this->searchService->getDocument($this->client, $providerId, $documentId);
+		return $this->searchService->getDocument($this->getClient(), $providerId, $documentId);
 	}
 
 
@@ -459,4 +456,15 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	}
 
 
+	/**
+	 * @return Client
+	 * @throws ClientException
+	 */
+	private function getClient(): Client {
+		if ($this->client === null) {
+			throw new ClientException('platform not loaded');
+		}
+
+		return $this->client;
+	}
 }
