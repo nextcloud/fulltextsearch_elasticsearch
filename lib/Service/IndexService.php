@@ -38,13 +38,15 @@ use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IIndexDocument;
+use Psr\Log\LoggerInterface;
 
 class IndexService {
 
 	use TArrayTools;
 
 	public function __construct(
-		private IndexMappingService $indexMappingService
+		private IndexMappingService $indexMappingService,
+		private LoggerInterface $logger
 	) {
 	}
 
@@ -79,7 +81,6 @@ class IndexService {
 	 * @throws ServerResponseException
 	 */
 	public function initializeIndex(Client $client): void {
-		$client->indices();
 		try {
 			if ($client->indices()
 					   ->exists($this->indexMappingService->generateGlobalMap(false))
@@ -87,12 +88,14 @@ class IndexService {
 				return;
 			}
 		} catch (ClientResponseException $e) {
+			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 		}
 
 		try {
 			$client->indices()
 				   ->create($this->indexMappingService->generateGlobalMap());
 		} catch (ClientResponseException $e) {
+			$this->logger->notice('reset index all', ['exception' => $e]);
 			$this->resetIndexAll($client);
 		}
 
@@ -100,6 +103,7 @@ class IndexService {
 			$client->ingest()
 				   ->putPipeline($this->indexMappingService->generateGlobalIngest());
 		} catch (ClientResponseException $e) {
+			$this->logger->notice('reset index all', ['exception' => $e]);
 			$this->resetIndexAll($client);
 		}
 	}
@@ -115,7 +119,7 @@ class IndexService {
 		try {
 			$client->deleteByQuery($this->indexMappingService->generateDeleteQuery($providerId));
 		} catch (ClientResponseException $e) {
-			/** we do nothin' */
+			$this->logger->notice('reset index all', ['exception' => $e]);
 		}
 	}
 
@@ -132,12 +136,14 @@ class IndexService {
 			$client->ingest()
 				   ->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
 		} catch (ClientResponseException $e) {
+			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 		}
 
 		try {
 			$client->indices()
 				   ->delete($this->indexMappingService->generateGlobalMap(false));
 		} catch (ClientResponseException $e) {
+			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 		}
 	}
 
