@@ -1,6 +1,6 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 
 /**
  * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
@@ -27,57 +27,17 @@ declare(strict_types=1);
  *
  */
 
-
 namespace OCA\FullTextSearch_Elasticsearch\Settings;
-
 
 use Exception;
 use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
-use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
-use OCA\FullTextSearch_Elasticsearch\Service\MiscService;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\IL10N;
-use OCP\IURLGenerator;
 use OCP\Settings\ISettings;
 
-
-/**
- * Class Admin
- *
- * @package OCA\FullTextSearch_Elasticsearch\Settings
- */
 class Admin implements ISettings {
 
-
-	/** @var IL10N */
-	private $l10n;
-
-	/** @var IURLGenerator */
-	private $urlGenerator;
-
-	/** @var ConfigService */
-	private $configService;
-
-	/** @var MiscService */
-	private $miscService;
-
-
-	/**
-	 * @param IL10N $l10n
-	 * @param IURLGenerator $urlGenerator
-	 * @param ConfigService $configService
-	 * @param MiscService $miscService
-	 */
-	public function __construct(
-		IL10N $l10n, IURLGenerator $urlGenerator, ConfigService $configService,
-		MiscService $miscService
-	) {
-		$this->l10n = $l10n;
-		$this->urlGenerator = $urlGenerator;
-		$this->configService = $configService;
-		$this->miscService = $miscService;
+	public function __construct() {
 	}
-
 
 	/**
 	 * @return TemplateResponse
@@ -87,14 +47,12 @@ class Admin implements ISettings {
 		return new TemplateResponse(Application::APP_NAME, 'settings.admin', []);
 	}
 
-
 	/**
 	 * @return string the section ID, e.g. 'sharing'
 	 */
 	public function getSection(): string {
 		return 'fulltextsearch';
 	}
-
 
 	/**
 	 * @return int whether the form should be rather on the top or bottom of
@@ -106,6 +64,4 @@ class Admin implements ISettings {
 	public function getPriority(): int {
 		return 31;
 	}
-
-
 }

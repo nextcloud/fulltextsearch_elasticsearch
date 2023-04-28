@@ -1,6 +1,6 @@
 <?php
-declare(strict_types=1);
 
+declare(strict_types=1);
 
 /**
  * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
@@ -27,45 +27,24 @@ declare(strict_types=1);
  *
  */
 
-
 namespace OCA\FullTextSearch_Elasticsearch\Command;
-
 
 use Exception;
 use OC\Core\Command\Base;
+use OCA\CloudFederationAPI\Config;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
-/**
- * Class Configure
- *
- * @package OCA\FullTextSearch_Elasticsearch\Command
- */
 class Configure extends Base {
 
-
-	/** @var ConfigService */
-	private $configService;
-
-
-	/**
-	 * Configure constructor.
-	 *
-	 * @param ConfigService $configService
-	 */
-	public function __construct(ConfigService $configService) {
+	public function __construct(
+		private ConfigService $configService
+	) {
 		parent::__construct();
-
-		$this->configService = $configService;
 	}
 
-
-	/**
-	 *
-	 */
 	protected function configure() {
 		parent::configure();
 		$this->setName('fulltextsearch_elasticsearch:configure')
@@ -73,20 +52,19 @@ class Configure extends Base {
 			 ->setDescription('Configure the installation');
 	}
 
-
 	/**
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
 	 *
-	 * @throws Exception
 	 * @return Integer
+	 * @throws Exception
 	 */
-	protected function execute(InputInterface $input, OutputInterface $output) {
+	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$json = $input->getArgument('json');
 
 		$config = json_decode($json, true);
 
-		if ($config === null) {
+		if (!is_array($config)) {
 			$output->writeln('Invalid JSON');
 
 			return 1;
@@ -94,15 +72,14 @@ class Configure extends Base {
 
 		$ak = array_keys($config);
 		foreach ($ak as $k) {
-			if (array_key_exists($k, $this->configService->defaults)) {
+			if (array_key_exists($k, ConfigService::$defaults)) {
 				$this->configService->setAppValue($k, $config[$k]);
 			}
 		}
 
 		$output->writeln(json_encode($this->configService->getConfig(), JSON_PRETTY_PRINT));
+
 		return 0;
 	}
-
-
 }
 

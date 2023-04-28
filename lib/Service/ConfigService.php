@@ -34,8 +34,6 @@ namespace OCA\FullTextSearch_Elasticsearch\Service;
 use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCP\IConfig;
-use OCP\PreConditionNotMetException;
-use OCP\Util;
 
 
 /**
@@ -45,44 +43,23 @@ use OCP\Util;
  */
 class ConfigService {
 
-
 	const FIELDS_LIMIT = 'fields_limit';
 	const ELASTIC_HOST = 'elastic_host';
 	const ELASTIC_INDEX = 'elastic_index';
 	const ELASTIC_VER_BELOW66 = 'es_ver_below66';
 	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
 
-
-	public $defaults = [
-		self::ELASTIC_HOST        => '',
-		self::ELASTIC_INDEX       => '',
-		self::FIELDS_LIMIT        => '10000',
+	public static array $defaults = [
+		self::ELASTIC_HOST => '',
+		self::ELASTIC_INDEX => '',
+		self::FIELDS_LIMIT => '10000',
 		self::ELASTIC_VER_BELOW66 => '0',
-		self::ANALYZER_TOKENIZER  => 'standard'
+		self::ANALYZER_TOKENIZER => 'standard'
 	];
 
-
-	/** @var IConfig */
-	private $config;
-
-	/** @var string */
-	private $userId;
-
-	/** @var MiscService */
-	private $miscService;
-
-
-	/**
-	 * ConfigService constructor.
-	 *
-	 * @param IConfig $config
-	 * @param string $userId
-	 * @param MiscService $miscService
-	 */
-	public function __construct(IConfig $config, $userId, MiscService $miscService) {
-		$this->config = $config;
-		$this->userId = $userId;
-		$this->miscService = $miscService;
+	public function __construct(
+		private IConfig $config
+	) {
 	}
 
 
@@ -90,7 +67,7 @@ class ConfigService {
 	 * @return array
 	 */
 	public function getConfig(): array {
-		$keys = array_keys($this->defaults);
+		$keys = array_keys(self::$defaults);
 		$data = [];
 
 		foreach ($keys as $k) {
@@ -105,7 +82,7 @@ class ConfigService {
 	 * @param array $save
 	 */
 	public function setConfig(array $save) {
-		$keys = array_keys($this->defaults);
+		$keys = array_keys(self::$defaults);
 
 		foreach ($keys as $k) {
 			if (array_key_exists($k, $save)) {
@@ -120,7 +97,6 @@ class ConfigService {
 	 * @throws ConfigurationException
 	 */
 	public function getElasticHost(): array {
-
 		$strHost = $this->getAppValue(self::ELASTIC_HOST);
 		if ($strHost === '') {
 			throw new ConfigurationException(
@@ -160,8 +136,8 @@ class ConfigService {
 	 */
 	public function getAppValue(string $key): string {
 		$defaultValue = null;
-		if (array_key_exists($key, $this->defaults)) {
-			$defaultValue = $this->defaults[$key];
+		if (array_key_exists($key, self::$defaults)) {
+			$defaultValue = self::$defaults[$key];
 		}
 
 		return $this->config->getAppValue(Application::APP_NAME, $key, $defaultValue);
@@ -189,69 +165,14 @@ class ConfigService {
 	}
 
 	/**
-	 * Get a user value by key
+	 * TODO: check json sent by admin front-end are valid.
 	 *
-	 * @param string $key
+	 * @param array $data
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	public function getUserValue(string $key): string {
-		$defaultValue = null;
-		if (array_key_exists($key, $this->defaults)) {
-			$defaultValue = $this->defaults[$key];
-		}
-
-		return $this->config->getUserValue(
-			$this->userId, Application::APP_NAME, $key, $defaultValue
-		);
+	public function checkConfig(array $data): bool {
+		return true;
 	}
-
-	/**
-	 * Set a user value by key
-	 *
-	 * @param string $key
-	 * @param string $value
-	 *
-	 * @throws PreConditionNotMetException
-	 */
-	public function setUserValue(string $key, string $value) {
-		$this->config->setUserValue($this->userId, Application::APP_NAME, $key, $value);
-	}
-
-	/**
-	 * Get a user value by key and user
-	 *
-	 * @param string $userId
-	 * @param string $key
-	 *
-	 * @return string
-	 */
-	public function getValueForUser(string $userId, string $key): string {
-		return $this->config->getUserValue($userId, Application::APP_NAME, $key);
-	}
-
-	/**
-	 * Set a user value by key
-	 *
-	 * @param string $userId
-	 * @param string $key
-	 * @param string $value
-	 *
-	 * @throws PreConditionNotMetException
-	 */
-	public function setValueForUser($userId, $key, $value) {
-		$this->config->setUserValue($userId, Application::APP_NAME, $key, $value);
-	}
-
-
-	/**
-	 * @return int
-	 */
-	public function getNcVersion(): int {
-		$ver = Util::getVersion();
-
-		return $ver[0];
-	}
-
 }
 
