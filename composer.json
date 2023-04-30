@@ -9,6 +9,9 @@
     "autoloader-suffix": "FullTextSearch_Elasticsearch",
     "allow-plugins": {
       "php-http/discovery": false
+    },
+    "platform": {
+      "php": "8.0"
     }
   },
   "authors": [
