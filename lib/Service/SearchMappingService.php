@@ -311,11 +311,11 @@ class SearchMappingService {
 		$query[] = ['term' => ['users' => '__all']];
 
 		foreach ($access->getGroups() as $group) {
-			$query[] = ['term' => ['groups' => $group]];
+			$query[] = ['term' => ['groups' => strtolower($group)]];
 		}
 
 		foreach ($access->getCircles() as $circle) {
-			$query[] = ['term' => ['circles' => $circle]];
+			$query[] = ['term' => ['circles' => strtolower($circle)]];
 		}
 
 		return $query;
