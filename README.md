@@ -8,7 +8,7 @@ It allows you to index your content into an Elasticsearch platform.
 
 ## Compatibility
 
-- This app is currently only compatible with Elasticsearch 7
+- As of version 26.0.0 this app is only compatible with Elasticsearch 8
 
 
 ### Documentation

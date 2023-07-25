@@ -5,12 +5,11 @@
 
 - compat nc27
 
-
 ### 26.0.0
 
+- BREAKING CHANGE: drop support for es7
 - compat nc26
 - compat es8
-
 
 ### 25.0.0
 
