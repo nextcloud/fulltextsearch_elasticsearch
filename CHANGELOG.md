@@ -1,5 +1,9 @@
 # Changelog
 
+### 26.0.1
+
+- keywords are lowercase
+
 ### 26.0.0
 
 - compat nc26
