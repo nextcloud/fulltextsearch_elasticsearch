@@ -1,5 +1,9 @@
 # Changelog
 
+### 25.0.1
+
+- keywords are lowercase
+
 ### 24.0.1
 
 - improved search performance
