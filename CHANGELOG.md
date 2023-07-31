@@ -1,5 +1,8 @@
 # Changelog
 
+### 27.0.1
+
+- keywords are lowercase
 
 ### 27.0.0
 
