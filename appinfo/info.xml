@@ -10,7 +10,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>27.0.1</version>
+	<version>28.0.0-alpha0</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullTextSearch_Elasticsearch</namespace>
@@ -23,7 +23,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 	<repository>https://github.com/nextcloud/fulltextsearch_elasticsearch.git</repository>
 	<screenshot>https://raw.githubusercontent.com/nextcloud/fulltextsearch/master/screenshots/0.3.0.png</screenshot>
 	<dependencies>
-		<nextcloud min-version="27" max-version="27"/>
+		<nextcloud min-version="28" max-version="28"/>
 	</dependencies>
 
 	<commands>
