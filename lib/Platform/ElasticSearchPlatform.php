@@ -390,10 +390,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		try {
 			$hosts = array_map([$this, 'cleanHost'], $hosts);
+			[$user, $pass] = $this->getBasicAuth($hosts);
 			$cb = ClientBuilder::create()
 							   ->setHosts($hosts)
-							   ->setRetries(3);
-
+							   ->setRetries(3)
+							   ->setBasicAuthentication($user, $pass);
 			$this->client = $cb->build();
 
 //		}
@@ -409,6 +410,22 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		}
 	}
 
+	/**
+	 * @param array $hosts
+	 */
+	private function getBasicAuth(array $hosts) {
+		foreach ($hosts as $host) {
+			$parts = parse_url($host);
+			// We assume that the user/pass combination is the same in all the hosts 
+			// because ElasticSearch requires all hosts to have the same user/pass. So
+			// take the first entry which contains both user and pass.
+			if (isset($parts['user']) && isset($parts['pass'])) {
+				return [$parts['user'], $parts['pass']];
+			}
+		}
+
+		return [null, null];
+	}
 
 	/**
 	 * @param string $action
