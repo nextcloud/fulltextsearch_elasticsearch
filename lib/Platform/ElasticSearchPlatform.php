@@ -31,8 +31,8 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
-use Elastic\Elasticsearch\ClientBuilder;
 use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\ClientBuilder;
 use Exception;
 use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
@@ -131,11 +131,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws Exception
 	 */
 	public function loadPlatform() {
-		try {
-			$this->connectToElastic($this->configService->getElasticHost());
-		} catch (ConfigurationException $e) {
-			throw $e;
-		}
+		$this->connectToElastic($this->configService->getElasticHost());
 	}
 
 
@@ -386,46 +382,31 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws Exception
 	 */
-	private function connectToElastic(array $hosts) {
+	private function connectToElastic(array $hosts): void {
+		$hosts = array_map([$this, 'cleanHost'], $hosts);
+		$cb = ClientBuilder::create()
+			->setHosts($hosts)
+			->setRetries(3);
+		$this->configureAuthentication($cb, $hosts);
 
-		try {
-			$hosts = array_map([$this, 'cleanHost'], $hosts);
-			[$user, $pass] = $this->getBasicAuth($hosts);
-			$cb = ClientBuilder::create()
-							   ->setHosts($hosts)
-							   ->setRetries(3)
-							   ->setBasicAuthentication($user, $pass);
-			$this->client = $cb->build();
-
-//		}
-//		catch (CouldNotConnectToHost $e) {
-//			$this 'CouldNotConnectToHost';
-//			$previous = $e->getPrevious();
-//			if ($previous instanceof MaxRetriesException) {
-//				echo "Max retries!";
-//			}
-		} catch (Exception $e) {
-			throw $e;
-//			echo ' ElasticSearchPlatform::load() Exception --- ' . $e->getMessage() . "\n";
-		}
+		$this->client = $cb->build();
 	}
 
 	/**
-	 * @param array $hosts
+	 * setBasicAuthentication() on ClientBuilder if available, using list of hosts
 	 */
-	private function getBasicAuth(array $hosts) {
+	private function configureAuthentication(ClientBuilder $cb, array $hosts): void {
 		foreach ($hosts as $host) {
-			$parts = parse_url($host);
-			// We assume that the user/pass combination is the same in all the hosts 
-			// because ElasticSearch requires all hosts to have the same user/pass. So
-			// take the first entry which contains both user and pass.
-			if (isset($parts['user']) && isset($parts['pass'])) {
-				return [$parts['user'], $parts['pass']];
+			$user = parse_url($host, PHP_URL_USER) ?? '';
+			$pass = parse_url($host, PHP_URL_PASS) ?? '';
+
+			if ($user !== '' || $pass !== '') {
+				$cb->setBasicAuthentication($user, $pass);
+				return;
 			}
 		}
-
-		return [null, null];
 	}
+
 
 	/**
 	 * @param string $action
