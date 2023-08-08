@@ -1,5 +1,9 @@
 # Changelog
 
+### 27.0.2
+
+- fix authentication on password protected ES
+
 ### 27.0.1
 
 - keywords are lowercase
