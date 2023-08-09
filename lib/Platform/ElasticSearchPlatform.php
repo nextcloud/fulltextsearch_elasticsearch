@@ -387,6 +387,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$cb = ClientBuilder::create()
 			->setHosts($hosts)
 			->setRetries(3);
+
+		$cb->setSSLVerification(!$this->configService->getAppValueBool(ConfigService::ALLOW_SELF_SIGNED_CERT));
 		$this->configureAuthentication($cb, $hosts);
 
 		$this->client = $cb->build();
