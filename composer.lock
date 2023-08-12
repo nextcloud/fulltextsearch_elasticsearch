@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "34ccf3dd55572ed810e92d051ec26833",
+    "content-hash": "c97edec80b0dd724fcb148d1b8a3ebab",
     "packages": [
         {
             "name": "elastic/transport",
@@ -59,16 +59,16 @@
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v8.8.2",
+            "version": "v8.9.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:elastic/elasticsearch-php.git",
-                "reference": "d249dcd6b6740ed39d89d7f16d59fadbefceef49"
+                "reference": "cbde0731140e1d6c4453fe8c41888fcdac426ddd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/d249dcd6b6740ed39d89d7f16d59fadbefceef49",
-                "reference": "d249dcd6b6740ed39d89d7f16d59fadbefceef49",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/cbde0731140e1d6c4453fe8c41888fcdac426ddd",
+                "reference": "cbde0731140e1d6c4453fe8c41888fcdac426ddd",
                 "shasum": ""
             },
             "require": {
@@ -76,7 +76,7 @@
                 "guzzlehttp/guzzle": "^7.0",
                 "php": "^7.4 || ^8.0",
                 "psr/http-client": "^1.0",
-                "psr/http-message": "^1.0 || ^2.0",
+                "psr/http-message": "^1.1 || ^2.0",
                 "psr/log": "^1|^2|^3"
             },
             "require-dev": {
@@ -108,7 +108,7 @@
                 "elasticsearch",
                 "search"
             ],
-            "time": "2023-06-08T07:57:43+00:00"
+            "time": "2023-08-07T14:53:59+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
