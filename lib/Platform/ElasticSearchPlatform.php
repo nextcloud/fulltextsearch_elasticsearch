@@ -48,7 +48,7 @@ use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\IRunner;
 use OCP\FullTextSearch\Model\ISearchResult;
-
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ElasticSearchPlatform
@@ -67,6 +67,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		private ConfigService $configService,
 		private IndexService $indexService,
 		private SearchService $searchService,
+		private LoggerInterface $logger,
 	) {
 	}
 
@@ -386,7 +387,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$hosts = array_map([$this, 'cleanHost'], $hosts);
 		$cb = ClientBuilder::create()
 			->setHosts($hosts)
-			->setRetries(3);
+			->setRetries(3)
+			->setLogger($this->logger);
 
 		$cb->setSSLVerification(!$this->configService->getAppValueBool(ConfigService::ALLOW_SELF_SIGNED_CERT));
 		$this->configureAuthentication($cb, $hosts);
