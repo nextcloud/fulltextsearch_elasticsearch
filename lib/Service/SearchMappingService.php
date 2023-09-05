@@ -306,8 +306,8 @@ class SearchMappingService {
 	 */
 	private function generateSearchQueryAccess(IDocumentAccess $access): array {
 		$query = [];
-		$query[] = ['term' => ['owner' => $access->getViewerId()]];
-		$query[] = ['term' => ['users' => $access->getViewerId()]];
+		$query[] = ['term' => ['owner' => strtolower($access->getViewerId())]];
+		$query[] = ['term' => ['users' => strtolower($access->getViewerId())]];
 		$query[] = ['term' => ['users' => '__all']];
 
 		foreach ($access->getGroups() as $group) {
