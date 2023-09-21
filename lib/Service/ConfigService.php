@@ -142,7 +142,10 @@ class ConfigService {
 			$defaultValue = self::$defaults[$key];
 		}
 
-		return $this->config->getAppValue(Application::APP_NAME, $key, $defaultValue);
+		return $this->config->getSystemValueString(
+			Application::APP_NAME . '.' . $key,
+			$this->config->getAppValue(Application::APP_NAME, $key, $defaultValue)
+		);
 	}
 
 
