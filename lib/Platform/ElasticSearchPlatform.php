@@ -33,6 +33,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
+use Elastic\Transport\Exception\NoNodeAvailableException;
 use Exception;
 use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
@@ -186,8 +187,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	public function indexDocument(IIndexDocument $document): IIndex {
 		$document->initHash();
-
-		$index = null;
 		try {
 			$result = $this->indexService->indexDocument($this->getClient(), $document);
 			$index = $this->indexService->parseIndexResult($document->getIndex(), $result);
@@ -198,6 +197,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			);
 
 			return $index;
+		} catch (NoNodeAvailableException $e) {
+			// replace with \OCP\FullTextSearch\Exceptions\PlatformTemporaryException for version 28.
+			throw new \OCA\FullTextSearch\Exceptions\PlatformTemporaryException();
 		} catch (Exception $e) {
 			$this->manageIndexErrorException($document, $e);
 		}
