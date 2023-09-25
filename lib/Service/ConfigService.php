@@ -47,6 +47,7 @@ class ConfigService {
 	const ELASTIC_HOST = 'elastic_host';
 	const ELASTIC_INDEX = 'elastic_index';
 	const ELASTIC_VER_BELOW66 = 'es_ver_below66';
+	const ELASTIC_LOGGER_ENABLED = 'elastic_logger_enabled';
 	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
 	const ALLOW_SELF_SIGNED_CERT = 'allow_self_signed_cert';
 
@@ -55,6 +56,7 @@ class ConfigService {
 		self::ELASTIC_INDEX => '',
 		self::FIELDS_LIMIT => '10000',
 		self::ELASTIC_VER_BELOW66 => '0',
+		self::ELASTIC_LOGGER_ENABLED => true,
 		self::ANALYZER_TOKENIZER => 'standard',
 		self::ALLOW_SELF_SIGNED_CERT => 'false'
 	];
