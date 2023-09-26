@@ -1,5 +1,13 @@
 # Changelog
 
+### 26.0.3
+
+- fix an issue with username and group name (community fix)
+- config key 'allow_self_signed_cert' (default=false)
+- config key 'elastic_logger_enabled' (default=true)
+- better management of failures because nodes are not available
+- prioritize system config to app config
+
 ### 26.0.2
 
 - fix authentication on password protected ES
