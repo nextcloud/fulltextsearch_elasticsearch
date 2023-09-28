@@ -146,7 +146,7 @@ class ConfigService {
 
 		return $this->config->getSystemValueString(
 			Application::APP_NAME . '.' . $key,
-			$this->config->getAppValue(Application::APP_NAME, $key, $defaultValue)
+			(string)$this->config->getAppValue(Application::APP_NAME, $key, $defaultValue)
 		);
 	}
 
