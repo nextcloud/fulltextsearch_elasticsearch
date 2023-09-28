@@ -1,5 +1,9 @@
 # Changelog
 
+### 27.0.4
+
+- fix an issue with freshly integrated new config flag
+
 ### 27.0.3
 
 - fix an issue with username and group name (community fix)
