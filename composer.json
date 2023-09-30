@@ -26,7 +26,7 @@
     }
   },
   "require": {
-    "elasticsearch/elasticsearch": "8.8.2"
+    "elasticsearch/elasticsearch": "8.10.0"
   },
   "replace": {
     "psr/log": "*"
