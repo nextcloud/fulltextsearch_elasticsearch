@@ -1,5 +1,9 @@
 # Changelog
 
+### 28.0.0
+
+- update composer packages
+
 ### 27.0.1
 
 - keywords are lowercase
