@@ -1,5 +1,9 @@
 # Changelog
 
+### 27.0.5
+
+- update composer packages
+
 ### 27.0.4
 
 - fix an issue with freshly integrated new config flag
