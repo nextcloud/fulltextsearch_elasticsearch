@@ -26,9 +26,10 @@
     }
   },
   "require": {
-    "elasticsearch/elasticsearch": "8.8.2"
+    "elasticsearch/elasticsearch": "^8.11"
   },
   "replace": {
-    "psr/log": "*"
+    "psr/log": "*",
+    "guzzlehttp/guzzle": "*"
   }
 }
