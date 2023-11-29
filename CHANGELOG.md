@@ -1,5 +1,9 @@
 # Changelog
 
+### 26.0.5
+
+- update composer packages
+
 ### 26.0.4
 
 - fix an issue with freshly integrated new config flag
