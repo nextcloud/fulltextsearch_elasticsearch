@@ -12,4 +12,4 @@ OC.L10N.register(
     "[Advanced] Analyzer tokenizer" : "[מתקדם] ניתוח השמת אסימונים",
     "Some language might needs a specific tokenizer." : "חלק מהשפות צריכות השמת אסימונים מותאמת. "
 },
-"nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;");
+"nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;");
