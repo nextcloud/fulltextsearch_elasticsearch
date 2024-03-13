@@ -1,5 +1,9 @@
 # Changelog
 
+### 27.0.6
+
+- fix composer packages conflict
+
 ### 27.0.5
 
 - update composer packages
