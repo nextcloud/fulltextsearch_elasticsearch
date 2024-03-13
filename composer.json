@@ -26,6 +26,7 @@
     }
   },
   "require": {
+    "psr/http-message": "^1.1",
     "elasticsearch/elasticsearch": "^8.11"
   },
   "replace": {
