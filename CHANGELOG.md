@@ -1,5 +1,9 @@
 # Changelog
 
+### 28.0.1
+
+- fix composer packages conflict
+
 ### 28.0.0
 
 - update composer packages
