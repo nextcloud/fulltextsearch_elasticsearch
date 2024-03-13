@@ -1,5 +1,9 @@
 # Changelog
 
+### 26.0.6
+
+- fix composer packages conflict
+
 ### 26.0.5
 
 - update composer packages
