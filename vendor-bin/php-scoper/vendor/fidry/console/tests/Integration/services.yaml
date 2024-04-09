@@ -1,0 +1,14 @@
+framework:
+    secret: 'e6bd98c41c9f2868471cc94c7443c9d4'
+    test: true
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Fidry\Console\Tests\Command\Fixture\:
+        resource: '../Command/Fixture'
+
+    Fidry\Console\Tests\StatefulService:
+        public: true

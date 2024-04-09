@@ -90,6 +90,8 @@ appstore: clean composer
 	--exclude=/README.md \
 	--exclude=/composer.json \
 	--exclude=/testConfiguration.json \
+	--exclude=/vendor \
+	--exclude=/vendor-bin \
 	--exclude=/composer.lock \
 	--exclude=/.gitattributes \
 	--exclude=/.gitignore \
