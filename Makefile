@@ -95,6 +95,8 @@ appstore: clean composer
 	--exclude=/lib-vendor-organizer.php \
 	--exclude=/scoper.inc.php \
 	--exclude=/testConfiguration.json \
+	--exclude=/vendor \
+	--exclude=/vendor-bin \
 	--exclude=/composer.lock \
 	--exclude=/.gitattributes \
 	--exclude=/.gitignore \
