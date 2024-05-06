@@ -1,0 +1,18 @@
+build:
+    environment:
+        variables:
+            COMPOSER_ROOT_VERSION: '0.16.99'
+
+    nodes:
+        analysis:
+            tests:
+                override:
+                    - php-scrutinizer-run
+
+    tests:
+        override:
+            -
+                command: 'phpdbg -qrr bin/phpunit --coverage-clover=coverage.clover --exclude-group=integration'
+                coverage:
+                    file: 'coverage.clover'
+                    format: 'clover'

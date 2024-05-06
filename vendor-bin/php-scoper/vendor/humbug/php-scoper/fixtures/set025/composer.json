@@ -1,0 +1,5 @@
+{
+    "require": {
+        "nikic/iter": "^2.0"
+    }
+}
