@@ -31,9 +31,9 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
-use Elastic\Elasticsearch\Client;
-use Elastic\Elasticsearch\ClientBuilder;
-use Elastic\Transport\Exception\NoNodeAvailableException;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientBuilder;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
 use Exception;
 use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
@@ -392,7 +392,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			->setRetries(3);
 
 		if ($this->configService->getAppValueBool(ConfigService::ELASTIC_LOGGER_ENABLED)) {
-			$cb->setLogger($this->logger);
+//			$cb->setLogger($this->logger);
 		}
 
 		$cb->setSSLVerification(!$this->configService->getAppValueBool(ConfigService::ALLOW_SELF_SIGNED_CERT));
