@@ -10,6 +10,7 @@ OC.L10N.register(
     "Index" : "索引",
     "Name of your index." : "您索引的名稱。",
     "[Advanced] Analyzer tokenizer" : "[進階] 分析器 token 生成器",
-    "Some language might needs a specific tokenizer." : "某些語言可能需要特定的 tokenizer。"
+    "Some language might needs a specific tokenizer." : "某些語言可能需要特定的 tokenizer。",
+    "_" : "_"
 },
 "nplurals=1; plural=0;");

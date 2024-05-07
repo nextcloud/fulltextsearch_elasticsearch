@@ -7,6 +7,7 @@ OC.L10N.register(
     "Address of the Servlet" : "Servletin osoite",
     "Include your credential in case authentication is required." : "Sisällytä tunnistustiedot, jos tunnistautuminen vaaditaan.",
     "Index" : "Indeksi",
-    "Name of your index." : "Indeksin nimi."
+    "Name of your index." : "Indeksin nimi.",
+    "_" : "_"
 },
 "nplurals=2; plural=(n != 1);");
