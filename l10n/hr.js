@@ -10,6 +10,7 @@ OC.L10N.register(
     "Index" : "Indeks",
     "Name of your index." : "Naziv vašeg indeksa.",
     "[Advanced] Analyzer tokenizer" : "[Napredno] Tokenizator analizator",
-    "Some language might needs a specific tokenizer." : "Neki će jezik možda trebati određeni tokenizator."
+    "Some language might needs a specific tokenizer." : "Neki će jezik možda trebati određeni tokenizator.",
+    "_" : "_"
 },
 "nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;");
