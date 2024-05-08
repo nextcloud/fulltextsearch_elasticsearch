@@ -8,7 +8,8 @@
     "classmap-authoritative": true,
     "autoloader-suffix": "FullTextSearch_Elasticsearch",
     "allow-plugins": {
-      "php-http/discovery": false
+      "php-http/discovery": false,
+      "bamarni/composer-bin-plugin": true
     },
     "platform": {
       "php": "8.0"

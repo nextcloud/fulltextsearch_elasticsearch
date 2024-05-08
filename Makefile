@@ -9,7 +9,7 @@ cert_dir=$(HOME)/.nextcloud/certificates
 github_account=nextcloud
 release_account=nextcloud-releases
 branch=master
-version=29.0.0-alpha0
+version=29.0.0
 since_tag=
 
 all: appstore
@@ -84,11 +84,16 @@ appstore: clean composer
 	--exclude=/tests \
 	--exclude=.git \
 	--exclude=/.github \
+	--exclude=/.idea \
 	--exclude=/l10n/l10n.pl \
 	--exclude=/CONTRIBUTING.md \
 	--exclude=/issue_template.md \
 	--exclude=/README.md \
 	--exclude=/composer.json \
+	--exclude=/vendor \
+	--exclude=/vendor-bin \
+	--exclude=/lib-vendor-organizer.php \
+	--exclude=/scoper.inc.php \
 	--exclude=/testConfiguration.json \
 	--exclude=/composer.lock \
 	--exclude=/.gitattributes \
