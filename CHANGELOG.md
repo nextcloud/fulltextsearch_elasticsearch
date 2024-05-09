@@ -1,5 +1,10 @@
 # Changelog
 
+### 29.0.0
+
+- static package
+- using keywords for circles/groups
+
 ### 28.0.0
 
 - update composer package
