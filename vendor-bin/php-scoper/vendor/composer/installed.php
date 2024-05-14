@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '2cc1891d51acbffc59367d8d35db5e7ed7125167',
+        'reference' => '46ca66bd0effcd4c7089cd6248c27e255cad1a89',
         'name' => '__root__',
         'dev' => true,
     ),
@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '2cc1891d51acbffc59367d8d35db5e7ed7125167',
+            'reference' => '46ca66bd0effcd4c7089cd6248c27e255cad1a89',
             'dev_requirement' => false,
         ),
         'composer/package-versions-deprecated' => array(

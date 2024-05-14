@@ -1,5 +1,9 @@
 # Changelog
 
+### 28.0.2
+
+- static package
+
 ### 28.0.1
 
 - fix composer packages conflict
