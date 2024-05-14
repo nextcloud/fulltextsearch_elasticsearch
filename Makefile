@@ -90,7 +90,6 @@ appstore: clean composer
 	--exclude=/issue_template.md \
 	--exclude=/README.md \
 	--exclude=/composer.json \
-	--exclude=/vendor \
 	--exclude=/vendor-bin \
 	--exclude=/lib-vendor-organizer.php \
 	--exclude=/scoper.inc.php \
