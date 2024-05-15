@@ -18,7 +18,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Response\Elast
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Transport;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 interface ClientInterface
 {
     /**
