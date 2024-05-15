@@ -21,8 +21,8 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Resurrect
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Selector\RoundRobin;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Psr18ClientDiscovery;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Log\LoggerInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Throwable;
 class TransportBuilder
 {
