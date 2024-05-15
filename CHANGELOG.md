@@ -1,5 +1,9 @@
 # Changelog
 
+### 29.0.1
+
+- using LoggerInterface from core
+
 ### 29.0.0
 
 - static package
