@@ -34,7 +34,7 @@ use Isolated\Symfony\Component\Finder\Finder;
 
 return [
 	'prefix' => 'OCA\\FullTextSearch_Elasticsearch\\Vendor',
-	'exclude-namespaces' => ['Composer'],
+	'exclude-namespaces' => ['Composer', 'Psr\Log'],
 	'finders' => [
 		Finder::create()->files()
 			  ->exclude([

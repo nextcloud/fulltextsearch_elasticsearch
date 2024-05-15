@@ -34,7 +34,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\NetworkExceptionInte
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\MessageInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 use function get_class;
 use function ini_get;
 use function json_encode;
