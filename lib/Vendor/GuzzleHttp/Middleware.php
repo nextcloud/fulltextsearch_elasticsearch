@@ -8,7 +8,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise as P;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise\PromiseInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 /**
  * Functions used to create and wrap handlers with handler middleware.
  */

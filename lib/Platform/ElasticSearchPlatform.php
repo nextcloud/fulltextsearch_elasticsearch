@@ -392,7 +392,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			->setRetries(3);
 
 		if ($this->configService->getAppValueBool(ConfigService::ELASTIC_LOGGER_ENABLED)) {
-//			$cb->setLogger($this->logger);
+			$cb->setLogger($this->logger);
 		}
 
 		$cb->setSSLVerification(!$this->configService->getAppValueBool(ConfigService::ALLOW_SELF_SIGNED_CERT));
