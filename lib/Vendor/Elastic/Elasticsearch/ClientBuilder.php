@@ -28,7 +28,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\TransportBuilder;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Client as GuzzleHttpClient;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\HttpAsyncClient;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Log\LoggerInterface;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 class ClientBuilder
 {
