@@ -11,6 +11,10 @@ OC.L10N.register(
     "Name of your index." : "Dizin adı.",
     "[Advanced] Analyzer tokenizer" : "[Gelişmiş] inceleyici kodlayıcı",
     "Some language might needs a specific tokenizer." : "Bazı diller için özel bir kodlayıcı gerekebilir.",
+    ">tbody" : ">tbody",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "object",
     "_" : "_"
 },
 "nplurals=2; plural=(n > 1);");
