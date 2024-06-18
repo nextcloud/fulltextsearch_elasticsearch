@@ -11,6 +11,10 @@ OC.L10N.register(
     "Name of your index." : "Nome do seu índice",
     "[Advanced] Analyzer tokenizer" : "[Avanzado] Analizador do xerador de testemuños",
     "Some language might needs a specific tokenizer." : "Algúns idiomas poden necesitar un xerador de testemuños específico.",
+    ">tbody" : ">tbody",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "obxecto",
     "_" : "_"
 },
 "nplurals=2; plural=(n != 1);");
