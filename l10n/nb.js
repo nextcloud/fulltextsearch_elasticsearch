@@ -11,6 +11,10 @@ OC.L10N.register(
     "Name of your index." : "Navnet på indeksen din.",
     "[Advanced] Analyzer tokenizer" : "[Avansert] Analyzer tokenizer",
     "Some language might needs a specific tokenizer." : "Noen språk kan trenge en spesifikk tokenizer.",
+    ">tbody" : ">tbody",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "objekt",
     "_" : "_"
 },
 "nplurals=2; plural=(n != 1);");
