@@ -61,7 +61,7 @@
     "elasticsearch/elasticsearch": "^8.11"
   },
   "require-dev": {
-    "nextcloud/ocp": "dev-master"
+    "nextcloud/ocp": "dev-stable30"
   },
   "autoload-dev": {
     "psr-4": {
