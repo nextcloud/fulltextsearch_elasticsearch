@@ -11,6 +11,10 @@ OC.L10N.register(
     "Name of your index." : "Zure aurkibidearen izena.",
     "[Advanced] Analyzer tokenizer" : "[Aurreratua] Analizatzailearen tokenizatzailea",
     "Some language might needs a specific tokenizer." : "Zenbait hizkuntza tokenizatzile zehatz bat baliteke behar izatea.",
+    ">tbody" : ">tbody",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "objektua",
     "_" : "_"
 },
 "nplurals=2; plural=(n != 1);");
