@@ -1,5 +1,17 @@
 # Changelog
 
+### 30.0.0
+
+- compat nc30
+
+### 29.0.1
+
+- migrate to LoggerInterface
+
+### 29.0.0
+
+- compat nc29
+
 ### 28.0.0
 
 - update composer package
