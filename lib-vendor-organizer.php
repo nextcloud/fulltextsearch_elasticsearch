@@ -35,43 +35,67 @@ foreach($organizationList as $organizationDir) {
 	}
 }
 
-$knownDestination = [];
+$destinations = array();
 foreach ($projectList as $projectDir) {
 	if (!file_exists($projectDir . 'composer.json')) {
 		continue;
 	}
 
 	$projectInfo = json_decode(file_get_contents($projectDir . 'composer.json'), true);
-	if (!isset($projectInfo['autoload']['psr-4'])) {
+    if (!isset($projectInfo['autoload']['psr-4'])) {
 		printf("No supported autoload configuration in %s" . PHP_EOL, $projectDir);
 		exit(2);
 	}
 	foreach ($projectInfo['autoload']['psr-4'] as $namespace => $codeDir) {
-		if ($stripNamespacePrefix !== '' && strpos($namespace, $stripNamespacePrefix) === 0) {
+		if ($stripNamespacePrefix !== '' && str_starts_with($namespace, $stripNamespacePrefix)) {
 			$namespace = str_replace($stripNamespacePrefix, '', $namespace);
 		}
 		$destination = rtrim($sourceDirectory, '/') . str_replace('\\', '/', $namespace);
+        $destinations = insertion_sort($destinations, [
+                "destination"=>$destination,
+                "codeDir"=>$codeDir,
+                "projectDir"=>$projectDir,
+        ]);
+    }
+}
 
-		if (!in_array($destination, $knownDestination)) {
-			if (file_exists($destination)) {
-				rmdir_recursive($destination);
-			}
-			mkdir($destination, 0777, true);
-			$knownDestination[] = $destination;
-		}
+foreach ($destinations as $item) {
+    $destination = $item["destination"];
+    $codeDir = $item["codeDir"];
+    $projectDir = $item["projectDir"];
 
-		if (!rename_or_move($projectDir . $codeDir, $destination)) {
-			printf("Failed to move %s to %s" . PHP_EOL, $projectDir . $codeDir, $destination);
-			exit(3);
-		}
-	}
+    if (file_exists($destination)) {
+        rmdir_recursive($destination);
+    }
+    mkdir($destination, 0777, true);
+
+    if (!rename_or_move($projectDir . $codeDir, $destination)) {
+        printf("Failed to move %s to %s" . PHP_EOL, $projectDir . $codeDir, $destination);
+        exit(3);
+    }
+}
+
+function insertion_sort($array, $element): array
+{
+    for($i = 0; $i < count($array); $i++) {
+        $compare = strcmp($array[$i]["destination"], $element["destination"]);
+        if($compare > 0) {
+            array_splice($array, $i, 0, [$element]);
+            return $array;
+        }else if($compare == 0){
+            return $array;
+        }
+    }
+    $array[] = $element;
+    return $array;
 }
 
 foreach($organizationList as $organizationDir) {
 	rmdir_recursive($organizationDir);
 }
 
-function rmdir_recursive($dir) {
+function rmdir_recursive($dir): void
+{
 	foreach(scandir($dir) as $file) {
 		if ('.' === $file || '..' === $file) {
 			continue;
