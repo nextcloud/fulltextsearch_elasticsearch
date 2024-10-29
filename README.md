@@ -1,3 +1,7 @@
+<!--
+  - SPDX-FileCopyrightText: 2017 Nextcloud GmbH and Nextcloud contributors
+  - SPDX-License-Identifier: AGPL-3.0-or-later
+-->
 # Full text search - Elasticsearch
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nextcloud/fulltextsearch_elasticsearch/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nextcloud/fulltextsearch_elasticsearch/?branch=master)
