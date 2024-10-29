@@ -1,0 +1,168 @@
+# SPDX-FileCopyrightText: 2024 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+version = 1
+SPDX-PackageName = "fulltextsearch_elasticsearch"
+SPDX-PackageSupplier = "Nextcloud <info@nextcloud.com>"
+SPDX-PackageDownloadLocation = "https://github.com/nextcloud/fulltextsearch_elasticsearch"
+
+[[annotations]]
+path = ["l10n/**.js", "l10n/**.json"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018 Nextcloud translators"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["composer.json", "composer.lock"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2017 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = [".tx/config"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/composer.json", "vendor-bin/php-scoper/composer.lock"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2024 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["img/ruler.svg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018-2024 Google LLC"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["lib/Vendor/Elastic/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Elasticsearch B.V <https://www.elastic.co>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor/GuzzleHttp/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Guzzle Http contributors <https://github.com/guzzle/guzzle>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor/Http/Client/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Guzzle Http contributors <https://github.com/php-http/httplug>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor/Http/Discovery/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "PHP HTTP contributors <https://github.com/php-http/discovery>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor/Http/Promise/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "PHP HTTP contributors <https://github.com/php-http/promise>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor/Psr/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "PHP Framework Interoperability Group <https://www.php-fig.org/>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/composer/**", "vendor-bin/php-scoper/vendor/autoload.php"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Nils Adermann, Jordi Boggiano"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/fidry/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021 Théo FIDRY <theo.fidry@gmail.com>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/humbug/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2017 Bernhard Schussek (pre-2017), Théo Fidry, Pádraic Brady"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/jetbrains/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "JetBrains s.r.o."
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/nikic/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2011 Nikita Popov"
+SPDX-License-Identifier = "BSD-3-Clause"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/psr/container**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2013-2016 container-interop, 2016 PHP Framework Interoperability Group <https://www.php-fig.org/>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/psr/event-dispatcher/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018 PHP Framework Interoperability Group <https://www.php-fig.org/>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/symfony/console/**", "vendor-bin/php-scoper/vendor/symfony/filesystem/**", "vendor-bin/php-scoper/vendor/symfony/finder/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2004 Fabien Potencier"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/symfony/polyfill-intl-grapheme/**", "vendor-bin/php-scoper/vendor/symfony/polyfill-intl-normalizer/**", "vendor-bin/php-scoper/vendor/symfony/polyfill-mbstring/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2015 Fabien Potencier"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/symfony/event-dispatcher-contracts/**", "vendor-bin/php-scoper/vendor/symfony/polyfill-ctype/**", "vendor-bin/php-scoper/vendor/symfony/service-contracts/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018 Fabien Potencier"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/symfony/string/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019 Fabien Potencier"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/symfony/deprecation-contracts/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Fabien Potencier"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/symfony/deprecation-contracts/**", "vendor-bin/php-scoper/vendor/symfony/polyfill-php80/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020 Fabien Potencier"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/symfony/polyfill-php81/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021 Fabien Potencier"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/thecodingmachine/safe/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018 TheCodingMachine"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["vendor-bin/php-scoper/vendor/webmozart/assert/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2014 Bernhard Schussek"
+SPDX-License-Identifier = "MIT"
