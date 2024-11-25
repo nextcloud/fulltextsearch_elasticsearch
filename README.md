@@ -12,8 +12,21 @@ OpenSearch: 1.0.0-2.x.x
 
 ### Documentation
 
+#### OpenSearch
+- install ingest-attachment e.g. `./bin/opensearch-plugin install ingest-attachment`
+- create a role with permissions
+    - cluster:
+      - cluster:monitor/main
+      - cluster:monitor/main
+    - index:
+      - index: NEXTCLOUD_INDEX*
+      
+        permissions: indices_all
+- create a user and assign the role
+
+#### Nextcloud
 - install `fulltextsearch` app
-- install `files_fulltestsearch` app
+- install `files_fulltextsearch` app
 - extract fulltextsearch_opensearch.tar.gz to your apps folder e.g. /var/www/apps
 - set file ownership e.g. `chown www-data:www-data /var/www/apps/fulltextsearch_opensearch -R`
 - enable the app in nextcloud
