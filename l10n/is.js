@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "Leit í öllum textanum - Elasticsearch-kerfið",
-    "Index using ElasticSearch" : "Gera atriðaskrá með ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Viðbót fyrir _Full text search_ forritið til að eiga samskipti við ElasticSearch.",
-    "Elastic Search" : "Teygjanleg leit",
+    "Full text search - OpenSearch Platform" : "Leit í öllum textanum - OpenSearch-kerfið",
+    "Index using OpenSearch" : "Gera atriðaskrá með OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Viðbót fyrir _Full text search_ forritið til að eiga samskipti við OpenSearch.",
+    "Open Search" : "Teygjanleg leit",
     "Address of the Servlet" : "Vistfang forritlingsins (servlet)",
     "Include your credential in case authentication is required." : "Hafðu með auðkennin þín ef auðkenningar verður krafist.",
     "Index" : "Atriðaskrá",

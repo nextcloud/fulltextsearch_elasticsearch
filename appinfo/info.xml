@@ -1,41 +1,41 @@
 <?xml version="1.0"?>
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-	<id>fulltextsearch_elasticsearch</id>
-	<name>Full text search - Elasticsearch Platform</name>
-	<summary>Index using ElasticSearch</summary>
+	<id>fulltextsearch_opensearch</id>
+	<name>Full text search - OpenSearch Platform</name>
+	<summary>Index using OpenSearch</summary>
 	<description><![CDATA[
 
-Extension to the _Full text search_ app to communicate with ElasticSearch.
+Extension to the _Full text search_ app to communicate with OpenSearch.
 
 ]]>
 	</description>
 	<version>31.0.0-dev.0</version>
 	<licence>agpl</licence>
-	<author>Maxence Lange</author>
-	<namespace>FullTextSearch_Elasticsearch</namespace>
+	<author>Armin Felder (forked from Maxence Lange)</author>
+	<namespace>FullTextSearch_OpenSearch</namespace>
 	<documentation>
-		<admin>https://github.com/nextcloud/fulltextsearch_elasticsearch/wiki</admin>
+		<admin>https://github.com/fairkom/nextcloud_opensearch</admin>
 	</documentation>
 	<category>search</category>
-	<website>https://github.com/nextcloud/fulltextsearch_elasticsearch</website>
-	<bugs>https://github.com/nextcloud/fulltextsearch_elasticsearch/issues</bugs>
-	<repository>https://github.com/nextcloud/fulltextsearch_elasticsearch.git</repository>
-	<screenshot>https://raw.githubusercontent.com/nextcloud/fulltextsearch/master/screenshots/0.3.0.png</screenshot>
+	<website>https://github.com/fairkom/nextcloud_opensearch</website>
+	<bugs>https://github.com/fairkom/nextcloud_opensearch/issues</bugs>
+	<repository>https://github.com/nextcloud/FullTextSearch_OpenSearch.git</repository>
+	<screenshot>https://raw.githubusercontent.com/fairkom/nextcloud_opensearch/master/screenshots/0.3.0.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="30" max-version="31"/>
 	</dependencies>
 
 	<commands>
-		<command>OCA\FullTextSearch_Elasticsearch\Command\Configure</command>
+		<command>OCA\FullTextSearch_OpenSearch\Command\Configure</command>
 	</commands>
 
 	<settings>
-		<admin>OCA\FullTextSearch_Elasticsearch\Settings\Admin</admin>
+		<admin>OCA\FullTextSearch_OpenSearch\Settings\Admin</admin>
 	</settings>
 
 	<fulltextsearch>
-		<platform>OCA\FullTextSearch_Elasticsearch\Platform\ElasticSearchPlatform</platform>
+		<platform>OCA\FullTextSearch_OpenSearch\Platform\OpenSearchPlatform</platform>
 	</fulltextsearch>
 
 </info>

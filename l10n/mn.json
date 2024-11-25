@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Бүрэн текст хайлт - Эластикхайлт Платформ",
-    "Index using ElasticSearch" : "ЭластикХайлт ашиглан индексжүүлэх",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "ЭластикХайлт -тай харилцах _Full text search_ аппын нэмэлт өргөтгөл.",
-    "Elastic Search" : "Эластик хайлт",
+    "Full text search - OpenSearch Platform" : "Бүрэн текст хайлт - Эластикхайлт Платформ",
+    "Index using OpenSearch" : "ЭластикХайлт ашиглан индексжүүлэх",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "ЭластикХайлт -тай харилцах _Full text search_ аппын нэмэлт өргөтгөл.",
+    "Open Search" : "Эластик хайлт",
     "Address of the Servlet" : "Servlet -н хаяг",
     "Include your credential in case authentication is required." : "Баталгаажуулалт шаардлагатай тохиолдолд мэдээллээ оруулна уу.",
     "Index" : "Индекс",

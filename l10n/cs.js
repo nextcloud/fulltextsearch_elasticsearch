@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "Plnotextové vyhledávání – platforma Elasticsearch",
-    "Index using ElasticSearch" : "Vytvořit rejstřík pomocí ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Rozšíření pro aplikaci _Plnotextové vyhledávání_ pro komunikaci s ElasticSearch.",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "Plnotextové vyhledávání – platforma OpenSearch",
+    "Index using OpenSearch" : "Vytvořit rejstřík pomocí OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Rozšíření pro aplikaci _Plnotextové vyhledávání_ pro komunikaci s OpenSearch.",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Adresa serverletu",
     "Include your credential in case authentication is required." : "V případě, že je požadováno ověření se, zadejte také přihlašovací údaje.",
     "Index" : "Rejstřík",

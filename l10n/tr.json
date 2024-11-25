@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Tam metin arama - ElasticSearch platformu",
-    "Index using ElasticSearch" : "ElasticSearch ile dizin oluşturulsun",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "ElasticSearch ile iletişim kuracak _Full text search_ uygulama eklentisi.",
-    "Elastic Search" : "Elastic search",
+    "Full text search - OpenSearch Platform" : "Tam metin arama - OpenSearch platformu",
+    "Index using OpenSearch" : "OpenSearch ile dizin oluşturulsun",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "OpenSearch ile iletişim kuracak _Full text search_ uygulama eklentisi.",
+    "Open Search" : "Open search",
     "Address of the Servlet" : "Sunucu kodunun adresi",
     "Include your credential in case authentication is required." : "Kimlik doğrulaması gerekiyorsa kimlik bilgilerinizi katın.",
     "Index" : "Dizin",

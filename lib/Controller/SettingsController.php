@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -27,11 +27,11 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FullTextSearch_Elasticsearch\Controller;
+namespace OCA\FullTextSearch_OpenSearch\Controller;
 
 use Exception;
-use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
-use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
+use OCA\FullTextSearch_OpenSearch\AppInfo\Application;
+use OCA\FullTextSearch_OpenSearch\Service\ConfigService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
@@ -41,7 +41,7 @@ use OCP\IRequest;
 /**
  * Class SettingsController
  *
- * @package OCA\FullTextSearch_Elasticsearch\Controller
+ * @package OCA\FullTextSearch_OpenSearch\Controller
  */
 class SettingsController extends Controller {
 

@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "全文搜尋 - Elasticsearch 平台",
-    "Index using ElasticSearch" : "使用 ElasticSearch 索引",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "_Full text search_ 應用程式的擴充元件，用來與 ElasticSearch 通訊。",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "全文搜尋 - OpenSearch 平台",
+    "Index using OpenSearch" : "使用 OpenSearch 索引",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "_Full text search_ 應用程式的擴充元件，用來與 OpenSearch 通訊。",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Servlet 的位置",
     "Include your credential in case authentication is required." : "如果需要身分驗證，請包含您的憑證。",
     "Index" : "索引",

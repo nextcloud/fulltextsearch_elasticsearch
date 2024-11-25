@@ -133,7 +133,7 @@ First stable release
 
 ### 0.99.0 Release Candidate
 
-- multi-host can be set as elasticsearch node in case of clustering.
+- multi-host can be set as opensearch node in case of clustering.
 
 ### 0.8.2
 

@@ -1,5 +1,5 @@
 /*
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -24,13 +24,13 @@
  */
 
 /** global: OC */
-/** global: elasticsearch_elements */
+/** global: opensearch_elements */
 /** global: fts_admin_settings */
 
 
 
 
-var elasticsearch_settings = {
+var opensearch_settings = {
 
 	config: null,
 
@@ -38,9 +38,9 @@ var elasticsearch_settings = {
 
 		$.ajax({
 			method: 'GET',
-			url: OC.generateUrl('/apps/fulltextsearch_elasticsearch/admin/settings')
+			url: OC.generateUrl('/apps/fulltextsearch_opensearch/admin/settings')
 		}).done(function (res) {
-			elasticsearch_settings.updateSettingPage(res);
+			opensearch_settings.updateSettingPage(res);
 		});
 
 	},
@@ -49,30 +49,30 @@ var elasticsearch_settings = {
 	/** @namespace result.elastic_index */
 	updateSettingPage: function (result) {
 
-		elasticsearch_elements.elasticsearch_host.val(result.elastic_host);
-		elasticsearch_elements.elasticsearch_index.val(result.elastic_index);
-		elasticsearch_elements.analyzer_tokenizer.val(result.analyzer_tokenizer);
+		opensearch_elements.opensearch_host.val(result.elastic_host);
+		opensearch_elements.opensearch_index.val(result.elastic_index);
+		opensearch_elements.analyzer_tokenizer.val(result.analyzer_tokenizer);
 
-		fts_admin_settings.tagSettingsAsSaved(elasticsearch_elements.elasticsearch_div);
+		fts_admin_settings.tagSettingsAsSaved(opensearch_elements.opensearch_div);
 	},
 
 
 	saveSettings: function () {
 
 		var data = {
-			elastic_host: elasticsearch_elements.elasticsearch_host.val(),
-			elastic_index: elasticsearch_elements.elasticsearch_index.val(),
-			analyzer_tokenizer: elasticsearch_elements.analyzer_tokenizer.val()
+			elastic_host: opensearch_elements.opensearch_host.val(),
+			elastic_index: opensearch_elements.opensearch_index.val(),
+			analyzer_tokenizer: opensearch_elements.analyzer_tokenizer.val()
 		};
 
 		$.ajax({
 			method: 'POST',
-			url: OC.generateUrl('/apps/fulltextsearch_elasticsearch/admin/settings'),
+			url: OC.generateUrl('/apps/fulltextsearch_opensearch/admin/settings'),
 			data: {
 				data: data
 			}
 		}).done(function (res) {
-			elasticsearch_settings.updateSettingPage(res);
+			opensearch_settings.updateSettingPage(res);
 		});
 
 	}

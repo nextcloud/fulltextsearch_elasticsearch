@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -27,21 +27,19 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FullTextSearch_Elasticsearch\Service;
+namespace OCA\FullTextSearch_OpenSearch\Service;
 
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\MissingParameterException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ServerResponseException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_OpenSearch\Vendor\Http\Client\Exception;
+use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
+use OCA\FullTextSearch_OpenSearch\Exceptions\AccessIsEmptyException;
+use OCA\FullTextSearch_OpenSearch\Exceptions\ConfigurationException;
 use OCP\FullTextSearch\Model\IIndexDocument;
 
 
 /**
  * Class IndexMappingService
  *
- * @package OCA\FullTextSearch_Elasticsearch\Service
+ * @package OCA\FullTextSearch_OpenSearch\Service
  */
 class IndexMappingService {
 
@@ -58,9 +56,6 @@ class IndexMappingService {
 	 * @return array
 	 * @throws AccessIsEmptyException
 	 * @throws ConfigurationException
-	 * @throws ClientResponseException
-	 * @throws MissingParameterException
-	 * @throws ServerResponseException
 	 */
 	public function indexDocumentNew(Client $client, IIndexDocument $document): array {
 		$index = [
@@ -75,7 +70,7 @@ class IndexMappingService {
 		$this->onIndexingDocument($document, $index);
 		$result = $client->index($index['index']);
 
-		return $result->asArray();
+		return $result;
 	}
 
 
@@ -85,10 +80,7 @@ class IndexMappingService {
 	 *
 	 * @return array
 	 * @throws AccessIsEmptyException
-	 * @throws ClientResponseException
 	 * @throws ConfigurationException
-	 * @throws MissingParameterException
-	 * @throws ServerResponseException
 	 */
 	public function indexDocumentUpdate(Client $client, IIndexDocument $document): array {
 		$index = [
@@ -104,8 +96,8 @@ class IndexMappingService {
 		try {
 			$result = $client->update($index['index']);
 
-			return $result->asArray();
-		} catch (ClientResponseException $e) {
+			return $result;
+		} catch (Exception $e) {
 			return $this->indexDocumentNew($client, $document);
 		}
 	}
@@ -117,8 +109,6 @@ class IndexMappingService {
 	 * @param string $documentId
 	 *
 	 * @throws ConfigurationException
-	 * @throws MissingParameterException
-	 * @throws ServerResponseException
 	 */
 	public function indexDocumentRemove(Client $client, string $providerId, string $documentId): void {
 		$index = [
@@ -131,7 +121,7 @@ class IndexMappingService {
 
 		try {
 			$client->delete($index['index']);
-		} catch (ClientResponseException $e) {
+		} catch (Exception $e) {
 		}
 	}
 
@@ -238,62 +228,61 @@ class IndexMappingService {
 				]
 			],
 			'mappings' => [
-				'standard' => [
-					'dynamic' => true,
-					'properties' => [
-						'source' => [
-							'type' => 'keyword'
-						],
-						'title' => [
-							'type' => 'text',
-							'analyzer' => 'keyword',
-							'term_vector' => 'with_positions_offsets',
-							'copy_to' => 'combined'
-						],
-						'provider' => [
-							'type' => 'keyword'
-						],
-						'tags' => [
-							'type' => 'keyword'
-						],
-						'metatags' => [
-							'type' => 'keyword'
-						],
-						'subtags' => [
-							'type' => 'keyword'
-						],
-						'content' => [
-							'type' => 'text',
-							'analyzer' => 'analyzer',
-							'term_vector' => 'with_positions_offsets',
-							'copy_to' => 'combined'
-						],
-						'owner' => [
-							'type' => 'keyword'
-						],
-						'users' => [
-							'type' => 'keyword'
-						],
-						'groups' => [
-							'type' => 'keyword'
-						],
-						'circles' => [
-							'type' => 'keyword'
-						],
-						'links' => [
-							'type' => 'keyword'
-						],
-						'hash' => [
-							'type' => 'keyword'
-						],
-						'combined' => [
-							'type' => 'text',
-							'analyzer' => 'analyzer',
-							'term_vector' => 'with_positions_offsets'
-						]
-					]
-				]
-			]
+                'dynamic' => true,
+                'properties' => [
+                    'source' => [
+                        'type' => 'keyword'
+                    ],
+                    'title' => [
+                        'type' => 'text',
+                        'analyzer' => 'keyword',
+                        'term_vector' => 'with_positions_offsets',
+                        'copy_to' => 'combined'
+                    ],
+                    'provider' => [
+                        'type' => 'keyword'
+                    ],
+                    'tags' => [
+                        'type' => 'keyword'
+                    ],
+                    'metatags' => [
+                        'type' => 'keyword'
+                    ],
+                    'subtags' => [
+                        'type' => 'keyword'
+                    ],
+                    'content' => [
+                        'type' => 'text',
+                        'analyzer' => 'analyzer',
+                        'term_vector' => 'with_positions_offsets',
+                        'copy_to' => 'combined'
+                    ],
+                    'owner' => [
+                        'type' => 'keyword'
+                    ],
+                    'users' => [
+                        'type' => 'keyword'
+                    ],
+                    'groups' => [
+                        'type' => 'keyword'
+                    ],
+                    'circles' => [
+                        'type' => 'keyword'
+                    ],
+                    'links' => [
+                        'type' => 'keyword'
+                    ],
+                    'hash' => [
+                        'type' => 'keyword'
+                    ],
+                    'combined' => [
+                        'type' => 'text',
+                        'analyzer' => 'analyzer',
+                        'term_vector' => 'with_positions_offsets'
+                    ]
+                ]
+            ]
+
 		];
 
 		return $params;

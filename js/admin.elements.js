@@ -1,5 +1,5 @@
 /*
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -25,38 +25,38 @@
 
 /** global: OCA */
 /** global: fts_admin_settings */
-/** global: elasticsearch_settings */
+/** global: opensearch_settings */
 
 
-var elasticsearch_elements = {
-	elasticsearch_div: null,
-	elasticsearch_host: null,
-	elasticsearch_index: null,
+var opensearch_elements = {
+	opensearch_div: null,
+	opensearch_host: null,
+	opensearch_index: null,
 	analyzer_tokenizer: null,
 
 
 	init: function () {
-		elasticsearch_elements.elasticsearch_div = $('#elastic_search');
-		elasticsearch_elements.elasticsearch_host = $('#elasticsearch_host');
-		elasticsearch_elements.elasticsearch_index = $('#elasticsearch_index');
-		elasticsearch_elements.analyzer_tokenizer = $('#analyzer_tokenizer');
+		opensearch_elements.opensearch_div = $('#elastic_search');
+		opensearch_elements.opensearch_host = $('#opensearch_host');
+		opensearch_elements.opensearch_index = $('#opensearch_index');
+		opensearch_elements.analyzer_tokenizer = $('#analyzer_tokenizer');
 
-		elasticsearch_elements.elasticsearch_host.on('input', function () {
+		opensearch_elements.opensearch_host.on('input', function () {
 			fts_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
-			elasticsearch_settings.saveSettings();
+			opensearch_settings.saveSettings();
 		});
 
-		elasticsearch_elements.elasticsearch_index.on('input', function () {
+		opensearch_elements.opensearch_index.on('input', function () {
 			fts_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
-			elasticsearch_settings.saveSettings();
+			opensearch_settings.saveSettings();
 		});
 
-		elasticsearch_elements.analyzer_tokenizer.on('input', function () {
+		opensearch_elements.analyzer_tokenizer.on('input', function () {
 			fts_admin_settings.tagSettingsAsNotSaved($(this));
 		}).blur(function () {
-			elasticsearch_settings.saveSettings();
+			opensearch_settings.saveSettings();
 		});
 	}
 

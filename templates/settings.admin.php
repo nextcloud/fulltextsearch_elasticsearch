@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 
 
-use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
+use OCA\FullTextSearch_OpenSearch\AppInfo\Application;
 use OCP\Util;
 
 
@@ -42,7 +42,7 @@ Util::addStyle(Application::APP_NAME, 'admin');
 ?>
 
 <div id="elastic_search" class="section" style="display: none;">
-	<h2><?php p($l->t('Elastic Search')) ?></h2>
+	<h2><?php p($l->t('Open Search')) ?></h2>
 
 	<div class="div-table">
 
@@ -53,7 +53,7 @@ Util::addStyle(Application::APP_NAME, 'admin');
 				<em><?php p($l->t('Include your credential in case authentication is required.')); ?></em>
 			</div>
 			<div class="div-table-col">
-				<input type="text" id="elasticsearch_host"
+				<input type="text" id="opensearch_host"
 					   placeholder="http://username:password@localhost:9200/"/>
 			</div>
 		</div>
@@ -65,7 +65,7 @@ Util::addStyle(Application::APP_NAME, 'admin');
 				<em><?php p($l->t('Name of your index.')); ?></em>
 			</div>
 			<div class="div-table-col">
-				<input type="text" id="elasticsearch_index" placeholder="my_index"/>
+				<input type="text" id="opensearch_index" placeholder="my_index"/>
 			</div>
 		</div>
 

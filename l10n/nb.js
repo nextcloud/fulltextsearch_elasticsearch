@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "Fulltekstsøk - Elasticsearch Platform",
-    "Index using ElasticSearch" : "Indeks ved hjelp av ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Utvidelse til appen _Fulltekstsøk_ for å kommunisere med ElasticSearch.",
-    "Elastic Search" : "Elastisk søk",
+    "Full text search - OpenSearch Platform" : "Fulltekstsøk - OpenSearch Platform",
+    "Index using OpenSearch" : "Indeks ved hjelp av OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Utvidelse til appen _Fulltekstsøk_ for å kommunisere med OpenSearch.",
+    "Open Search" : "Elastisk søk",
     "Address of the Servlet" : "Adresse til Servlet",
     "Include your credential in case authentication is required." : "Inkluder legitimasjonen din i tilfelle autentisering er nødvendig.",
     "Index" : "Indeks",

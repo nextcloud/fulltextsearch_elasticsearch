@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "全文検索 - Elasticsearch Platform",
-    "Index using ElasticSearch" : "ElasticSearchを使用したインデックス",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "ElasticSearchと通信するための_フルテキスト検索_アプリへの拡張。",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "全文検索 - OpenSearch Platform",
+    "Index using OpenSearch" : "OpenSearchを使用したインデックス",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "OpenSearchと通信するための_フルテキスト検索_アプリへの拡張。",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "サーブレットのアドレス",
     "Include your credential in case authentication is required." : "認証が必要な場合は、資格情報を含めてください。",
     "Index" : "インデックス",

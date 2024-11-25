@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Ricerca del testo integrale - Piattaforma ElasticSearch",
-    "Index using ElasticSearch" : "Indicizza utilizzando ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Estensione dell'applicazione di ricerca del testo integrale per comunicare con ElasticSearch.",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "Ricerca del testo integrale - Piattaforma OpenSearch",
+    "Index using OpenSearch" : "Indicizza utilizzando OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Estensione dell'applicazione di ricerca del testo integrale per comunicare con OpenSearch.",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Indirizzo del servlet",
     "Include your credential in case authentication is required." : "Includi le tue credenziali in caso sia richiesta l'autenticazione.",
     "Index" : "Indice",

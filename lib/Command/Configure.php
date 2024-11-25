@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -27,12 +27,12 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FullTextSearch_Elasticsearch\Command;
+namespace OCA\FullTextSearch_OpenSearch\Command;
 
 use Exception;
 use OC\Core\Command\Base;
 use OCA\CloudFederationAPI\Config;
-use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
+use OCA\FullTextSearch_OpenSearch\Service\ConfigService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,7 +47,7 @@ class Configure extends Base {
 
 	protected function configure() {
 		parent::configure();
-		$this->setName('fulltextsearch_elasticsearch:configure')
+		$this->setName('fulltextsearch_opensearch:configure')
 			 ->addArgument('json', InputArgument::REQUIRED, 'set config')
 			 ->setDescription('Configure the installation');
 	}

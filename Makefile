@@ -1,4 +1,4 @@
-app_name=FullTextSearch_ElasticSearch
+app_name=FullTextSearch_OpenSearch
 
 build_dir=$(CURDIR)/build/artifacts
 appstore_dir=$(build_dir)/appstore
@@ -71,8 +71,8 @@ clean:
 
 # composer packages
 composer:
-	composer install --prefer-dist
-	composer upgrade --prefer-dist
+	./composer.phar install --prefer-dist
+	./composer.phar upgrade --prefer-dist
 
 appstore: clean composer
 	mkdir -p $(sign_dir)

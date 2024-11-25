@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Cerca de text complet - Plataforma ElasticSearch",
-    "Index using ElasticSearch" : "Indexació mitjançant ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extensió de l'aplicació _Cerca de text complet_ per a comunicar-se amb ElasticSearch.",
-    "Elastic Search" : "ElasticSearch",
+    "Full text search - OpenSearch Platform" : "Cerca de text complet - Plataforma OpenSearch",
+    "Index using OpenSearch" : "Indexació mitjançant OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Extensió de l'aplicació _Cerca de text complet_ per a comunicar-se amb OpenSearch.",
+    "Open Search" : "OpenSearch",
     "Address of the Servlet" : "Adreça de la miniaplicació de servidor",
     "Include your credential in case authentication is required." : "Incloeu les credencials si cal autenticació.",
     "Index" : "Índex",

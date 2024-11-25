@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Iskanje po polnem besedilu – orodja Elasticsearch",
-    "Index using ElasticSearch" : "Ustvarjanje kazala z ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Razširitev, ki omogoča _Iskalniku po polnem besedilu_ povezovanje z orodji ElasticSearch.",
-    "Elastic Search" : "ElasticSearch",
+    "Full text search - OpenSearch Platform" : "Iskanje po polnem besedilu – orodja OpenSearch",
+    "Index using OpenSearch" : "Ustvarjanje kazala z OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Razširitev, ki omogoča _Iskalniku po polnem besedilu_ povezovanje z orodji OpenSearch.",
+    "Open Search" : "OpenSearch",
     "Address of the Servlet" : "Naslov programa za izvajanje storitev",
     "Include your credential in case authentication is required." : "Vključi poverila za potrebe overitve.",
     "Index" : "Kazalo",

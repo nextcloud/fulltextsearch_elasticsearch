@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "Претрага свих текстова - Elasticsearch платформа",
-    "Index using ElasticSearch" : "Индексирај преко ElasticSearch-а",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Додатак апликацији _Претрага свих текстова_ да се комуницира са ElasticSearch-ом.",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "Претрага свих текстова - OpenSearch платформа",
+    "Index using OpenSearch" : "Индексирај преко OpenSearch-а",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Додатак апликацији _Претрага свих текстова_ да се комуницира са OpenSearch-ом.",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Адреса сервлета",
     "Include your credential in case authentication is required." : "Додајте Ваше податке за случај да је потребна провера идентитета.",
     "Index" : "Индекс",

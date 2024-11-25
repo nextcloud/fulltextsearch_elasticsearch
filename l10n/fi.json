@@ -1,7 +1,7 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Koko tekstin haku - Elasticsearch-alusta",
-    "Index using ElasticSearch" : "Indeksi ElasticSearchia käyttäen",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "Koko tekstin haku - OpenSearch-alusta",
+    "Index using OpenSearch" : "Indeksi OpenSearchia käyttäen",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Servletin osoite",
     "Include your credential in case authentication is required." : "Sisällytä tunnistustiedot, jos tunnistautuminen vaaditaan.",
     "Index" : "Indeksi",

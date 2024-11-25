@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -27,7 +27,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FullTextSearch_Elasticsearch\AppInfo;
+namespace OCA\FullTextSearch_OpenSearch\AppInfo;
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -36,7 +36,7 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 class Application extends App implements IBootstrap {
 
-	const APP_NAME = 'fulltextsearch_elasticsearch';
+	const APP_NAME = 'fulltextsearch_opensearch';
 
 	/**
 	 * Application constructor.

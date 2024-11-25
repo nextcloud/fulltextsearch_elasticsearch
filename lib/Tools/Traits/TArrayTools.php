@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -29,14 +29,14 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_Elasticsearch\Tools\Traits;
+namespace OCA\FullTextSearch_OpenSearch\Tools\Traits;
 
 use Exception;
 use JsonSerializable;
-use OCA\FullTextSearch_Elasticsearch\Tools\Exceptions\ArrayNotFoundException;
-use OCA\FullTextSearch_Elasticsearch\Tools\Exceptions\ItemNotFoundException;
-use OCA\FullTextSearch_Elasticsearch\Tools\Exceptions\MalformedArrayException;
-use OCA\FullTextSearch_Elasticsearch\Tools\Exceptions\UnknownTypeException;
+use OCA\FullTextSearch_OpenSearch\Tools\Exceptions\ArrayNotFoundException;
+use OCA\FullTextSearch_OpenSearch\Tools\Exceptions\ItemNotFoundException;
+use OCA\FullTextSearch_OpenSearch\Tools\Exceptions\MalformedArrayException;
+use OCA\FullTextSearch_OpenSearch\Tools\Exceptions\UnknownTypeException;
 
 trait TArrayTools {
 	public static $TYPE_NULL = 'Null';

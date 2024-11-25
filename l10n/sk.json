@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Fulltextové vyhľadávanie - Platforma Elasticsearch",
-    "Index using ElasticSearch" : "Indexovanie pomocou Elasticsearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Rozšírenie pre _Full text search_ app pre komunikáciu s Elasticsearch",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "Fulltextové vyhľadávanie - Platforma OpenSearch",
+    "Index using OpenSearch" : "Indexovanie pomocou OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Rozšírenie pre _Full text search_ app pre komunikáciu s OpenSearch",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Adresa servletu",
     "Include your credential in case authentication is required." : "Pokiaľ sa vyžaduje overenie, zadaj svoje prihlásenie.",
     "Index" : "Index",

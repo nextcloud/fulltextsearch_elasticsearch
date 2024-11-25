@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * FullTextSearch_ElasticSearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -33,7 +33,7 @@ use Isolated\Symfony\Component\Finder\Finder;
 // https://arthur-schiwon.de/isolating-nextcloud-app-dependencies-php-scoper
 
 return [
-	'prefix' => 'OCA\\FullTextSearch_Elasticsearch\\Vendor',
+	'prefix' => 'OCA\\FullTextSearch_OpenSearch\\Vendor',
 	'exclude-namespaces' => ['Composer', 'Psr\Log'],
 	'finders' => [
 		Finder::create()->files()
@@ -43,9 +43,10 @@ return [
 							'bin',
 						])
 			  ->notName('autoload.php')
-			  ->in('vendor/elasticsearch')
-			  ->in('vendor/elastic')
+              ->in('vendor/opensearch-project')
 			  ->in('vendor/guzzlehttp')
+              ->in('vendor/ezimuel')
+              ->in('vendor/react')
 			  ->in('vendor/php-http')
 			  ->in('vendor/psr'),
 //		Finder::create()->files()

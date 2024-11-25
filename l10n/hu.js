@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "Teljes szöveges keresés – Elasticsearch platform",
-    "Index using ElasticSearch" : "Indexelés Elasticsearch használatával",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Kiegészítő a _Teljes szöveges keresés_ alkalmazáshoz, hogy kommunikálhasson az Elasticsearch-csel.",
-    "Elastic Search" : "Elasticsearch keresés",
+    "Full text search - OpenSearch Platform" : "Teljes szöveges keresés – OpenSearch platform",
+    "Index using OpenSearch" : "Indexelés OpenSearch használatával",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Kiegészítő a _Teljes szöveges keresés_ alkalmazáshoz, hogy kommunikálhasson az OpenSearch-csel.",
+    "Open Search" : "OpenSearch keresés",
     "Address of the Servlet" : "A szervlet címe",
     "Include your credential in case authentication is required." : "A bejelentkezési adatai használata, ha hitelesítés szükséges.",
     "Index" : "Index",

@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "Cuardach téacs iomlán - Ardán Elasticsearch",
-    "Index using ElasticSearch" : "Innéacs ag baint úsáide as ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Síneadh leis an aip _Full text search_ chun cumarsáid a dhéanamh le ElasticSearch.",
-    "Elastic Search" : "Cuardach Leaisteacha",
+    "Full text search - OpenSearch Platform" : "Cuardach téacs iomlán - Ardán OpenSearch",
+    "Index using OpenSearch" : "Innéacs ag baint úsáide as OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Síneadh leis an aip _Full text search_ chun cumarsáid a dhéanamh le OpenSearch.",
+    "Open Search" : "Cuardach Leaisteacha",
     "Address of the Servlet" : "Seoladh an Servlet",
     "Include your credential in case authentication is required." : "Cuir do dhintiúir san áireamh ar eagla go mbeidh fíordheimhniú ag teastáil.",
     "Index" : "Innéacs",

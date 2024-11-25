@@ -2,9 +2,9 @@
 host     = https://www.transifex.com
 lang_map = th_TH: th, ja_JP: ja, bg_BG: bg, cs_CZ: cs, fi_FI: fi, hu_HU: hu, nb_NO: nb, sk_SK: sk
 
-[o:nextcloud:p:nextcloud:r:fulltextsearch_elasticsearch]
-file_filter = translationfiles/<lang>/fulltextsearch_elasticsearch.po
-source_file = translationfiles/templates/fulltextsearch_elasticsearch.pot
+[o:nextcloud:p:nextcloud:r:FullTextSearch_OpenSearch]
+file_filter = translationfiles/<lang>/FullTextSearch_OpenSearch.po
+source_file = translationfiles/templates/FullTextSearch_OpenSearch.pot
 source_lang = en
 type        = PO
 

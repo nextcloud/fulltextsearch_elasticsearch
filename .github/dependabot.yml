@@ -8,8 +8,3 @@ updates:
     time: "03:00"
     timezone: Europe/Paris
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: elasticsearch/elasticsearch
-    versions:
-    - 7.11.0
-    - 7.12.0

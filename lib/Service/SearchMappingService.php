@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,13 +28,13 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_Elasticsearch\Service;
+namespace OCA\FullTextSearch_OpenSearch\Service;
 
 
-use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\QueryContentGenerationException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\SearchQueryGenerationException;
-use OCA\FullTextSearch_Elasticsearch\Model\QueryContent;
+use OCA\FullTextSearch_OpenSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_OpenSearch\Exceptions\QueryContentGenerationException;
+use OCA\FullTextSearch_OpenSearch\Exceptions\SearchQueryGenerationException;
+use OCA\FullTextSearch_OpenSearch\Model\QueryContent;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\ISearchRequest;
 use OCP\FullTextSearch\Model\ISearchRequestSimpleQuery;
@@ -44,7 +44,7 @@ use stdClass;
 /**
  * Class SearchMappingService
  *
- * @package OCA\FullTextSearch_Elasticsearch\Service
+ * @package OCA\FullTextSearch_OpenSearch\Service
  */
 class SearchMappingService {
 
@@ -306,16 +306,16 @@ class SearchMappingService {
 	 */
 	private function generateSearchQueryAccess(IDocumentAccess $access): array {
 		$query = [];
-		$query[] = ['term' => ['owner.keyword' => $access->getViewerId()]];
-		$query[] = ['term' => ['users.keyword' => $access->getViewerId()]];
-		$query[] = ['term' => ['users.keyword' => '__all']];
+		$query[] = ['term' => ['owner' => $access->getViewerId()]];
+		$query[] = ['term' => ['users' => $access->getViewerId()]];
+		$query[] = ['term' => ['users' => '__all']];
 
 		foreach ($access->getGroups() as $group) {
-			$query[] = ['term' => ['groups.keyword' => $group]];
+			$query[] = ['term' => ['groups' => $group]];
 		}
 
 		foreach ($access->getCircles() as $circle) {
-			$query[] = ['term' => ['circles.keyword' => $circle]];
+			$query[] = ['term' => ['circles' => $circle]];
 		}
 
 		return $query;

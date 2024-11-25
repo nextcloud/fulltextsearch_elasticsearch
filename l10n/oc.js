@@ -1,5 +1,5 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
     "Index" : "Indèx"
 },

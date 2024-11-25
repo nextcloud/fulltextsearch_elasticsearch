@@ -1,10 +1,10 @@
 OC.L10N.register(
-    "fulltextsearch_elasticsearch",
+    "fulltextsearch_opensearch",
     {
-    "Full text search - Elasticsearch Platform" : "Контекстний пошук - Платформа Elasticsearch",
-    "Index using ElasticSearch" : "Індекс з використанням ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Розширення застосунку контекстного пошуку для роботи зі службою Elasticsearch. ",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "Контекстний пошук - Платформа OpenSearch",
+    "Index using OpenSearch" : "Індекс з використанням OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Розширення застосунку контекстного пошуку для роботи зі службою OpenSearch. ",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Адреса Servlet",
     "Include your credential in case authentication is required." : "Зазначте ваші облікові дані на випадок, якщо буде потрібна авторизація.",
     "Index" : "Індекс",

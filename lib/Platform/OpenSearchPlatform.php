@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * FullTextSearch_Elasticsearch - Use Elasticsearch to index the content of your nextcloud
+ * FullTextSearch_OpenSearch - Use OpenSearch to index the content of your nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,21 +28,21 @@ declare(strict_types=1);
  */
 
 
-namespace OCA\FullTextSearch_Elasticsearch\Platform;
+namespace OCA\FullTextSearch_OpenSearch\Platform;
 
 
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientBuilder;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
+use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
+use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\ClientBuilder;
+use OCA\FullTextSearch_OpenSearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
 use Exception;
 use InvalidArgumentException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\ClientException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
-use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
-use OCA\FullTextSearch_Elasticsearch\Service\IndexService;
-use OCA\FullTextSearch_Elasticsearch\Service\SearchService;
-use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
+use OCA\FullTextSearch_OpenSearch\Exceptions\AccessIsEmptyException;
+use OCA\FullTextSearch_OpenSearch\Exceptions\ClientException;
+use OCA\FullTextSearch_OpenSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_OpenSearch\Service\ConfigService;
+use OCA\FullTextSearch_OpenSearch\Service\IndexService;
+use OCA\FullTextSearch_OpenSearch\Service\SearchService;
+use OCA\FullTextSearch_OpenSearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -51,12 +51,14 @@ use OCP\FullTextSearch\Model\IRunner;
 use OCP\FullTextSearch\Model\ISearchResult;
 use Psr\Log\LoggerInterface;
 
+include_once __DIR__ . '/../Vendor/React/Promise/functions.php';
+
 /**
- * Class ElasticSearchPlatform
+ * Class OpenSearchPlatform
  *
- * @package OCA\FullTextSearch_Elasticsearch\Platform
+ * @package OCA\FullTextSearch_OpenSearch\Platform
  */
-class ElasticSearchPlatform implements IFullTextSearchPlatform {
+class OpenSearchPlatform implements IFullTextSearchPlatform {
 
 
 	use TArrayTools;
@@ -77,7 +79,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * return a unique Id of the platform.
 	 */
 	public function getId(): string {
-		return 'elastic_search';
+		return 'open_search';
 	}
 
 
@@ -85,7 +87,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * return a unique Id of the platform.
 	 */
 	public function getName(): string {
-		return 'Elasticsearch';
+		return 'OpenSearch';
 	}
 
 
@@ -127,7 +129,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * Called when loading the platform.
 	 *
-	 * Loading some container and connect to ElasticSearch.
+	 * Loading some container and connect to OpenSearch.
 	 *
 	 * @throws ConfigurationException
 	 * @throws Exception
@@ -144,7 +146,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	public function testPlatform(): bool {
 		$ping = $this->getClient()->ping();
-		return $ping->asBool();
+		return $ping;
 	}
 
 
@@ -154,7 +156,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * We create a general index.
 	 *
 	 * @throws ConfigurationException
-	 * @throws BadRequest400Exception
 	 */
 	public function initializeIndex() {
 		$this->indexService->initializeIndex($this->getClient());
@@ -197,9 +198,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			);
 
 			return $index;
-		} catch (NoNodeAvailableException $e) {
-			// replace with \OCP\FullTextSearch\Exceptions\PlatformTemporaryException for version 28.
-			throw new \OCA\FullTextSearch\Exceptions\PlatformTemporaryException();
 		} catch (Exception $e) {
 			$this->manageIndexErrorException($document, $e);
 		}

@@ -1,8 +1,8 @@
 { "translations": {
-    "Full text search - Elasticsearch Platform" : "Chirca de su testu integrale - Prataforma ElasticSearch",
-    "Index using ElasticSearch" : "Inditziza cun ElasticSearch",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Estensione de s'aplicatzione de chirca de su testu integrale pro comunicare cun ElasticSearch.",
-    "Elastic Search" : "Elastic Search",
+    "Full text search - OpenSearch Platform" : "Chirca de su testu integrale - Prataforma OpenSearch",
+    "Index using OpenSearch" : "Inditziza cun OpenSearch",
+    "Extension to the _Full text search_ app to communicate with OpenSearch." : "Estensione de s'aplicatzione de chirca de su testu integrale pro comunicare cun OpenSearch.",
+    "Open Search" : "Open Search",
     "Address of the Servlet" : "Indiritzu de su servlet",
     "Include your credential in case authentication is required." : "Inclue is credentziales tuas s'in casu siat recherta s'autenticatzione.",
     "Index" : "Ìnditze",
