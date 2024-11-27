@@ -19,7 +19,7 @@ You have to run an OpenSearch service on an extra VM / Docker and install three 
 - create a role with permissions
     - cluster:
       - cluster:monitor/main
-      - cluster:monitor/main
+      - cluster:cluster_manage_pipelines
     - index:
       - index: NEXTCLOUD_INDEX*
       
