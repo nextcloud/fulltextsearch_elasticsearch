@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 
@@ -30,19 +31,17 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_OpenSearch\Service;
 
-
-use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
 use Exception;
 use OC\FullTextSearch\Model\DocumentAccess;
 use OC\FullTextSearch\Model\IndexDocument;
 use OCA\FullTextSearch_OpenSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_OpenSearch\Exceptions\SearchQueryGenerationException;
 use OCA\FullTextSearch_OpenSearch\Tools\Traits\TArrayTools;
+use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\ISearchResult;
 use Psr\Log\LoggerInterface;
-
 
 /**
  * Class SearchService
@@ -54,7 +53,7 @@ class SearchService {
 
 	public function __construct(
 		private SearchMappingService $searchMappingService,
-		private LoggerInterface $logger
+		private LoggerInterface $logger,
 	) {
 	}
 
@@ -68,13 +67,13 @@ class SearchService {
 	public function searchRequest(
 		Client $client,
 		ISearchResult $searchResult,
-		IDocumentAccess $access
+		IDocumentAccess $access,
 	): void {
 		try {
 			$this->logger->debug('New search request', ['searchResult' => $searchResult]);
 			$query = $this->searchMappingService->generateSearchQuery(
 				$searchResult->getRequest(), $access, $searchResult->getProvider()
-																   ->getId()
+					->getId()
 			);
 		} catch (SearchQueryGenerationException $e) {
 			return;
@@ -117,7 +116,7 @@ class SearchService {
 	public function getDocument(
 		Client $client,
 		string $providerId,
-		string $documentId
+		string $documentId,
 	): IIndexDocument {
 		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
@@ -133,7 +132,7 @@ class SearchService {
 		$index->setMetaTags($result['_source']['metatags']);
 		$index->setSubTags($result['_source']['subtags']);
 		$index->setTags($result['_source']['tags']);
-//		$index->setMore($result['_source']['more']);
+		//		$index->setMore($result['_source']['more']);
 		$index->setHash($result['_source']['hash']);
 		$index->setSource($result['_source']['source']);
 		$index->setTitle($result['_source']['title']);
@@ -208,7 +207,7 @@ class SearchService {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 
-		list($providerId, $documentId) = explode(':', $entry['_id'], 2);
+		[$providerId, $documentId] = explode(':', $entry['_id'], 2);
 		$document = new IndexDocument($providerId, $documentId);
 		$document->setAccess($access);
 		$document->setHash($this->get('hash', $entry['_source']));
@@ -241,4 +240,3 @@ class SearchService {
 		return $result;
 	}
 }
-

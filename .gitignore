@@ -3,3 +3,4 @@
 build/
 vendor/
 lib/VendorPsr/
+/lib/Vendor/

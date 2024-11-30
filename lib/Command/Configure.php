@@ -31,7 +31,6 @@ namespace OCA\FullTextSearch_OpenSearch\Command;
 
 use Exception;
 use OC\Core\Command\Base;
-use OCA\CloudFederationAPI\Config;
 use OCA\FullTextSearch_OpenSearch\Service\ConfigService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,7 +39,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Configure extends Base {
 
 	public function __construct(
-		private ConfigService $configService
+		private ConfigService $configService,
 	) {
 		parent::__construct();
 	}
@@ -48,8 +47,8 @@ class Configure extends Base {
 	protected function configure() {
 		parent::configure();
 		$this->setName('fulltextsearch_opensearch:configure')
-			 ->addArgument('json', InputArgument::REQUIRED, 'set config')
-			 ->setDescription('Configure the installation');
+			->addArgument('json', InputArgument::REQUIRED, 'set config')
+			->setDescription('Configure the installation');
 	}
 
 	/**
@@ -82,4 +81,3 @@ class Configure extends Base {
 		return 0;
 	}
 }
-

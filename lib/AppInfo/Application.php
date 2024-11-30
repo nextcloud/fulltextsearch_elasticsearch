@@ -36,7 +36,7 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 class Application extends App implements IBootstrap {
 
-	const APP_NAME = 'fulltextsearch_opensearch';
+	public const APP_NAME = 'fulltextsearch_opensearch';
 
 	/**
 	 * Application constructor.
@@ -59,4 +59,3 @@ class Application extends App implements IBootstrap {
 	public function boot(IBootContext $context): void {
 	}
 }
-

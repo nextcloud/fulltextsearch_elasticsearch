@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 
@@ -30,7 +31,6 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_OpenSearch\Service;
 
-
 use OCA\FullTextSearch_OpenSearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_OpenSearch\Exceptions\QueryContentGenerationException;
 use OCA\FullTextSearch_OpenSearch\Exceptions\SearchQueryGenerationException;
@@ -40,7 +40,6 @@ use OCP\FullTextSearch\Model\ISearchRequest;
 use OCP\FullTextSearch\Model\ISearchRequestSimpleQuery;
 use stdClass;
 
-
 /**
  * Class SearchMappingService
  *
@@ -48,9 +47,8 @@ use stdClass;
  */
 class SearchMappingService {
 
-	public function __construct
-	(
-		private ConfigService $configService
+	public function __construct(
+		private ConfigService $configService,
 	) {
 	}
 
@@ -67,7 +65,7 @@ class SearchMappingService {
 	public function generateSearchQuery(
 		ISearchRequest $request,
 		IDocumentAccess $access,
-		string $providerId
+		string $providerId,
 	): array {
 		$query['params'] = $this->generateSearchQueryParams($request, $access, $providerId);
 
@@ -87,7 +85,7 @@ class SearchMappingService {
 	public function generateSearchQueryParams(
 		ISearchRequest $request,
 		IDocumentAccess $access,
-		string $providerId
+		string $providerId,
 	): array {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
@@ -112,7 +110,7 @@ class SearchMappingService {
 		$bool['filter'][]['bool']['must'] =
 			$this->generateSearchSimpleQuery($request->getSimpleQueries());
 
-//		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
+		//		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting($request);
@@ -128,29 +126,29 @@ class SearchMappingService {
 	 * @param array $arr
 	 */
 	private function improveSearchQuerying(ISearchRequest $request, array &$arr): void {
-//		$this->improveSearchWildcardQueries($request, $arr);
+		//		$this->improveSearchWildcardQueries($request, $arr);
 		$this->improveSearchWildcardFilters($request, $arr);
 		$this->improveSearchRegexFilters($request, $arr);
 	}
 
 
-//	/**
-//	 * @param SearchRequest $request
-//	 * @param array $arr
-//	 */
-//	private function improveSearchWildcardQueries(SearchRequest $request, &$arr) {
-//
-//		$queries = $request->getWildcardQueries();
-//		foreach ($queries as $query) {
-//			$wildcards = [];
-//			foreach ($query as $entry) {
-//				$wildcards[] = ['wildcard' => $entry];
-//			}
-//
-//			array_push($arr['bool']['must']['bool']['should'], $wildcards);
-//		}
-//
-//	}
+	//	/**
+	//	 * @param SearchRequest $request
+	//	 * @param array $arr
+	//	 */
+	//	private function improveSearchWildcardQueries(SearchRequest $request, &$arr) {
+	//
+	//		$queries = $request->getWildcardQueries();
+	//		foreach ($queries as $query) {
+	//			$wildcards = [];
+	//			foreach ($query as $entry) {
+	//				$wildcards[] = ['wildcard' => $entry];
+	//			}
+	//
+	//			array_push($arr['bool']['must']['bool']['should'], $wildcards);
+	//		}
+	//
+	//	}
 
 
 	/**
@@ -457,4 +455,3 @@ class SearchMappingService {
 		);
 	}
 }
-

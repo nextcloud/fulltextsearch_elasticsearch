@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 
@@ -30,11 +31,9 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_OpenSearch\Service;
 
-
 use OCA\FullTextSearch_OpenSearch\AppInfo\Application;
 use OCA\FullTextSearch_OpenSearch\Exceptions\ConfigurationException;
 use OCP\IConfig;
-
 
 /**
  * Class ConfigService
@@ -43,13 +42,13 @@ use OCP\IConfig;
  */
 class ConfigService {
 
-	const FIELDS_LIMIT = 'fields_limit';
-	const ELASTIC_HOST = 'elastic_host';
-	const ELASTIC_INDEX = 'elastic_index';
-	const ELASTIC_VER_BELOW66 = 'es_ver_below66';
-	const ELASTIC_LOGGER_ENABLED = 'elastic_logger_enabled';
-	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
-	const ALLOW_SELF_SIGNED_CERT = 'allow_self_signed_cert';
+	public const FIELDS_LIMIT = 'fields_limit';
+	public const ELASTIC_HOST = 'elastic_host';
+	public const ELASTIC_INDEX = 'elastic_index';
+	public const ELASTIC_VER_BELOW66 = 'es_ver_below66';
+	public const ELASTIC_LOGGER_ENABLED = 'elastic_logger_enabled';
+	public const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
+	public const ALLOW_SELF_SIGNED_CERT = 'allow_self_signed_cert';
 
 	public static array $defaults = [
 		self::ELASTIC_HOST => '',
@@ -62,7 +61,7 @@ class ConfigService {
 	];
 
 	public function __construct(
-		private IConfig $config
+		private IConfig $config,
 	) {
 	}
 
@@ -199,4 +198,3 @@ class ConfigService {
 		return true;
 	}
 }
-

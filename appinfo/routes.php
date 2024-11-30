@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 
@@ -34,5 +35,3 @@ return [
 		['name' => 'Settings#setSettingsAdmin', 'url' => '/admin/settings', 'verb' => 'POST']
 	]
 ];
-
-

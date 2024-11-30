@@ -32,7 +32,6 @@ declare(strict_types=1);
 use OCA\FullTextSearch_OpenSearch\AppInfo\Application;
 use OCP\Util;
 
-
 Util::addScript(Application::APP_NAME, 'admin.elements');
 Util::addScript(Application::APP_NAME, 'admin.settings');
 Util::addScript(Application::APP_NAME, 'admin');

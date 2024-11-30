@@ -33,4 +33,3 @@ use Exception;
 
 class SearchQueryGenerationException extends Exception {
 }
-
