@@ -29,12 +29,11 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_OpenSearch\Service;
 
-use OCA\FullTextSearch_OpenSearch\Vendor\Http\Client\Exception;
-use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
 use OCA\FullTextSearch_OpenSearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_OpenSearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_OpenSearch\Vendor\Http\Client\Exception;
+use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
 use OCP\FullTextSearch\Model\IIndexDocument;
-
 
 /**
  * Class IndexMappingService
@@ -44,7 +43,7 @@ use OCP\FullTextSearch\Model\IIndexDocument;
 class IndexMappingService {
 
 	public function __construct(
-		private ConfigService $configService
+		private ConfigService $configService,
 	) {
 	}
 
@@ -148,11 +147,11 @@ class IndexMappingService {
 		$access = $document->getAccess();
 
 		// TODO: check if we can just update META or just update CONTENT.
-//		$index = $document->getIndex();
-//		$body = [];
+		//		$index = $document->getIndex();
+		//		$body = [];
 
 		// TODO: isStatus ALL or META (uncomment condition)
-//		if ($index->isStatus(IIndex::INDEX_META)) {
+		//		if ($index->isStatus(IIndex::INDEX_META)) {
 		$body = [
 			'owner' => $access->getOwnerId(),
 			'users' => $access->getUsers(),
@@ -168,12 +167,12 @@ class IndexMappingService {
 			'title' => $document->getTitle(),
 			'parts' => $document->getParts()
 		];
-//		}
+		//		}
 
 		// TODO: isStatus ALL or CONTENT (uncomment condition)
-//		if ($index->isStatus(IIndex::INDEX_CONTENT)) {
-			$body['content'] = $document->getContent();
-//		}
+		//		if ($index->isStatus(IIndex::INDEX_CONTENT)) {
+		$body['content'] = $document->getContent();
+		//		}
 		return array_merge($document->getInfoAll(), $body);
 	}
 
@@ -228,60 +227,60 @@ class IndexMappingService {
 				]
 			],
 			'mappings' => [
-                'dynamic' => true,
-                'properties' => [
-                    'source' => [
-                        'type' => 'keyword'
-                    ],
-                    'title' => [
-                        'type' => 'text',
-                        'analyzer' => 'keyword',
-                        'term_vector' => 'with_positions_offsets',
-                        'copy_to' => 'combined'
-                    ],
-                    'provider' => [
-                        'type' => 'keyword'
-                    ],
-                    'tags' => [
-                        'type' => 'keyword'
-                    ],
-                    'metatags' => [
-                        'type' => 'keyword'
-                    ],
-                    'subtags' => [
-                        'type' => 'keyword'
-                    ],
-                    'content' => [
-                        'type' => 'text',
-                        'analyzer' => 'analyzer',
-                        'term_vector' => 'with_positions_offsets',
-                        'copy_to' => 'combined'
-                    ],
-                    'owner' => [
-                        'type' => 'keyword'
-                    ],
-                    'users' => [
-                        'type' => 'keyword'
-                    ],
-                    'groups' => [
-                        'type' => 'keyword'
-                    ],
-                    'circles' => [
-                        'type' => 'keyword'
-                    ],
-                    'links' => [
-                        'type' => 'keyword'
-                    ],
-                    'hash' => [
-                        'type' => 'keyword'
-                    ],
-                    'combined' => [
-                        'type' => 'text',
-                        'analyzer' => 'analyzer',
-                        'term_vector' => 'with_positions_offsets'
-                    ]
-                ]
-            ]
+				'dynamic' => true,
+				'properties' => [
+					'source' => [
+						'type' => 'keyword'
+					],
+					'title' => [
+						'type' => 'text',
+						'analyzer' => 'keyword',
+						'term_vector' => 'with_positions_offsets',
+						'copy_to' => 'combined'
+					],
+					'provider' => [
+						'type' => 'keyword'
+					],
+					'tags' => [
+						'type' => 'keyword'
+					],
+					'metatags' => [
+						'type' => 'keyword'
+					],
+					'subtags' => [
+						'type' => 'keyword'
+					],
+					'content' => [
+						'type' => 'text',
+						'analyzer' => 'analyzer',
+						'term_vector' => 'with_positions_offsets',
+						'copy_to' => 'combined'
+					],
+					'owner' => [
+						'type' => 'keyword'
+					],
+					'users' => [
+						'type' => 'keyword'
+					],
+					'groups' => [
+						'type' => 'keyword'
+					],
+					'circles' => [
+						'type' => 'keyword'
+					],
+					'links' => [
+						'type' => 'keyword'
+					],
+					'hash' => [
+						'type' => 'keyword'
+					],
+					'combined' => [
+						'type' => 'text',
+						'analyzer' => 'analyzer',
+						'term_vector' => 'with_positions_offsets'
+					]
+				]
+			]
 
 		];
 
@@ -343,4 +342,3 @@ class IndexMappingService {
 		return $params;
 	}
 }
-

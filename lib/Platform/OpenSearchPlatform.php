@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 
@@ -30,10 +31,6 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_OpenSearch\Platform;
 
-
-use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
-use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\ClientBuilder;
-use OCA\FullTextSearch_OpenSearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
 use Exception;
 use InvalidArgumentException;
 use OCA\FullTextSearch_OpenSearch\Exceptions\AccessIsEmptyException;
@@ -43,6 +40,8 @@ use OCA\FullTextSearch_OpenSearch\Service\ConfigService;
 use OCA\FullTextSearch_OpenSearch\Service\IndexService;
 use OCA\FullTextSearch_OpenSearch\Service\SearchService;
 use OCA\FullTextSearch_OpenSearch\Tools\Traits\TArrayTools;
+use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\Client;
+use OCA\FullTextSearch_OpenSearch\Vendor\OpenSearch\ClientBuilder;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -238,8 +237,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 		$this->updateRunnerAction('indexDocumentWithoutContent', true);
 
 		$document->setContent('');
-//		$index = $document->getIndex();
-//		$index->unsetStatus(Index::INDEX_CONTENT);
+		//		$index = $document->getIndex();
+		//		$index->unsetStatus(Index::INDEX_CONTENT);
 
 		return $this->indexService->indexDocument($this->getClient(), $document);
 	}
@@ -254,7 +253,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 		switch ($level) {
 			case 'error':
 				$document->getIndex()
-						 ->addError($message, get_class($e), IIndex::ERROR_SEV_3);
+					->addError($message, get_class($e), IIndex::ERROR_SEV_3);
 				$this->updateNewIndexError(
 					$document->getIndex(), $message, get_class($e), IIndex::ERROR_SEV_3
 				);
@@ -436,7 +435,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @param string $exception
 	 * @param int $sev
 	 */
-	private function updateNewIndexError(IIndex $index, string $message, string $exception, int $sev
+	private function updateNewIndexError(IIndex $index, string $message, string $exception, int $sev,
 	) {
 		if ($this->runner === null) {
 			return;

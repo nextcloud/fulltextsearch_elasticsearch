@@ -71,8 +71,8 @@ clean:
 
 # composer packages
 composer:
-	./composer.phar install --prefer-dist
-	./composer.phar upgrade --prefer-dist
+	composer install --prefer-dist
+	composer upgrade --prefer-dist
 
 appstore: clean composer
 	mkdir -p $(sign_dir)
