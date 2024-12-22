@@ -38,26 +38,37 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Configure extends Base {
 
-	public function __construct(
+    /**
+     * Constructor method for the class.
+     *
+     * @param ConfigService $configService Instance of ConfigService.
+     * @return void
+     */
+    public function __construct(
 		private ConfigService $configService,
 	) {
 		parent::__construct();
 	}
 
-	protected function configure() {
+    /**
+     * Configures the command with its name, arguments, and description.
+     *
+     * @return void
+     */
+    protected function configure() {
 		parent::configure();
 		$this->setName('fulltextsearch_opensearch:configure')
 			->addArgument('json', InputArgument::REQUIRED, 'set config')
 			->setDescription('Configure the installation');
 	}
 
-	/**
-	 * @param InputInterface $input
-	 * @param OutputInterface $output
-	 *
-	 * @return Integer
-	 * @throws Exception
-	 */
+    /**
+     * Executes the command to process and update configuration values.
+     *
+     * @param InputInterface $input The input interface containing the command arguments.
+     * @param OutputInterface $output The output interface used for writing responses.
+     * @return int Returns 0 on successful execution, or 1 if the input JSON is invalid.
+     */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$json = $input->getArgument('json');
 

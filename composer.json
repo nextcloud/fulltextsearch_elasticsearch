@@ -8,7 +8,7 @@
     "classmap-authoritative": true,
     "autoloader-suffix": "FullTextSearch_OpenSearch",
     "platform": {
-      "php": "8.0"
+      "php": "8.3"
     },
     "sort-packages": true,
     "allow-plugins": {
@@ -32,18 +32,18 @@
     }
   },
   "scripts": {
-    "cs:check": "./vendor-bin/csfixer/vendor/bin/php-cs-fixer fix --dry-run --diff",
-    "cs:fix": "./vendor-bin/csfixer/vendor/bin/php-cs-fixer fix",
-    "psalm": "./vendor-bin/psalm/vendor/bin/psalm --threads=1",
-    "psalm:update-baseline": "./vendor-bin/psalm/vendor/bin/psalm --threads=1 --update-baseline",
-    "psalm:clear": "./vendor-bin/psalm/vendor/bin/psalm --clear-cache && psalm --clear-global-cache",
-    "psalm:fix": "./vendor-bin/psalm/vendor/bin/psalm --alter --issues=InvalidReturnType,InvalidNullableReturnType,MissingParamType,InvalidFalsableReturnType",
+    "cs:check": "./vendor-bin/csfixer/vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix --dry-run --diff",
+    "cs:fix": "./vendor-bin/csfixer/vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix",
+    "psalm": "./vendor-bin/psalm/vendor/vimeo/psalm/psalm--threads=1",
+    "psalm:update-baseline": "./vendor-bin/psalm/vendor/vimeo/psalm/psalm --threads=1 --update-baseline",
+    "psalm:clear": "./vendor-bin/psalm/vendor/vimeo/psalm/psalm --clear-cache && psalm --clear-global-cache",
+    "psalm:fix": "./vendor-bin/psalm/vendor/vimeo/psalm/psalm --alter --issues=InvalidReturnType,InvalidNullableReturnType,MissingParamType,InvalidFalsableReturnType",
     "test": [
       "@test:unit"
     ],
-    "test:unit": "./vendor-bin/phpunit/vendor/bin/phpunit -c tests/unit/phpunit.xml",
+    "test:unit": "./vendor-bin/phpunit/vendor/phpunit/phpunit/phpunit -c phpunit.xml",
     "lint": "find . -name \\*.php -not -path './vendor/*' -not -path './vendor-bin/*' -not -path './lib/Vendor/*'  -print0 | xargs -0 -n1 php -l",
-    "post-install-cmd": [
+    "vendor-build-setup": [
       "@composer bin all install --ignore-platform-reqs # unfortunately the flag is required for 8.0",
       "vendor/bin/php-scoper add-prefix --force # Scope our dependencies",
       "sed -i 's/\\\\\\\\OpenSearch\\\\\\\\Endpoints\\\\\\\\/\\\\\\\\OCA\\\\\\\\FullTextSearch_OpenSearch\\\\\\\\Vendor\\\\\\\\OpenSearch\\\\\\\\Endpoints\\\\\\\\/g' build/opensearch-project/opensearch-php/src/OpenSearch/ClientBuilder.php",
@@ -53,15 +53,11 @@
       "@php lib-vendor-organizer.php lib/Vendor/ OCA\\\\FullTextSearch_OpenSearch\\\\Vendor",
       "composer dump-autoload -o"
     ],
+    "post-install-cmd": [
+      "@vendor-build-setup"
+    ],
     "post-update-cmd": [
-      "@composer bin all install --ignore-platform-reqs # unfortunately the flag is required for 8.0",
-      "vendor/bin/php-scoper add-prefix --force # Scope our dependencies",
-      "sed -i 's/\\\\\\\\OpenSearch\\\\\\\\Endpoints\\\\\\\\/\\\\\\\\OCA\\\\\\\\FullTextSearch_OpenSearch\\\\\\\\Vendor\\\\\\\\OpenSearch\\\\\\\\Endpoints\\\\\\\\/g' build/opensearch-project/opensearch-php/src/OpenSearch/ClientBuilder.php",
-      "find build/opensearch-project/opensearch-php/src/OpenSearch/Namespaces/ -type f -exec sed -i \"s/endpointBuilder('OCA\\\\\\\\\\\\\\FullTextSearch_OpenSearch\\\\\\\\\\\\\\Vendor\\\\\\\\\\\\\\\\/endpointBuilder('/g\" {} \\;",
-      "rm -Rf lib/Vendor && mv build lib/Vendor",
-      "find lib/Vendor/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{} # Remove origins",
-      "@php lib-vendor-organizer.php lib/Vendor/ OCA\\\\FullTextSearch_OpenSearch\\\\Vendor",
-      "composer dump-autoload -o"
+      "@vendor-build-setup"
     ]
   },
   "require": {
@@ -85,7 +81,7 @@
   },
   "extra": {
     "bamarni-bin": {
-      "bin-links": true,
+      "bin-links": false,
       "target-directory": "vendor-bin",
       "forward-command": true
     }

@@ -46,30 +46,31 @@ class QueryContent implements JsonSerializable {
 
 
 	/** @var string */
-	private $word;
+	private string $word;
 
 	/** @var string */
-	private $should;
+	private string $should;
 
 	/** @var string */
-	private $match;
+	private string $match;
 
 	/** @var int */
-	private $option = 0;
+	private int $option = 0;
 
 
 	/** @var array */
-	private $options = [
+	private array $options = [
 		'+' => [self::OPTION_MUST, 'must', 'match_phrase_prefix'],
 		'-' => [self::OPTION_MUST_NOT, 'must_not', 'match_phrase_prefix']
 	];
 
 
-	/**
-	 * QueryContent constructor.
-	 *
-	 * @param string $word
-	 */
+    /**
+     * Constructor for initializing the object with a given word and performing initialization tasks.
+     *
+     * @param string $word The word to initialize the object with.
+     * @return void
+     */
 	public function __construct(string $word) {
 		$this->word = $word;
 
@@ -77,10 +78,13 @@ class QueryContent implements JsonSerializable {
 	}
 
 
-	/**
-	 *
-	 */
-	private function init() {
+    /**
+     * Initializes the instance with default values and modifies them based on specific conditions.
+     *
+     * @return void
+     */
+	private function init(): void
+    {
 		$this->setShould('should');
 		$this->setMatch('match_phrase_prefix');
 
@@ -93,7 +97,7 @@ class QueryContent implements JsonSerializable {
 				->setWord(substr($this->getWord(), 1));
 		}
 
-		if (substr($this->getWord(), 0, 1) === '"') {
+		if (str_starts_with($this->getWord(), '"')) {
 			$this->setMatch('match');
 			if (strpos($this->getWord(), ' ') > -1) {
 				$this->setMatch('match_phrase_prefix');
@@ -104,19 +108,20 @@ class QueryContent implements JsonSerializable {
 	}
 
 
-	/**
-	 * @return string
-	 */
-	public function getWord(): string {
+    /**
+     * @return string
+     */
+	final public function getWord(): string {
 		return $this->word;
 	}
 
-	/**
-	 * @param string $word
-	 *
-	 * @return $this
-	 */
-	public function setWord(string $word): QueryContent {
+    /**
+     * Sets the word for the query content.
+     *
+     * @param string $word The word to set.
+     * @return QueryContent
+     */
+	final public function setWord(string $word): QueryContent {
 		$this->word = $word;
 
 		return $this;
@@ -126,35 +131,37 @@ class QueryContent implements JsonSerializable {
 	/**
 	 * @return string
 	 */
-	public function getShould(): string {
+	final public function getShould(): string {
 		return $this->should;
 	}
 
-	/**
-	 * @param string $should
-	 *
-	 * @return QueryContent
-	 */
-	public function setShould(string $should): QueryContent {
+    /**
+     * Sets the value of the should property.
+     *
+     * @param string $should The value to set for the should property.
+     * @return QueryContent Returns the current instance of QueryContent.
+     */
+	final public function setShould(string $should): QueryContent {
 		$this->should = $should;
 
 		return $this;
 	}
 
 
-	/**
-	 * @return string
-	 */
-	public function getMatch(): string {
+    /**
+     * @return string
+     */
+	final public function getMatch(): string {
 		return $this->match;
 	}
 
-	/**
-	 * @param string $match
-	 *
-	 * @return QueryContent
-	 */
-	public function setMatch(string $match): QueryContent {
+    /**
+     * Sets the match string and returns the updated QueryContent object.
+     *
+     * @param string $match The match string to set.
+     * @return QueryContent The current instance of the QueryContent object.
+     */
+	final public function setMatch(string $match): QueryContent {
 		$this->match = $match;
 
 		return $this;
@@ -164,26 +171,27 @@ class QueryContent implements JsonSerializable {
 	/**
 	 * @return int
 	 */
-	public function getOption(): int {
+	final public function getOption(): int {
 		return $this->option;
 	}
 
-	/**
-	 * @param int $option
-	 *
-	 * @return QueryContent
-	 */
-	public function setOption(int $option): QueryContent {
+    /**
+     * Sets the option value.
+     *
+     * @param int $option The option value to set.
+     * @return QueryContent Returns the current instance for method chaining.
+     */
+	final public function setOption(int $option): QueryContent {
 		$this->option = $option;
 
 		return $this;
 	}
 
 
-	/**
-	 * @return array
-	 */
-	public function jsonSerialize(): array {
+    /**
+     * @return array
+     */
+	final public function jsonSerialize(): array {
 		return [
 			'word' => $this->getWord(),
 			'should' => $this->getShould(),

@@ -38,24 +38,31 @@ class Application extends App implements IBootstrap {
 
 	public const APP_NAME = 'fulltextsearch_opensearch';
 
-	/**
-	 * Application constructor.
-	 *
-	 * @param array $params
-	 */
+    /**
+     * Constructor method for the class.
+     *
+     * @param array $params Optional parameters for initializing the class.
+     * @return void
+     */
 	public function __construct(array $params = []) {
 		parent::__construct(self::APP_NAME, $params);
 	}
 
-	/**
-	 * @param IRegistrationContext $context
-	 */
-	public function register(IRegistrationContext $context): void {
+    /**
+     * Registers the given context within the system.
+     *
+     * @param IRegistrationContext $context The context to be registered.
+     * @return void
+     */
+	final public function register(IRegistrationContext $context): void {
 	}
 
-	/**
-	 * @param IBootContext $context
-	 */
-	public function boot(IBootContext $context): void {
+    /**
+     * Bootstraps the application with the provided context.
+     *
+     * @param IBootContext $context The context required for bootstrapping the application.
+     * @return void
+     */
+	final public function boot(IBootContext $context): void {
 	}
 }

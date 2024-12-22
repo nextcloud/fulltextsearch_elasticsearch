@@ -42,8 +42,17 @@ use OCP\FullTextSearch\Model\IIndexDocument;
  */
 class IndexMappingService {
 
-	public function __construct(
-		private ConfigService $configService,
+    /**
+     * Constructor method.
+     *
+     * @param ConfigService $configService
+     *
+     * @return void
+     */
+    public function __construct(
+        /**
+         *
+         */ private ConfigService $configService,
 	) {
 	}
 
@@ -56,11 +65,11 @@ class IndexMappingService {
 	 * @throws AccessIsEmptyException
 	 * @throws ConfigurationException
 	 */
-	public function indexDocumentNew(Client $client, IIndexDocument $document): array {
+	final public function indexDocumentNew(Client $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
-					'index' => $this->configService->getElasticIndex(),
+					'index' => $this->configService->getOpenSearchIndex(),
 					'id' => $document->getProviderId() . ':' . $document->getId(),
 					'body' => $this->generateIndexBody($document)
 				]
@@ -81,11 +90,11 @@ class IndexMappingService {
 	 * @throws AccessIsEmptyException
 	 * @throws ConfigurationException
 	 */
-	public function indexDocumentUpdate(Client $client, IIndexDocument $document): array {
+	final public function indexDocumentUpdate(Client $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
-					'index' => $this->configService->getElasticIndex(),
+					'index' => $this->configService->getOpenSearchIndex(),
 					'id' => $document->getProviderId() . ':' . $document->getId(),
 					'body' => ['doc' => $this->generateIndexBody($document)]
 				]
@@ -102,18 +111,19 @@ class IndexMappingService {
 	}
 
 
-	/**
-	 * @param Client $client
-	 * @param string $providerId
-	 * @param string $documentId
-	 *
-	 * @throws ConfigurationException
-	 */
-	public function indexDocumentRemove(Client $client, string $providerId, string $documentId): void {
+    /**
+     * @param Client $client
+     * @param string $providerId
+     * @param string $documentId
+     *
+     * @return void
+     * @throws Exception
+     */
+	final public function indexDocumentRemove(Client $client, string $providerId, string $documentId): void {
 		$index = [
 			'index' =>
 				[
-					'index' => $this->configService->getElasticIndex(),
+					'index' => $this->configService->getOpenSearchIndex(),
 					'id' => $providerId . ':' . $documentId,
 				]
 		];
@@ -125,11 +135,13 @@ class IndexMappingService {
 	}
 
 
-	/**
-	 * @param IIndexDocument $document
-	 * @param array $arr
-	 */
-	public function onIndexingDocument(IIndexDocument $document, array &$arr): void {
+    /**
+     * @param IIndexDocument $document The document being indexed.
+     * @param array &$arr The array containing index data which may be modified by this method.
+     *
+     * @return void
+     */
+	final public function onIndexingDocument(IIndexDocument $document, array &$arr): void {
 		if ($document->getContent() !== ''
 			&& $document->isContentEncoded() === IIndexDocument::ENCODED_BASE64) {
 			$arr['index']['pipeline'] = 'attachment';
@@ -143,7 +155,7 @@ class IndexMappingService {
 	 * @return array
 	 * @throws AccessIsEmptyException
 	 */
-	public function generateIndexBody(IIndexDocument $document): array {
+	final public function generateIndexBody(IIndexDocument $document): array {
 		$access = $document->getAccess();
 
 		// TODO: check if we can just update META or just update CONTENT.
@@ -177,15 +189,17 @@ class IndexMappingService {
 	}
 
 
-	/**
-	 * @param bool $complete
-	 *
-	 * @return array
-	 * @throws ConfigurationException
-	 */
-	public function generateGlobalMap(bool $complete = true): array {
+    /**
+     * Generates a global map configuration array for an Elasticsearch index.
+     *
+     * @param bool $complete Determines if the full configuration, including body, is generated.
+     *                        If false, only the basic configuration is returned.
+     *
+     * @return array The global map configuration array for the Elasticsearch index.
+     */
+	final public function generateGlobalMap(bool $complete = true): array {
 		$params = [
-			'index' => $this->configService->getElasticIndex()
+			'index' => $this->configService->getOpenSearchIndex()
 		];
 
 		if ($complete === false) {
@@ -288,12 +302,12 @@ class IndexMappingService {
 	}
 
 
-	/**
-	 * @param bool $complete
-	 *
-	 * @return array
-	 */
-	public function generateGlobalIngest(bool $complete = true): array {
+    /**
+     * @param bool $complete Determines whether to include the body configuration in the generated parameters.
+     *
+     * @return array Returns an array of parameters for the global ingest pipeline.
+     */
+	final public function generateGlobalIngest(bool $complete = true): array {
 		$params = ['id' => 'attachment'];
 
 		if ($complete === false) {
@@ -326,15 +340,14 @@ class IndexMappingService {
 	}
 
 
-	/**
-	 * @param string $providerId
-	 *
-	 * @return array
-	 * @throws ConfigurationException
-	 */
-	public function generateDeleteQuery(string $providerId): array {
+    /**
+     * @param string $providerId The identifier of the provider used to filter the entries for deletion.
+     *
+     * @return array The generated query parameters for deleting entries from the Elastic index.
+     */
+	final public function generateDeleteQuery(string $providerId): array {
 		$params = [
-			'index' => $this->configService->getElasticIndex()
+			'index' => $this->configService->getOpenSearchIndex()
 		];
 
 		$params['body']['query']['match'] = ['provider' => $providerId];

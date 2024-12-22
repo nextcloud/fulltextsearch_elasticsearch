@@ -30,57 +30,67 @@ declare(strict_types=1);
 
 
 use OCA\FullTextSearch_OpenSearch\AppInfo\Application;
+use OCA\FullTextSearch_OpenSearch\Service\ConfigService;
 use OCP\Util;
 
-Util::addScript(Application::APP_NAME, 'admin.elements');
-Util::addScript(Application::APP_NAME, 'admin.settings');
-Util::addScript(Application::APP_NAME, 'admin');
+// Asset constants
+const ADMIN_ELEMENTS_SCRIPT = 'admin.elements';
+const ADMIN_SETTINGS_SCRIPT = 'admin.settings';
+const ADMIN_SCRIPT = 'admin';
+const ADMIN_STYLE = 'admin';
 
-Util::addStyle(Application::APP_NAME, 'admin');
+// Placeholder constants
+const PLACEHOLDER_HOST = 'http://username:password@localhost:9200/';
+const PLACEHOLDER_INDEX = 'my_index';
 
+// Add assets
+function addAssets(string $appName): void
+{
+    Util::addScript($appName, ADMIN_ELEMENTS_SCRIPT);
+    Util::addScript($appName, ADMIN_SETTINGS_SCRIPT);
+    Util::addScript($appName, ADMIN_SCRIPT);
+    Util::addStyle($appName, ADMIN_STYLE);
+}
+
+// Add necessary scripts and styles
+addAssets(Application::APP_NAME);
 ?>
+<div id="open_search" class="section hidden-section">
+    <h2><?php p($l->t('Open Search')) ?></h2>
+    <div class="div-table">
 
-<div id="elastic_search" class="section" style="display: none;">
-	<h2><?php p($l->t('Open Search')) ?></h2>
+        <div class="div-table-row">
+            <div class="div-table-col div-table-col-left">
+                <span class="leftcol"><?php p($l->t('Address of the Servlet')); ?>:</span>
+                <br/>
+                <em><?php p($l->t('Include your credential in case authentication is required.')); ?></em>
+            </div>
+            <div class="div-table-col">
+                <input type="text" id="<?php echo ConfigService::OPENSEARCH_HOST; ?>" placeholder="<?php p(PLACEHOLDER_HOST) ?>"/>
+            </div>
+        </div>
 
-	<div class="div-table">
+        <div class="div-table-row">
+            <div class="div-table-col div-table-col-left">
+                <span class="leftcol"><?php p($l->t('Index')); ?>:</span>
+                <br/>
+                <em><?php p($l->t('Name of your index.')); ?></em>
+            </div>
+            <div class="div-table-col">
+                <input type="text" id="<?php echo ConfigService::OPENSEARCH_INDEX; ?>" placeholder="<?php p(PLACEHOLDER_INDEX) ?>"/>
+            </div>
+        </div>
 
-		<div class="div-table-row">
-			<div class="div-table-col div-table-col-left">
-				<span class="leftcol"><?php p($l->t('Address of the Servlet')); ?>:</span>
-				<br/>
-				<em><?php p($l->t('Include your credential in case authentication is required.')); ?></em>
-			</div>
-			<div class="div-table-col">
-				<input type="text" id="opensearch_host"
-					   placeholder="http://username:password@localhost:9200/"/>
-			</div>
-		</div>
+        <div class="div-table-row">
+            <div class="div-table-col div-table-col-left">
+                <span class="leftcol"><?php p($l->t('[Advanced] Analyzer tokenizer')); ?>:</span>
+                <br/>
+                <em><?php p($l->t('Some language might needs a specific tokenizer.')); ?></em>
+            </div>
+            <div class="div-table-col">
+                <input type="text" id="<?php echo ConfigService::ANALYZER_TOKENIZER; ?>"/>
+            </div>
+        </div>
 
-		<div class="div-table-row">
-			<div class="div-table-col div-table-col-left">
-				<span class="leftcol"><?php p($l->t('Index')); ?>:</span>
-				<br/>
-				<em><?php p($l->t('Name of your index.')); ?></em>
-			</div>
-			<div class="div-table-col">
-				<input type="text" id="opensearch_index" placeholder="my_index"/>
-			</div>
-		</div>
-
-		<div class="div-table-row">
-			<div class="div-table-col div-table-col-left">
-				<span class="leftcol"><?php p($l->t('[Advanced] Analyzer tokenizer')); ?>:</span>
-				<br/>
-				<em><?php p($l->t('Some language might needs a specific tokenizer.')); ?></em>
-			</div>
-			<div class="div-table-col">
-				<input type="text" id="analyzer_tokenizer" />
-			</div>
-		</div>
-
-
-	</div>
-
-
+    </div>
 </div>

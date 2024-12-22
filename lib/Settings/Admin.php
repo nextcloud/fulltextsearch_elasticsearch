@@ -43,14 +43,14 @@ class Admin implements ISettings {
 	 * @return TemplateResponse
 	 * @throws Exception
 	 */
-	public function getForm(): TemplateResponse {
+	final public function getForm(): TemplateResponse {
 		return new TemplateResponse(Application::APP_NAME, 'settings.admin', []);
 	}
 
 	/**
 	 * @return string the section ID, e.g. 'sharing'
 	 */
-	public function getSection(): string {
+	final public function getSection(): string {
 		return 'fulltextsearch';
 	}
 
@@ -61,7 +61,7 @@ class Admin implements ISettings {
 	 *
 	 * keep the server setting at the top, right after "server settings"
 	 */
-	public function getPriority(): int {
+	final public function getPriority(): int {
 		return 31;
 	}
 }

@@ -44,34 +44,49 @@ use OCP\IRequest;
  */
 class SettingsController extends Controller {
 
-	public function __construct(
-		IRequest $request,
-		private ConfigService $configService,
-	) {
-		parent::__construct(Application::APP_NAME, $request);
-	}
+    /**
+     * Constructor method for the class.
+     *
+     * @param IRequest $request The request object handling HTTP requests.
+     * @param ConfigService $configService The configuration service for managing application settings.
+     * @return void
+     */
+    public function __construct(
+        /**
+         *
+         */ IRequest              $request,
+            private ConfigService $configService,
+    )
+    {
+        parent::__construct(Application::APP_NAME, $request);
+    }
 
-	/**
-	 * @return DataResponse
-	 * @throws Exception
-	 */
-	public function getSettingsAdmin(): DataResponse {
+    /**
+     * Retrieves administrative settings for the application.
+     *
+     * @return DataResponse The response object containing configuration data and an HTTP status code.
+     */
+	final public function getSettingsAdmin(): DataResponse {
 		$data = $this->configService->getConfig();
 
 		return new DataResponse($data, Http::STATUS_OK);
 	}
 
-	/**
-	 * @param array $data
-	 *
-	 * @return DataResponse
-	 * @throws Exception
-	 */
-	public function setSettingsAdmin(array $data): DataResponse {
-		if ($this->configService->checkConfig($data)) {
-			$this->configService->setConfig($data);
-		}
+    /**
+     * Updates the settings for the administrator and saves the provided configuration data.
+     *
+     * @param array $data An associative array containing configuration data to be set.
+     * @return DataResponse Returns a DataResponse object containing the updated administrator settings.
+     */
+	final public function setSettingsAdmin(array $data): DataResponse {
 
-		return $this->getSettingsAdmin();
+        $errors = $this->configService->checkConfig($data);
+
+        if (empty($errors)) {
+            $this->configService->setConfig($data);
+            return $this->getSettingsAdmin();
+        }else{
+            return new DataResponse($errors, Http::STATUS_BAD_REQUEST);
+        }
 	}
 }

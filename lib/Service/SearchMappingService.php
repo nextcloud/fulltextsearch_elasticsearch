@@ -62,7 +62,7 @@ class SearchMappingService {
 	 * @throws ConfigurationException
 	 * @throws SearchQueryGenerationException
 	 */
-	public function generateSearchQuery(
+	final public function generateSearchQuery(
 		ISearchRequest $request,
 		IDocumentAccess $access,
 		string $providerId,
@@ -82,13 +82,13 @@ class SearchMappingService {
 	 * @throws ConfigurationException
 	 * @throws SearchQueryGenerationException
 	 */
-	public function generateSearchQueryParams(
+	final public function generateSearchQueryParams(
 		ISearchRequest $request,
 		IDocumentAccess $access,
 		string $providerId,
 	): array {
 		$params = [
-			'index' => $this->configService->getElasticIndex(),
+			'index' => $this->configService->getOpenSearchIndex(),
 			'size' => $request->getSize(),
 			'from' => (($request->getPage() - 1) * $request->getSize()),
 			'_source_excludes' => 'content'
@@ -434,9 +434,9 @@ class SearchMappingService {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function getDocumentQuery(string $providerId, string $documentId): array {
+	final public function getDocumentQuery(string $providerId, string $documentId): array {
 		return [
-			'index' => $this->configService->getElasticIndex(),
+			'index' => $this->configService->getOpenSearchIndex(),
 			'id' => $providerId . ':' . $documentId
 		];
 	}

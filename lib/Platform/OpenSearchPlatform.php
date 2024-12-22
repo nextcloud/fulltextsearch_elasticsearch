@@ -77,7 +77,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * return a unique Id of the platform.
 	 */
-	public function getId(): string {
+	final public function getId(): string {
 		return 'open_search';
 	}
 
@@ -85,7 +85,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * return a unique Id of the platform.
 	 */
-	public function getName(): string {
+	final public function getName(): string {
 		return 'OpenSearch';
 	}
 
@@ -94,11 +94,11 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function getConfiguration(): array {
+	final public function getConfiguration(): array {
 		$result = $this->configService->getConfig();
 
 		$sanitizedHosts = [];
-		$hosts = $this->configService->getElasticHost();
+		$hosts = $this->configService->getOpenSearchHost();
 		foreach ($hosts as $host) {
 			$parsedHost = parse_url($host);
 			$safeHost = $parsedHost['scheme'] . '://';
@@ -111,7 +111,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 			$sanitizedHosts[] = $safeHost;
 		}
 
-		$result['elastic_host'] = $sanitizedHosts;
+		$result['opensearch_host'] = $sanitizedHosts;
 
 		return $result;
 	}
@@ -120,7 +120,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * @param IRunner $runner
 	 */
-	public function setRunner(IRunner $runner) {
+	final public function setRunner(IRunner $runner): void
+    {
 		$this->runner = $runner;
 	}
 
@@ -133,8 +134,9 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws ConfigurationException
 	 * @throws Exception
 	 */
-	public function loadPlatform() {
-		$this->connectToElastic($this->configService->getElasticHost());
+	final public function loadPlatform(): void
+    {
+		$this->connectToOpenSearch($this->configService->getOpenSearchHost());
 	}
 
 
@@ -143,7 +145,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @return bool
 	 */
-	public function testPlatform(): bool {
+	final public function testPlatform(): bool {
 		$ping = $this->getClient()->ping();
 		return $ping;
 	}
@@ -156,7 +158,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function initializeIndex() {
+	final public function initializeIndex(): void
+    {
 		$this->indexService->initializeIndex($this->getClient());
 	}
 
@@ -171,7 +174,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws ConfigurationException
 	 */
-	public function resetIndex(string $providerId) {
+	final public function resetIndex(string $providerId): void
+    {
 		if ($providerId === 'all') {
 			$this->indexService->resetIndexAll($this->getClient());
 		} else {
@@ -185,7 +189,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @return IIndex
 	 */
-	public function indexDocument(IIndexDocument $document): IIndex {
+	final public function indexDocument(IIndexDocument $document): IIndex {
 		$document->initHash();
 		try {
 			$result = $this->indexService->indexDocument($this->getClient(), $document);
@@ -248,7 +252,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @param IIndexDocument $document
 	 * @param Exception $e
 	 */
-	private function manageIndexErrorException(IIndexDocument $document, Exception $e) {
+	private function manageIndexErrorException(IIndexDocument $document, Exception $e): void
+    {
 		[$level, $message, $status] = $this->parseIndexErrorException($e);
 		switch ($level) {
 			case 'error':
@@ -334,7 +339,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function deleteIndexes(array $indexes) {
+	final public function deleteIndexes(array $indexes): void
+    {
 		foreach ($indexes as $index) {
 			try {
 				$this->indexService->deleteIndex($this->getClient(), $index);
@@ -352,7 +358,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * {@inheritdoc}
 	 * @throws Exception
 	 */
-	public function searchRequest(ISearchResult $result, IDocumentAccess $access) {
+	final public function searchRequest(ISearchResult $result, IDocumentAccess $access): void
+    {
 		$this->searchService->searchRequest($this->getClient(), $result, $access);
 	}
 
@@ -364,7 +371,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @return IIndexDocument
 	 * @throws ConfigurationException
 	 */
-	public function getDocument(string $providerId, string $documentId): IIndexDocument {
+	final public function getDocument(string $providerId, string $documentId): IIndexDocument {
 		return $this->searchService->getDocument($this->getClient(), $providerId, $documentId);
 	}
 
@@ -382,13 +389,13 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws Exception
 	 */
-	private function connectToElastic(array $hosts): void {
+	private function connectToOpenSearch(array $hosts): void {
 		$hosts = array_map([$this, 'cleanHost'], $hosts);
 		$cb = ClientBuilder::create()
 			->setHosts($hosts)
 			->setRetries(3);
 
-		if ($this->configService->getAppValueBool(ConfigService::ELASTIC_LOGGER_ENABLED)) {
+		if ($this->configService->getAppValueBool(ConfigService::OPENSEARCH_LOGGER_ENABLED)) {
 			$cb->setLogger($this->logger);
 		}
 
@@ -420,7 +427,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @throws Exception
 	 */
-	private function updateRunnerAction(string $action, bool $force = false) {
+	private function updateRunnerAction(string $action, bool $force = false): void
+    {
 		if ($this->runner === null) {
 			return;
 		}
@@ -436,7 +444,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @param int $sev
 	 */
 	private function updateNewIndexError(IIndex $index, string $message, string $exception, int $sev,
-	) {
+	): void
+    {
 		if ($this->runner === null) {
 			return;
 		}
@@ -451,7 +460,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @param string $status
 	 * @param int $type
 	 */
-	private function updateNewIndexResult(IIndex $index, string $message, string $status, int $type) {
+	private function updateNewIndexResult(IIndex $index, string $message, string $status, int $type): void
+    {
 		if ($this->runner === null) {
 			return;
 		}

@@ -64,7 +64,7 @@ class SearchService {
 	 *
 	 * @throws Exception
 	 */
-	public function searchRequest(
+	final public function searchRequest(
 		Client $client,
 		ISearchResult $searchResult,
 		IDocumentAccess $access,
@@ -110,14 +110,13 @@ class SearchService {
 	 * @param string $providerId
 	 * @param string $documentId
 	 *
-	 * @return IIndexDocument
 	 * @throws ConfigurationException
 	 */
-	public function getDocument(
+	final public function getDocument(
 		Client $client,
 		string $providerId,
 		string $documentId,
-	): IIndexDocument {
+	): IndexDocument {
 		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
 
@@ -200,10 +199,8 @@ class SearchService {
 	/**
 	 * @param array $entry
 	 * @param string $viewerId
-	 *
-	 * @return IIndexDocument
 	 */
-	private function parseSearchEntry(array $entry, string $viewerId): IIndexDocument {
+	private function parseSearchEntry(array $entry, string $viewerId): IndexDocument {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 

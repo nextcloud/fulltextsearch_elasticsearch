@@ -36,7 +36,7 @@ var opensearch_elements = {
 
 
 	init: function () {
-		opensearch_elements.opensearch_div = $('#elastic_search');
+		opensearch_elements.opensearch_div = $('#open_search');
 		opensearch_elements.opensearch_host = $('#opensearch_host');
 		opensearch_elements.opensearch_index = $('#opensearch_index');
 		opensearch_elements.analyzer_tokenizer = $('#analyzer_tokenizer');

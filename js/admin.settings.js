@@ -45,36 +45,56 @@ var opensearch_settings = {
 
 	},
 
-	/** @namespace result.elastic_host */
-	/** @namespace result.elastic_index */
+	/** @namespace result.opensearch_host */
+	/** @namespace result.opensearch_index */
 	updateSettingPage: function (result) {
 
-		opensearch_elements.opensearch_host.val(result.elastic_host);
-		opensearch_elements.opensearch_index.val(result.elastic_index);
+		opensearch_elements.opensearch_host.val(result.opensearch_host);
+		opensearch_elements.opensearch_index.val(result.opensearch_index);
 		opensearch_elements.analyzer_tokenizer.val(result.analyzer_tokenizer);
 
 		fts_admin_settings.tagSettingsAsSaved(opensearch_elements.opensearch_div);
 	},
 
 
+	markInputField: function (input, mark=true) {
+		input.css('border-color', mark ? '#d00' : '#ccc');
+	},
+
 	saveSettings: function () {
 
 		var data = {
-			elastic_host: opensearch_elements.opensearch_host.val(),
-			elastic_index: opensearch_elements.opensearch_index.val(),
+			opensearch_host: opensearch_elements.opensearch_host.val(),
+			opensearch_index: opensearch_elements.opensearch_index.val(),
 			analyzer_tokenizer: opensearch_elements.analyzer_tokenizer.val()
 		};
 
-		$.ajax({
-			method: 'POST',
-			url: OC.generateUrl('/apps/fulltextsearch_opensearch/admin/settings'),
-			data: {
-				data: data
-			}
-		}).done(function (res) {
-			opensearch_settings.updateSettingPage(res);
-		});
+		if(data.opensearch_host === '') {
+			opensearch_settings.markInputField(opensearch_elements.opensearch_host, true);
+		}
+		if(data.opensearch_index === '') {
+			opensearch_settings.markInputField(opensearch_elements.opensearch_index, true);
+		}
 
+		if( data.opensearch_host !== '' && data.opensearch_index !== '' ) {
+			$.ajax({
+				method: 'POST',
+				url: OC.generateUrl('/apps/fulltextsearch_opensearch/admin/settings'),
+				data: {
+					data: data
+				}
+			}).done(function (res, textStatus, xhr) {
+				opensearch_settings.updateSettingPage(res);
+				opensearch_settings.markInputField(opensearch_elements.opensearch_host, false);
+				opensearch_settings.markInputField(opensearch_elements.opensearch_index, false);
+			}).fail(function (xhr, textStatus, errorThrown) {
+				if (xhr.responseJSON instanceof Array) {
+					xhr.responseJSON.forEach(function (value, index, array) {
+						opensearch_settings.markInputField($('#' + value), true);
+					});
+				}
+			});
+		}
 	}
 
 

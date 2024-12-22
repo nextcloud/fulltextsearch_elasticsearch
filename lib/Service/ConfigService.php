@@ -43,19 +43,17 @@ use OCP\IConfig;
 class ConfigService {
 
 	public const FIELDS_LIMIT = 'fields_limit';
-	public const ELASTIC_HOST = 'elastic_host';
-	public const ELASTIC_INDEX = 'elastic_index';
-	public const ELASTIC_VER_BELOW66 = 'es_ver_below66';
-	public const ELASTIC_LOGGER_ENABLED = 'elastic_logger_enabled';
+	public const OPENSEARCH_HOST = 'opensearch_host';
+	public const OPENSEARCH_INDEX = 'opensearch_index';
+	public const OPENSEARCH_LOGGER_ENABLED = 'opensearch_logger_enabled';
 	public const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
 	public const ALLOW_SELF_SIGNED_CERT = 'allow_self_signed_cert';
 
 	public static array $defaults = [
-		self::ELASTIC_HOST => '',
-		self::ELASTIC_INDEX => '',
+		self::OPENSEARCH_HOST => '',
+		self::OPENSEARCH_INDEX => '',
 		self::FIELDS_LIMIT => '10000',
-		self::ELASTIC_VER_BELOW66 => '0',
-		self::ELASTIC_LOGGER_ENABLED => 'true',
+		self::OPENSEARCH_LOGGER_ENABLED => 'true',
 		self::ANALYZER_TOKENIZER => 'standard',
 		self::ALLOW_SELF_SIGNED_CERT => 'false'
 	];
@@ -66,16 +64,16 @@ class ConfigService {
 	}
 
 
-	/**
-	 * @return array
-	 */
-	public function getConfig(): array {
-		$keys = array_keys(self::$defaults);
-		$data = [];
+    /**
+     * @return array
+     */
+	final public function getConfig(): array {
+        $keys = array_keys(self::$defaults);
+        $data = [];
 
-		foreach ($keys as $k) {
-			$data[$k] = $this->getAppValue($k);
-		}
+        foreach ($keys as $k) {
+            $data[$k] = $this->getAppValue($k);
+        }
 
 		return $data;
 	}
@@ -84,10 +82,11 @@ class ConfigService {
 	/**
 	 * @param array $save
 	 */
-	public function setConfig(array $save) {
-		$keys = array_keys(self::$defaults);
+	final public function setConfig(array $save): void
+    {
+        $keys = array_keys(self::$defaults);
 
-		foreach ($keys as $k) {
+        foreach ($keys as $k) {
 			if (array_key_exists($k, $save)) {
 				$this->setAppValue($k, $save[$k]);
 			}
@@ -99,8 +98,8 @@ class ConfigService {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	public function getElasticHost(): array {
-		$strHost = $this->getAppValue(self::ELASTIC_HOST);
+	final public function getOpenSearchHost(): array {
+		$strHost = $this->getAppValue(self::OPENSEARCH_HOST);
 		if ($strHost === '') {
 			throw new ConfigurationException(
 				'Your OpenSearchPlatform is not configured properly'
@@ -117,9 +116,9 @@ class ConfigService {
 	 * @return string
 	 * @throws ConfigurationException
 	 */
-	public function getElasticIndex(): string {
+	final public function getOpenSearchIndex(): string {
 
-		$index = $this->getAppValue(self::ELASTIC_INDEX);
+		$index = $this->getAppValue(self::OPENSEARCH_INDEX);
 		if ($index === '') {
 			throw new ConfigurationException(
 				'Your OpenSearchPlatform is not configured properly'
@@ -137,11 +136,8 @@ class ConfigService {
 	 *
 	 * @return string
 	 */
-	public function getAppValue(string $key): string {
-		$defaultValue = null;
-		if (array_key_exists($key, self::$defaults)) {
-			$defaultValue = self::$defaults[$key];
-		}
+	final public function getAppValue(string $key): string {
+        $defaultValue = self::$defaults[$key] ?? '';
 
 		return $this->config->getSystemValueString(
 			Application::APP_NAME . '.' . $key,
@@ -150,18 +146,14 @@ class ConfigService {
 	}
 
 
-	public function getAppValueBool(string $key): bool {
-		$value = $this->config->getAppValue(Application::APP_NAME, $key, null) ?? self::$defaults[$key] ?? false;
-		if (is_bool($value)) {
-			return $value;
-		}
-
-		if ($value === 1 ||
-			$value === '1' ||
-			strtolower($value) === 'true' ||
-			strtolower($value) === 'yes') {
-			return true;
-		}
+	final public function getAppValueBool(string $key): bool {
+        $defaultValue = self::$defaults[$key] ?? '';
+        $value = $this->config->getAppValue(Application::APP_NAME, $key, $defaultValue);
+        if($value && is_string($value)){
+            if (in_array(strtolower($value), ['1', 'true', 'yes'], true)) {
+                return true;
+            }
+        }
 
 		return false;
 	}
@@ -172,7 +164,8 @@ class ConfigService {
 	 * @param string $key
 	 * @param string $value
 	 */
-	public function setAppValue(string $key, string $value) {
+	final public function setAppValue(string $key, string $value): void
+    {
 		$this->config->setAppValue(Application::APP_NAME, $key, $value);
 	}
 
@@ -183,18 +176,60 @@ class ConfigService {
 	 *
 	 * @return string
 	 */
-	public function deleteAppValue(string $key): string {
+	final public function deleteAppValue(string $key): string {
 		return $this->config->deleteAppValue(Application::APP_NAME, $key);
 	}
 
-	/**
-	 * TODO: check json sent by admin front-end are valid.
-	 *
-	 * @param array $data
-	 *
-	 * @return bool
-	 */
-	public function checkConfig(array $data): bool {
-		return true;
-	}
+    /**
+     * Validates the provided configuration data and identifies any errors.
+     *
+     * @param array $data The configuration data to validate.
+     *
+     * @return array An array of errors indicating misconfigured keys, or an empty array if no issues are found.
+     */
+    final public function checkConfig(array $data): array
+    {
+        $errors = [];
+
+        if (!$this->isValidHost($data[self::OPENSEARCH_HOST] ?? null)) {
+            $errors[] = self::OPENSEARCH_HOST;
+        }
+
+        if (!$this->isValidIndex($data[self::OPENSEARCH_INDEX] ?? null)) {
+            $errors[] = self::OPENSEARCH_INDEX;
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Validates if the provided host is a valid URL with an accepted scheme.
+     *
+     * @param string|null $host The host to validate. Can be null or a string.
+     * @return bool True if the host is valid, false otherwise.
+     */
+    private function isValidHost(?string $host): bool
+    {
+        if ($host === null) {
+            return false;
+        }
+
+        return filter_var($host, FILTER_VALIDATE_URL)
+            && in_array(parse_url($host, PHP_URL_SCHEME), ['http', 'https', ''], true);
+    }
+
+    /**
+     * Validates whether the provided index is a valid string format for an index name.
+     *
+     * @param string|null $index The index name to validate. Can be null.
+     * @return bool Returns true if the index name is valid, false otherwise.
+     */
+    private function isValidIndex(?string $index): bool
+    {
+        if ($index === null) {
+            return false;
+        }
+
+        return preg_match('/^(?![-_])[a-z0-9-_]{1,255}(?<![-_])$/', $index) === 1;
+    }
 }
