@@ -11,6 +11,9 @@ OC.L10N.register(
     "Name of your index." : "Názov vášho indexu.",
     "[Advanced] Analyzer tokenizer" : "[Pokročilé] Analyzátor tokenizátor",
     "Some language might needs a specific tokenizer." : "Niektoré jazyky môžu potrebovať špecifický tokenizer.",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "objekt",
     "_" : "_"
 },
 "nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);");
