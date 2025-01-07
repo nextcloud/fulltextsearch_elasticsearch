@@ -62,7 +62,7 @@ class IndexService {
      *
      * @return bool Returns true if the index exists, false otherwise.
      */
-	final public function testIndex(Client $client): bool {
+	public function testIndex(Client $client): bool {
 		$map = $this->indexMappingService->generateGlobalMap(false);
 		$map['client'] = [
 			'verbose' => true
@@ -83,7 +83,7 @@ class IndexService {
      * @param Client $client The client instance used to interact with the index and ingest pipeline.
      * @return void
      */
-	final public function initializeIndex(Client $client): void {
+	public function initializeIndex(Client $client): void {
 		try {
 			if ($client->indices()
 				->exists($this->indexMappingService->generateGlobalMap(false))) {
@@ -119,7 +119,7 @@ class IndexService {
      * @param string $providerId The identifier of the provider for which the index should be reset.
      * @return void
      */
-	final public function resetIndex(Client $client, string $providerId): void {
+	public function resetIndex(Client $client, string $providerId): void {
 		try {
 			$client->deleteByQuery($this->indexMappingService->generateDeleteQuery($providerId));
 		} catch (Exception $e) {
@@ -135,7 +135,7 @@ class IndexService {
      * @param Client $client The client instance used to delete the ingest pipeline and index mapping.
      * @return void
      */
-	final public function resetIndexAll(Client $client): void {
+	public function resetIndexAll(Client $client): void {
 		try {
 			$client->ingest()
 				->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
@@ -160,7 +160,7 @@ class IndexService {
      * @param IIndex $index The index interface containing the provider and document IDs for the document to be removed.
      * @return void
      */
-	final public function deleteIndex(Client $client, IIndex $index): void {
+	public function deleteIndex(Client $client, IIndex $index): void {
 		$this->indexMappingService->indexDocumentRemove(
 			$client,
 			$index->getProviderId(),
@@ -179,7 +179,7 @@ class IndexService {
      * @param IIndexDocument $document The document to be indexed, containing its status, provider ID, and other data.
      * @return array The result of the indexing operation, detailing success or failure of the operation.
      */
-	final public function indexDocument(Client $client, IIndexDocument $document): array {
+	public function indexDocument(Client $client, IIndexDocument $document): array {
 		$result = [];
 		$index = $document->getIndex();
 		if ($index->isStatus(IIndex::INDEX_REMOVE)) {
@@ -205,7 +205,7 @@ class IndexService {
      * @param array $result The result data of the indexing operation.
      * @return IIndex The updated index object with modified status or error attributes.
      */
-	final public function parseIndexResult(IIndex $index, array $result): IIndex {
+	public function parseIndexResult(IIndex $index, array $result): IIndex {
 		$index->setLastIndex();
 
 		if (array_key_exists('exception', $result)) {

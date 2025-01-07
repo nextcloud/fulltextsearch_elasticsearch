@@ -77,7 +77,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * return a unique Id of the platform.
 	 */
-	final public function getId(): string {
+	public function getId(): string {
 		return 'open_search';
 	}
 
@@ -85,7 +85,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * return a unique Id of the platform.
 	 */
-	final public function getName(): string {
+	public function getName(): string {
 		return 'OpenSearch';
 	}
 
@@ -94,7 +94,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	final public function getConfiguration(): array {
+	public function getConfiguration(): array {
 		$result = $this->configService->getConfig();
 
 		$sanitizedHosts = [];
@@ -120,7 +120,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	/**
 	 * @param IRunner $runner
 	 */
-	final public function setRunner(IRunner $runner): void
+	public function setRunner(IRunner $runner): void
     {
 		$this->runner = $runner;
 	}
@@ -134,7 +134,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws ConfigurationException
 	 * @throws Exception
 	 */
-	final public function loadPlatform(): void
+	public function loadPlatform(): void
     {
 		$this->connectToOpenSearch($this->configService->getOpenSearchHost());
 	}
@@ -145,7 +145,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @return bool
 	 */
-	final public function testPlatform(): bool {
+	public function testPlatform(): bool {
 		$ping = $this->getClient()->ping();
 		return $ping;
 	}
@@ -156,9 +156,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * We create a general index.
 	 *
-	 * @throws ConfigurationException
 	 */
-	final public function initializeIndex(): void
+	public function initializeIndex(): void
     {
 		$this->indexService->initializeIndex($this->getClient());
 	}
@@ -172,9 +171,8 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @param string $providerId
 	 *
-	 * @throws ConfigurationException
 	 */
-	final public function resetIndex(string $providerId): void
+	public function resetIndex(string $providerId): void
     {
 		if ($providerId === 'all') {
 			$this->indexService->resetIndexAll($this->getClient());
@@ -189,7 +187,7 @@ class OpenSearchPlatform implements IFullTextSearchPlatform {
 	 *
 	 * @return IIndex
 	 */
-	final public function indexDocument(IIndexDocument $document): IIndex {
+	public function indexDocument(IIndexDocument $document): IIndex {
 		$document->initHash();
 		try {
 			$result = $this->indexService->indexDocument($this->getClient(), $document);

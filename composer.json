@@ -45,7 +45,7 @@
     "lint": "find . -name \\*.php -not -path './vendor/*' -not -path './vendor-bin/*' -not -path './lib/Vendor/*'  -print0 | xargs -0 -n1 php -l",
     "vendor-build-setup": [
       "@composer bin all install --ignore-platform-reqs # unfortunately the flag is required for 8.0",
-      "vendor/bin/php-scoper add-prefix --force # Scope our dependencies",
+      "vendor-bin/php-scoper/vendor/bin/php-scoper add-prefix --force # Scope our dependencies",
       "sed -i 's/\\\\\\\\OpenSearch\\\\\\\\Endpoints\\\\\\\\/\\\\\\\\OCA\\\\\\\\FullTextSearch_OpenSearch\\\\\\\\Vendor\\\\\\\\OpenSearch\\\\\\\\Endpoints\\\\\\\\/g' build/opensearch-project/opensearch-php/src/OpenSearch/ClientBuilder.php",
       "find build/opensearch-project/opensearch-php/src/OpenSearch/Namespaces/ -type f -exec sed -i \"s/endpointBuilder('OCA\\\\\\\\\\\\\\FullTextSearch_OpenSearch\\\\\\\\\\\\\\Vendor\\\\\\\\\\\\\\\\/endpointBuilder('/g\" {} \\;",
       "rm -Rf lib/Vendor && mv build lib/Vendor",

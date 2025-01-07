@@ -67,7 +67,7 @@ class ConfigService {
     /**
      * @return array
      */
-	final public function getConfig(): array {
+	public function getConfig(): array {
         $keys = array_keys(self::$defaults);
         $data = [];
 
@@ -82,7 +82,7 @@ class ConfigService {
 	/**
 	 * @param array $save
 	 */
-	final public function setConfig(array $save): void
+	public function setConfig(array $save): void
     {
         $keys = array_keys(self::$defaults);
 
@@ -98,7 +98,7 @@ class ConfigService {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	final public function getOpenSearchHost(): array {
+	public function getOpenSearchHost(): array {
 		$strHost = $this->getAppValue(self::OPENSEARCH_HOST);
 		if ($strHost === '') {
 			throw new ConfigurationException(
@@ -116,7 +116,7 @@ class ConfigService {
 	 * @return string
 	 * @throws ConfigurationException
 	 */
-	final public function getOpenSearchIndex(): string {
+	public function getOpenSearchIndex(): string {
 
 		$index = $this->getAppValue(self::OPENSEARCH_INDEX);
 		if ($index === '') {
@@ -136,7 +136,7 @@ class ConfigService {
 	 *
 	 * @return string
 	 */
-	final public function getAppValue(string $key): string {
+	public function getAppValue(string $key): string {
         $defaultValue = self::$defaults[$key] ?? '';
 
 		return $this->config->getSystemValueString(
@@ -146,7 +146,7 @@ class ConfigService {
 	}
 
 
-	final public function getAppValueBool(string $key): bool {
+	public function getAppValueBool(string $key): bool {
         $defaultValue = self::$defaults[$key] ?? '';
         $value = $this->config->getAppValue(Application::APP_NAME, $key, $defaultValue);
         if($value && is_string($value)){
@@ -164,7 +164,7 @@ class ConfigService {
 	 * @param string $key
 	 * @param string $value
 	 */
-	final public function setAppValue(string $key, string $value): void
+	public function setAppValue(string $key, string $value): void
     {
 		$this->config->setAppValue(Application::APP_NAME, $key, $value);
 	}
@@ -176,7 +176,7 @@ class ConfigService {
 	 *
 	 * @return string
 	 */
-	final public function deleteAppValue(string $key): string {
+	public function deleteAppValue(string $key): string {
 		return $this->config->deleteAppValue(Application::APP_NAME, $key);
 	}
 
@@ -187,7 +187,7 @@ class ConfigService {
      *
      * @return array An array of errors indicating misconfigured keys, or an empty array if no issues are found.
      */
-    final public function checkConfig(array $data): array
+    public function checkConfig(array $data): array
     {
         $errors = [];
 

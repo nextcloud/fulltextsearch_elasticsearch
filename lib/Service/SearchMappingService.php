@@ -62,7 +62,7 @@ class SearchMappingService {
 	 * @throws ConfigurationException
 	 * @throws SearchQueryGenerationException
 	 */
-	final public function generateSearchQuery(
+	public function generateSearchQuery(
 		ISearchRequest $request,
 		IDocumentAccess $access,
 		string $providerId,
@@ -82,7 +82,7 @@ class SearchMappingService {
 	 * @throws ConfigurationException
 	 * @throws SearchQueryGenerationException
 	 */
-	final public function generateSearchQueryParams(
+	public function generateSearchQueryParams(
 		ISearchRequest $request,
 		IDocumentAccess $access,
 		string $providerId,
@@ -155,7 +155,7 @@ class SearchMappingService {
 	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
-	private function improveSearchWildcardFilters(ISearchRequest $request, array &$arr): void {
+	protected function improveSearchWildcardFilters(ISearchRequest $request, array &$arr): void {
 		$filters = $request->getWildcardFilters();
 		foreach ($filters as $filter) {
 			$wildcards = [];
@@ -191,7 +191,7 @@ class SearchMappingService {
 	 * @return array
 	 * @throws SearchQueryGenerationException
 	 */
-	private function generateSearchQueryContent(ISearchRequest $request): array {
+	protected function generateSearchQueryContent(ISearchRequest $request): array {
 		$str = strtolower($request->getSearch());
 
 		preg_match_all('/[^?]"(?:\\\\.|[^\\\\"])*"|\S+/', " $str ", $words);
@@ -434,7 +434,7 @@ class SearchMappingService {
 	 * @return array
 	 * @throws ConfigurationException
 	 */
-	final public function getDocumentQuery(string $providerId, string $documentId): array {
+	public function getDocumentQuery(string $providerId, string $documentId): array {
 		return [
 			'index' => $this->configService->getOpenSearchIndex(),
 			'id' => $providerId . ':' . $documentId
