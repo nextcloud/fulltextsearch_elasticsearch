@@ -11,6 +11,10 @@ OC.L10N.register(
     "Name of your index." : "インデックスの名前。",
     "[Advanced] Analyzer tokenizer" : "[Advanced] アナライザ トークナイザ",
     "Some language might needs a specific tokenizer." : "言語によっては、特定のトークナイザが必要な場合があります。",
+    ">tbody" : ">tbody",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "オブジェクト",
     "_" : "_"
 },
 "nplurals=1; plural=0;");
