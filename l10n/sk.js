@@ -11,6 +11,7 @@ OC.L10N.register(
     "Name of your index." : "Názov vášho indexu.",
     "[Advanced] Analyzer tokenizer" : "[Pokročilé] Analyzátor tokenizátor",
     "Some language might needs a specific tokenizer." : "Niektoré jazyky môžu potrebovať špecifický tokenizer.",
+    ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",
     "object" : "objekt",
