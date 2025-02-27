@@ -24,6 +24,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 	<screenshot>https://raw.githubusercontent.com/nextcloud/fulltextsearch/master/screenshots/0.3.0.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="29" max-version="29"/>
+		<php min-version="8.1"/>
 	</dependencies>
 
 	<commands>
