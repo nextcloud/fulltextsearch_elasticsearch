@@ -18,10 +18,12 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ContentTypeException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\MissingParameterException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Utility;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\OpenTelemetry;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Serializer\JsonSerializer;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Serializer\NDJsonSerializer;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Psr17FactoryDiscovery;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ServerRequestInterface;
 use function http_build_query;
 use function strpos;
 use function sprintf;
@@ -116,9 +118,9 @@ trait EndpointTrait
      */
     protected function createRequest(string $method, string $url, array $headers, $body = null) : RequestInterface
     {
-        $requestFactory = Psr17FactoryDiscovery::findRequestFactory();
+        $requestFactory = Psr17FactoryDiscovery::findServerRequestFactory();
         $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
-        $request = $requestFactory->createRequest($method, $url);
+        $request = $requestFactory->createServerRequest($method, $url);
         // Body request
         if (!empty($body)) {
             if (!isset($headers['Content-Type'])) {
@@ -169,5 +171,28 @@ trait EndpointTrait
                 throw new MissingParameterException(sprintf('The parameter %s is required', $req));
             }
         }
+    }
+    /**
+     * Add the OpenTelemetry attributes to the PSR-7 ServerRequest
+     */
+    protected function addOtelAttributes(array $params, array $requiredPathParts, ServerRequestInterface $request, string $endpoint) : ServerRequestInterface
+    {
+        // Check if OpenTelemetry instrumentation is enbaled
+        if (!\getenv(OpenTelemetry::ENV_VARIABLE_ENABLED)) {
+            return $request;
+        }
+        $otel = [];
+        foreach ($requiredPathParts as $part) {
+            if (isset($params[$part])) {
+                $otel["db.elasticsearch.path_parts.{$part}"] = $params[$part];
+            }
+        }
+        if (\in_array($endpoint, Client::SEARCH_ENDPOINTS)) {
+            $body = $request->getBody()->getContents();
+            if (!empty($body)) {
+                $otel['db.query.text'] = OpenTelemetry::redactBody($body);
+            }
+        }
+        return $request->withAttribute(OpenTelemetry::PSR7_OTEL_ATTRIBUTE_NAME, \array_merge($otel, ['db.system' => 'elasticsearch', 'db.operation.name' => $endpoint]));
     }
 }

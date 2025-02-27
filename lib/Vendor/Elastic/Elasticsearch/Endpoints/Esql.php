@@ -29,7 +29,6 @@ class Esql extends AbstractEndpoint
      * Executes an ESQL request asynchronously
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/esql-async-query-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
      *     format: string, // a short version of the Accept header, e.g. json, yaml
@@ -56,7 +55,9 @@ class Esql extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['format', 'delimiter', 'drop_null_columns', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'esql.async_query');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves the results of a previously submitted async query request given its ID.
@@ -89,13 +90,14 @@ class Esql extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['wait_for_completion_timeout', 'keep_alive', 'drop_null_columns', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'esql.async_query_get');
+        return $this->client->sendRequest($request);
     }
     /**
      * Executes an ESQL request
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/esql-query-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
      *     format: string, // a short version of the Accept header, e.g. json, yaml
@@ -122,6 +124,8 @@ class Esql extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['format', 'delimiter', 'drop_null_columns', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'esql.query');
+        return $this->client->sendRequest($request);
     }
 }

@@ -26,14 +26,16 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Inference extends AbstractEndpoint
 {
     /**
-     * Delete model in the Inference API
+     * Delete an inference endpoint
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-inference-api.html
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     inference_id: string, // (REQUIRED) The model Id
+     *     inference_id: string, // (REQUIRED) The inference Id
      *     task_type: string, //  The task type
+     *     dry_run: boolean, // If true the endpoint will not be deleted and a list of ingest processors which reference this endpoint will be returned.
+     *     force: boolean, // If true the endpoint will be forcefully stopped (regardless of whether or not it is referenced by any ingest processors or semantic text fields).
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -48,7 +50,7 @@ class Inference extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteModel(array $params = [])
+    public function delete(array $params = [])
     {
         $this->checkRequiredParameters(['inference_id'], $params);
         if (isset($params['task_type'])) {
@@ -58,18 +60,20 @@ class Inference extends AbstractEndpoint
             $url = '/_inference/' . $this->encode($params['inference_id']);
             $method = 'DELETE';
         }
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['dry_run', 'force', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['inference_id', 'task_type'], $request, 'inference.delete');
+        return $this->client->sendRequest($request);
     }
     /**
-     * Get a model in the Inference API
+     * Get an inference endpoint
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-inference-api.html
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     inference_id: string, // (REQUIRED) The inference Id
+     *     inference_id: string, //  The inference Id
      *     task_type: string, //  The task type
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
@@ -78,29 +82,32 @@ class Inference extends AbstractEndpoint
      *     filter_path: list, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
-     * @throws MissingParameterException if a required parameter is missing
      * @throws NoNodeAvailableException if all the hosts are offline
      * @throws ClientResponseException if the status code of response is 4xx
      * @throws ServerResponseException if the status code of response is 5xx
      *
      * @return Elasticsearch|Promise
      */
-    public function getModel(array $params = [])
+    public function get(array $params = [])
     {
-        $this->checkRequiredParameters(['inference_id'], $params);
-        if (isset($params['task_type'])) {
+        if (isset($params['task_type']) && isset($params['inference_id'])) {
             $url = '/_inference/' . $this->encode($params['task_type']) . '/' . $this->encode($params['inference_id']);
             $method = 'GET';
-        } else {
+        } elseif (isset($params['inference_id'])) {
             $url = '/_inference/' . $this->encode($params['inference_id']);
+            $method = 'GET';
+        } else {
+            $url = '/_inference';
             $method = 'GET';
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['inference_id', 'task_type'], $request, 'inference.get');
+        return $this->client->sendRequest($request);
     }
     /**
-     * Perform inference on a model
+     * Perform inference
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/post-inference-api.html
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
@@ -135,10 +142,12 @@ class Inference extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['inference_id', 'task_type'], $request, 'inference.inference');
+        return $this->client->sendRequest($request);
     }
     /**
-     * Configure a model for use in the Inference API
+     * Configure an inference endpoint for use in the Inference API
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/put-inference-api.html
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
@@ -151,7 +160,7 @@ class Inference extends AbstractEndpoint
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The model's task and service settings
+     *     body: array, //  The inference endpoint's task and service settings
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -161,7 +170,7 @@ class Inference extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putModel(array $params = [])
+    public function put(array $params = [])
     {
         $this->checkRequiredParameters(['inference_id'], $params);
         if (isset($params['task_type'])) {
@@ -173,6 +182,48 @@ class Inference extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['inference_id', 'task_type'], $request, 'inference.put');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Perform streaming inference
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/post-stream-inference-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     inference_id: string, // (REQUIRED) The inference Id
+     *     task_type: string, //  The task type
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, //  The inference payload
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function streamInference(array $params = [])
+    {
+        $this->checkRequiredParameters(['inference_id'], $params);
+        if (isset($params['task_type'])) {
+            $url = '/_inference/' . $this->encode($params['task_type']) . '/' . $this->encode($params['inference_id']) . '/_stream';
+            $method = 'POST';
+        } else {
+            $url = '/_inference/' . $this->encode($params['inference_id']) . '/_stream';
+            $method = 'POST';
+        }
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'text/event-stream', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['inference_id', 'task_type'], $request, 'inference.stream_inference');
+        return $this->client->sendRequest($request);
     }
 }

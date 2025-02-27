@@ -52,7 +52,9 @@ class Xpack extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['categories', 'accept_enterprise', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'xpack.info');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves usage information about the installed X-Pack features.
@@ -80,6 +82,8 @@ class Xpack extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'xpack.usage');
+        return $this->client->sendRequest($request);
     }
 }

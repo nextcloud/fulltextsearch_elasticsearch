@@ -53,7 +53,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.clear_trained_model_deployment_cache');
+        return $this->client->sendRequest($request);
     }
     /**
      * Closes one or more anomaly detection jobs. A job can be opened and closed multiple times throughout its lifecycle.
@@ -87,7 +89,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'force', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.close_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes a calendar.
@@ -117,7 +121,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id'], $request, 'ml.delete_calendar');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes scheduled events from a calendar.
@@ -148,7 +154,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id', 'event_id'], $request, 'ml.delete_calendar_event');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes anomaly detection jobs from a calendar.
@@ -179,7 +187,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id', 'job_id'], $request, 'ml.delete_calendar_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes an existing data frame analytics job.
@@ -211,7 +221,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['force', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.delete_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes an existing datafeed.
@@ -242,7 +254,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['force', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.delete_datafeed');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes expired and unused machine learning data.
@@ -278,7 +292,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['requests_per_second', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.delete_expired_data');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes a filter.
@@ -308,7 +324,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['filter_id'], $request, 'ml.delete_filter');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes forecasts from a machine learning job.
@@ -346,7 +364,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_forecasts', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'forecast_id'], $request, 'ml.delete_forecast');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes an existing anomaly detection job.
@@ -379,7 +399,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['force', 'wait_for_completion', 'delete_user_annotations', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.delete_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes an existing model snapshot.
@@ -410,7 +432,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'snapshot_id'], $request, 'ml.delete_model_snapshot');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes an existing trained inference model that is currently not referenced by an ingest pipeline.
@@ -442,7 +466,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['timeout', 'force', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.delete_trained_model');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes a model alias that refers to the trained model
@@ -473,7 +499,9 @@ class Ml extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_alias', 'model_id'], $request, 'ml.delete_trained_model_alias');
+        return $this->client->sendRequest($request);
     }
     /**
      * Estimates the model memory
@@ -502,7 +530,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ml.estimate_model_memory');
+        return $this->client->sendRequest($request);
     }
     /**
      * Evaluates the data frame analytics for an annotated index.
@@ -531,7 +561,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ml.evaluate_data_frame');
+        return $this->client->sendRequest($request);
     }
     /**
      * Explains a data frame analytics config.
@@ -565,7 +597,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.explain_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Forces any buffered data to be processed by the job.
@@ -601,7 +635,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['calc_interim', 'start', 'end', 'advance_time', 'skip_time', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.flush_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Predicts the future behavior of a time series by using its historical behavior.
@@ -635,7 +671,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['duration', 'expires_in', 'max_model_memory', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.forecast');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves anomaly detection job results for one or more buckets.
@@ -681,7 +719,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['expand', 'exclude_interim', 'from', 'size', 'start', 'end', 'anomaly_score', 'sort', 'desc', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'timestamp'], $request, 'ml.get_buckets');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves information about the scheduled events in calendars.
@@ -716,7 +756,9 @@ class Ml extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['job_id', 'start', 'end', 'from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id'], $request, 'ml.get_calendar_events');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves configuration information for calendars.
@@ -752,7 +794,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id'], $request, 'ml.get_calendars');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves anomaly detection job results for one or more categories.
@@ -787,12 +831,14 @@ class Ml extends AbstractEndpoint
             $url = '/_ml/anomaly_detectors/' . $this->encode($params['job_id']) . '/results/categories/' . $this->encode($params['category_id']);
             $method = empty($params['body']) ? 'GET' : 'POST';
         } else {
-            $url = '/_ml/anomaly_detectors/' . $this->encode($params['job_id']) . '/results/categories/';
+            $url = '/_ml/anomaly_detectors/' . $this->encode($params['job_id']) . '/results/categories';
             $method = empty($params['body']) ? 'GET' : 'POST';
         }
         $url = $this->addQueryString($url, $params, ['from', 'size', 'partition_field_value', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'category_id'], $request, 'ml.get_categories');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves configuration information for data frame analytics jobs.
@@ -829,7 +875,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'from', 'size', 'exclude_generated', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.get_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves usage information for data frame analytics jobs.
@@ -866,7 +914,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'from', 'size', 'verbose', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.get_data_frame_analytics_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves usage information for datafeeds.
@@ -900,7 +950,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.get_datafeed_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves configuration information for datafeeds.
@@ -935,7 +987,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'exclude_generated', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.get_datafeeds');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves filters.
@@ -970,7 +1024,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['filter_id'], $request, 'ml.get_filters');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves anomaly detection job results for one or more influencers.
@@ -1009,7 +1065,9 @@ class Ml extends AbstractEndpoint
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['exclude_interim', 'from', 'size', 'start', 'end', 'influencer_score', 'sort', 'desc', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.get_influencers');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves usage information for anomaly detection jobs.
@@ -1043,7 +1101,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.get_job_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves configuration information for anomaly detection jobs.
@@ -1078,7 +1138,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'exclude_generated', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.get_jobs');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information on how ML is using memory.
@@ -1113,7 +1175,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id'], $request, 'ml.get_memory_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Gets stats for anomaly detection job model snapshot upgrades that are in progress.
@@ -1145,7 +1209,9 @@ class Ml extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'snapshot_id'], $request, 'ml.get_model_snapshot_upgrade_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves information about model snapshots.
@@ -1188,7 +1254,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['from', 'size', 'start', 'end', 'sort', 'desc', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'snapshot_id'], $request, 'ml.get_model_snapshots');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves overall bucket results that summarize the bucket results of multiple anomaly detection jobs.
@@ -1226,7 +1294,9 @@ class Ml extends AbstractEndpoint
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['top_n', 'bucket_span', 'overall_score', 'exclude_interim', 'start', 'end', 'allow_no_match', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.get_overall_buckets');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves anomaly records for an anomaly detection job.
@@ -1265,7 +1335,9 @@ class Ml extends AbstractEndpoint
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['exclude_interim', 'from', 'size', 'start', 'end', 'record_score', 'sort', 'desc', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.get_records');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves configuration information for a trained inference model.
@@ -1306,7 +1378,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'include', 'include_model_definition', 'decompress_definition', 'from', 'size', 'tags', 'exclude_generated', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.get_trained_models');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves usage information for trained inference models.
@@ -1342,7 +1416,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.get_trained_models_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Evaluate a trained model.
@@ -1374,7 +1450,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.infer_trained_model');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns defaults and limits used by machine learning.
@@ -1401,7 +1479,9 @@ class Ml extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ml.info');
+        return $this->client->sendRequest($request);
     }
     /**
      * Opens one or more anomaly detection jobs.
@@ -1432,7 +1512,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.open_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Posts scheduled events in a calendar.
@@ -1463,7 +1545,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id'], $request, 'ml.post_calendar_events');
+        return $this->client->sendRequest($request);
     }
     /**
      * Sends data to an anomaly detection job for analysis.
@@ -1496,7 +1580,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['reset_start', 'reset_end', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => isset($params['body']) && (\is_string($params['body']) || $this->isAssociativeArray($params['body'])) ? 'application/json' : 'application/x-ndjson'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.post_data');
+        return $this->client->sendRequest($request);
     }
     /**
      * Previews that will be analyzed given a data frame analytics config.
@@ -1530,7 +1616,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.preview_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Previews a datafeed.
@@ -1566,7 +1654,9 @@ class Ml extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['start', 'end', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.preview_datafeed');
+        return $this->client->sendRequest($request);
     }
     /**
      * Instantiates a calendar.
@@ -1597,7 +1687,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id'], $request, 'ml.put_calendar');
+        return $this->client->sendRequest($request);
     }
     /**
      * Adds an anomaly detection job to a calendar.
@@ -1628,7 +1720,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['calendar_id', 'job_id'], $request, 'ml.put_calendar_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Instantiates a data frame analytics job.
@@ -1659,7 +1753,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.put_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Instantiates a datafeed.
@@ -1694,7 +1790,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'ignore_throttled', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.put_datafeed');
+        return $this->client->sendRequest($request);
     }
     /**
      * Instantiates a filter.
@@ -1725,7 +1823,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['filter_id'], $request, 'ml.put_filter');
+        return $this->client->sendRequest($request);
     }
     /**
      * Instantiates an anomaly detection job.
@@ -1760,7 +1860,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'ignore_throttled', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.put_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates an inference trained model.
@@ -1793,7 +1895,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['defer_definition_decompression', 'wait_for_completion', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.put_trained_model');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a new model alias (or reassigns an existing one) to refer to the trained model
@@ -1825,7 +1929,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['reassign', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_alias', 'model_id'], $request, 'ml.put_trained_model_alias');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates part of a trained model definition
@@ -1857,7 +1963,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id', 'part'], $request, 'ml.put_trained_model_definition_part');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a trained model vocabulary
@@ -1888,7 +1996,9 @@ class Ml extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.put_trained_model_vocabulary');
+        return $this->client->sendRequest($request);
     }
     /**
      * Resets an existing anomaly detection job.
@@ -1920,7 +2030,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['wait_for_completion', 'delete_user_annotations', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.reset_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Reverts to a specific snapshot.
@@ -1953,7 +2065,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['delete_intervening_results', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'snapshot_id'], $request, 'ml.revert_model_snapshot');
+        return $this->client->sendRequest($request);
     }
     /**
      * Sets a cluster wide upgrade_mode setting that prepares machine learning indices for an upgrade.
@@ -1982,7 +2096,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['enabled', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ml.set_upgrade_mode');
+        return $this->client->sendRequest($request);
     }
     /**
      * Starts a data frame analytics job.
@@ -2014,7 +2130,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.start_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Starts one or more datafeeds.
@@ -2048,7 +2166,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['start', 'end', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.start_datafeed');
+        return $this->client->sendRequest($request);
     }
     /**
      * Start a trained model deployment.
@@ -2086,7 +2206,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['cache_size', 'deployment_id', 'number_of_allocations', 'threads_per_allocation', 'priority', 'queue_capacity', 'timeout', 'wait_for', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.start_trained_model_deployment');
+        return $this->client->sendRequest($request);
     }
     /**
      * Stops one or more data frame analytics jobs.
@@ -2120,7 +2242,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'force', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.stop_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Stops one or more datafeeds.
@@ -2155,7 +2279,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'allow_no_datafeeds', 'force', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.stop_datafeed');
+        return $this->client->sendRequest($request);
     }
     /**
      * Stop a trained model deployment.
@@ -2188,7 +2314,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'force', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.stop_trained_model_deployment');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates certain properties of a data frame analytics job.
@@ -2219,7 +2347,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ml.update_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates certain properties of a datafeed.
@@ -2254,7 +2384,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'ignore_throttled', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'ml.update_datafeed');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the description of a filter, adds items, or removes items.
@@ -2285,7 +2417,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['filter_id'], $request, 'ml.update_filter');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates certain properties of an anomaly detection job.
@@ -2316,7 +2450,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.update_job');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates certain properties of a snapshot.
@@ -2348,7 +2484,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'snapshot_id'], $request, 'ml.update_model_snapshot');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates certain properties of trained model deployment.
@@ -2357,12 +2495,13 @@ class Ml extends AbstractEndpoint
      *
      * @param array{
      *     model_id: string, // (REQUIRED) The unique identifier of the trained model.
+     *     number_of_allocations: int, // Update the model deployment to this number of allocations.
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The updated trained model deployment settings
+     *     body: array, //  The updated trained model deployment settings
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -2374,12 +2513,14 @@ class Ml extends AbstractEndpoint
      */
     public function updateTrainedModelDeployment(array $params = [])
     {
-        $this->checkRequiredParameters(['model_id', 'body'], $params);
+        $this->checkRequiredParameters(['model_id'], $params);
         $url = '/_ml/trained_models/' . $this->encode($params['model_id']) . '/deployment/_update';
         $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['number_of_allocations', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'ml.update_trained_model_deployment');
+        return $this->client->sendRequest($request);
     }
     /**
      * Upgrades a given job snapshot to the current major version.
@@ -2412,7 +2553,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['timeout', 'wait_for_completion', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id', 'snapshot_id'], $request, 'ml.upgrade_job_snapshot');
+        return $this->client->sendRequest($request);
     }
     /**
      * Validates an anomaly detection job.
@@ -2441,7 +2584,9 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ml.validate');
+        return $this->client->sendRequest($request);
     }
     /**
      * Validates an anomaly detection detector.
@@ -2470,6 +2615,8 @@ class Ml extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ml.validate_detector');
+        return $this->client->sendRequest($request);
     }
 }

@@ -54,7 +54,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.delete');
+        return $this->client->sendRequest($request);
     }
     /**
      * Delete a behavioral analytics collection.
@@ -85,7 +87,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.delete_behavioral_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the details about a search application.
@@ -116,7 +120,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.get');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the existing behavioral analytics collections.
@@ -150,7 +156,9 @@ class SearchApplication extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.get_behavioral_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the existing search applications.
@@ -181,7 +189,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['q', 'from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'search_application.list');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a behavioral analytics event for existing collection.
@@ -215,7 +225,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['debug', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['collection_name', 'event_type'], $request, 'search_application.post_behavioral_analytics_event');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates or updates a search application.
@@ -248,7 +260,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['create', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.put');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a behavioral analytics collection.
@@ -279,7 +293,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.put_behavioral_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Renders a query for given search application search parameters
@@ -311,7 +327,9 @@ class SearchApplication extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.render_query');
+        return $this->client->sendRequest($request);
     }
     /**
      * Perform a search against a search application
@@ -321,6 +339,7 @@ class SearchApplication extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the search application to be searched
+     *     typed_keys: boolean, // Specify whether aggregation and suggester names should be prefixed by their respective types in the response
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -341,8 +360,10 @@ class SearchApplication extends AbstractEndpoint
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_application/search_application/' . $this->encode($params['name']) . '/_search';
         $method = empty($params['body']) ? 'GET' : 'POST';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['typed_keys', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'search_application.search');
+        return $this->client->sendRequest($request);
     }
 }

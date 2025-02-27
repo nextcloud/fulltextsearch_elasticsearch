@@ -20,6 +20,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Resurrect\NoResurrect;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Selector\RoundRobin;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Psr18ClientDiscovery;
+use OCA\FullTextSearch_Elasticsearch\Vendor\OpenTelemetry\API\Trace\TracerInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -30,6 +31,7 @@ class TransportBuilder
     protected NodePoolInterface $nodePool;
     protected LoggerInterface $logger;
     protected array $hosts = [];
+    protected TracerInterface $OTelTracer;
     public final function __construct()
     {
     }

@@ -52,7 +52,9 @@ class Sql extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'sql.clear_cursor');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes an async SQL search or a stored synchronous SQL search. If the search is still running, the API cancels it.
@@ -82,7 +84,9 @@ class Sql extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'sql.delete_async');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the current status and available results for an async SQL search or stored synchronous SQL search
@@ -116,7 +120,9 @@ class Sql extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['delimiter', 'format', 'keep_alive', 'wait_for_completion_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'sql.get_async');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the current status of an async SQL search or a stored synchronous SQL search
@@ -146,7 +152,9 @@ class Sql extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'sql.get_async_status');
+        return $this->client->sendRequest($request);
     }
     /**
      * Executes a SQL request
@@ -176,7 +184,9 @@ class Sql extends AbstractEndpoint
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['format', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'sql.query');
+        return $this->client->sendRequest($request);
     }
     /**
      * Translates SQL into Elasticsearch queries
@@ -205,6 +215,8 @@ class Sql extends AbstractEndpoint
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'sql.translate');
+        return $this->client->sendRequest($request);
     }
 }

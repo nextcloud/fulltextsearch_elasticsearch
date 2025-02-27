@@ -20,7 +20,6 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Cat;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Ccr;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Cluster;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Connector;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\ConnectorSyncJob;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\DanglingIndices;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Enrich;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Eql;
@@ -39,7 +38,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Ml;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Monitoring;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Nodes;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Profiling;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\QueryRuleset;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\QueryRules;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Rollup;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\SearchApplication;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\SearchableSnapshots;
@@ -104,13 +103,6 @@ trait NamespaceTrait
             $this->namespace['Connector'] = new Connector($this);
         }
         return $this->namespace['Connector'];
-    }
-    public function connectorSyncJob() : ConnectorSyncJob
-    {
-        if (!isset($this->namespace['ConnectorSyncJob'])) {
-            $this->namespace['ConnectorSyncJob'] = new ConnectorSyncJob($this);
-        }
-        return $this->namespace['ConnectorSyncJob'];
     }
     public function danglingIndices() : DanglingIndices
     {
@@ -238,12 +230,12 @@ trait NamespaceTrait
         }
         return $this->namespace['Profiling'];
     }
-    public function queryRuleset() : QueryRuleset
+    public function queryRules() : QueryRules
     {
-        if (!isset($this->namespace['QueryRuleset'])) {
-            $this->namespace['QueryRuleset'] = new QueryRuleset($this);
+        if (!isset($this->namespace['QueryRules'])) {
+            $this->namespace['QueryRules'] = new QueryRules($this);
         }
-        return $this->namespace['QueryRuleset'];
+        return $this->namespace['QueryRules'];
     }
     public function rollup() : Rollup
     {

@@ -26,6 +26,70 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Ingest extends AbstractEndpoint
 {
     /**
+     * Deletes a geoip database configuration
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-geoip-database-api.html
+     *
+     * @param array{
+     *     id: list, // (REQUIRED) A comma-separated list of geoip database configurations to delete
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function deleteGeoipDatabase(array $params = [])
+    {
+        $this->checkRequiredParameters(['id'], $params);
+        $url = '/_ingest/geoip/database/' . $this->encode($params['id']);
+        $method = 'DELETE';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.delete_geoip_database');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Deletes an ip location database configuration
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-ip-location-database-api.html
+     *
+     * @param array{
+     *     id: list, // (REQUIRED) A comma-separated list of ip location database configurations to delete
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function deleteIpLocationDatabase(array $params = [])
+    {
+        $this->checkRequiredParameters(['id'], $params);
+        $url = '/_ingest/ip_location/database/' . $this->encode($params['id']);
+        $method = 'DELETE';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.delete_ip_location_database');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Deletes a pipeline.
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-pipeline-api.html
@@ -55,7 +119,9 @@ class Ingest extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.delete_pipeline');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns statistical information about geoip databases
@@ -82,7 +148,79 @@ class Ingest extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ingest.geo_ip_stats');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Returns geoip database configuration.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-geoip-database-api.html
+     *
+     * @param array{
+     *     id: list, //  A comma-separated list of geoip database configurations to get; use `*` to get all geoip database configurations
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getGeoipDatabase(array $params = [])
+    {
+        if (isset($params['id'])) {
+            $url = '/_ingest/geoip/database/' . $this->encode($params['id']);
+            $method = 'GET';
+        } else {
+            $url = '/_ingest/geoip/database';
+            $method = 'GET';
+        }
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.get_geoip_database');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Returns the specified ip location database configuration
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-ip-location-database-api.html
+     *
+     * @param array{
+     *     id: list, //  A comma-separated list of ip location database configurations to get; use `*` to get all ip location database configurations
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getIpLocationDatabase(array $params = [])
+    {
+        if (isset($params['id'])) {
+            $url = '/_ingest/ip_location/database/' . $this->encode($params['id']);
+            $method = 'GET';
+        } else {
+            $url = '/_ingest/ip_location/database';
+            $method = 'GET';
+        }
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.get_ip_location_database');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns a pipeline.
@@ -117,7 +255,9 @@ class Ingest extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['summary', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.get_pipeline');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns a list of the built-in patterns.
@@ -144,7 +284,75 @@ class Ingest extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ingest.processor_grok');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Puts the configuration for a geoip database to be downloaded
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/put-geoip-database-api.html
+     *
+     * @param array{
+     *     id: string, // (REQUIRED) The id of the database configuration
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) The database configuration definition
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putGeoipDatabase(array $params = [])
+    {
+        $this->checkRequiredParameters(['id', 'body'], $params);
+        $url = '/_ingest/geoip/database/' . $this->encode($params['id']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.put_geoip_database');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Puts the configuration for a ip location database to be downloaded
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/put-ip-location-database-api.html
+     *
+     * @param array{
+     *     id: string, // (REQUIRED) The id of the database configuration
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) The database configuration definition
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putIpLocationDatabase(array $params = [])
+    {
+        $this->checkRequiredParameters(['id', 'body'], $params);
+        $url = '/_ingest/ip_location/database/' . $this->encode($params['id']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.put_ip_location_database');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates or updates a pipeline.
@@ -178,7 +386,9 @@ class Ingest extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['if_version', 'master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.put_pipeline');
+        return $this->client->sendRequest($request);
     }
     /**
      * Allows to simulate a pipeline with example documents.
@@ -214,6 +424,8 @@ class Ingest extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['verbose', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'ingest.simulate');
+        return $this->client->sendRequest($request);
     }
 }

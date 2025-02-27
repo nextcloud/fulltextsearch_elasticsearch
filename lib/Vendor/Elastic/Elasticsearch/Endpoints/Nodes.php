@@ -55,7 +55,9 @@ class Nodes extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id', 'max_archive_version'], $request, 'nodes.clear_repositories_metering_archive');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns cluster repositories metering information.
@@ -86,7 +88,9 @@ class Nodes extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id'], $request, 'nodes.get_repositories_metering_info');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about hot threads on each node in the cluster.
@@ -126,7 +130,9 @@ class Nodes extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['interval', 'snapshots', 'threads', 'ignore_idle_threads', 'type', 'sort', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id'], $request, 'nodes.hot_threads');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about nodes in the cluster.
@@ -168,7 +174,9 @@ class Nodes extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['flat_settings', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id', 'metric'], $request, 'nodes.info');
+        return $this->client->sendRequest($request);
     }
     /**
      * Reloads secure settings.
@@ -203,7 +211,9 @@ class Nodes extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id'], $request, 'nodes.reload_secure_settings');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns statistical information about nodes in the cluster.
@@ -259,7 +269,9 @@ class Nodes extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['completion_fields', 'fielddata_fields', 'fields', 'groups', 'level', 'types', 'timeout', 'include_segment_file_sizes', 'include_unloaded_segments', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id', 'metric', 'index_metric'], $request, 'nodes.stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns low-level information about REST actions usage on nodes.
@@ -300,6 +312,8 @@ class Nodes extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id', 'metric'], $request, 'nodes.usage');
+        return $this->client->sendRequest($request);
     }
 }

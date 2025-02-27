@@ -56,7 +56,9 @@ class DanglingIndices extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['accept_data_loss', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index_uuid'], $request, 'dangling_indices.delete_dangling_index');
+        return $this->client->sendRequest($request);
     }
     /**
      * Imports the specified dangling index
@@ -89,7 +91,9 @@ class DanglingIndices extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['accept_data_loss', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index_uuid'], $request, 'dangling_indices.import_dangling_index');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns all dangling indices.
@@ -116,6 +120,8 @@ class DanglingIndices extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'dangling_indices.list_dangling_indices');
+        return $this->client->sendRequest($request);
     }
 }
