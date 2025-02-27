@@ -4,6 +4,11 @@
 -->
 # Changelog
 
+### 31.0.0
+
+- compat nc31
+- fix highlight on huge text file
+
 ### 30.0.0
 
 - compat nc30
