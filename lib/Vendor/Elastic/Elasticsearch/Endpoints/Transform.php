@@ -56,7 +56,38 @@ class Transform extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['force', 'delete_dest_index', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.delete_transform');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Retrieves transform usage information for transform nodes.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/get-transform-node-stats.html
+     *
+     * @param array{
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getNodeStats(array $params = [])
+    {
+        $url = '/_transform/_node_stats';
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'transform.get_node_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves configuration information for transforms.
@@ -93,7 +124,9 @@ class Transform extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['from', 'size', 'allow_no_match', 'exclude_generated', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.get_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves usage information for transforms.
@@ -127,7 +160,9 @@ class Transform extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['from', 'size', 'timeout', 'allow_no_match', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.get_transform_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Previews a transform.
@@ -162,7 +197,9 @@ class Transform extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.preview_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Instantiates a transform.
@@ -195,7 +232,9 @@ class Transform extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['defer_validation', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.put_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Resets an existing transform.
@@ -227,7 +266,9 @@ class Transform extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['force', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.reset_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Schedules now a transform.
@@ -258,7 +299,9 @@ class Transform extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.schedule_now_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Starts one or more transforms.
@@ -290,7 +333,9 @@ class Transform extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['from', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.start_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Stops one or more transforms.
@@ -325,7 +370,9 @@ class Transform extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['force', 'wait_for_completion', 'timeout', 'allow_no_match', 'wait_for_checkpoint', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.stop_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates certain properties of a transform.
@@ -358,7 +405,9 @@ class Transform extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['defer_validation', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'transform.update_transform');
+        return $this->client->sendRequest($request);
     }
     /**
      * Upgrades all transforms.
@@ -387,6 +436,8 @@ class Transform extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['dry_run', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'transform.upgrade_transforms');
+        return $this->client->sendRequest($request);
     }
 }

@@ -17,7 +17,7 @@ class NetworkException extends TransferException implements PsrNetworkException
     /**
      * @param string $message
      */
-    public function __construct($message, RequestInterface $request, \Exception $previous = null)
+    public function __construct($message, RequestInterface $request, ?\Exception $previous = null)
     {
         $this->setRequest($request);
         parent::__construct($message, 0, $previous);

@@ -15,10 +15,7 @@ final class HttpFulfilledPromise implements Promise
     {
         $this->response = $response;
     }
-    /**
-     * {@inheritdoc}
-     */
-    public function then(callable $onFulfilled = null, callable $onRejected = null)
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
     {
         if (null === $onFulfilled) {
             return $this;
@@ -29,16 +26,10 @@ final class HttpFulfilledPromise implements Promise
             return new HttpRejectedPromise($e);
         }
     }
-    /**
-     * {@inheritdoc}
-     */
     public function getState()
     {
         return Promise::FULFILLED;
     }
-    /**
-     * {@inheritdoc}
-     */
     public function wait($unwrap = \true)
     {
         if ($unwrap) {

@@ -53,7 +53,9 @@ class Eql extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'eql.delete');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns async results from previously executed Event Query Language (EQL) search
@@ -85,7 +87,9 @@ class Eql extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['wait_for_completion_timeout', 'keep_alive', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'eql.get');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the status of a previously submitted async or stored Event Query Language (EQL) search
@@ -115,7 +119,9 @@ class Eql extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'eql.get_status');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns results matching a query expressed in Event Query Language (EQL)
@@ -149,6 +155,8 @@ class Eql extends AbstractEndpoint
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['wait_for_completion_timeout', 'keep_on_completion', 'keep_alive', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'eql.search');
+        return $this->client->sendRequest($request);
     }
 }

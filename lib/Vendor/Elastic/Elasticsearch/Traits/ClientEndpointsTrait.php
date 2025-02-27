@@ -70,7 +70,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['wait_for_active_shards', 'refresh', 'routing', 'timeout', 'type', '_source', '_source_excludes', '_source_includes', 'pipeline', 'require_alias', 'require_data_stream', 'list_executed_pipelines', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/x-ndjson'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'bulk');
+        return $this->sendRequest($request);
     }
     /**
      * Explicitly clears the search context for a scroll.
@@ -104,7 +106,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['scroll_id'], $request, 'clear_scroll');
+        return $this->sendRequest($request);
     }
     /**
      * Close a point in time
@@ -132,7 +136,9 @@ trait ClientEndpointsTrait
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'close_point_in_time');
+        return $this->sendRequest($request);
     }
     /**
      * Returns number of documents matching a query.
@@ -180,7 +186,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'ignore_throttled', 'allow_no_indices', 'expand_wildcards', 'min_score', 'preference', 'routing', 'q', 'analyzer', 'analyze_wildcard', 'default_operator', 'df', 'lenient', 'terminate_after', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'count');
+        return $this->sendRequest($request);
     }
     /**
      * Creates a new document in the index.
@@ -221,7 +229,9 @@ trait ClientEndpointsTrait
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['wait_for_active_shards', 'refresh', 'routing', 'timeout', 'version', 'version_type', 'pipeline', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'create');
+        return $this->sendRequest($request);
     }
     /**
      * Removes a document from the index.
@@ -260,7 +270,9 @@ trait ClientEndpointsTrait
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['wait_for_active_shards', 'refresh', 'routing', 'timeout', 'if_seq_no', 'if_primary_term', 'version', 'version_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'delete');
+        return $this->sendRequest($request);
     }
     /**
      * Deletes documents matching the provided query.
@@ -320,7 +332,9 @@ trait ClientEndpointsTrait
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['analyzer', 'analyze_wildcard', 'default_operator', 'df', 'from', 'ignore_unavailable', 'allow_no_indices', 'conflicts', 'expand_wildcards', 'lenient', 'preference', 'q', 'routing', 'scroll', 'search_type', 'search_timeout', 'max_docs', 'sort', 'terminate_after', 'stats', 'version', 'request_cache', 'refresh', 'timeout', 'wait_for_active_shards', 'scroll_size', 'wait_for_completion', 'requests_per_second', 'slices', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'delete_by_query');
+        return $this->sendRequest($request);
     }
     /**
      * Changes the number of requests per second for a particular Delete By Query operation.
@@ -351,7 +365,9 @@ trait ClientEndpointsTrait
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['requests_per_second', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_id'], $request, 'delete_by_query_rethrottle');
+        return $this->sendRequest($request);
     }
     /**
      * Deletes a script.
@@ -383,7 +399,9 @@ trait ClientEndpointsTrait
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'delete_script');
+        return $this->sendRequest($request);
     }
     /**
      * Returns information about whether a document exists in an index.
@@ -424,7 +442,9 @@ trait ClientEndpointsTrait
         $method = 'HEAD';
         $url = $this->addQueryString($url, $params, ['stored_fields', 'preference', 'realtime', 'refresh', 'routing', '_source', '_source_excludes', '_source_includes', 'version', 'version_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'exists');
+        return $this->sendRequest($request);
     }
     /**
      * Returns information about whether a document source exists in an index.
@@ -464,7 +484,9 @@ trait ClientEndpointsTrait
         $method = 'HEAD';
         $url = $this->addQueryString($url, $params, ['preference', 'realtime', 'refresh', 'routing', '_source', '_source_excludes', '_source_includes', 'version', 'version_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'exists_source');
+        return $this->sendRequest($request);
     }
     /**
      * Returns information about why a specific matches (or doesn't match) a query.
@@ -508,7 +530,9 @@ trait ClientEndpointsTrait
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['analyze_wildcard', 'analyzer', 'default_operator', 'df', 'stored_fields', 'lenient', 'preference', 'q', 'routing', '_source', '_source_excludes', '_source_includes', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'explain');
+        return $this->sendRequest($request);
     }
     /**
      * Returns the information about the capabilities of fields among multiple indices.
@@ -550,7 +574,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['fields', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'include_unmapped', 'filters', 'types', 'include_empty_fields', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'field_caps');
+        return $this->sendRequest($request);
     }
     /**
      * Returns a document.
@@ -592,7 +618,9 @@ trait ClientEndpointsTrait
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['force_synthetic_source', 'stored_fields', 'preference', 'realtime', 'refresh', 'routing', '_source', '_source_excludes', '_source_includes', 'version', 'version_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'get');
+        return $this->sendRequest($request);
     }
     /**
      * Returns a script.
@@ -623,7 +651,9 @@ trait ClientEndpointsTrait
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'get_script');
+        return $this->sendRequest($request);
     }
     /**
      * Returns all script contexts.
@@ -650,7 +680,9 @@ trait ClientEndpointsTrait
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'get_script_context');
+        return $this->sendRequest($request);
     }
     /**
      * Returns available script types, languages and contexts
@@ -677,7 +709,9 @@ trait ClientEndpointsTrait
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'get_script_languages');
+        return $this->sendRequest($request);
     }
     /**
      * Returns the source of a document.
@@ -717,7 +751,9 @@ trait ClientEndpointsTrait
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['preference', 'realtime', 'refresh', 'routing', '_source', '_source_excludes', '_source_includes', 'version', 'version_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'get_source');
+        return $this->sendRequest($request);
     }
     /**
      * Returns the health of the cluster.
@@ -753,7 +789,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['timeout', 'verbose', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['feature'], $request, 'health_report');
+        return $this->sendRequest($request);
     }
     /**
      * Creates or updates a document in an index.
@@ -802,7 +840,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['wait_for_active_shards', 'op_type', 'refresh', 'routing', 'timeout', 'version', 'version_type', 'if_seq_no', 'if_primary_term', 'pipeline', 'require_alias', 'require_data_stream', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'index');
+        return $this->sendRequest($request);
     }
     /**
      * Returns basic information about the cluster.
@@ -829,7 +869,9 @@ trait ClientEndpointsTrait
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'info');
+        return $this->sendRequest($request);
     }
     /**
      * Performs a kNN search.
@@ -862,7 +904,9 @@ trait ClientEndpointsTrait
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['routing', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'knn_search');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to get multiple documents in one request.
@@ -906,7 +950,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['force_synthetic_source', 'stored_fields', 'preference', 'realtime', 'refresh', 'routing', '_source', '_source_excludes', '_source_includes', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'mget');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to execute several search operations in one request.
@@ -948,7 +994,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['search_type', 'max_concurrent_searches', 'typed_keys', 'pre_filter_shard_size', 'max_concurrent_shard_requests', 'rest_total_hits_as_int', 'ccs_minimize_roundtrips', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/x-ndjson'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'msearch');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to execute several search template operations in one request.
@@ -988,7 +1036,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['search_type', 'typed_keys', 'max_concurrent_searches', 'rest_total_hits_as_int', 'ccs_minimize_roundtrips', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/x-ndjson'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'msearch_template');
+        return $this->sendRequest($request);
     }
     /**
      * Returns multiple termvectors in one request.
@@ -1034,7 +1084,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['ids', 'term_statistics', 'field_statistics', 'fields', 'offsets', 'positions', 'payloads', 'preference', 'routing', 'realtime', 'version', 'version_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'mtermvectors');
+        return $this->sendRequest($request);
     }
     /**
      * Open a point in time that can be used in subsequent searches
@@ -1048,6 +1100,7 @@ trait ClientEndpointsTrait
      *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
      *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
      *     keep_alive: string, // Specific the time to live for the point in time
+     *     allow_partial_search_results: boolean, // Specify whether to tolerate shards missing when creating the point-in-time, or otherwise throw an exception. (default: false)
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1068,9 +1121,11 @@ trait ClientEndpointsTrait
         $this->checkRequiredParameters(['index', 'keep_alive'], $params);
         $url = '/' . $this->encode($params['index']) . '/_pit';
         $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['preference', 'routing', 'ignore_unavailable', 'expand_wildcards', 'keep_alive', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['preference', 'routing', 'ignore_unavailable', 'expand_wildcards', 'keep_alive', 'allow_partial_search_results', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'open_point_in_time');
+        return $this->sendRequest($request);
     }
     /**
      * Returns whether the cluster is running.
@@ -1097,7 +1152,9 @@ trait ClientEndpointsTrait
         $method = 'HEAD';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ping');
+        return $this->sendRequest($request);
     }
     /**
      * Creates or updates a script.
@@ -1136,7 +1193,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'context'], $request, 'put_script');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to evaluate the quality of ranked search results over a set of typical search queries
@@ -1175,7 +1234,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'search_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'rank_eval');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to copy documents from one index to another, optionally filtering the source
@@ -1214,7 +1275,9 @@ trait ClientEndpointsTrait
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['refresh', 'timeout', 'wait_for_active_shards', 'wait_for_completion', 'requests_per_second', 'scroll', 'slices', 'max_docs', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'reindex');
+        return $this->sendRequest($request);
     }
     /**
      * Changes the number of requests per second for a particular Reindex operation.
@@ -1245,7 +1308,9 @@ trait ClientEndpointsTrait
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['requests_per_second', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_id'], $request, 'reindex_rethrottle');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to use the Mustache language to pre-render a search definition.
@@ -1279,7 +1344,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'render_search_template');
+        return $this->sendRequest($request);
     }
     /**
      * Allows an arbitrary script to be executed and a result to be returned
@@ -1308,7 +1375,9 @@ trait ClientEndpointsTrait
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'scripts_painless_execute');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to retrieve a large numbers of results from a single search request.
@@ -1344,7 +1413,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['scroll', 'rest_total_hits_as_int', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['scroll_id'], $request, 'scroll');
+        return $this->sendRequest($request);
     }
     /**
      * Returns results matching a query.
@@ -1423,7 +1494,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['analyzer', 'analyze_wildcard', 'ccs_minimize_roundtrips', 'default_operator', 'df', 'explain', 'stored_fields', 'docvalue_fields', 'from', 'force_synthetic_source', 'ignore_unavailable', 'ignore_throttled', 'allow_no_indices', 'expand_wildcards', 'lenient', 'preference', 'q', 'routing', 'scroll', 'search_type', 'size', 'sort', '_source', '_source_excludes', '_source_includes', 'terminate_after', 'stats', 'suggest_field', 'suggest_mode', 'suggest_size', 'suggest_text', 'timeout', 'track_scores', 'track_total_hits', 'allow_partial_search_results', 'typed_keys', 'version', 'seq_no_primary_term', 'request_cache', 'batched_reduce_size', 'max_concurrent_shard_requests', 'pre_filter_shard_size', 'rest_total_hits_as_int', 'min_compatible_shard_node', 'include_named_queries_score', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'search');
+        return $this->sendRequest($request);
     }
     /**
      * Searches a vector tile for geospatial values. Returns results as a binary Mapbox vector tile.
@@ -1466,7 +1539,9 @@ trait ClientEndpointsTrait
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['exact_bounds', 'extent', 'grid_precision', 'grid_type', 'size', 'track_total_hits', 'with_labels', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/vnd.mapbox-vector-tile', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index', 'field', 'zoom', 'x', 'y'], $request, 'search_mvt');
+        return $this->sendRequest($request);
     }
     /**
      * Returns information about the indices and shards that a search request would be executed against.
@@ -1481,6 +1556,7 @@ trait ClientEndpointsTrait
      *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
      *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
      *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     master_timeout: time, // Explicit operation timeout for connection to master node
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1503,9 +1579,11 @@ trait ClientEndpointsTrait
             $url = '/_search_shards';
             $method = empty($params['body']) ? 'GET' : 'POST';
         }
-        $url = $this->addQueryString($url, $params, ['preference', 'routing', 'local', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['preference', 'routing', 'local', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'search_shards');
+        return $this->sendRequest($request);
     }
     /**
      * Allows to use the Mustache language to pre-render a search definition.
@@ -1553,7 +1631,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'ignore_throttled', 'allow_no_indices', 'expand_wildcards', 'preference', 'routing', 'scroll', 'search_type', 'explain', 'profile', 'typed_keys', 'rest_total_hits_as_int', 'ccs_minimize_roundtrips', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'search_template');
+        return $this->sendRequest($request);
     }
     /**
      * The terms enum API  can be used to discover terms in the index that begin with the provided string. It is designed for low-latency look-ups used in auto-complete scenarios.
@@ -1584,7 +1664,9 @@ trait ClientEndpointsTrait
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'terms_enum');
+        return $this->sendRequest($request);
     }
     /**
      * Returns information and statistics about terms in the fields of a particular document.
@@ -1632,7 +1714,9 @@ trait ClientEndpointsTrait
         }
         $url = $this->addQueryString($url, $params, ['term_statistics', 'field_statistics', 'fields', 'offsets', 'positions', 'payloads', 'preference', 'routing', 'realtime', 'version', 'version_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index', 'id'], $request, 'termvectors');
+        return $this->sendRequest($request);
     }
     /**
      * Updates a document with a script or partial document.
@@ -1676,7 +1760,9 @@ trait ClientEndpointsTrait
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['wait_for_active_shards', '_source', '_source_excludes', '_source_includes', 'lang', 'refresh', 'retry_on_conflict', 'routing', 'timeout', 'if_seq_no', 'if_primary_term', 'require_alias', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id', 'index'], $request, 'update');
+        return $this->sendRequest($request);
     }
     /**
      * Performs an update on every document in the index without changing the source,
@@ -1739,7 +1825,9 @@ trait ClientEndpointsTrait
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['analyzer', 'analyze_wildcard', 'default_operator', 'df', 'from', 'ignore_unavailable', 'allow_no_indices', 'conflicts', 'expand_wildcards', 'lenient', 'pipeline', 'preference', 'q', 'routing', 'scroll', 'search_type', 'search_timeout', 'max_docs', 'sort', 'terminate_after', 'stats', 'version', 'version_type', 'request_cache', 'refresh', 'timeout', 'wait_for_active_shards', 'scroll_size', 'wait_for_completion', 'requests_per_second', 'slices', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'update_by_query');
+        return $this->sendRequest($request);
     }
     /**
      * Changes the number of requests per second for a particular Update By Query operation.
@@ -1770,6 +1858,8 @@ trait ClientEndpointsTrait
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['requests_per_second', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_id'], $request, 'update_by_query_rethrottle');
+        return $this->sendRequest($request);
     }
 }

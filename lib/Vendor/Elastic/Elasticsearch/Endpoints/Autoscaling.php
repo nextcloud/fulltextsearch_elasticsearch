@@ -32,6 +32,8 @@ class Autoscaling extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) the name of the autoscaling policy
+     *     master_timeout: time, // Timeout for processing on master node
+     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -51,9 +53,11 @@ class Autoscaling extends AbstractEndpoint
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_autoscaling/policy/' . $this->encode($params['name']);
         $method = 'DELETE';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'autoscaling.delete_autoscaling_policy');
+        return $this->client->sendRequest($request);
     }
     /**
      * Gets the current autoscaling capacity based on the configured autoscaling policy. Designed for indirect use by ECE/ESS and ECK. Direct use is not supported.
@@ -61,6 +65,7 @@ class Autoscaling extends AbstractEndpoint
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/autoscaling-get-autoscaling-capacity.html
      *
      * @param array{
+     *     master_timeout: time, // Timeout for processing on master node
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -78,9 +83,11 @@ class Autoscaling extends AbstractEndpoint
     {
         $url = '/_autoscaling/capacity';
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'autoscaling.get_autoscaling_capacity');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves an autoscaling policy. Designed for indirect use by ECE/ESS and ECK. Direct use is not supported.
@@ -89,6 +96,7 @@ class Autoscaling extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) the name of the autoscaling policy
+     *     master_timeout: time, // Timeout for processing on master node
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -108,9 +116,11 @@ class Autoscaling extends AbstractEndpoint
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_autoscaling/policy/' . $this->encode($params['name']);
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'autoscaling.get_autoscaling_policy');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a new autoscaling policy. Designed for indirect use by ECE/ESS and ECK. Direct use is not supported.
@@ -119,6 +129,8 @@ class Autoscaling extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) the name of the autoscaling policy
+     *     master_timeout: time, // Timeout for processing on master node
+     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -139,8 +151,10 @@ class Autoscaling extends AbstractEndpoint
         $this->checkRequiredParameters(['name', 'body'], $params);
         $url = '/_autoscaling/policy/' . $this->encode($params['name']);
         $method = 'PUT';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'autoscaling.put_autoscaling_policy');
+        return $this->client->sendRequest($request);
     }
 }

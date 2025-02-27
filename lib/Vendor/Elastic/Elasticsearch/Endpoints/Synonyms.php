@@ -53,7 +53,9 @@ class Synonyms extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'synonyms.delete_synonym');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes a synonym rule in a synonym set
@@ -84,7 +86,9 @@ class Synonyms extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['set_id', 'rule_id'], $request, 'synonyms.delete_synonym_rule');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves a synonym set
@@ -116,7 +120,9 @@ class Synonyms extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'synonyms.get_synonym');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves a synonym rule from a synonym set
@@ -147,7 +153,9 @@ class Synonyms extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['set_id', 'rule_id'], $request, 'synonyms.get_synonym_rule');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves a summary of all defined synonym sets
@@ -176,7 +184,9 @@ class Synonyms extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'synonyms.get_synonyms_sets');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates or updates a synonyms set
@@ -207,7 +217,9 @@ class Synonyms extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'synonyms.put_synonym');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates or updates a synonym rule in a synonym set
@@ -239,6 +251,8 @@ class Synonyms extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['set_id', 'rule_id'], $request, 'synonyms.put_synonym_rule');
+        return $this->client->sendRequest($request);
     }
 }

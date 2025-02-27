@@ -63,7 +63,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'local', 'h', 'help', 's', 'v', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'cat.aliases');
+        return $this->client->sendRequest($request);
     }
     /**
      * Provides a snapshot of how many shards are allocated to each data node and how much disk space they are using.
@@ -104,7 +106,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'bytes', 'local', 'master_timeout', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id'], $request, 'cat.allocation');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about existing component_templates templates.
@@ -144,7 +148,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'local', 'master_timeout', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'cat.component_templates');
+        return $this->client->sendRequest($request);
     }
     /**
      * Provides quick access to the document count of the entire cluster, or individual indices.
@@ -182,7 +188,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'cat.count');
+        return $this->client->sendRequest($request);
     }
     /**
      * Shows how much heap memory is currently being used by fielddata on every data node in the cluster.
@@ -221,7 +229,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'bytes', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['fields'], $request, 'cat.fielddata');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns a concise representation of the cluster health.
@@ -255,7 +265,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['format', 'h', 'help', 's', 'time', 'ts', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.health');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns help for the Cat APIs.
@@ -284,7 +296,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['help', 's', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.help');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about indices: number of primaries and replicas, document counts, disk size, ...
@@ -329,7 +343,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'bytes', 'master_timeout', 'h', 'health', 'help', 'pri', 's', 'time', 'v', 'include_unloaded_segments', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'cat.indices');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about the master node.
@@ -363,7 +379,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['format', 'local', 'master_timeout', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.master');
+        return $this->client->sendRequest($request);
     }
     /**
      * Gets configuration and usage information about data frame analytics jobs.
@@ -404,7 +422,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'bytes', 'format', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'cat.ml_data_frame_analytics');
+        return $this->client->sendRequest($request);
     }
     /**
      * Gets configuration and usage information about datafeeds.
@@ -444,7 +464,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'format', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['datafeed_id'], $request, 'cat.ml_datafeeds');
+        return $this->client->sendRequest($request);
     }
     /**
      * Gets configuration and usage information about anomaly detection jobs.
@@ -485,7 +507,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'bytes', 'format', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['job_id'], $request, 'cat.ml_jobs');
+        return $this->client->sendRequest($request);
     }
     /**
      * Gets configuration and usage information about inference trained models.
@@ -528,7 +552,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['allow_no_match', 'from', 'size', 'bytes', 'format', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['model_id'], $request, 'cat.ml_trained_models');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about custom node attributes.
@@ -562,7 +588,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['format', 'local', 'master_timeout', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.nodeattrs');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns basic statistics about performance of cluster nodes.
@@ -599,7 +627,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['bytes', 'format', 'full_id', 'master_timeout', 'h', 'help', 's', 'time', 'v', 'include_unloaded_segments', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.nodes');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns a concise representation of the cluster pending tasks.
@@ -634,7 +664,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['format', 'local', 'master_timeout', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.pending_tasks');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about installed plugins across nodes node.
@@ -669,7 +701,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['format', 'local', 'master_timeout', 'h', 'help', 'include_bootstrap', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.plugins');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about index shard recoveries, both on-going completed.
@@ -711,7 +745,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'active_only', 'bytes', 'detailed', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'cat.recovery');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about snapshot repositories registered in the cluster.
@@ -745,7 +781,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['format', 'local', 'master_timeout', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.repositories');
+        return $this->client->sendRequest($request);
     }
     /**
      * Provides low-level information about the segments in the shards of an index.
@@ -784,7 +822,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'bytes', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'cat.segments');
+        return $this->client->sendRequest($request);
     }
     /**
      * Provides a detailed view of shard allocation on nodes.
@@ -825,7 +865,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'bytes', 'master_timeout', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'cat.shards');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns all snapshots in a specific repository.
@@ -866,7 +908,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'ignore_unavailable', 'master_timeout', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository'], $request, 'cat.snapshots');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about the tasks currently executing on one or more nodes in the cluster.
@@ -904,7 +948,9 @@ class Cat extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['format', 'nodes', 'actions', 'detailed', 'parent_task_id', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'cat.tasks');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about existing templates.
@@ -944,7 +990,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'local', 'master_timeout', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'cat.templates');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns cluster-wide thread pool statistics per node.
@@ -986,7 +1034,9 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['format', 'time', 'local', 'master_timeout', 'h', 'help', 's', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['thread_pool_patterns'], $request, 'cat.thread_pool');
+        return $this->client->sendRequest($request);
     }
     /**
      * Gets configuration and usage information about transforms.
@@ -1028,6 +1078,8 @@ class Cat extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['from', 'size', 'allow_no_match', 'format', 'h', 'help', 's', 'time', 'v', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'text/plain,application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['transform_id'], $request, 'cat.transforms');
+        return $this->client->sendRequest($request);
     }
 }

@@ -53,7 +53,9 @@ class Slm extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.delete_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Immediately creates a snapshot according to the lifecycle policy, without waiting for the scheduled time.
@@ -83,7 +85,9 @@ class Slm extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.execute_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes any snapshots that are expired according to the policy's retention rules.
@@ -110,7 +114,9 @@ class Slm extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'slm.execute_retention');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves one or more snapshot lifecycle policy definitions and information about the latest snapshot attempts.
@@ -143,7 +149,9 @@ class Slm extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.get_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns global and policy-level statistics about actions taken by snapshot lifecycle management.
@@ -170,7 +178,9 @@ class Slm extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'slm.get_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves the status of snapshot lifecycle management (SLM).
@@ -197,7 +207,9 @@ class Slm extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'slm.get_status');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates or updates a snapshot lifecycle policy.
@@ -228,7 +240,9 @@ class Slm extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.put_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Turns on snapshot lifecycle management (SLM).
@@ -236,6 +250,8 @@ class Slm extends AbstractEndpoint
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-start.html
      *
      * @param array{
+     *     master_timeout: time, // Timeout for processing on master node
+     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -253,9 +269,11 @@ class Slm extends AbstractEndpoint
     {
         $url = '/_slm/start';
         $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'slm.start');
+        return $this->client->sendRequest($request);
     }
     /**
      * Turns off snapshot lifecycle management (SLM).
@@ -263,6 +281,8 @@ class Slm extends AbstractEndpoint
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-stop.html
      *
      * @param array{
+     *     master_timeout: time, // Timeout for processing on master node
+     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -280,8 +300,10 @@ class Slm extends AbstractEndpoint
     {
         $url = '/_slm/stop';
         $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'slm.stop');
+        return $this->client->sendRequest($request);
     }
 }

@@ -53,7 +53,9 @@ class Logstash extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'logstash.delete_pipeline');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves Logstash Pipelines used by Central Management
@@ -86,7 +88,9 @@ class Logstash extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'logstash.get_pipeline');
+        return $this->client->sendRequest($request);
     }
     /**
      * Adds and updates Logstash Pipelines used for Central Management
@@ -117,6 +121,8 @@ class Logstash extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['id'], $request, 'logstash.put_pipeline');
+        return $this->client->sendRequest($request);
     }
 }

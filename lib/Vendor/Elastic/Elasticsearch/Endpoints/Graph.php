@@ -56,6 +56,8 @@ class Graph extends AbstractEndpoint
         $method = empty($params['body']) ? 'GET' : 'POST';
         $url = $this->addQueryString($url, $params, ['routing', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'graph.explore');
+        return $this->client->sendRequest($request);
     }
 }

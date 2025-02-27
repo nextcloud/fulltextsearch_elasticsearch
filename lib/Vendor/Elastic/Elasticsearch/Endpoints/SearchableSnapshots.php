@@ -57,7 +57,9 @@ class SearchableSnapshots extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id'], $request, 'searchable_snapshots.cache_stats');
+        return $this->client->sendRequest($request);
     }
     /**
      * Clear the cache of searchable snapshots.
@@ -94,7 +96,9 @@ class SearchableSnapshots extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'searchable_snapshots.clear_cache');
+        return $this->client->sendRequest($request);
     }
     /**
      * Mount a snapshot as a searchable index.
@@ -129,7 +133,9 @@ class SearchableSnapshots extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'wait_for_completion', 'storage', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot'], $request, 'searchable_snapshots.mount');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieve shard-level statistics about searchable snapshots.
@@ -163,6 +169,8 @@ class SearchableSnapshots extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['level', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'searchable_snapshots.stats');
+        return $this->client->sendRequest($request);
     }
 }

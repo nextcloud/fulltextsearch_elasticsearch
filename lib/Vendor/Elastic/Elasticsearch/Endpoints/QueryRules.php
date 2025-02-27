@@ -23,16 +23,16 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 /**
  * @generated This file is generated, please do not edit
  */
-class ConnectorSyncJob extends AbstractEndpoint
+class QueryRules extends AbstractEndpoint
 {
     /**
-     * Cancels a connector sync job.
+     * Deletes an individual query rule within a ruleset.
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cancel-connector-sync-job-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-query-rule.html
      *
      * @param array{
-     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be canceled
+     *     ruleset_id: string, // (REQUIRED) The unique identifier of the query ruleset this rule exists in
+     *     rule_id: string, // (REQUIRED) The unique identifier of the rule to delete.
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -47,91 +47,29 @@ class ConnectorSyncJob extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function cancel(array $params = [])
+    public function deleteRule(array $params = [])
     {
-        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
-        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_cancel';
-        $method = 'PUT';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
-        $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
-    }
-    /**
-     * Checks in a connector sync job (refreshes 'last_seen').
-     *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/check-in-connector-sync-job-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
-     *
-     * @param array{
-     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be checked in
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     * } $params
-     *
-     * @throws MissingParameterException if a required parameter is missing
-     * @throws NoNodeAvailableException if all the hosts are offline
-     * @throws ClientResponseException if the status code of response is 4xx
-     * @throws ServerResponseException if the status code of response is 5xx
-     *
-     * @return Elasticsearch|Promise
-     */
-    public function checkIn(array $params = [])
-    {
-        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
-        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_check_in';
-        $method = 'PUT';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
-        $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
-    }
-    /**
-     * Deletes a connector sync job.
-     *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-connector-sync-job-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
-     *
-     * @param array{
-     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be deleted.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     * } $params
-     *
-     * @throws MissingParameterException if a required parameter is missing
-     * @throws NoNodeAvailableException if all the hosts are offline
-     * @throws ClientResponseException if the status code of response is 4xx
-     * @throws ServerResponseException if the status code of response is 5xx
-     *
-     * @return Elasticsearch|Promise
-     */
-    public function delete(array $params = [])
-    {
-        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
-        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']);
+        $this->checkRequiredParameters(['ruleset_id', 'rule_id'], $params);
+        $url = '/_query_rules/' . $this->encode($params['ruleset_id']) . '/_rule/' . $this->encode($params['rule_id']);
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['ruleset_id', 'rule_id'], $request, 'query_rules.delete_rule');
+        return $this->client->sendRequest($request);
     }
     /**
-     * Sets an error for a connector sync job.
+     * Deletes a query ruleset.
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/set-connector-sync-job-error-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-query-ruleset.html
      *
      * @param array{
-     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to set an error for.
+     *     ruleset_id: string, // (REQUIRED) The unique identifier of the query ruleset to delete
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The error to set in the connector sync job.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -141,23 +79,25 @@ class ConnectorSyncJob extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function error(array $params = [])
+    public function deleteRuleset(array $params = [])
     {
-        $this->checkRequiredParameters(['connector_sync_job_id', 'body'], $params);
-        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_error';
-        $method = 'PUT';
+        $this->checkRequiredParameters(['ruleset_id'], $params);
+        $url = '/_query_rules/' . $this->encode($params['ruleset_id']);
+        $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
-        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['ruleset_id'], $request, 'query_rules.delete_ruleset');
+        return $this->client->sendRequest($request);
     }
     /**
-     * Returns the details about a connector sync job.
+     * Returns the details about an individual query rule within a ruleset.
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-connector-sync-job-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-query-rule.html
      *
      * @param array{
-     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be returned.
+     *     ruleset_id: string, // (REQUIRED) The unique identifier of the query ruleset the rule exists within
+     *     rule_id: string, // (REQUIRED) The unique identifier of the rule to be retrieved.
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -172,27 +112,57 @@ class ConnectorSyncJob extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function get(array $params = [])
+    public function getRule(array $params = [])
     {
-        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
-        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']);
+        $this->checkRequiredParameters(['ruleset_id', 'rule_id'], $params);
+        $url = '/_query_rules/' . $this->encode($params['ruleset_id']) . '/_rule/' . $this->encode($params['rule_id']);
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['ruleset_id', 'rule_id'], $request, 'query_rules.get_rule');
+        return $this->client->sendRequest($request);
     }
     /**
-     * Lists all connector sync jobs.
+     * Returns the details about a query ruleset.
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/list-connector-sync-jobs-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-query-ruleset.html
+     *
+     * @param array{
+     *     ruleset_id: string, // (REQUIRED) The unique identifier of the query ruleset
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getRuleset(array $params = [])
+    {
+        $this->checkRequiredParameters(['ruleset_id'], $params);
+        $url = '/_query_rules/' . $this->encode($params['ruleset_id']);
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['ruleset_id'], $request, 'query_rules.get_ruleset');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Lists query rulesets.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/list-query-rulesets.html
      *
      * @param array{
      *     from: int, // Starting offset (default: 0)
      *     size: int, // specifies a max number of results to get (default: 100)
-     *     status: string, // Sync job status, which sync jobs are fetched for
-     *     connector_id: string, // Id of the connector to fetch the sync jobs for
-     *     job_type: list, // A comma-separated list of job types
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -206,58 +176,30 @@ class ConnectorSyncJob extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function list(array $params = [])
+    public function listRulesets(array $params = [])
     {
-        $url = '/_connector/_sync_job';
+        $url = '/_query_rules';
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['from', 'size', 'status', 'connector_id', 'job_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['from', 'size', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'query_rules.list_rulesets');
+        return $this->client->sendRequest($request);
     }
     /**
-     * Creates a connector sync job.
+     * Creates or updates a query rule within a ruleset.
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/create-connector-sync-job-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/put-query-rule.html
      *
      * @param array{
+     *     ruleset_id: string, // (REQUIRED) The unique identifier of the ruleset this rule should be added to. The ruleset will be created if it does not exist.
+     *     rule_id: string, // (REQUIRED) The unique identifier of the rule to be created or updated.
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The connector sync job data.
-     * } $params
-     *
-     * @throws NoNodeAvailableException if all the hosts are offline
-     * @throws ClientResponseException if the status code of response is 4xx
-     * @throws ServerResponseException if the status code of response is 5xx
-     *
-     * @return Elasticsearch|Promise
-     */
-    public function post(array $params = [])
-    {
-        $this->checkRequiredParameters(['body'], $params);
-        $url = '/_connector/_sync_job';
-        $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
-        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
-    }
-    /**
-     * Updates the stats fields in the connector sync job document.
-     *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/set-connector-sync-job-stats-api.html
-     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
-     *
-     * @param array{
-     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be updated.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The stats to update for the connector sync job.
+     *     body: array, // (REQUIRED) The query rule configuration, including the type of rule, the criteria to match the rule, and the action that should be taken if the rule matches.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -267,13 +209,82 @@ class ConnectorSyncJob extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function updateStats(array $params = [])
+    public function putRule(array $params = [])
     {
-        $this->checkRequiredParameters(['connector_sync_job_id', 'body'], $params);
-        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_stats';
+        $this->checkRequiredParameters(['ruleset_id', 'rule_id', 'body'], $params);
+        $url = '/_query_rules/' . $this->encode($params['ruleset_id']) . '/_rule/' . $this->encode($params['rule_id']);
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['ruleset_id', 'rule_id'], $request, 'query_rules.put_rule');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Creates or updates a query ruleset.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/put-query-ruleset.html
+     *
+     * @param array{
+     *     ruleset_id: string, // (REQUIRED) The unique identifier of the ruleset to be created or updated.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) The query ruleset configuration, including `rules`
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putRuleset(array $params = [])
+    {
+        $this->checkRequiredParameters(['ruleset_id', 'body'], $params);
+        $url = '/_query_rules/' . $this->encode($params['ruleset_id']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['ruleset_id'], $request, 'query_rules.put_ruleset');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Tests a query ruleset to identify the rules that would match input criteria
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/test-query-ruleset.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     ruleset_id: string, // (REQUIRED) The unique identifier of the ruleset to test.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) The match criteria to test against the ruleset
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function test(array $params = [])
+    {
+        $this->checkRequiredParameters(['ruleset_id', 'body'], $params);
+        $url = '/_query_rules/' . $this->encode($params['ruleset_id']) . '/_test';
+        $method = 'POST';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['ruleset_id'], $request, 'query_rules.test');
+        return $this->client->sendRequest($request);
     }
 }

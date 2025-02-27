@@ -54,7 +54,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.check_in');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes a connector.
@@ -64,6 +66,7 @@ class Connector extends AbstractEndpoint
      *
      * @param array{
      *     connector_id: string, // (REQUIRED) The unique identifier of the connector to be deleted.
+     *     delete_sync_jobs: boolean, // Determines whether associated sync jobs are also deleted.
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -83,9 +86,11 @@ class Connector extends AbstractEndpoint
         $this->checkRequiredParameters(['connector_id'], $params);
         $url = '/_connector/' . $this->encode($params['connector_id']);
         $method = 'DELETE';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['delete_sync_jobs', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.delete');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the details about a connector.
@@ -116,7 +121,9 @@ class Connector extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.get');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the stats of last sync in the connector document.
@@ -148,7 +155,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.last_sync');
+        return $this->client->sendRequest($request);
     }
     /**
      * Lists all connectors.
@@ -182,7 +191,9 @@ class Connector extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['from', 'size', 'index_name', 'connector_name', 'service_type', 'query', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'connector.list');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a connector.
@@ -196,7 +207,7 @@ class Connector extends AbstractEndpoint
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The connector configuration.
+     *     body: array, //  The connector configuration.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -207,12 +218,13 @@ class Connector extends AbstractEndpoint
      */
     public function post(array $params = [])
     {
-        $this->checkRequiredParameters(['body'], $params);
         $url = '/_connector';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'connector.post');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates or updates a connector.
@@ -221,13 +233,49 @@ class Connector extends AbstractEndpoint
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     connector_id: string, // (REQUIRED) The unique identifier of the connector to be created or updated.
+     *     connector_id: string, //  The unique identifier of the connector to be created or updated.
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The connector configuration.
+     *     body: array, //  The connector configuration.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function put(array $params = [])
+    {
+        if (isset($params['connector_id'])) {
+            $url = '/_connector/' . $this->encode($params['connector_id']);
+            $method = 'PUT';
+        } else {
+            $url = '/_connector';
+            $method = 'PUT';
+        }
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.put');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Cancels a connector sync job.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/cancel-connector-sync-job-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be canceled
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -237,14 +285,317 @@ class Connector extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function put(array $params = [])
+    public function syncJobCancel(array $params = [])
     {
-        $this->checkRequiredParameters(['connector_id', 'body'], $params);
-        $url = '/_connector/' . $this->encode($params['connector_id']);
+        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
+        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_cancel';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_sync_job_id'], $request, 'connector.sync_job_cancel');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Checks in a connector sync job (refreshes 'last_seen').
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/check-in-connector-sync-job-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be checked in
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobCheckIn(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
+        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_check_in';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_sync_job_id'], $request, 'connector.sync_job_check_in');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Claims a connector sync job.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/claim-connector-sync-job-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be claimed.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) Data to claim a sync job.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobClaim(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_sync_job_id', 'body'], $params);
+        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_claim';
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_sync_job_id'], $request, 'connector.sync_job_claim');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Deletes a connector sync job.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-connector-sync-job-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be deleted.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobDelete(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
+        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']);
+        $method = 'DELETE';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_sync_job_id'], $request, 'connector.sync_job_delete');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Sets an error for a connector sync job.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/set-connector-sync-job-error-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to set an error for.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) The error to set in the connector sync job.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobError(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_sync_job_id', 'body'], $params);
+        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_error';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_sync_job_id'], $request, 'connector.sync_job_error');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Returns the details about a connector sync job.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-connector-sync-job-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be returned.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobGet(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_sync_job_id'], $params);
+        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']);
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_sync_job_id'], $request, 'connector.sync_job_get');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Lists all connector sync jobs.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/list-connector-sync-jobs-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     from: int, // Starting offset (default: 0)
+     *     size: int, // specifies a max number of results to get (default: 100)
+     *     status: string, // Sync job status, which sync jobs are fetched for
+     *     connector_id: string, // Id of the connector to fetch the sync jobs for
+     *     job_type: list, // A comma-separated list of job types
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobList(array $params = [])
+    {
+        $url = '/_connector/_sync_job';
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['from', 'size', 'status', 'connector_id', 'job_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'connector.sync_job_list');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Creates a connector sync job.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/create-connector-sync-job-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) The connector sync job data.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobPost(array $params = [])
+    {
+        $this->checkRequiredParameters(['body'], $params);
+        $url = '/_connector/_sync_job';
+        $method = 'POST';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'connector.sync_job_post');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Updates the stats fields in the connector sync job document.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/set-connector-sync-job-stats-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_sync_job_id: string, // (REQUIRED) The unique identifier of the connector sync job to be updated.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) The stats to update for the connector sync job.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function syncJobUpdateStats(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_sync_job_id', 'body'], $params);
+        $url = '/_connector/_sync_job/' . $this->encode($params['connector_sync_job_id']) . '/_stats';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_sync_job_id'], $request, 'connector.sync_job_update_stats');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Activates the draft filtering rules if they are in a validated state.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/update-connector-filtering-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_id: string, // (REQUIRED) The unique identifier of the connector to be updated.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function updateActiveFiltering(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_id'], $params);
+        $url = '/_connector/' . $this->encode($params['connector_id']) . '/_filtering/_activate';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_active_filtering');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the API key id and/or API key secret id fields in the connector document.
@@ -276,7 +627,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_api_key_id');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the connector configuration.
@@ -308,7 +661,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_configuration');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the error field in the connector document.
@@ -340,7 +695,43 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_error');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Updates the connector features in the connector document.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/update-connector-features-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_id: string, // (REQUIRED) The unique identifier of the connector to be updated.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) An object containing the connector's features definition.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function updateFeatures(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_id', 'body'], $params);
+        $url = '/_connector/' . $this->encode($params['connector_id']) . '/_features';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_features');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the filtering field in the connector document.
@@ -372,7 +763,43 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_filtering');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Updates the validation info of the draft filtering rules.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/update-connector-filtering-api.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     connector_id: string, // (REQUIRED) The unique identifier of the connector to be updated.
+     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     body: array, // (REQUIRED) Validation info for the draft filtering rules
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function updateFilteringValidation(array $params = [])
+    {
+        $this->checkRequiredParameters(['connector_id', 'body'], $params);
+        $url = '/_connector/' . $this->encode($params['connector_id']) . '/_filtering/_validation';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_filtering_validation');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the index name of the connector.
@@ -404,7 +831,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_index_name');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the name and/or description fields in the connector document.
@@ -436,7 +865,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_name');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the is_native flag of the connector.
@@ -468,7 +899,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_native');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the pipeline field in the connector document.
@@ -500,7 +933,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_pipeline');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the scheduling field in the connector document.
@@ -532,7 +967,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_scheduling');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the service type of the connector.
@@ -564,7 +1001,9 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_service_type');
+        return $this->client->sendRequest($request);
     }
     /**
      * Updates the status of the connector.
@@ -596,6 +1035,8 @@ class Connector extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['connector_id'], $request, 'connector.update_status');
+        return $this->client->sendRequest($request);
     }
 }

@@ -53,7 +53,9 @@ class Ilm extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['policy'], $request, 'ilm.delete_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves information about the index's current lifecycle state, such as the currently executing phase, action, and step.
@@ -85,7 +87,9 @@ class Ilm extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['only_managed', 'only_errors', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'ilm.explain_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns the specified policy definition. Includes the policy version and last modified date.
@@ -118,7 +122,9 @@ class Ilm extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['policy'], $request, 'ilm.get_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retrieves the current index lifecycle management (ILM) status.
@@ -145,7 +151,9 @@ class Ilm extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ilm.get_status');
+        return $this->client->sendRequest($request);
     }
     /**
      * Migrates the indices and ILM policies away from custom node attribute allocation routing to data tiers routing
@@ -174,7 +182,9 @@ class Ilm extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['dry_run', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ilm.migrate_to_data_tiers');
+        return $this->client->sendRequest($request);
     }
     /**
      * Manually moves an index into the specified step and executes that step.
@@ -205,7 +215,9 @@ class Ilm extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'ilm.move_to_step');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a lifecycle policy
@@ -236,7 +248,9 @@ class Ilm extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['policy'], $request, 'ilm.put_lifecycle');
+        return $this->client->sendRequest($request);
     }
     /**
      * Removes the assigned lifecycle policy and stops managing the specified index
@@ -266,7 +280,9 @@ class Ilm extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'ilm.remove_policy');
+        return $this->client->sendRequest($request);
     }
     /**
      * Retries executing the policy for an index that is in the ERROR step.
@@ -296,7 +312,9 @@ class Ilm extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'ilm.retry');
+        return $this->client->sendRequest($request);
     }
     /**
      * Start the index lifecycle management (ILM) plugin.
@@ -323,7 +341,9 @@ class Ilm extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ilm.start');
+        return $this->client->sendRequest($request);
     }
     /**
      * Halts all lifecycle management operations and stops the index lifecycle management (ILM) plugin
@@ -350,6 +370,8 @@ class Ilm extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'ilm.stop');
+        return $this->client->sendRequest($request);
     }
 }

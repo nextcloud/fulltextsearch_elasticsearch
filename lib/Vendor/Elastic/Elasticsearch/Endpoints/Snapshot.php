@@ -55,7 +55,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository'], $request, 'snapshot.cleanup_repository');
+        return $this->client->sendRequest($request);
     }
     /**
      * Clones indices from one snapshot into another snapshot in the same repository.
@@ -89,7 +91,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot', 'target_snapshot'], $request, 'snapshot.clone');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a snapshot in a repository.
@@ -123,7 +127,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'wait_for_completion', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot'], $request, 'snapshot.create');
+        return $this->client->sendRequest($request);
     }
     /**
      * Creates a repository.
@@ -157,7 +163,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'verify', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository'], $request, 'snapshot.create_repository');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes one or more snapshots.
@@ -168,6 +176,7 @@ class Snapshot extends AbstractEndpoint
      *     repository: string, // (REQUIRED) A repository name
      *     snapshot: list, // (REQUIRED) A comma-separated list of snapshot names
      *     master_timeout: time, // Explicit operation timeout for connection to master node
+     *     wait_for_completion: boolean, // Should this request wait until the operation has completed before returning
      *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -187,9 +196,11 @@ class Snapshot extends AbstractEndpoint
         $this->checkRequiredParameters(['repository', 'snapshot'], $params);
         $url = '/_snapshot/' . $this->encode($params['repository']) . '/' . $this->encode($params['snapshot']);
         $method = 'DELETE';
-        $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'wait_for_completion', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot'], $request, 'snapshot.delete');
+        return $this->client->sendRequest($request);
     }
     /**
      * Deletes a repository.
@@ -221,7 +232,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository'], $request, 'snapshot.delete_repository');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about a snapshot.
@@ -265,7 +278,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'ignore_unavailable', 'index_names', 'index_details', 'include_repository', 'sort', 'size', 'order', 'from_sort_value', 'after', 'offset', 'slm_policy_filter', 'verbose', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot'], $request, 'snapshot.get');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about a repository.
@@ -300,7 +315,9 @@ class Snapshot extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['master_timeout', 'local', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository'], $request, 'snapshot.get_repository');
+        return $this->client->sendRequest($request);
     }
     /**
      * Analyzes a repository for correctness and performance
@@ -341,7 +358,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['blob_count', 'concurrency', 'read_node_count', 'early_read_node_count', 'seed', 'rare_action_probability', 'max_blob_size', 'max_total_data_size', 'timeout', 'detailed', 'rarely_abort_writes', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository'], $request, 'snapshot.repository_analyze');
+        return $this->client->sendRequest($request);
     }
     /**
      * Restores a snapshot.
@@ -375,7 +394,9 @@ class Snapshot extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'wait_for_completion', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot'], $request, 'snapshot.restore');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about the status of a snapshot.
@@ -414,7 +435,9 @@ class Snapshot extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['master_timeout', 'ignore_unavailable', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot'], $request, 'snapshot.status');
+        return $this->client->sendRequest($request);
     }
     /**
      * Verifies a repository.
@@ -446,6 +469,8 @@ class Snapshot extends AbstractEndpoint
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository'], $request, 'snapshot.verify_repository');
+        return $this->client->sendRequest($request);
     }
 }

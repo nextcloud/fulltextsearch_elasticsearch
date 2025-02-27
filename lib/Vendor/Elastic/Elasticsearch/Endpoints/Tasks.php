@@ -61,7 +61,9 @@ class Tasks extends AbstractEndpoint
         }
         $url = $this->addQueryString($url, $params, ['nodes', 'actions', 'parent_task_id', 'wait_for_completion', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_id'], $request, 'tasks.cancel');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns information about a task.
@@ -94,7 +96,9 @@ class Tasks extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['wait_for_completion', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_id'], $request, 'tasks.get');
+        return $this->client->sendRequest($request);
     }
     /**
      * Returns a list of tasks.
@@ -129,6 +133,8 @@ class Tasks extends AbstractEndpoint
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['nodes', 'actions', 'detailed', 'parent_task_id', 'wait_for_completion', 'group_by', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
-        return $this->client->sendRequest($this->createRequest($method, $url, $headers, $params['body'] ?? null));
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'tasks.list');
+        return $this->client->sendRequest($request);
     }
 }
