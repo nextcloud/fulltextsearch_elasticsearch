@@ -1,5 +1,9 @@
 # Changelog
 
+### 28.0.4
+
+- fix highlight on huge text file
+
 ### 28.0.3
 
 - using LoggerInterface from core
