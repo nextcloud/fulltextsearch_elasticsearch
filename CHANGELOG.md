@@ -1,5 +1,9 @@
 # Changelog
 
+### 27.0.7
+
+- fix highlight on huge text file
+
 ### 27.0.6
 
 - fix composer packages conflict
