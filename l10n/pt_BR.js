@@ -14,7 +14,7 @@ OC.L10N.register(
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",
-    "object" : "objecto",
+    "object" : "objeto",
     "_" : "_"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");
