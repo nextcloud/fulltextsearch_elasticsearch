@@ -1,7 +1,7 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
-    "Full text search - Elasticsearch Platform" : "Tam metin arama - ElasticSearch platformu",
+    "Full text search - Elasticsearch Platform" : "Tam yazı arama - ElasticSearch platformu",
     "Index using ElasticSearch" : "ElasticSearch ile dizin oluşturulsun",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "ElasticSearch ile iletişim kuracak _Full text search_ uygulama eklentisi.",
     "Elastic Search" : "Elastic search",
