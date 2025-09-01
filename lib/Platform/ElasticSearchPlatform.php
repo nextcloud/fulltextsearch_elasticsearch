@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
+use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientBuilder;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
@@ -21,6 +22,7 @@ use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use OCA\FullTextSearch_Elasticsearch\Service\IndexService;
 use OCA\FullTextSearch_Elasticsearch\Service\SearchService;
 use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -43,6 +45,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	private ?IRunner $runner = null;
 
 	public function __construct(
+		private readonly IAppConfig $appConfig,
 		private ConfigService $configService,
 		private IndexService $indexService,
 		private SearchService $searchService,
@@ -75,7 +78,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$result = $this->configService->getConfig();
 
 		$sanitizedHosts = [];
-		$hosts = $this->configService->getElasticHost();
+		$hosts = $this->getElasticHost();
 		foreach ($hosts as $host) {
 			$parsedHost = parse_url($host);
 			$safeHost = $parsedHost['scheme'] . '://';
@@ -88,9 +91,23 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			$sanitizedHosts[] = $safeHost;
 		}
 
-		$result['elastic_host'] = $sanitizedHosts;
+		$result[ConfigLexicon::ELASTIC_HOST] = $sanitizedHosts;
 
 		return $result;
+	}
+
+
+	/**
+	 * @return array
+	 * @throws ConfigurationException
+	 */
+	public function getElasticHost(): array {
+		$strHost = $this->appConfig->getAppValueString(ConfigLexicon::ELASTIC_HOST);
+		if ($strHost === '') {
+			throw new ConfigurationException('Your ElasticSearchPlatform is not configured properly');
+		}
+
+		return array_map('trim', explode(',', $strHost));
 	}
 
 
@@ -111,7 +128,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @throws Exception
 	 */
 	public function loadPlatform() {
-		$this->connectToElastic($this->configService->getElasticHost());
+		$this->connectToElastic($this->getElasticHost());
 	}
 
 
@@ -369,11 +386,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			->setHosts($hosts)
 			->setRetries(3);
 
-		if ($this->configService->getAppValueBool(ConfigService::ELASTIC_LOGGER_ENABLED)) {
+		if ($this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED)) {
 			$cb->setLogger($this->logger);
 		}
 
-		$cb->setSSLVerification(!$this->configService->getAppValueBool(ConfigService::ALLOW_SELF_SIGNED_CERT));
+		$cb->setSSLVerification(!$this->appConfig->getAppValueBool(ConfigLexicon::ALLOW_SELF_SIGNED_CERT));
 		$this->configureAuthentication($cb, $hosts);
 
 		$this->client = $cb->build();

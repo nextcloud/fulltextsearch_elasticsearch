@@ -28,7 +28,7 @@ class Configure extends Base {
 	protected function configure() {
 		parent::configure();
 		$this->setName('fulltextsearch_elasticsearch:configure')
-			 ->addArgument('json', InputArgument::REQUIRED, 'set config')
+			 ->addArgument('json', InputArgument::OPTIONAL, 'set config')
 			 ->setDescription('Configure the installation');
 	}
 
@@ -40,26 +40,12 @@ class Configure extends Base {
 	 * @throws Exception
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$json = $input->getArgument('json');
-
-		$config = json_decode($json, true);
-
-		if (!is_array($config)) {
-			$output->writeln('Invalid JSON');
-
-			return 1;
-		}
-
-		$ak = array_keys($config);
-		foreach ($ak as $k) {
-			if (array_key_exists($k, ConfigService::$defaults)) {
-				$this->configService->setAppValue($k, $config[$k]);
-			}
+		if ($input->getArgument('json')) {
+			$this->configService->setConfig(json_decode($input->getArgument('json') ?? '', true) ?? []);
 		}
 
 		$output->writeln(json_encode($this->configService->getConfig(), JSON_PRETTY_PRINT));
-
-		return 0;
+		return self::SUCCESS;
 	}
 }
 

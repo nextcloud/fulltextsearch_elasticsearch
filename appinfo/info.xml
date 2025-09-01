@@ -14,7 +14,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 
 ]]>
 	</description>
-	<version>32.0.0-dev.0</version>
+	<version>32.0.0</version>
 	<licence>agpl</licence>
 	<author>Maxence Lange</author>
 	<namespace>FullTextSearch_Elasticsearch</namespace>
@@ -27,7 +27,7 @@ Extension to the _Full text search_ app to communicate with ElasticSearch.
 	<repository>https://github.com/nextcloud/fulltextsearch_elasticsearch.git</repository>
 	<screenshot>https://raw.githubusercontent.com/nextcloud/fulltextsearch/master/screenshots/0.3.0.png</screenshot>
 	<dependencies>
-		<nextcloud min-version="31" max-version="32"/>
+		<nextcloud min-version="32" max-version="33"/>
 	</dependencies>
 
 	<commands>
