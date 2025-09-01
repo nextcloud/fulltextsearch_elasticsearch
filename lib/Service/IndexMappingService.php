@@ -9,12 +9,14 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
+use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\MissingParameterException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ServerResponseException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\FullTextSearch\Model\IIndexDocument;
 
 
@@ -26,7 +28,8 @@ use OCP\FullTextSearch\Model\IIndexDocument;
 class IndexMappingService {
 
 	public function __construct(
-		private ConfigService $configService
+		private ConfigService $configService,
+		private readonly IAppConfig $appConfig,
 	) {
 	}
 
@@ -185,9 +188,7 @@ class IndexMappingService {
 
 		$params['body'] = [
 			'settings' => [
-				'index.mapping.total_fields.limit' => $this->configService->getAppValue(
-					ConfigService::FIELDS_LIMIT
-				),
+				'index.mapping.total_fields.limit' => $this->appConfig->getAppValueInt(ConfigLexicon::FIELDS_LIMIT),
 				'analysis' => [
 					'filter' => [
 						'shingle' => [
@@ -209,9 +210,7 @@ class IndexMappingService {
 					'analyzer' => [
 						'analyzer' => [
 							'type' => 'custom',
-							'tokenizer' => $this->configService->getAppValue(
-								ConfigService::ANALYZER_TOKENIZER
-							),
+							'tokenizer' => $this->appConfig->getAppValueString(ConfigLexicon::ANALYZER_TOKENIZER),
 							'filter' => ['lowercase', 'stop', 'kstem']
 						]
 					]

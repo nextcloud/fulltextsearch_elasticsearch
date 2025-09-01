@@ -10,7 +10,9 @@ namespace OCA\FullTextSearch_Elasticsearch\Service;
 
 
 use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
+use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\IConfig;
 
 
@@ -20,159 +22,53 @@ use OCP\IConfig;
  * @package OCA\FullTextSearch_Elasticsearch\Service
  */
 class ConfigService {
-
-	const FIELDS_LIMIT = 'fields_limit';
-	const ELASTIC_HOST = 'elastic_host';
-	const ELASTIC_INDEX = 'elastic_index';
-	const ELASTIC_VER_BELOW66 = 'es_ver_below66';
-	const ELASTIC_LOGGER_ENABLED = 'elastic_logger_enabled';
-	const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
-	const ALLOW_SELF_SIGNED_CERT = 'allow_self_signed_cert';
-
-	public static array $defaults = [
-		self::ELASTIC_HOST => '',
-		self::ELASTIC_INDEX => '',
-		self::FIELDS_LIMIT => '10000',
-		self::ELASTIC_VER_BELOW66 => '0',
-		self::ELASTIC_LOGGER_ENABLED => '0',
-		self::ANALYZER_TOKENIZER => 'standard',
-		self::ALLOW_SELF_SIGNED_CERT => 'false'
-	];
-
 	public function __construct(
-		private IConfig $config
+		private readonly IConfig $config,
+		private readonly IAppConfig $appConfig,
 	) {
 	}
 
-
-	/**
-	 * @return array
-	 */
 	public function getConfig(): array {
-		$keys = array_keys(self::$defaults);
-		$data = [];
-
-		foreach ($keys as $k) {
-			$data[$k] = $this->getAppValue($k);
-		}
-
-		return $data;
+		return [
+			ConfigLexicon::FIELDS_LIMIT => $this->appConfig->getAppValueInt(ConfigLexicon::FIELDS_LIMIT),
+			ConfigLexicon::ELASTIC_HOST => $this->appConfig->getAppValueString(ConfigLexicon::ELASTIC_HOST),
+			ConfigLexicon::ELASTIC_INDEX => $this->appConfig->getAppValueString(ConfigLexicon::ELASTIC_INDEX),
+			ConfigLexicon::ELASTIC_LOGGER_ENABLED => $this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED),
+			ConfigLexicon::ANALYZER_TOKENIZER => $this->appConfig->getAppValueString(ConfigLexicon::ANALYZER_TOKENIZER),
+			ConfigLexicon::ALLOW_SELF_SIGNED_CERT => $this->appConfig->getAppValueBool(ConfigLexicon::ALLOW_SELF_SIGNED_CERT),
+		];
 	}
 
+	public function setConfig(array $save): void {
+		foreach(array_keys($save) as $k) {
+			switch($k) {
+				case ConfigLexicon::FIELDS_LIMIT:
+					$this->appConfig->setAppValueInt($k, $save[$k]);
+					break;
 
-	/**
-	 * @param array $save
-	 */
-	public function setConfig(array $save) {
-		$keys = array_keys(self::$defaults);
+				case ConfigLexicon::ELASTIC_HOST:
+				case ConfigLexicon::ELASTIC_INDEX:
+				case ConfigLexicon::ANALYZER_TOKENIZER:
+					$this->appConfig->setAppValueString($k, $save[$k]);
+					break;
 
-		foreach ($keys as $k) {
-			if (array_key_exists($k, $save)) {
-				$this->setAppValue($k, $save[$k]);
+				case ConfigLexicon::ELASTIC_LOGGER_ENABLED:
+				case ConfigLexicon::ALLOW_SELF_SIGNED_CERT:
+					$this->appConfig->setAppValueBool($k, $save[$k]);
+					break;
 			}
 		}
 	}
 
-
-	/**
-	 * @return array
-	 * @throws ConfigurationException
-	 */
-	public function getElasticHost(): array {
-		$strHost = $this->getAppValue(self::ELASTIC_HOST);
-		if ($strHost === '') {
-			throw new ConfigurationException(
-				'Your ElasticSearchPlatform is not configured properly'
-			);
-		}
-
-		$hosts = explode(',', $strHost);
-
-		return array_map('trim', $hosts);
-	}
-
-
-	/**
-	 * @return string
-	 * @throws ConfigurationException
-	 */
 	public function getElasticIndex(): string {
-
-		$index = $this->getAppValue(self::ELASTIC_INDEX);
+		$index = $this->appConfig->getAppValueString(ConfigLexicon::ELASTIC_INDEX);
 		if ($index === '') {
-			throw new ConfigurationException(
-				'Your ElasticSearchPlatform is not configured properly'
-			);
+			throw new ConfigurationException('Your ElasticSearchPlatform is not configured properly');
 		}
 
 		return $index;
 	}
 
-
-	/**
-	 * Get a value by key
-	 *
-	 * @param string $key
-	 *
-	 * @return string
-	 */
-	public function getAppValue(string $key): string {
-		$defaultValue = null;
-		if (array_key_exists($key, self::$defaults)) {
-			$defaultValue = self::$defaults[$key];
-		}
-
-		return $this->config->getSystemValueString(
-			Application::APP_NAME . '.' . $key,
-			(string)$this->config->getAppValue(Application::APP_NAME, $key, $defaultValue)
-		);
-	}
-
-
-	public function getAppValueBool(string $key): bool {
-		$value = $this->config->getAppValue(Application::APP_NAME, $key, null) ?? self::$defaults[$key] ?? false;
-		if (is_bool($value)) {
-			return $value;
-		}
-
-		if ($value === 1 ||
-			$value === '1' ||
-			strtolower($value) === 'true' ||
-			strtolower($value) === 'yes') {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Set a value by key
-	 *
-	 * @param string $key
-	 * @param string $value
-	 */
-	public function setAppValue(string $key, string $value) {
-		$this->config->setAppValue(Application::APP_NAME, $key, $value);
-	}
-
-	/**
-	 * remove a key
-	 *
-	 * @param string $key
-	 *
-	 * @return string
-	 */
-	public function deleteAppValue(string $key): string {
-		return $this->config->deleteAppValue(Application::APP_NAME, $key);
-	}
-
-	/**
-	 * TODO: check json sent by admin front-end are valid.
-	 *
-	 * @param array $data
-	 *
-	 * @return bool
-	 */
 	public function checkConfig(array $data): bool {
 		return true;
 	}
