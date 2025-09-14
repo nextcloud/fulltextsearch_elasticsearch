@@ -1,7 +1,7 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
-    "Full text search - Elasticsearch Platform" : "Busca de texto completo – Plataforma Elasticsearch",
+    "Full text search - Elasticsearch Platform" : "Busca de texto completo — Plataforma Elasticsearch",
     "Index using ElasticSearch" : "Indexación empregando ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extensión da aplicación _Buca de texto completo_ para que se comunique con ElasticSearch.",
     "Elastic Search" : "Elastic Search",
