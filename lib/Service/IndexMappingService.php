@@ -157,6 +157,7 @@ class IndexMappingService {
 			'tags' => $document->getTags(),
 			'hash' => $document->getHash(),
 			'provider' => $document->getProviderId(),
+			'lastModified' => $document->getModifiedTime(),
 			'source' => $document->getSource(),
 			'title' => $document->getTitle(),
 			'parts' => $document->getParts()
@@ -231,6 +232,9 @@ class IndexMappingService {
 						],
 						'provider' => [
 							'type' => 'keyword'
+						],
+						'lastModified' => [
+							'type' => 'integer',
 						],
 						'tags' => [
 							'type' => 'keyword'
