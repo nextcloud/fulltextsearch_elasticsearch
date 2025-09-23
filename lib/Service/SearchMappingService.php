@@ -92,6 +92,8 @@ class SearchMappingService {
 
 //		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 
+		$this->generateSearchSince($bool, (int)$request->getOption('since'));
+
 		$params['body']['query']['bool'] = $bool;
 		$params['body']['highlight'] = $this->generateSearchHighlighting($request);
 
@@ -333,6 +335,17 @@ class SearchMappingService {
 		}
 
 		return $query;
+	}
+
+	private function generateSearchSince(array &$bool, int $since): void {
+		if ($since === 0) {
+			return;
+		}
+
+		$query = [];
+		$query[] = ['range' => ['lastModified' => ['gte' => $since]]];
+
+		$bool['filter'][]['bool']['must'] = $query;
 	}
 
 
