@@ -119,6 +119,7 @@ class SearchService {
 		$index->setTags($result['_source']['tags']);
 //		$index->setMore($result['_source']['more']);
 		$index->setHash($result['_source']['hash']);
+		$index->setModifiedTime($result['_source']['lastModified'] ?? 0);
 		$index->setSource($result['_source']['source']);
 		$index->setTitle($result['_source']['title']);
 		$index->setParts($result['_source']['parts']);
@@ -196,6 +197,7 @@ class SearchService {
 		$document = new IndexDocument($providerId, $documentId);
 		$document->setAccess($access);
 		$document->setHash($this->get('hash', $entry['_source']));
+		$document->setModifiedTime($this->getInt('lastModified', $entry['_source']));
 		$document->setScore($this->get('_score', $entry, '0'));
 		$document->setSource($this->get('source', $entry['_source']));
 		$document->setTitle($this->get('title', $entry['_source']));
