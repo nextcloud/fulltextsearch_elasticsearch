@@ -11,6 +11,10 @@ OC.L10N.register(
     "Name of your index." : "Όνομα του ευρετηρίου σας.",
     "[Advanced] Analyzer tokenizer" : "[Advanced]  Αναλυτής Λεξικής ανάλυσης",
     "Some language might needs a specific tokenizer." : "Ορισμένες γλώσσες μπορεί να χρειάζονται μια συγκεκριμένη λεξική ανάλυση.",
+    ">tbody" : ">tbody",
+    "<script>" : "<script>",
+    "<div>" : "<div>",
+    "object" : "object",
     "_" : "_"
 },
 "nplurals=2; plural=(n != 1);");
