@@ -4,6 +4,12 @@
 -->
 # Changelog
 
+### 32.0.0
+
+- compat nc32
+- manage 'since' search filter
+- manage 'until' search filter
+- disable elasticsearch-php logger by default
 
 ### 31.0.0
 
