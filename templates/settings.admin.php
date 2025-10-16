@@ -73,7 +73,7 @@ Util::addStyle(Application::APP_NAME, 'admin');
 			<div class="div-table-col div-table-col-left">
 				<span class="leftcol"><?php p($l->t('[Advanced] Analyzer tokenizer')); ?>:</span>
 				<br/>
-				<em><?php p($l->t('Some language might needs a specific tokenizer.')); ?></em>
+				<em><?php p($l->t('Some language might need a specific tokenizer.')); ?></em>
 			</div>
 			<div class="div-table-col">
 				<input type="text" id="analyzer_tokenizer" />
