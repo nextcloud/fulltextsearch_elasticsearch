@@ -276,10 +276,18 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * @return array
 	 */
 	private function parseIndexErrorException(Exception $e): array {
-		$arr = json_decode($e->getMessage(), true);
-		if (!is_array($arr)) {
-			return ['error', 'unknown error', ''];
-		}
+        // Remove leading ErrorMessage like: "400 Bad Request: " from ElasticSearch to make json_decode work again
+        $jsonexmsg = preg_replace('/^[^{]*/', '', $e->getMessage());
+        $arr = json_decode($jsonexmsg, true);
+
+        if (!is_array($arr)) {
+            // If still parsing is impossible give a hint on what went wrong (parsing) in logs...
+            $jsonerror = json_last_error_msg();
+            $this->logger->error(sprintf("parseIndexErrorException(%s): ex=%s", $jsonerror, $jsonexmsg));
+
+            // Give a hint in the unknown error what went wrong
+            return ['error', 'unknown error: ' + $jsonexmsg, ''];
+        }
 
 		if (empty($this->getArray('error', $arr))) {
 			return ['error', $e->getMessage(), ''];
