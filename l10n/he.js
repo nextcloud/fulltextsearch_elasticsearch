@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "אינדקס",
     "Name of your index." : "שם האינדקס שלך.",
     "[Advanced] Analyzer tokenizer" : "[מתקדם] ניתוח השמת אסימונים",
-    "Some language might needs a specific tokenizer." : "חלק מהשפות צריכות השמת אסימונים מותאמת. ",
     "_" : "_"
 },
 "nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;");

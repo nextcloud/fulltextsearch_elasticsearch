@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Index",
     "Name of your index." : "Az indexe neve.",
     "[Advanced] Analyzer tokenizer" : "[Speciális] Lexikális szövegbontásos elemzés",
-    "Some language might needs a specific tokenizer." : "Egyes nyelvekhez egy adott lexikális szövegbontásra lehet szükség",
     "object" : "objektum"
 },
 "nplurals=2; plural=(n != 1);");

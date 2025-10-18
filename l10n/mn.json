@@ -7,7 +7,6 @@
     "Include your credential in case authentication is required." : "Баталгаажуулалт шаардлагатай тохиолдолд мэдээллээ оруулна уу.",
     "Index" : "Индекс",
     "Name of your index." : "Таны индексийн нэр",
-    "[Advanced] Analyzer tokenizer" : "[Мэргэжлийн] Анализаторын токенжуулагч",
-    "Some language might needs a specific tokenizer." : "Зарим хэлэнд тусгай токенизатор хэрэгтэй байж магадгүй."
+    "[Advanced] Analyzer tokenizer" : "[Мэргэжлийн] Анализаторын токенжуулагч"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Atriðaskrá",
     "Name of your index." : "Nafn á atriðaskránni þinni.",
     "[Advanced] Analyzer tokenizer" : "[Meira] Greining teikna (Analyzer tokenizer)",
-    "Some language might needs a specific tokenizer." : "Einhver tungumál gætu þarfnast sérstaks teiknabiðlara.",
     "_" : "_"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

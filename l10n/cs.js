@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Rejstřík",
     "Name of your index." : "Nazvěte svůj rejstřík.",
     "[Advanced] Analyzer tokenizer" : "[Pokročilé] Analyzátor a nástroj pro dělení na tokeny",
-    "Some language might needs a specific tokenizer." : "Některé jazyky mohou vyžadovat specifický nástroj pro dělení na tokeny.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",
