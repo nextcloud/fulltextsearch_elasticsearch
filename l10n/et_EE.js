@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Indeks",
     "Name of your index." : "Sisesta oma indeksile nimi.",
     "[Advanced] Analyzer tokenizer" : "[Lisavõimalus] Analüüsija sõnesti (Analyzer tokenizer)",
-    "Some language might needs a specific tokenizer." : "Mõni keel võib vajada eraldi sõnesti paigaldamist.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",

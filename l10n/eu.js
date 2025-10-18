@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Aurkibidea",
     "Name of your index." : "Zure aurkibidearen izena.",
     "[Advanced] Analyzer tokenizer" : "[Aurreratua] Analizatzailearen tokenizatzailea",
-    "Some language might needs a specific tokenizer." : "Zenbait hizkuntza tokenizatzile zehatz bat baliteke behar izatea.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",

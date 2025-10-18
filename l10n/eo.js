@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Indekso",
     "Name of your index." : "Nomo de via indekso.",
     "[Advanced] Analyzer tokenizer" : "[Altnivela] Vorta disigilo kaj analizilo",
-    "Some language might needs a specific tokenizer." : "Iuj lingvoj povas bezoni apartan disigilon.",
     "_" : "_"
 },
 "nplurals=2; plural=(n != 1);");

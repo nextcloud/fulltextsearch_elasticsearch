@@ -8,7 +8,6 @@
     "Index" : "Kazalo",
     "Name of your index." : "Ime kazala",
     "[Advanced] Analyzer tokenizer" : "[Napredno] Analiza žetonov",
-    "Some language might needs a specific tokenizer." : "Nekateri jeziki lahko zahtevajo posebna pravila za iskanje.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",

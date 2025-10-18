@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Índex",
     "Name of your index." : "Nom de l'índex.",
     "[Advanced] Analyzer tokenizer" : "(Avançat) Lematitzador de l'analitzador",
-    "Some language might needs a specific tokenizer." : "És possible que algunes llengües requereixin un lematitzador específic.",
     "_" : "_"
 },
 "nplurals=2; plural=(n != 1);");

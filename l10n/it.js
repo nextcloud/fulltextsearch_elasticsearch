@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Indice",
     "Name of your index." : "Nome del tuo indice.",
     "[Advanced] Analyzer tokenizer" : "[Avanzato] Generatore di token dell'analizzatore",
-    "Some language might needs a specific tokenizer." : "Alcune lingue potrebbero richiedere uno specifico generatore di token.",
     "_" : "_"
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");
