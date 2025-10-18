@@ -8,7 +8,6 @@
     "Index" : "색인",
     "Name of your index." : "색인 이름입니다.",
     "[Advanced] Analyzer tokenizer" : "[고급] 분석기 토큰화 도구",
-    "Some language might needs a specific tokenizer." : "일부 언어에는 특수한 토큰화 도구가 필요합니다.",
     "_" : "_"
 },"pluralForm" :"nplurals=1; plural=0;"
 }
