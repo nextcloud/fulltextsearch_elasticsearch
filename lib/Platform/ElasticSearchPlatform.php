@@ -282,11 +282,14 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
         if (!is_array($arr)) {
             // If still parsing is impossible give a hint on what went wrong (parsing) in logs...
-            $jsonerror = json_last_error_msg();
-            $this->logger->error(sprintf("parseIndexErrorException(%s): ex=%s", $jsonerror, $jsonexmsg));
+			$jsonerror = json_last_error_msg();
+            $this->logger->error(sprintf("parseIndexErrorException(%s): ex=%s", $jsonerror, $e->getMessage()));
 
             // Give a hint in the unknown error what went wrong
-            return ['error', 'unknown error: ' . $jsonexmsg, ''];
+			if(empty($jsonexmsg)) {
+				$jsonexmsg = $e->getMessage();
+			}
+			return ['error', sprintf('unknown error: "%s"', $jsonexmsg), ''];
         }
 
 		if (empty($this->getArray('error', $arr))) {
