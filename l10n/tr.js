@@ -10,6 +10,7 @@ OC.L10N.register(
     "Index" : "Dizin",
     "Name of your index." : "Dizin adı.",
     "[Advanced] Analyzer tokenizer" : "[Gelişmiş] inceleyici kodlayıcı",
+    "Some language might need a specific tokenizer." : "Bazı diller için özel bir kodlayıcı gerekebilir.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",
