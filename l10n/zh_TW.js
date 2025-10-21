@@ -10,6 +10,7 @@ OC.L10N.register(
     "Index" : "索引",
     "Name of your index." : "您索引的名稱。",
     "[Advanced] Analyzer tokenizer" : "[進階] 分析器權杖生成器",
+    "Some language might need a specific tokenizer." : "部份語言可能需要特定的分詞器。",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",
