@@ -8,7 +8,6 @@
     "Index" : "فهرس",
     "Name of your index." : "اسم فهرسكم.",
     "[Advanced] Analyzer tokenizer" : "المُحلّل للكلمات [Advanced] Analyzer tokenizer",
-    "Some language might needs a specific tokenizer." : "بعض اللغات قد تحتاج إلى مُحلّل كلمات tokenizer مُخصّص.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",

@@ -8,7 +8,7 @@
     "Index" : "Índice",
     "Name of your index." : "Nome do seu índice.",
     "[Advanced] Analyzer tokenizer" : "[Advanced] Tokenizer analisador",
-    "Some language might needs a specific tokenizer." : "Algum idioma pode precisar de um tokenizer específico.",
+    "Some language might need a specific tokenizer." : "Alguns idiomas podem precisar de um tokenizador específico.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",

@@ -9,7 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Inclue is credentziales tuas s'in casu siat recherta s'autenticatzione.",
     "Index" : "Ìnditze",
     "Name of your index." : "Nùmene de s'ìnditze tuo.",
-    "[Advanced] Analyzer tokenizer" : "[Advanced] Generadore de token de s'analizadore",
-    "Some language might needs a specific tokenizer." : "B'at limbas chi diant pòdere rechèdere unu generadore ispetzìficu de token."
+    "[Advanced] Analyzer tokenizer" : "[Advanced] Generadore de token de s'analizadore"
 },
 "nplurals=2; plural=(n != 1);");

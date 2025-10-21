@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "Innéacs",
     "Name of your index." : "Ainm do innéacs.",
     "[Advanced] Analyzer tokenizer" : "[Casta] Anailíseoir tokenizer",
-    "Some language might needs a specific tokenizer." : "Seans go mbeidh comharthaíocht ar leith de dhíth ar theanga éigin.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",

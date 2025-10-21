@@ -10,7 +10,6 @@ OC.L10N.register(
     "Index" : "كۆرسەتكۈچ",
     "Name of your index." : "كۆرسەتكۈچنىڭ ئىسمى.",
     "[Advanced] Analyzer tokenizer" : "[Advanced] ئانالىزچى بەلگە",
-    "Some language might needs a specific tokenizer." : "بەزى تىللار مەلۇم بەلگە قويغۇچقا ئېھتىياجلىق بولۇشى مۇمكىن.",
     ">tbody" : "> tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",
