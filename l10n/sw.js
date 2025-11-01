@@ -10,6 +10,7 @@ OC.L10N.register(
     "Index" : "Faharasa",
     "Name of your index." : "Jina la faharasa yako",
     "[Advanced] Analyzer tokenizer" : " [Ya juu] Kichanganuzi tokenizer",
+    "Some language might need a specific tokenizer." : "Lugha fulani inaweza kuhitaji kiashiria maalum.",
     ">tbody" : ">tmwili",
     "<script>" : "<script>",
     "<div>" : "<div>",

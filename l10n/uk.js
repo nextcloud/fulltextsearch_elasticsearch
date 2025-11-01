@@ -10,6 +10,7 @@ OC.L10N.register(
     "Index" : "Індекс",
     "Name of your index." : "Назва вашого індексу. ",
     "[Advanced] Analyzer tokenizer" : "[Розширені] Аналізатор-токенизатор",
+    "Some language might need a specific tokenizer." : "Для окремих мова може бути потрібний свій токенизатор.",
     ">tbody" : ">tbody",
     "<script>" : "<script>",
     "<div>" : "<div>",
