@@ -58,7 +58,7 @@
   },
   "require": {
     "bamarni/composer-bin-plugin": "^1.8",
-    "elasticsearch/elasticsearch": "^8.11"
+    "elasticsearch/elasticsearch": "^9.2"
   },
   "require-dev": {
     "nextcloud/ocp": "dev-master"
