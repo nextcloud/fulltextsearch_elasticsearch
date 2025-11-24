@@ -9,6 +9,7 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "در صورت نیاز به تأیید اعتبار ، گواهی‌نامه خود را قراردهید.",
     "Index" : "فهرست مطالب",
     "Name of your index." : "نام فهرست شما",
-    "[Advanced] Analyzer tokenizer" : "[پیشرفته] تحلیل کننده رمزگذار"
+    "[Advanced] Analyzer tokenizer" : "[پیشرفته] تحلیل کننده رمزگذار",
+    "Some language might need a specific tokenizer." : "ممکن است برخی از زبان‌ها به یک توکن‌ساز خاص نیاز داشته باشند."
 },
 "nplurals=2; plural=(n > 1);");
