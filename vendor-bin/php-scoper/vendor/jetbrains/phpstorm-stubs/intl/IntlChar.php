@@ -1,6 +1,7 @@
 <?php
 
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
@@ -676,6 +677,21 @@ class IntlChar
     public const NO_NUMERIC_VALUE = -123456789;
 
     /**
+     * @since 8.4
+     */
+    public const PROPERTY_IDS_UNARY_OPERATOR = 72;
+
+    /**
+     * @since 8.4
+     */
+    public const PROPERTY_ID_COMPAT_MATH_START = 73;
+
+    /**
+     * @since 8.4
+     */
+    public const PROPERTY_ID_COMPAT_MATH_CONTINUE = 74;
+
+    /**
      * Check a binary Unicode property for a code point
      * @link https://php.net/manual/en/intlchar.hasbinaryproperty.php
      * @param int|string $codepoint The integer codepoint value (e.g. 0x2603 for U+2603 SNOWMAN), or the character encoded as a UTF-8 string (e.g. "\u{2603}")
@@ -901,12 +917,13 @@ class IntlChar
      * @since 7.0
      */
     #[TentativeType]
+    #[LanguageLevelTypeAware(['8.3' => 'bool'], default: 'bool|null')]
     public static function enumCharNames(
         #[LanguageLevelTypeAware(['8.0' => 'int|string'], default: '')] $start,
         #[LanguageLevelTypeAware(['8.0' => 'int|string'], default: '')] $end,
         #[LanguageLevelTypeAware(['8.0' => 'callable'], default: '')] $callback,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = IntlChar::UNICODE_CHAR_NAME
-    ): ?bool {}
+    ) {}
 
     /**
      * Enumerate all code points with their Unicode general categories
@@ -922,7 +939,10 @@ class IntlChar
      * @since 7.0
      */
     #[TentativeType]
-    public static function enumCharTypes(#[LanguageLevelTypeAware(['8.0' => 'callable'], default: '')] $callback = null): void {}
+    public static function enumCharTypes(
+        #[PhpStormStubsElementAvailable(from: '7.0', to: '7.4')] $callback = null,
+        #[PhpStormStubsElementAvailable(from: '8.0')] callable $callback
+    ): void {}
 
     /**
      * Perform case folding on a code point

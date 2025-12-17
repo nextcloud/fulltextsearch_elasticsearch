@@ -3,6 +3,7 @@
 // Start of soap v.
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
@@ -266,7 +267,7 @@ class SoapClient
      */
     public function __construct(
         #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $wsdl,
-        array $options = null
+        array $options = []
     ) {}
 
     /**
@@ -321,7 +322,12 @@ class SoapClient
      * </p>
      * <p>
      * On error, if the SoapClient object was constructed with the exceptions
-     * option set to <b>FALSE</b>, a SoapFault object will be returned.
+     * option set to <b>FALSE</b>, a SoapFault object will be returned. If this
+     * option is not set, or is set to <b>TRUE</b>, then a SoapFault object will
+     * be thrown as an exception.
+     * @throws SoapFault A SoapFault exception will be thrown if an error occurs
+     * and the SoapClient was constructed with the exceptions option not set, or
+     * set to <b>TRUE</b>.
      * @since 5.0.1
      */
     #[TentativeType]
@@ -456,12 +462,12 @@ class SoapClient
      * @since 5.0.1
      */
     #[TentativeType]
-    public function __setLocation(#[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $location = ''): ?string {}
+    public function __setLocation(#[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $location = null): ?string {}
 
     /**
      * Sets SOAP headers for subsequent calls
      * @link https://php.net/manual/en/soapclient.setsoapheaders.php
-     * @param mixed $headers [optional] <p>
+     * @param mixed $headers <p>
      * The headers to be set. It could be <b>SoapHeader</b>
      * object or array of <b>SoapHeader</b> objects.
      * If not specified or set to <b>NULL</b>, the headers will be deleted.
@@ -470,7 +476,10 @@ class SoapClient
      * @since 5.0.5
      */
     #[TentativeType]
-    public function __setSoapHeaders($headers = null): bool {}
+    public function __setSoapHeaders(
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $headers,
+        #[PhpStormStubsElementAvailable(from: '7.0')] $headers = null
+    ): bool {}
 }
 
 /**
@@ -542,9 +551,9 @@ class SoapVar
         #[LanguageLevelTypeAware(["8.0" => 'mixed'], default: '')] $data,
         #[LanguageLevelTypeAware(["7.1" => "int|null"], default: "int")] $encoding,
         #[LanguageLevelTypeAware(["8.0" => "string|null"], default: "string")] $typeName,
-        #[LanguageLevelTypeAware(["8.0" => 'string|null'], default: '')] $typeNamespace = '',
-        #[LanguageLevelTypeAware(["8.0" => 'string|null'], default: '')] $nodeName = '',
-        #[LanguageLevelTypeAware(["8.0" => 'string|null'], default: '')] $nodeNamespace = ''
+        #[LanguageLevelTypeAware(["8.0" => 'string|null'], default: '')] $typeNamespace = null,
+        #[LanguageLevelTypeAware(["8.0" => 'string|null'], default: '')] $nodeName = null,
+        #[LanguageLevelTypeAware(["8.0" => 'string|null'], default: '')] $nodeNamespace = null
     ) {}
 
     /**
@@ -622,7 +631,7 @@ class SoapServer
      */
     public function __construct(
         #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $wsdl,
-        array $options = null
+        array $options = []
     ) {}
 
     /**
@@ -716,7 +725,7 @@ class SoapServer
      * @return void No value is returned.
      */
     #[TentativeType]
-    public function setObject(object $object): void {}
+    public function setObject(#[LanguageLevelTypeAware(['8.0' => 'object'], default: '')] $object): void {}
 
     /**
      * Adds one or more functions to handle SOAP requests
@@ -790,9 +799,9 @@ class SoapServer
     public function fault(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $code,
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $string,
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $actor = null,
+        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $actor = '',
         #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $details = null,
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $name = null
+        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $name = ''
     ): void {}
 
     /**
@@ -806,6 +815,11 @@ class SoapServer
      */
     #[TentativeType]
     public function addSoapHeader(SoapHeader $header): void {}
+
+    /**
+     * @since 8.4
+     */
+    public function __getLastResponse(): ?string {}
 }
 
 /**
@@ -874,7 +888,7 @@ class SoapFault extends Exception
      * @param string $actor [optional] <p>
      * A string identifying the actor that caused the error.
      * </p>
-     * @param string $details [optional] <p>
+     * @param mixed $details [optional] <p>
      * More details about the cause of the error.
      * </p>
      * @param string $name [optional] <p>
@@ -1045,7 +1059,7 @@ class SoapHeader
     public function __construct(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $namespace,
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $name,
-        #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $data = null,
+        #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $data,
         #[LanguageLevelTypeAware(['8.0' => 'bool'], default: '')] $mustUnderstand = false,
         #[LanguageLevelTypeAware(['8.0' => 'string|int|null'], default: '')] $actor = null
     ) {}
@@ -1098,6 +1112,7 @@ define('SOAP_1_1', 1);
 define('SOAP_1_2', 2);
 define('SOAP_PERSISTENCE_SESSION', 1);
 define('SOAP_PERSISTENCE_REQUEST', 2);
+/** @deprecated 8.4 */
 define('SOAP_FUNCTIONS_ALL', 999);
 define('SOAP_ENCODED', 1);
 define('SOAP_LITERAL', 2);

@@ -77,11 +77,12 @@ class RedisCluster
      * Creates a Redis Cluster client
      *
      * @param string|null   $name
-     * @param array         $seeds
-     * @param float         $timeout
-     * @param float         $readTimeout
+     * @param array|null    $seeds
+     * @param int|float     $timeout
+     * @param int|float     $readTimeout
      * @param bool          $persistent
-     * @param string|null   $auth
+     * @param mixed         $auth
+     * @param array|null    $context
      * @throws RedisClusterException
      *
      * @example
@@ -97,6 +98,7 @@ class RedisCluster
      * // redis.clusters.seeds = "mycluster[]=localhost:7000&test[]=localhost:7001"
      * // redis.clusters.timeout = "mycluster=5"
      * // redis.clusters.read_timeout = "mycluster=10"
+     * // redis.clusters.auth = "mycluster=password" OR ['user' => 'foo', 'pass' => 'bar] as example
      *
      * //Then, this cluster can be loaded by doing the following
      *
@@ -104,10 +106,10 @@ class RedisCluster
      * $redisClusterDev = new RedisCluster('test');
      * </pre>
      */
-    public function __construct($name, $seeds, $timeout = null, $readTimeout = null, $persistent = false, $auth = null) {}
+    public function __construct($name, $seeds = null, $timeout = null, $readTimeout = null, $persistent = false, $auth = null, $context = null) {}
 
     /**
-     * Disconnects from the Redis instance, except when pconnect is used.
+     * Disconnects from the RedisCluster instance, except when pconnect is used.
      */
     public function close() {}
 
@@ -245,7 +247,7 @@ class RedisCluster
      *
      * @param   string $key
      * @param   int    $ttl
-     * @param   string $value
+     * @param   mixed $value
      *
      * @return  bool   TRUE if the command is successful.
      * @link    https://redis.io/commands/setex
@@ -648,7 +650,7 @@ class RedisCluster
      * or the pivot didn't exists, the value is not inserted.
      *
      * @param   string $key
-     * @param   int    $position RedisCluster::BEFORE | RedisCluster::AFTER
+     * @param   string $position RedisCluster::BEFORE | RedisCluster::AFTER
      * @param   string $pivot
      * @param   string $value
      *
@@ -876,9 +878,9 @@ class RedisCluster
      * If this value is already in the set, FALSE is returned.
      *
      * @param   string $key    Required key
-     * @param   string $value1 Required value
-     * @param   string $value2 Optional value
-     * @param   string $valueN Optional value
+     * @param   mixed $value1 Required value
+     * @param   mixed $value2 Optional value
+     * @param   mixed $valueN Optional value
      *
      * @return  int|false     The number of elements added to the set
      * @link    https://redis.io/commands/sadd
@@ -1537,7 +1539,7 @@ class RedisCluster
      *
      * @param string $key
      * @param string $hashKey
-     * @param string $value
+     * @param mixed $value
      *
      * @return int
      * 1 if value didn't exist and was added successfully,
@@ -2428,11 +2430,11 @@ class RedisCluster
     /**
      * Remove all members in a sorted set between the given lexicographical range.
      *
-     * @param   string $key The ZSET you wish to run against.
-     * @param   int    $min The minimum alphanumeric value you wish to get.
-     * @param   int    $max The maximum alphanumeric value you wish to get.
+     * @param  string  $key  The ZSET you wish to run against.
+     * @param  string  $min  The minimum alphanumeric value you wish to get.
+     * @param  string  $max  The maximum alphanumeric value you wish to get.
      *
-     * @return  array    the number of elements removed.
+     * @return  int|false    the number of elements removed.
      * @link    https://redis.io/commands/zremrangebylex
      * @example
      * <pre>
@@ -2443,7 +2445,7 @@ class RedisCluster
      * $redisCluster->zRange('key',0,-1);// array('a','b','e','f','g')
      * </pre>
      */
-    public function zRemRangeByLex($key, $min, $max) {}
+    public function zRemRangeByLex(string $key, string $min, string $max) {}
 
     /**
      * Add multiple sorted sets and store the resulting sorted set in a new key
@@ -2817,20 +2819,20 @@ class RedisCluster
     /**
      * Get client option
      *
-     * @param   string $name parameter name
+     * @param   int $option parameter
      *
-     * @return  int     Parameter value.
+     * @return  int|string     Parameter value.
      * @example
      * // return RedisCluster::SERIALIZER_NONE, RedisCluster::SERIALIZER_PHP, or RedisCluster::SERIALIZER_IGBINARY.
      * $redisCluster->getOption(RedisCluster::OPT_SERIALIZER);
      */
-    public function getOption($name) {}
+    public function getOption($option) {}
 
     /**
      * Set client option.
      *
-     * @param   string $name  parameter name
-     * @param   string $value parameter value
+     * @param   int        $option parameter
+     * @param   int|string $value  parameter value
      *
      * @return  bool   TRUE on success, FALSE on error.
      * @example
@@ -2841,7 +2843,7 @@ class RedisCluster
      * $redisCluster->setOption(RedisCluster::OPT_PREFIX, 'myAppName:');                             // use custom prefix on all keys
      * </pre>
      */
-    public function setOption($name, $value) {}
+    public function setOption($option, $value) {}
 
     /**
      * A utility method to prefix the value with the prefix setting for phpredis.
@@ -2916,7 +2918,7 @@ class RedisCluster
      *            a RedisCluster::PIPELINE block is simply transmitted faster to the server, but without any guarantee
      *            of atomicity. discard cancels a transaction.
      *
-     * @return Redis returns the Redis instance and enters multi-mode.
+     * @return RedisCluster returns the RedisCluster instance and enters multi-mode.
      * Once in multi-mode, all subsequent method calls return the same object until exec() is called.
      * @link    https://redis.io/commands/multi
      * @example
@@ -3268,7 +3270,7 @@ class RedisCluster
      *
      * @param string|array $nodeParams key or [host,port]
      *
-     * @return  string STRING: +PONG on success. Throws a RedisException object on connectivity error, as described
+     * @return  string STRING: +PONG on success. Throws a RedisClusterException object on connectivity error, as described
      *                 above.
      * @link    https://redis.io/commands/ping
      */

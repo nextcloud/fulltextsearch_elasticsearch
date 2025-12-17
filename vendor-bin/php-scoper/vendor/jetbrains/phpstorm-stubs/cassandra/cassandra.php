@@ -832,7 +832,7 @@ namespace Cassandra {
         /**
          * Returns the partition key columns of the table
          *
-         * @return array A list of of Column instances
+         * @return array A list of Column instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/interface.Table/#method-partitionKey
          */
         public function partitionKey();
@@ -840,7 +840,7 @@ namespace Cassandra {
         /**
          * Returns both the partition and clustering key columns of the table
          *
-         * @return array A list of of Column instances
+         * @return array A list of Column instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/interface.Table/#method-primaryKey
          */
         public function primaryKey();
@@ -848,7 +848,7 @@ namespace Cassandra {
         /**
          * Returns the clustering key columns of the table
          *
-         * @return array A list of of Column instances
+         * @return array A list of Column instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/interface.Table/#method-clusteringKey
          */
         public function clusteringKey();
@@ -1253,7 +1253,7 @@ namespace Cassandra {
          *
          * @param string $name Materialized view name
          *
-         * @return \Cassandra\MaterizedView|null A materialized view or null
+         * @return \Cassandra\MaterializedView|null A materialized view or null
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/interface.Keyspace/#method-materializedView
          */
         public function materializedView($name);
@@ -2399,7 +2399,7 @@ namespace Cassandra {
         /**
          * Returns the partition key columns of the view
          *
-         * @return array A list of of Column instances
+         * @return array A list of Column instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultMaterializedView/#method-partitionKey
          */
         public function partitionKey() {}
@@ -2407,7 +2407,7 @@ namespace Cassandra {
         /**
          * Returns both the partition and clustering key columns of the view
          *
-         * @return array A list of of Column instances
+         * @return array A list of Column instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultMaterializedView/#method-primaryKey
          */
         public function primaryKey() {}
@@ -2415,7 +2415,7 @@ namespace Cassandra {
         /**
          * Returns the clustering key columns of the view
          *
-         * @return array A list of of Column instances
+         * @return array A list of Column instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultMaterializedView/#method-clusteringKey
          */
         public function clusteringKey() {}
@@ -3425,7 +3425,7 @@ namespace Cassandra {
         /**
          * Returns the partition key columns of the view
          *
-         * @return array A list of of `Column` instances
+         * @return array A list of `Column` instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.MaterializedView/#method-partitionKey
          */
         abstract public function partitionKey();
@@ -3433,7 +3433,7 @@ namespace Cassandra {
         /**
          * Returns both the partition and clustering key columns of the view
          *
-         * @return array A list of of `Column` instances
+         * @return array A list of `Column` instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.MaterializedView/#method-primaryKey
          */
         abstract public function primaryKey();
@@ -3441,7 +3441,7 @@ namespace Cassandra {
         /**
          * Returns the clustering key columns of the view
          *
-         * @return array A list of of `Column` instances
+         * @return array A list of `Column` instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.MaterializedView/#method-clusteringKey
          */
         abstract public function clusteringKey();
@@ -4386,7 +4386,7 @@ namespace Cassandra {
          *
          * @param string $name Materialized view name
          *
-         * @return \Cassandra\MaterizedView|null A materialized view or null
+         * @return \Cassandra\MaterializedView|null A materialized view or null
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultKeyspace/#method-materializedView
          */
         public function materializedView($name) {}
@@ -4834,7 +4834,7 @@ namespace Cassandra {
         /**
          * Returns the partition key columns of the table
          *
-         * @return array A list of of `Column` instance
+         * @return array A list of `Column` instance
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultTable/#method-partitionKey
          */
         public function partitionKey() {}
@@ -4842,7 +4842,7 @@ namespace Cassandra {
         /**
          * Returns both the partition and clustering key columns of the table
          *
-         * @return array A list of of `Column` instance
+         * @return array A list of `Column` instance
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultTable/#method-primaryKey
          */
         public function primaryKey() {}
@@ -4850,7 +4850,7 @@ namespace Cassandra {
         /**
          * Returns the clustering key columns of the table
          *
-         * @return array A list of of `Column` instances
+         * @return array A list of `Column` instances
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultTable/#method-clusteringKey
          */
         public function clusteringKey() {}
@@ -4884,7 +4884,7 @@ namespace Cassandra {
          *
          * @param string $name Materialized view name
          *
-         * @return \Cassandra\MaterizedView|null A materialized view or null
+         * @return \Cassandra\MaterializedView|null A materialized view or null
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/class.DefaultTable/#method-materializedView
          */
         public function materializedView($name) {}
@@ -5514,7 +5514,7 @@ namespace Cassandra\Cluster {
         /**
          * Configures the retry policy.
          *
-         * @param \Cassandra\Cluster\RetryPolicy $policy the retry policy to use.
+         * @param \Cassandra\RetryPolicy $policy the retry policy to use.
          *
          * @return \Cassandra\Cluster\Builder self
          * @link https://docs.datastax.com/en/developer/php-driver/latest/api/Cassandra/Cluster/class.Builder/#method-withRetryPolicy

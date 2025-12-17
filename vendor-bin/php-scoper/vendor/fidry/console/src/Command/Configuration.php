@@ -21,32 +21,22 @@ use Symfony\Component\Console\Input\InputOption;
  */
 final class Configuration
 {
-    private string $name;
-    private string $description;
-    private string $help;
-
     /**
-     * @var InputArgument[]
+     * Beware that if the command is lazy, the name and description will be
+     * overwritten by the values provided for the laziness (see the LazyCommand
+     * API).
+     *
+     * @param InputArgument[] $arguments
+     * @param InputOption[]   $options
      */
-    private array $arguments;
-
-    /**
-     * @var InputOption[]
-     */
-    private array $options;
-
     public function __construct(
-        string $name,
-        string $description,
-        string $help,
-        array $arguments = [],
-        array $options = []
+        private readonly string $name,
+        private readonly string $description,
+        private readonly string $help,
+        private readonly array $arguments = [],
+        private readonly array $options = [],
+        private readonly bool $hidden = false,
     ) {
-        $this->name = $name;
-        $this->description = $description;
-        $this->help = $help;
-        $this->arguments = $arguments;
-        $this->options = $options;
     }
 
     public function getName(): string
@@ -65,7 +55,7 @@ final class Configuration
     }
 
     /**
-     * @var InputArgument[]
+     * @return InputArgument[]
      */
     public function getArguments(): array
     {
@@ -73,10 +63,15 @@ final class Configuration
     }
 
     /**
-     * @var InputOption[]
+     * @return InputOption[]
      */
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->hidden;
     }
 }

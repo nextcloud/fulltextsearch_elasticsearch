@@ -1,9 +1,11 @@
 <?php
 
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
+
 /**
  * Show diagnostic information
  */
-function xdebug_info(string $category = '') {}
+function xdebug_info(string $category = 'null') {}
 
 /**
  * Returns an array of ALL valid ini options with values and is not the same as ini_get_all() which returns only
@@ -22,7 +24,7 @@ function xdebug_get_stack_depth(): int {}
  * Returns an array which resembles the stack trace up to this point.
  * @return array
  */
-function xdebug_get_function_stack(): array {}
+function xdebug_get_function_stack(#[PhpStormStubsElementAvailable(from: "8.4")] array $options = []): array {}
 
 /**
  * Displays the current function stack, in a similar way as what Xdebug would display in an error situation.

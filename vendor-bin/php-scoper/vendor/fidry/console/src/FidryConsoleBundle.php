@@ -17,8 +17,8 @@ use Fidry\Console\DependencyInjection\Compiler\AddConsoleCommandPass;
 use Fidry\Console\DependencyInjection\FidryConsoleExtension;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 final class FidryConsoleBundle extends Bundle
 {

@@ -3,72 +3,76 @@ declare(strict_types=1);
 
 namespace StubTests;
 
-use PHPUnit\Framework\Exception;
-use RuntimeException;
-use StubTests\Model\BasePHPElement;
-use StubTests\Model\PHPClass;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use StubTests\Model\PHPFunction;
-use StubTests\Model\PHPInterface;
-use StubTests\Model\PHPMethod;
 use StubTests\Model\PHPParameter;
 use StubTests\Model\StubProblemType;
+use StubTests\Parsers\ParserUtils;
 use StubTests\TestData\Providers\EntitiesFilter;
 use StubTests\TestData\Providers\PhpStormStubsSingleton;
+use StubTests\TestData\Providers\Reflection\ReflectionFunctionsProvider;
+use StubTests\TestData\Providers\Reflection\ReflectionParametersProvider;
+use StubTests\TestData\Providers\ReflectionStubsSingleton;
 
-class BaseFunctionsTest extends BaseStubsTest
+class BaseFunctionsTest extends AbstractBaseStubsTestCase
 {
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionFunctionsProvider::allFunctionsProvider
-     * @throws Exception|RuntimeException
-     */
-    public function testFunctionsExist(PHPFunction $function): void
+    public static function setUpBeforeClass(): void
     {
-        $functionName = $function->name;
-        $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionName);
-        $params = BaseStubsTest::getParameterRepresentation($function);
-        static::assertNotEmpty($stubFunction, "Missing function: function $functionName($params){}");
+        parent::setUpBeforeClass();
+        PhpStormStubsSingleton::getPhpStormStubs();
+        ReflectionStubsSingleton::getReflectionStubs();
     }
 
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionFunctionsProvider::functionsForDeprecationTestsProvider
-     * @throws RuntimeException
-     */
-    public function testFunctionsDeprecation(PHPFunction $function)
+    #[DataProviderExternal(ReflectionFunctionsProvider::class, 'allFunctionsProvider')]
+    public function testFunctionsExist(?string $functionId): void
     {
-        $functionName = $function->name;
-        $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionName);
-        static::assertFalse(
-            $function->is_deprecated && $stubFunction->is_deprecated !== true,
-            "Function $functionName is not deprecated in stubs"
+        if (!$functionId) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionId);
+        $reflectionFunction = ReflectionStubsSingleton::getReflectionStubs()->getFunction($functionId, fromReflection: true);
+        $params = AbstractBaseStubsTestCase::getParameterRepresentation($reflectionFunction);
+        static::assertNotEmpty($stubFunction, "Missing function: function $reflectionFunction->id($params){}");
+    }
+
+    #[DataProviderExternal(ReflectionFunctionsProvider::class, 'functionsForDeprecationTestsProvider')]
+    public function testFunctionsDeprecation(?string $functionId)
+    {
+        if (!$functionId) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $reflectionFunction = ReflectionStubsSingleton::getReflectionStubs()->getFunction($functionId, fromReflection: true);
+        $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionId);
+        static::assertEquals(
+            $reflectionFunction->isDeprecated,
+            $stubFunction->isDeprecated,
+            "Deprecation of function $functionId is incorrect"
         );
     }
 
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionFunctionsProvider::functionsForParamsAmountTestsProvider
-     * @throws Exception|RuntimeException
-     */
-    public function testFunctionsParametersAmount(PHPFunction $function)
+    #[DataProviderExternal(ReflectionFunctionsProvider::class, 'functionsForParamsAmountTestsProvider')]
+    public function testFunctionsParametersAmount(?string $functionId)
     {
-        $functionName = $function->name;
-        $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionName);
+        if (!$functionId) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $reflectionFunction = ReflectionStubsSingleton::getReflectionStubs()->getFunction($functionId, fromReflection: true);
+        $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionId);
         $filteredStubParameters = array_filter(
             $stubFunction->parameters,
-            fn ($parameter) => BasePHPElement::entitySuitsCurrentPhpVersion($parameter)
+            fn ($parameter) => ParserUtils::entitySuitsCurrentPhpVersion($parameter)
         );
         $uniqueParameterNames = array_unique(array_map(fn (PHPParameter $parameter) => $parameter->name, $filteredStubParameters));
 
         static::assertSameSize(
-            $function->parameters,
+            $reflectionFunction->parameters,
             $uniqueParameterNames,
-            "Parameter number mismatch for function $functionName. 
-                Expected: " . BaseStubsTest::getParameterRepresentation($function) . "\n" .
-            'Actual: ' . BaseStubsTest::getParameterRepresentation($stubFunction)
+            "Parameter number mismatch for function $functionId. 
+                Expected: " . AbstractBaseStubsTestCase::getParameterRepresentation($reflectionFunction) . "\n" .
+            'Actual: ' . AbstractBaseStubsTestCase::getParameterRepresentation($stubFunction)
         );
     }
 
-    /**
-     * @throws Exception|RuntimeException
-     */
     public function testFunctionsDuplicates()
     {
         $filtered = EntitiesFilter::getFiltered(
@@ -84,70 +88,139 @@ class BaseFunctionsTest extends BaseStubsTest
         );
     }
 
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionParametersProvider::functionParametersProvider
-     * @throws RuntimeException
-     */
-    public function testFunctionsOptionalParameters(PHPFunction $function, PHPParameter $parameter)
+    #[DataProviderExternal(ReflectionParametersProvider::class, 'functionOptionalParametersProvider')]
+    public function testFunctionsOptionalParameters(?string $functionId, ?string $parameterName)
     {
-        $phpstormFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($function->name);
-        $stubParameters = array_filter($phpstormFunction->parameters, fn (PHPParameter $stubParameter) => $stubParameter->indexInSignature === $parameter->indexInSignature);
+        if (!$functionId && !$parameterName) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $reflectionFunction = ReflectionStubsSingleton::getReflectionStubs()->getFunction($functionId, fromReflection: true);
+        $relfectionParameter = $reflectionFunction->getParameter($parameterName);
+        $phpstormFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionId);
+        $stubParameters = array_filter($phpstormFunction->parameters, fn (PHPParameter $stubParameter) => $stubParameter->indexInSignature === $relfectionParameter->indexInSignature);
         /** @var PHPParameter $stubOptionalParameter */
         $stubOptionalParameter = array_pop($stubParameters);
         self::assertEquals(
-            $parameter->isOptional,
+            $relfectionParameter->isOptional,
             $stubOptionalParameter->isOptional,
             sprintf(
                 'Reflection function %s %s optional parameter %s with index %d 
             but stubs parameter %s with index %d %s',
-                $function->name,
-                $parameter->isOptional ? 'has' : 'has no',
-                $parameter->name,
-                $parameter->indexInSignature,
+                $reflectionFunction->name,
+                $relfectionParameter->isOptional ? 'has' : 'has no',
+                $relfectionParameter->name,
+                $relfectionParameter->indexInSignature,
                 $stubOptionalParameter->name,
                 $stubOptionalParameter->indexInSignature,
                 $stubOptionalParameter->isOptional ? 'is optional' : 'is not optional'
             )
         );
-    }
-
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionParametersProvider::methodOptionalParametersProvider
-     * @throws RuntimeException
-     */
-    public function testMethodsOptionalParameters(PHPClass|PHPInterface $class, PHPMethod $method, PHPParameter $parameter)
-    {
-        if ($class instanceof PHPClass) {
-            $phpstormFunction = PhpStormStubsSingleton::getPhpStormStubs()->getClass($class->name)->getMethod($method->name);
-        } else {
-            $phpstormFunction = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($class->name)->getMethod($method->name);
-        }
-        $stubParameters = array_filter($phpstormFunction->parameters, fn (PHPParameter $stubParameter) => $stubParameter->indexInSignature === $parameter->indexInSignature);
-        /** @var PHPParameter $stubOptionalParameter */
-        $stubOptionalParameter = array_pop($stubParameters);
         self::assertEquals(
-            $parameter->isOptional,
-            $stubOptionalParameter->isOptional,
+            $relfectionParameter->is_vararg,
+            $stubOptionalParameter->is_vararg,
             sprintf(
-                'Reflection method %s::%s has optional parameter %s with index %d but stub parameter %s with index %d is not optional',
-                $class->name,
-                $method->name,
-                $parameter->name,
-                $parameter->indexInSignature,
+                'Reflection function %s %s vararg parameter %s with index %d 
+            but stubs parameter %s with index %d %s',
+                $reflectionFunction->name,
+                $relfectionParameter->is_vararg ? 'has' : 'has no',
+                $relfectionParameter->name,
+                $relfectionParameter->indexInSignature,
                 $stubOptionalParameter->name,
-                $stubOptionalParameter->indexInSignature
+                $stubOptionalParameter->indexInSignature,
+                $stubOptionalParameter->is_vararg ? 'is vararg' : 'is not vararg'
             )
         );
     }
 
-    /**
-     * @throws Exception
-     */
+    #[DataProviderExternal(ReflectionParametersProvider::class, 'classMethodOptionalParametersProvider')]
+    public function testClassMethodsOptionalParameters(?string $classId, ?string $methodName, ?string $parameterName)
+    {
+        if (!$classId && !$methodName && !$parameterName) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $reflectionParameter = ReflectionStubsSingleton::getReflectionStubs()->getClass($classId, fromReflection: true)->getMethod($methodName, fromReflection: true)->getParameter($parameterName);
+        $phpstormFunction = PhpStormStubsSingleton::getPhpStormStubs()->getClass($classId)->getMethod($methodName);
+        $stubParameters = array_filter($phpstormFunction->parameters, fn (PHPParameter $stubParameter) => $stubParameter->indexInSignature === $reflectionParameter->indexInSignature);
+        /** @var PHPParameter $stubOptionalParameter */
+        $stubOptionalParameter = array_pop($stubParameters);
+        self::assertEquals(
+            $reflectionParameter->isOptional,
+            $stubOptionalParameter->isOptional,
+            sprintf(
+                'Reflection method %s::%s has %s optional parameter %s with index %d but stub parameter %s with index %d is %s optional',
+                $classId,
+                $methodName,
+                $reflectionParameter->isOptional ? "" : "not",
+                $reflectionParameter->name,
+                $reflectionParameter->indexInSignature,
+                $stubOptionalParameter->name,
+                $stubOptionalParameter->indexInSignature,
+                $stubOptionalParameter->isOptional ? "" : "not"
+            )
+        );
+    }
+
+    #[DataProviderExternal(ReflectionParametersProvider::class, 'interfaceMethodOptionalParametersProvider')]
+    public function testInterfaceMethodsOptionalParameters(?string $classId, ?string $methodName, ?string $parameterName)
+    {
+        if (!$classId && !$methodName && !$parameterName) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $reflectionParameter = ReflectionStubsSingleton::getReflectionStubs()->getInterface($classId, fromReflection: true)->getMethod($methodName, fromReflection: true)->getParameter($parameterName);
+        $phpstormFunction = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($classId)->getMethod($methodName);
+        $stubParameters = array_filter($phpstormFunction->parameters, fn (PHPParameter $stubParameter) => $stubParameter->indexInSignature === $reflectionParameter->indexInSignature);
+        /** @var PHPParameter $stubOptionalParameter */
+        $stubOptionalParameter = array_pop($stubParameters);
+        self::assertEquals(
+            $reflectionParameter->isOptional,
+            $stubOptionalParameter->isOptional,
+            sprintf(
+                'Reflection method %s::%s has %s optional parameter %s with index %d but stub parameter %s with index %d is %s optional',
+                $classId,
+                $methodName,
+                $reflectionParameter->isOptional ? "" : "not",
+                $reflectionParameter->name,
+                $reflectionParameter->indexInSignature,
+                $stubOptionalParameter->name,
+                $stubOptionalParameter->indexInSignature,
+                $stubOptionalParameter->isOptional ? "" : "not"
+            )
+        );
+    }
+
+    #[DataProviderExternal(ReflectionParametersProvider::class, 'enumMethodOptionalParametersProvider')]
+    public function testEnumMethodsOptionalParameters(?string $classId, ?string $methodName, ?string $parameterName)
+    {
+        if (!$classId && !$methodName && !$parameterName) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $reflectionParameter = ReflectionStubsSingleton::getReflectionStubs()->getEnum($classId, fromReflection: true)->getMethod($methodName, fromReflection: true)->getParameter($parameterName);
+        $phpstormFunction = PhpStormStubsSingleton::getPhpStormStubs()->getEnum($classId)->getMethod($methodName);
+        $stubParameters = array_filter($phpstormFunction->parameters, fn (PHPParameter $stubParameter) => $stubParameter->indexInSignature === $reflectionParameter->indexInSignature);
+        /** @var PHPParameter $stubOptionalParameter */
+        $stubOptionalParameter = array_pop($stubParameters);
+        self::assertEquals(
+            $reflectionParameter->isOptional,
+            $stubOptionalParameter->isOptional,
+            sprintf(
+                'Reflection method %s::%s has %s optional parameter %s with index %d but stub parameter %s with index %d is %s optional',
+                $classId,
+                $methodName,
+                $reflectionParameter->isOptional ? "" : "not",
+                $reflectionParameter->name,
+                $reflectionParameter->indexInSignature,
+                $stubOptionalParameter->name,
+                $stubOptionalParameter->indexInSignature,
+                $stubOptionalParameter->isOptional ? "" : "not"
+            )
+        );
+    }
+
     public function testImplodeFunctionIsCorrect()
     {
         $implodeFunctions = array_filter(
             PhpStormStubsSingleton::getPhpStormStubs()->getFunctions(),
-            fn (PHPFunction $function) => $function->name === 'implode'
+            fn (PHPFunction $function) => $function->id === '\implode'
         );
         self::assertCount(1, $implodeFunctions);
         /** @var PHPFunction $implodeFunction */

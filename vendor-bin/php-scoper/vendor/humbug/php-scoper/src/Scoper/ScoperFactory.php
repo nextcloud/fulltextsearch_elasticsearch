@@ -22,36 +22,26 @@ use Humbug\PhpScoper\Scoper\Composer\InstalledPackagesScoper;
 use Humbug\PhpScoper\Scoper\Composer\JsonFileScoper;
 use Humbug\PhpScoper\Symbol\EnrichedReflectorFactory;
 use Humbug\PhpScoper\Symbol\SymbolsRegistry;
-use PhpParser\Lexer;
 use PhpParser\Parser;
 
 /**
  * @final
+ *
+ * @deprecated Deprecated in favour of \Humbug\PhpScoper\Scoper\Factory\ScoperFactory
  */
 class ScoperFactory
 {
-    private Parser $parser;
-    private EnrichedReflectorFactory $enrichedReflectorFactory;
-    private Printer $printer;
-    private Lexer $lexer;
-
     public function __construct(
-        Parser $parser,
-        EnrichedReflectorFactory $enrichedReflectorFactory,
-        Printer $printer,
-        Lexer $lexer
+        private readonly Parser $parser,
+        private readonly EnrichedReflectorFactory $enrichedReflectorFactory,
+        private readonly Printer $printer,
     ) {
-        $this->parser = $parser;
-        $this->enrichedReflectorFactory = $enrichedReflectorFactory;
-        $this->printer = $printer;
-        $this->lexer = $lexer;
     }
 
     public function createScoper(
         Configuration $configuration,
         SymbolsRegistry $symbolsRegistry
-    ): Scoper
-    {
+    ): Scoper {
         $prefix = $configuration->getPrefix();
         $symbolsConfiguration = $configuration->getSymbolsConfiguration();
         $enrichedReflector = $this->enrichedReflectorFactory->create($symbolsConfiguration);
@@ -72,9 +62,9 @@ class ScoperFactory
                             $enrichedReflector,
                             $symbolsRegistry,
                         ),
-                        $autoloadPrefixer
+                        $autoloadPrefixer,
                     ),
-                    $autoloadPrefixer
+                    $autoloadPrefixer,
                 ),
                 new TraverserFactory(
                     $enrichedReflector,
@@ -82,7 +72,6 @@ class ScoperFactory
                     $symbolsRegistry,
                 ),
                 $this->printer,
-                $this->lexer,
             ),
             $prefix,
             $configuration->getPatcher(),

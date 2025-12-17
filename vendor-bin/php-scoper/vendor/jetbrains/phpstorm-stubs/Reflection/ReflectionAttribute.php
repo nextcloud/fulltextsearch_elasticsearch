@@ -4,9 +4,13 @@ use JetBrains\PhpStorm\Pure;
 
 /**
  * @since 8.0
+ *
+ * @template T of object
  */
 class ReflectionAttribute implements Reflector
 {
+    public string $name;
+
     /**
      * Indicates that the search for a suitable attribute should not be by
      * strict comparison, but by the inheritance chain.
@@ -62,7 +66,7 @@ class ReflectionAttribute implements Reflector
     /**
      * Creates a new instance of the attribute with passed arguments
      *
-     * @return object
+     * @return T
      * @since 8.0
      */
     public function newInstance(): object {}

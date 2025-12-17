@@ -23,9 +23,12 @@ use Fidry\Console\ExitCode;
 use Fidry\Console\IO;
 use Humbug\PhpScoper\Configuration\Configuration;
 use Humbug\PhpScoper\Configuration\ConfigurationFactory;
+use Humbug\PhpScoper\Configuration\Throwable\InvalidConfigurationValue;
+use Humbug\PhpScoper\Configuration\Throwable\UnknownConfigurationKey;
 use Humbug\PhpScoper\Console\ConfigLoader;
 use Humbug\PhpScoper\Console\ConsoleScoper;
-use Humbug\PhpScoper\Scoper\ScoperFactory;
+use Humbug\PhpScoper\Console\InputOption\PhpVersionInputOption;
+use Humbug\PhpScoper\Scoper\Factory\ScoperFactory;
 use InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,7 +39,7 @@ use function array_map;
 use function is_dir;
 use function is_writable;
 use function Safe\getcwd;
-use function Safe\sprintf;
+use function sprintf;
 use const DIRECTORY_SEPARATOR;
 
 /**
@@ -51,25 +54,20 @@ final class AddPrefixCommand implements Command, CommandAware
     private const OUTPUT_DIR_OPT = 'output-dir';
     private const FORCE_OPT = 'force';
     private const STOP_ON_FAILURE_OPT = 'stop-on-failure';
+    private const CONTINUE_ON_FAILURE_OPT = 'continue-on-failure';
     private const CONFIG_FILE_OPT = 'config';
     private const NO_CONFIG_OPT = 'no-config';
 
-    private Filesystem $fileSystem;
-    private ScoperFactory $scoperFactory;
+    private const DEFAULT_OUTPUT_DIR = 'build';
+
     private bool $init = false;
-    private Application $application;
-    private ConfigurationFactory $configFactory;
 
     public function __construct(
-        Filesystem $fileSystem,
-        ScoperFactory $scoperFactory,
-        Application $application,
-        ConfigurationFactory $configFactory
+        private readonly Filesystem $fileSystem,
+        private readonly ScoperFactory $scoperFactory,
+        private readonly Application $application,
+        private readonly ConfigurationFactory $configFactory,
     ) {
-        $this->fileSystem = $fileSystem;
-        $this->scoperFactory = $scoperFactory;
-        $this->application = $application;
-        $this->configFactory = $configFactory;
     }
 
     public function getConfiguration(): CommandConfiguration
@@ -82,7 +80,7 @@ final class AddPrefixCommand implements Command, CommandAware
                 new InputArgument(
                     self::PATH_ARG,
                     InputArgument::IS_ARRAY,
-                    'The path(s) to process.'
+                    'The path(s) to process.',
                 ),
             ],
             [
@@ -92,41 +90,49 @@ final class AddPrefixCommand implements Command, CommandAware
                     'p',
                     InputOption::VALUE_REQUIRED,
                     'The namespace prefix to add.',
+                    '',
                 ),
                 new InputOption(
                     self::OUTPUT_DIR_OPT,
                     'o',
                     InputOption::VALUE_REQUIRED,
                     'The output directory in which the prefixed code will be dumped.',
-                    'build',
+                    '',
                 ),
                 new InputOption(
                     self::FORCE_OPT,
                     'f',
                     InputOption::VALUE_NONE,
-                    'Deletes any existing content in the output directory without any warning.'
+                    'Deletes any existing content in the output directory without any warning.',
                 ),
                 new InputOption(
                     self::STOP_ON_FAILURE_OPT,
                     's',
                     InputOption::VALUE_NONE,
-                    'Stops on failure.'
+                    'Stops on failure.',
+                ),
+                new InputOption(
+                    self::CONTINUE_ON_FAILURE_OPT,
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Continue on non PHP-Parser parsing failures.',
                 ),
                 new InputOption(
                     self::CONFIG_FILE_OPT,
                     'c',
                     InputOption::VALUE_REQUIRED,
                     sprintf(
-                        'Conf,iguration file. Will use "%s" if found by default.',
+                        'Configuration file. Will use "%s" if found by default.',
                         ConfigurationFactory::DEFAULT_FILE_NAME,
-                    )
+                    ),
                 ),
                 new InputOption(
                     self::NO_CONFIG_OPT,
                     null,
                     InputOption::VALUE_NONE,
-                    'Do not look for a configuration file.'
+                    'Do not look for a configuration file.',
                 ),
+                PhpVersionInputOption::createInputOption(),
             ],
         );
     }
@@ -142,32 +148,67 @@ final class AddPrefixCommand implements Command, CommandAware
         $cwd = getcwd();
 
         $paths = $this->getPathArguments($io, $cwd);
-        $outputDir = $this->getOutputDir($io, $cwd);
-
-        $this->checkOutputDir($io, $outputDir);
-
         $config = $this->retrieveConfig($io, $paths, $cwd);
+        $phpVersion = PhpVersionInputOption::getPhpVersion($io);
+
+        $outputDir = $this->canonicalizePath(
+            $this->getOutputDir($io, $config),
+            $cwd,
+        );
+        $this->checkOutputDir($io, $outputDir);
 
         $this->getScoper()->scope(
             $io,
             $config,
+            $phpVersion,
             $paths,
             $outputDir,
-            $io->getBooleanOption(self::STOP_ON_FAILURE_OPT),
+            self::getStopOnFailure($io),
         );
 
         return ExitCode::SUCCESS;
     }
 
+    private static function getStopOnFailure(IO $io): bool
+    {
+        $stopOnFailure = $io->getTypedOption(self::STOP_ON_FAILURE_OPT)->asBoolean();
+        $continueOnFailure = $io->getTypedOption(self::CONTINUE_ON_FAILURE_OPT)->asBoolean();
+
+        if ($stopOnFailure) {
+            $io->info(
+                sprintf(
+                    'Using the option "%s" is now deprecated. Any non PHP-Parser parsing error will now halt the process. To continue upon non-PHP-Parser parsing errors, use the option "%s".',
+                    self::STOP_ON_FAILURE_OPT,
+                    self::CONTINUE_ON_FAILURE_OPT,
+                ),
+            );
+        }
+
+        if (true === $stopOnFailure && true === $continueOnFailure) {
+            $io->info(
+                sprintf(
+                    'Only one of the two options "%s" and "%s" can be used at the same time.',
+                    self::STOP_ON_FAILURE_OPT,
+                    self::CONTINUE_ON_FAILURE_OPT,
+                ),
+            );
+        }
+
+        return $stopOnFailure;
+    }
+
     /**
      * @return non-empty-string
      */
-    private function getOutputDir(IO $io, string $cwd): string
+    private function getOutputDir(IO $io, Configuration $configuration): string
     {
-        return $this->canonicalizePath(
-            $io->getStringOption(self::OUTPUT_DIR_OPT),
-            $cwd,
-        );
+        $commandOutputDir = $io->getTypedOption(self::OUTPUT_DIR_OPT)->asString();
+
+        if ('' !== $commandOutputDir) {
+            return $commandOutputDir;
+        }
+
+        return $configuration->getOutputDir() ?? self::DEFAULT_OUTPUT_DIR;
     }
 
     private function checkOutputDir(IO $io, string $outputDir): void
@@ -201,7 +242,7 @@ final class AddPrefixCommand implements Command, CommandAware
 
     private static function canDeleteOutputDir(IO $io, string $outputDir): bool
     {
-        if ($io->getBooleanOption(self::FORCE_OPT)) {
+        if ($io->getTypedOption(self::FORCE_OPT)->asBoolean()) {
             return true;
         }
 
@@ -217,6 +258,9 @@ final class AddPrefixCommand implements Command, CommandAware
 
     /**
      * @param list<non-empty-string> $paths
+     *
+     * @throws InvalidConfigurationValue
+     * @throws UnknownConfigurationKey
      */
     private function retrieveConfig(IO $io, array $paths, string $cwd): Configuration
     {
@@ -228,8 +272,8 @@ final class AddPrefixCommand implements Command, CommandAware
 
         return $configLoader->loadConfig(
             $io,
-            $io->getStringOption(self::PREFIX_OPT),
-            $io->getBooleanOption(self::NO_CONFIG_OPT),
+            $io->getTypedOption(self::PREFIX_OPT)->asString(),
+            $io->getTypedOption(self::NO_CONFIG_OPT)->asBoolean(),
             $this->getConfigFilePath($io, $cwd),
             ConfigurationFactory::DEFAULT_FILE_NAME,
             $this->init,
@@ -243,7 +287,7 @@ final class AddPrefixCommand implements Command, CommandAware
      */
     private function getConfigFilePath(IO $io, string $cwd): ?string
     {
-        $configFilePath = $io->getStringOption(self::CONFIG_FILE_OPT);
+        $configFilePath = (string) $io->getTypedOption(self::CONFIG_FILE_OPT)->asNullableString();
 
         return '' === $configFilePath ? null : $this->canonicalizePath($configFilePath, $cwd);
     }
@@ -255,7 +299,7 @@ final class AddPrefixCommand implements Command, CommandAware
     {
         return array_map(
             fn (string $path) => $this->canonicalizePath($path, $cwd),
-            $io->getStringArrayArgument(self::PATH_ARG),
+            $io->getTypedArgument(self::PATH_ARG)->asNonEmptyStringList(),
         );
     }
 

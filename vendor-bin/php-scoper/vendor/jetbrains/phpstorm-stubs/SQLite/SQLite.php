@@ -371,6 +371,7 @@ final class SQLiteResult implements Iterator, Countable
      * option.</p>
      */
     public function current($result_type = SQLITE_BOTH, $decode_binary = true) {}
+
     /**
      * Return the key of the current element
      * @link https://php.net/manual/en/iterator.key.php
@@ -378,6 +379,7 @@ final class SQLiteResult implements Iterator, Countable
      * @since 5.0.0
      */
     public function key() {}
+
     /**
      * Seek to the next row number
      * @link https://php.net/manual/en/function.sqlite-next.php
@@ -385,6 +387,7 @@ final class SQLiteResult implements Iterator, Countable
      * @since 5.0.0
      */
     public function next() {}
+
     /**
      * Checks if current position is valid
      * @link https://php.net/manual/en/iterator.valid.php
@@ -395,6 +398,7 @@ final class SQLiteResult implements Iterator, Countable
      * @since 5.0.0
      */
     public function valid() {}
+
     /**
      * Rewind the Iterator to the first element
      * @link https://php.net/manual/en/iterator.rewind.php
@@ -1395,11 +1399,3 @@ define('SQLITE_ROW', 100);
  * @link https://php.net/manual/en/sqlite.constants.php
  */
 define('SQLITE_DONE', 101);
-
-/**
- * Specifies that a function created with {@see SQLite3::createFunction()} is deterministic,
- * i.e. it always returns the same result given the same inputs within a single SQL statement.
- * @since 7.1.4
- * @link https://php.net/manual/en/sqlite.constants.php
- */
-define('SQLITE3_DETERMINISTIC', 2048);

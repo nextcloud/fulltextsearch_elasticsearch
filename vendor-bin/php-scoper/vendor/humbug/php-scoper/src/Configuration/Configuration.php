@@ -14,56 +14,40 @@ declare(strict_types=1);
 
 namespace Humbug\PhpScoper\Configuration;
 
+use Humbug\PhpScoper\Configuration\Throwable\InvalidConfigurationValue;
 use Humbug\PhpScoper\Patcher\Patcher;
-use InvalidArgumentException;
-use function Safe\preg_match;
-use function Safe\sprintf;
+use PhpParser\PhpVersion;
 
 final class Configuration
 {
-    private const PREFIX_PATTERN = '/^[\p{L}\d_\\\\]+$/u';
+    private readonly Prefix $prefix;
 
     /**
-     * @var non-empty-string|null
-     */
-    private ?string $path;
-
-    /**
-     * @var non-empty-string
-     */
-    private string $prefix;
-
-    private array $filesWithContents;
-    private array $excludedFilesWithContents;
-    private Patcher $patcher;
-    private SymbolsConfiguration $symbolsConfiguration;
-
-    /**
-     * @param non-empty-string|null                $path                      Absolute path to the configuration file loaded.
+     * @param non-empty-string|null                $path                      Absolute canonical path to the configuration file loaded.
+     * @param non-empty-string|null                $outputDir                 Absolute canonical path to the output directory.
      * @param non-empty-string                     $prefix                    The prefix applied.
      * @param array<string, array{string, string}> $filesWithContents         Array of tuple with the
-     *                                            first argument being the file path and the second
-     *                                            its contents
+     *                                                                        first argument being the file path and the second
+     *                                                                        its contents
      * @param array<string, array{string, string}> $excludedFilesWithContents Array of tuple
-     *                                            with the first argument being the file path and
-     *                                            the second its contents
+     *                                                                        with the first argument being the file path and
+     *                                                                        the second its contents
+     *
+     * @throws InvalidConfigurationValue
      */
     public function __construct(
-        ?string $path,
-        string $prefix,
-        array $filesWithContents,
-        array $excludedFilesWithContents,
-        Patcher $patcher,
-        SymbolsConfiguration $symbolsConfiguration
+        private ?string $path,
+        private ?string $outputDir,
+        string|Prefix $prefix,
+        private ?PhpVersion $phpVersion,
+        private array $filesWithContents,
+        private array $excludedFilesWithContents,
+        private Patcher $patcher,
+        private SymbolsConfiguration $symbolsConfiguration
     ) {
-        self::validatePrefix($prefix);
-
-        $this->path = $path;
-        $this->prefix = $prefix;
-        $this->filesWithContents = $filesWithContents;
-        $this->excludedFilesWithContents = $excludedFilesWithContents;
-        $this->patcher = $patcher;
-        $this->symbolsConfiguration = $symbolsConfiguration;
+        $this->prefix = $prefix instanceof Prefix
+            ? $prefix
+            : new Prefix($prefix);
     }
 
     /**
@@ -75,13 +59,25 @@ final class Configuration
     }
 
     /**
+     * @return non-empty-string|null Absolute canonical path
+     */
+    public function getOutputDir(): ?string
+    {
+        return $this->outputDir;
+    }
+
+    /**
      * @param non-empty-string $prefix
+     *
+     * @throws InvalidConfigurationValue
      */
     public function withPrefix(string $prefix): self
     {
         return new self(
             $this->path,
+            $this->outputDir,
             $prefix,
+            $this->phpVersion,
             $this->filesWithContents,
             $this->excludedFilesWithContents,
             $this->patcher,
@@ -94,7 +90,24 @@ final class Configuration
      */
     public function getPrefix(): string
     {
-        return $this->prefix;
+        return $this->prefix->toString();
+    }
+
+    /**
+     * @param array<string, array{string, string}> $filesWithContents
+     */
+    public function withFilesWithContents(array $filesWithContents): self
+    {
+        return new self(
+            $this->path,
+            $this->outputDir,
+            $this->prefix,
+            $this->phpVersion,
+            $filesWithContents,
+            $this->excludedFilesWithContents,
+            $this->patcher,
+            $this->symbolsConfiguration,
+        );
     }
 
     /**
@@ -113,6 +126,20 @@ final class Configuration
         return $this->excludedFilesWithContents;
     }
 
+    public function withPatcher(Patcher $patcher): self
+    {
+        return new self(
+            $this->path,
+            $this->outputDir,
+            $this->prefix,
+            $this->phpVersion,
+            $this->filesWithContents,
+            $this->excludedFilesWithContents,
+            $patcher,
+            $this->symbolsConfiguration,
+        );
+    }
+
     public function getPatcher(): Patcher
     {
         return $this->patcher;
@@ -123,24 +150,8 @@ final class Configuration
         return $this->symbolsConfiguration;
     }
 
-    private static function validatePrefix(string $prefix): void
+    public function getPhpVersion(): ?PhpVersion
     {
-        if (1 !== preg_match(self::PREFIX_PATTERN, $prefix)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'The prefix needs to be composed solely of letters, digits and backslashes (as namespace separators). Got "%s"',
-                    $prefix,
-                ),
-            );
-        }
-
-        if (preg_match('/\\\{2,}/', $prefix)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid namespace separator sequence. Got "%s"',
-                    $prefix,
-                ),
-            );
-        }
+        return $this->phpVersion;
     }
 }

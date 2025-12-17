@@ -14,7 +14,7 @@ use JetBrains\PhpStorm\Pure;
  * yet.
  */
 #[ArrayShape(["type" => "int", "message" => "string", "file" => "string", "line" => "int"])]
-#[Pure]
+#[Pure(true)]
 function error_get_last(): ?array {}
 
 /**
@@ -35,7 +35,7 @@ function error_get_last(): ?array {}
  * not passed by reference.
  * call_user_func example and references
  * </p>
- * @return mixed|false the function result, or false on error.
+ * @return mixed the function result, or false on error.
  */
 function call_user_func(callable $callback, mixed ...$args): mixed {}
 
@@ -48,7 +48,7 @@ function call_user_func(callable $callback, mixed ...$args): mixed {}
  * @param array $args <p>
  * The parameters to be passed to the function, as an indexed array.
  * </p>
- * @return mixed|false the function result, or false on error.
+ * @return mixed the function result, or false on error.
  */
 function call_user_func_array(callable $callback, array $args): mixed {}
 
@@ -89,7 +89,7 @@ function call_user_method_array(string $method_name, object &$obj, array $params
  * @param mixed ...$args [optional] <p>
  * Zero or more parameters to be passed to the function.
  * </p>
- * @return mixed|false the function result, or false on error.
+ * @return mixed the function result, or false on error.
  */
 function forward_static_call(callable $callback, mixed ...$args): mixed {}
 
@@ -102,7 +102,7 @@ function forward_static_call(callable $callback, mixed ...$args): mixed {}
  * name.
  * </p>
  * @param array $args
- * @return mixed|false the function result, or false on error.
+ * @return mixed the function result, or false on error.
  */
 function forward_static_call_array(callable $callback, array $args): mixed {}
 
@@ -176,7 +176,7 @@ function serialize(mixed $value): string {}
  * In case the passed string is not unserializeable, false is returned and
  * E_NOTICE is issued.</p>
  */
-function unserialize(string $data, array $options = []): mixed {}
+function unserialize(string $data, #[PhpStormStubsElementAvailable(from: '7.0')] array $options = []): mixed {}
 
 /**
  * Dumps information about a variable
@@ -187,7 +187,19 @@ function unserialize(string $data, array $options = []): mixed {}
  * @param mixed ...$values [optional]
  * @return void
  */
-function var_dump(mixed $value, #[PhpStormStubsElementAvailable(from: '8.0')] mixed ...$values): void {}
+#[PhpStormStubsElementAvailable(from: '8.0')]
+function var_dump(mixed $value, mixed ...$values): void {}
+
+/**
+ * Dumps information about a variable
+ * @link https://php.net/manual/en/function.var-dump.php
+ * @param mixed ...$vars <p>
+ * The variable you want to export.
+ * </p>
+ * @return void
+ */
+#[PhpStormStubsElementAvailable(from: '5.3', to: '7.4')]
+function var_dump(...$vars): void {}
 
 /**
  * Outputs or returns a parsable string representation of a variable
@@ -197,7 +209,7 @@ function var_dump(mixed $value, #[PhpStormStubsElementAvailable(from: '8.0')] mi
  * </p>
  * @param bool $return [optional] <p>
  * If used and set to true, var_export will return
- * the variable representation instead of outputing it.
+ * the variable representation instead of outputting it.
  * </p>
  * @return string|null the variable representation when the return
  * parameter is used and evaluates to true. Otherwise, this function will
@@ -237,7 +249,8 @@ function debug_zval_dump(
  * will be presented in a format that shows keys and elements. Similar
  * notation is used for objects.
  */
-function print_r(mixed $value, bool $return = false): string|bool {}
+#[LanguageLevelTypeAware(['8.4' => 'string|true'], default: 'string|bool')]
+function print_r(mixed $value, bool $return = false) {}
 
 /**
  * Returns the amount of memory allocated to PHP
@@ -249,7 +262,7 @@ function print_r(mixed $value, bool $return = false): string|bool {}
  * </p>
  * @return int the memory amount in bytes.
  */
-#[Pure]
+#[Pure(true)]
 function memory_get_usage(bool $real_usage = false): int {}
 
 /**
@@ -262,8 +275,13 @@ function memory_get_usage(bool $real_usage = false): int {}
  * </p>
  * @return int the memory peak in bytes.
  */
-#[Pure]
+#[Pure(true)]
 function memory_get_peak_usage(bool $real_usage = false): int {}
+
+/**
+ * @since 8.2
+ */
+function memory_reset_peak_usage(): void {}
 
 /**
  * Register a function for execution on shutdown
@@ -288,6 +306,7 @@ function memory_get_peak_usage(bool $real_usage = false): int {}
  * </p>
  * @return bool|null
  */
+#[LanguageLevelTypeAware(['8.2' => 'void'], default: 'null|bool')]
 function register_shutdown_function(callable $callback, mixed ...$args): ?bool {}
 
 /**
@@ -354,7 +373,8 @@ function show_source(string $filename, bool $return = false): string|bool {}
  * code as a string instead of printing it out. Otherwise, it will return
  * true on success, false on failure.
  */
-function highlight_string(string $string, bool $return = false): string|bool {}
+#[LanguageLevelTypeAware(['8.4' => 'string|true'], default: 'string|bool')]
+function highlight_string(string $string, bool $return = false) {}
 
 /**
  * Get the system's high resolution time
@@ -364,11 +384,8 @@ function highlight_string(string $string, bool $return = false): string|bool {}
  * @return int[]|int|float|false Returns an array of integers in the form [seconds, nanoseconds], if the parameter get_as_number is false.
  * Otherwise the nanoseconds are returned as integer (64bit platforms) or float (32bit platforms).
  */
-#[Pure]
-function hrtime(
-    #[PhpStormStubsElementAvailable(from: '7.3', to: '7.4')] bool $as_number,
-    #[PhpStormStubsElementAvailable(from: '8.0')] bool $as_number = false
-): array|int|float|false {}
+#[Pure(true)]
+function hrtime(bool $as_number = false): array|int|float|false {}
 
 /**
  * Return source with stripped comments and whitespace
@@ -385,7 +402,7 @@ function hrtime(
  * prior behavior, see bug report
  * #29606.
  */
-#[Pure]
+#[Pure(true)]
 function php_strip_whitespace(string $filename): string {}
 
 /**
@@ -398,7 +415,7 @@ function php_strip_whitespace(string $filename): string {}
  * @return string|false the value of the configuration option as a string on success, or
  * an empty string on failure or for null values.
  */
-#[Pure]
+#[Pure(true)]
 function ini_get(string $option): string|false {}
 
 /**
@@ -434,8 +451,9 @@ function ini_get(string $option): string|false {}
  * why access shows the appropriate bitmask values.
  * </p>
  */
-#[Pure]
-function ini_get_all(?string $extension, bool $details = true): array|false {}
+#[Pure(true)]
+#[ArrayShape(["global_value" => "string", "local_value" => "string", "access" => "int"])]
+function ini_get_all(?string $extension, #[PhpStormStubsElementAvailable(from: '7.0')] bool $details = true): array|false {}
 
 /**
  * Sets the value of a configuration option
@@ -478,11 +496,18 @@ function ini_alter(string $option, #[LanguageLevelTypeAware(['8.1' => 'string|in
 function ini_restore(string $option): void {}
 
 /**
+ * @param string $shorthand
+ * @return int
+ * @since 8.2
+ */
+function ini_parse_quantity(string $shorthand): int {}
+
+/**
  * Gets the current include_path configuration option
  * @link https://php.net/manual/en/function.get-include-path.php
  * @return string|false the path, as a string.
  */
-#[Pure]
+#[Pure(true)]
 function get_include_path(): string|false {}
 
 /**
@@ -580,7 +605,7 @@ function restore_include_path() {}
  * setcookie successfully runs, it will return true.
  * This does not indicate whether the user accepted the cookie.
  */
-function setcookie(string $name, $value = "", $expires_or_options = 0, $path = "", $domain = "", $secure = false, $httponly = false): bool {}
+function setcookie(string $name, string $value = "", int $expires_or_options = 0, string $path = "", string $domain = "", bool $secure = false, bool $httponly = false): bool {}
 
 /**
  * Send a cookie
@@ -603,7 +628,7 @@ function setcookie(string $name, $value = "", $expires_or_options = 0, $path = "
  *                        This does not indicate whether the user accepted the cookie.
  * @since 7.3
  */
-function setcookie(string $name, $value = '', array $options = []): bool {}
+function setcookie(string $name, string $value = '', array $options = []): bool {}
 
 /**
  * Send a cookie without urlencoding the cookie value
@@ -671,12 +696,12 @@ function setrawcookie(string $name, $value = '', array $options = []): bool {}
  * but if you pass in false as the second argument you can force
  * multiple headers of the same type. For example:
  * </p>
- * @param int $response_code [optional] <p>
+ * @param int $response_code <p>
  * Forces the HTTP response code to the specified value.
  * </p>
  * @return void
  */
-function header(string $header, bool $replace = true, int $response_code): void {}
+function header(string $header, bool $replace = true, int $response_code = 0): void {}
 
 /**
  * Remove previously set headers
@@ -687,7 +712,7 @@ function header(string $header, bool $replace = true, int $response_code): void 
  * This parameter is case-insensitive.
  * @return void
  */
-function header_remove(?string $name): void {}
+function header_remove(?string $name = null): void {}
 
 /**
  * Checks if or where headers have been sent
@@ -705,7 +730,7 @@ function header_remove(?string $name): void {}
  * @return bool headers_sent will return false if no HTTP headers
  * have already been sent or true otherwise.
  */
-function headers_sent(&$filename, &$line): bool {}
+function headers_sent(&$filename = null, &$line = null): bool {}
 
 /**
  * Returns a list of response headers sent (or ready to send)
@@ -737,7 +762,7 @@ function getallheaders(): false|array {}
  * @link https://php.net/manual/en/function.connection-aborted.php
  * @return int 1 if client disconnected, 0 otherwise.
  */
-#[Pure]
+#[Pure(true)]
 function connection_aborted(): int {}
 
 /**
@@ -747,7 +772,7 @@ function connection_aborted(): int {}
  * CONNECTION_XXX constants to determine the connection
  * status.
  */
-#[Pure]
+#[Pure(true)]
 function connection_status(): int {}
 
 /**
@@ -854,6 +879,7 @@ function move_uploaded_file(string $from, string $to): bool {}
  * @since 7.3
  */
 #[Pure]
+#[ArrayShape(["description" => "string", "mac" => "string", "mtu" => "int", "unicast" => "array", "up" => "bool"])]
 function net_get_interfaces(): array|false {}
 
 /**

@@ -13,6 +13,10 @@ declare(strict_types=1);
 
 namespace Fidry\Console\Application;
 
+use Fidry\Console\Bridge\Application\SymfonyApplication;
+use Fidry\Console\Bridge\Command\BasicSymfonyCommandFactory;
+use Fidry\Console\Bridge\CommandLoader\CommandLoaderFactory;
+use Fidry\Console\Bridge\CommandLoader\SymfonyFactoryCommandLoaderFactory;
 use Fidry\Console\IO;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,24 +27,39 @@ final class ApplicationRunner
 {
     private SymfonyApplication $application;
 
-    public function __construct(Application $application)
-    {
-        $this->application = new SymfonyApplication($application);
+    public function __construct(
+        Application $application,
+        ?CommandLoaderFactory $commandLoaderFactory = null,
+    ) {
+        $this->application = new SymfonyApplication(
+            $application,
+            $commandLoaderFactory ?? new SymfonyFactoryCommandLoaderFactory(
+                new BasicSymfonyCommandFactory(),
+            ),
+        );
     }
 
     /**
+     * @psalm-suppress PossiblyUnusedReturnValue
+     *
      * Executes the given application command.
      *
-     * @return int 0 if everything went fine, or an exit code
+     * @return int Zero if everything went fine, or an exit code
      *
      * @see ExitCode
      */
     public static function runApplication(
         Application $application,
-        ?InputInterface $input,
-        ?OutputInterface $output
+        ?InputInterface $input = null,
+        ?OutputInterface $output = null,
+        ?CommandLoaderFactory $commandLoaderFactory = null,
     ): int {
-        return (new self($application))->run(
+        $runner = new self(
+            $application,
+            $commandLoaderFactory,
+        );
+
+        return $runner->run(
             new IO(
                 $input ?? new ArgvInput(),
                 $output ?? new ConsoleOutput(),

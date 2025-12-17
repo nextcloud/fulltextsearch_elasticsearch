@@ -8,65 +8,106 @@ use phpDocumentor\Reflection\DocBlock\Tags\Link;
 use phpDocumentor\Reflection\DocBlock\Tags\Reference\Url;
 use phpDocumentor\Reflection\DocBlock\Tags\See;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
-use PHPUnit\Framework\Exception;
-use StubTests\Model\BasePHPClass;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use StubTests\Model\BasePHPElement;
-use StubTests\Model\PHPConst;
 use StubTests\Model\PHPDocElement;
-use StubTests\Model\PHPFunction;
-use StubTests\Model\PHPMethod;
 use StubTests\Model\Tags\RemovedTag;
 use StubTests\Parsers\ParserUtils;
+use StubTests\TestData\Providers\PhpStormStubsSingleton;
+use StubTests\TestData\Providers\Stubs\StubConstantsProvider;
+use StubTests\TestData\Providers\Stubs\StubMethodsProvider;
+use StubTests\TestData\Providers\Stubs\StubsTestDataProviders;
 use function trim;
 
-class StubsPhpDocTest extends BaseStubsTest
+class StubsPhpDocTest extends AbstractBaseStubsTestCase
 {
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Stubs\StubConstantsProvider::classConstantProvider
-     * @throws Exception
-     */
-    public static function testClassConstantsPHPDocs(BasePHPClass $class, PHPConst $constant): void
+    public static function setUpBeforeClass(): void
     {
-        self::assertNull($constant->parseError, $constant->parseError ?: '');
-        self::checkPHPDocCorrectness($constant, "constant $class->sourceFilePath/$class->name::$constant->name");
+        parent::setUpBeforeClass();
+        PhpStormStubsSingleton::getPhpStormStubs();
     }
 
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Stubs\StubConstantsProvider::globalConstantProvider
-     * @throws Exception
-     */
-    public static function testConstantsPHPDocs(PHPConst $constant): void
+    #[DataProviderExternal(StubConstantsProvider::class, 'classConstantProvider')]
+    public function testClassConstantsPHPDocs(?string $classHash, ?string $constantName): void
     {
+        if (!$classHash && !$constantName) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getClassByHash($classHash);
+        $constant = $class->getConstant($constantName, false);
+        self::assertNull($constant->parseError, $constant->parseError ?: '');
+        self::checkPHPDocCorrectness($constant, "constant $class->id::$constant->name");
+    }
+
+    #[DataProviderExternal(StubConstantsProvider::class, 'interfaceConstantProvider')]
+    public function testInterfaceConstantsPHPDocs(string $classId, string $constantName): void
+    {
+        if (!$classId && !$constantName) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($classId, shouldSuitCurrentPhpVersion: false);
+        $constant = $class->getConstant($constantName, false);
+        self::assertNull($constant->parseError, $constant->parseError ?: '');
+        self::checkPHPDocCorrectness($constant, "constant $classId::$constant->name");
+    }
+
+    #[DataProviderExternal(StubConstantsProvider::class, 'enumConstantProvider')]
+    public function testEnumConstantsPHPDocs(?string $classId, ?string $constantName): void
+    {
+        if (!$classId && !$constantName) {
+            self::markTestSkipped($this->emptyDataSetMessage);
+        }
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getEnum($classId, shouldSuitCurrentPhpVersion: false);
+        $constant = $class->getConstant($constantName, false);
+        self::assertNull($constant->parseError, $constant->parseError ?: '');
+        self::checkPHPDocCorrectness($constant, "constant $classId::$constant->name");
+    }
+
+    #[DataProviderExternal(StubConstantsProvider::class, 'globalConstantProvider')]
+    public static function testConstantsPHPDocs(string $constantId): void
+    {
+        $constant = PhpStormStubsSingleton::getPhpStormStubs()->getConstant($constantId, shouldSuitCurrentPhpVersion: false);
         self::assertNull($constant->parseError, $constant->parseError ?: '');
         self::checkPHPDocCorrectness($constant, "constant $constant->name");
     }
 
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Stubs\StubsTestDataProviders::allFunctionsProvider
-     * @throws Exception
-     */
-    public static function testFunctionPHPDocs(PHPFunction $function): void
+    #[DataProviderExternal(StubsTestDataProviders::class, 'allFunctionsProvider')]
+    public static function testFunctionPHPDocs(string $functionId): void
     {
-        self::assertNull($function->parseError, $function->parseError ?: '');
+        $function = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionId, shouldSuitCurrentPhpVersion: false);
+        self::assertNull($function->parseError, $function->parseError?->getMessage() ?: '');
         self::checkPHPDocCorrectness($function, "function $function->name");
     }
 
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Stubs\StubsTestDataProviders::allClassesProvider
-     * @throws Exception
-     */
-    public static function testClassesPHPDocs(BasePHPClass $class): void
+    #[DataProviderExternal(StubsTestDataProviders::class, 'allClassesProvider')]
+    public static function testClassesPHPDocs(string $classId, string $sourceFilePath): void
     {
-        self::assertNull($class->parseError, $class->parseError ?: '');
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getClass($classId, sourceFilePath: $sourceFilePath, shouldSuitCurrentPhpVersion: false);
+        self::assertNull($class->parseError, $class->parseError?->getMessage() ?: '');
         self::checkPHPDocCorrectness($class, "class $class->name");
     }
 
-    /**
-     * @dataProvider \StubTests\TestData\Providers\Stubs\StubMethodsProvider::allMethodsProvider
-     * @throws Exception
-     */
-    public static function testMethodsPHPDocs(PHPMethod $method): void
+    #[DataProviderExternal(StubsTestDataProviders::class, 'allInterfacesProvider')]
+    public static function testInterfacesPHPDocs(string $classId, string $sourceFilePath): void
     {
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($classId, sourceFilePath: $sourceFilePath, shouldSuitCurrentPhpVersion: false);
+        self::assertNull($class->parseError, $class->parseError?->getMessage() ?: '');
+        self::checkPHPDocCorrectness($class, "class $class->name");
+    }
+
+    #[DataProviderExternal(StubsTestDataProviders::class, 'allEnumsProvider')]
+    public static function testEumsPHPDocs(string $classId, string $sourceFilePath): void
+    {
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getEnum($classId, sourceFilePath: $sourceFilePath, shouldSuitCurrentPhpVersion: false);
+        self::assertNull($class->parseError, $class->parseError?->getMessage() ?: '');
+        self::checkPHPDocCorrectness($class, "class $class->name");
+    }
+
+    #[DataProviderExternal(StubMethodsProvider::class, 'allClassMethodsProvider')]
+    public static function testClassMethodsPHPDocs(string $classHash, string $methodName): void
+    {
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getClassByHash($classHash);
+        $method = $class->getMethod($methodName, shouldSuitCurrentPhpVersion: false);
         if ($method->name === '__construct') {
             self::assertEmpty($method->returnTypesFromPhpDoc, '@return tag for __construct should be omitted');
         }
@@ -74,7 +115,30 @@ class StubsPhpDocTest extends BaseStubsTest
         self::checkPHPDocCorrectness($method, "method $method->name");
     }
 
-    //TODO IF: Add test to check that core stubs don't have psalm, phpstan etc typehints in phpdoc
+    #[DataProviderExternal(StubMethodsProvider::class, 'allInterfaceMethodsProvider')]
+    public static function testInterfaceMethodsPHPDocs(string $classId, string $methodName): void
+    {
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($classId, shouldSuitCurrentPhpVersion: false);
+        $method = $class->getMethod($methodName, shouldSuitCurrentPhpVersion: false);
+        if ($method->name === '__construct') {
+            self::assertEmpty($method->returnTypesFromPhpDoc, '@return tag for __construct should be omitted');
+        }
+        self::assertNull($method->parseError, $method->parseError ?: '');
+        self::checkPHPDocCorrectness($method, "method $method->name");
+    }
+
+    #[DataProviderExternal(StubMethodsProvider::class, 'allEnumsMethodsProvider')]
+    public static function testEnumMethodsPHPDocs(string $classId, string $methodName): void
+    {
+        $class = PhpStormStubsSingleton::getPhpStormStubs()->getEnum($classId, shouldSuitCurrentPhpVersion: false);
+        $method = $class->getMethod($methodName, shouldSuitCurrentPhpVersion: false);
+        if ($method->name === '__construct') {
+            self::assertEmpty($method->returnTypesFromPhpDoc, '@return tag for __construct should be omitted');
+        }
+        self::assertNull($method->parseError, $method->parseError ?: '');
+        self::checkPHPDocCorrectness($method, "method $method->name");
+    }
+
     //TODO IF: Add test to check that phpdocs contain only resource, object etc typehints or if contains type like Resource then Resource should be declared in stubs
 
     private static function checkDeprecatedRemovedSinceVersionsMajor(BasePHPElement $element, string $elementName): void
@@ -134,8 +198,7 @@ class StubsPhpDocTest extends BaseStubsTest
                 '#<pre>.*</pre>#sU',
                 '#<code>.*</code>#sU',
                 '#@author.*<.*>#U',
-                '#[\s,\|]array<[a-z,\s]+>#sU',
-                '#\s[A-Za-z]+<[A-Za-z,\s]+>[$\s]#sU'
+                '#(\s[\w]+[-][\w]+<[a-zA-Z,\s]+>[\s|]+)|([\w]+<[a-zA-Z,|\s]+>[\s|\W]+)#'
             ],
             '',
             $phpdoc
@@ -179,19 +242,25 @@ class StubsPhpDocTest extends BaseStubsTest
         }
     }
 
-    /**
-     * @throws Exception
-     */
     private static function checkContainsOnlyValidTags(BasePHPElement $element, string $elementName): void
     {
         $VALID_TAGS = [
+            'api',
             'author',
+            'category',
             'copyright',
             'deprecated',
-            'example', //temporary addition due to the number of existing cases
+            'example',
+            'extends',
+            'filesource',
+            'final',
+            'global',
+            'ignore',
+            'internal',
             'inheritdoc',
             'inheritDoc',
-            'internal',
+            'implements',
+            'license',
             'link',
             'meta',
             'method',
@@ -200,14 +269,19 @@ class StubsPhpDocTest extends BaseStubsTest
             'param',
             'property',
             'property-read',
+            'property-write',
             'removed',
             'return',
             'see',
             'since',
+            'source',
+            'subpackage',
             'throws',
             'template',
             'template-implements', // https://github.com/JetBrains/phpstorm-stubs/pull/1212#issuecomment-907263735
             'template-extends',
+            'template-covariant',
+            'todo',
             'uses',
             'var',
             'version',
@@ -218,13 +292,11 @@ class StubsPhpDocTest extends BaseStubsTest
         }
     }
 
-    /**
-     * @throws Exception
-     */
     private static function checkPHPDocCorrectness(BasePHPElement $element, string $elementName): void
     {
         self::checkLinks($element, $elementName);
-        self::checkHtmlTags($element, $elementName);
+        //TODO: Fix tests and uncomment
+        //self::checkHtmlTags($element, $elementName);
         if ($element->stubBelongsToCore) {
             self::checkDeprecatedRemovedSinceVersionsMajor($element, $elementName);
         }

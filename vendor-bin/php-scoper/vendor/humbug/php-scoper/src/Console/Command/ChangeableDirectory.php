@@ -15,25 +15,25 @@ declare(strict_types=1);
 namespace Humbug\PhpScoper\Console\Command;
 
 use Fidry\Console\IO;
+use Humbug\PhpScoper\NotInstantiable;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputOption;
 use function chdir as native_chdir;
 use function file_exists;
 use function Safe\getcwd;
-use function Safe\sprintf;
+use function sprintf;
 
 /**
  * @private
- * @codeCoverageIgnore
  */
+#[CodeCoverageIgnore]
 final class ChangeableDirectory
 {
-    private const WORKING_DIR_OPT = 'working-dir';
+    use NotInstantiable;
 
-    private function __construct()
-    {
-    }
+    private const WORKING_DIR_OPT = 'working-dir';
 
     public static function createOption(): InputOption
     {
@@ -42,13 +42,13 @@ final class ChangeableDirectory
             'd',
             InputOption::VALUE_REQUIRED,
             'If specified, use the given directory as working directory.',
-            null
+            null,
         );
     }
 
     public static function changeWorkingDirectory(IO $io): void
     {
-        $workingDir = $io->getNullableStringOption(self::WORKING_DIR_OPT);
+        $workingDir = $io->getTypedOption(self::WORKING_DIR_OPT)->asNullableString();
 
         if (null === $workingDir) {
             return;
@@ -58,8 +58,8 @@ final class ChangeableDirectory
             throw new InvalidArgumentException(
                 sprintf(
                     'Could not change the working directory to "%s": directory does not exists.',
-                    $workingDir
-                )
+                    $workingDir,
+                ),
             );
         }
 
@@ -68,8 +68,8 @@ final class ChangeableDirectory
                 sprintf(
                     'Failed to change the working directory to "%s" from "%s".',
                     $workingDir,
-                    getcwd()
-                )
+                    getcwd(),
+                ),
             );
         }
     }
