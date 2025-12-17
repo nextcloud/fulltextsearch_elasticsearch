@@ -40,25 +40,26 @@
     "test:unit": "./vendor-bin/phpunit/vendor/bin/phpunit -c tests/unit/phpunit.xml",
     "lint": "find . -name \\*.php -not -path './vendor/*' -not -path './vendor-bin/*' -not -path './lib/Vendor/*'  -print0 | xargs -0 -n1 php -l",
     "post-install-cmd": [
-      "@composer bin all install --ignore-platform-reqs # unfortunately the flag is required for 8.0",
-      "vendor/bin/php-scoper add-prefix --force # Scope our dependencies",
+      "@composer bin all install --ignore-platform-reqs",
+      "@php vendor/bin/php-scoper add-prefix --force",
       "rm -Rf lib/Vendor && mv build lib/Vendor",
-      "find lib/Vendor/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{} # Remove origins",
+      "find lib/Vendor/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{}",
       "@php lib-vendor-organizer.php lib/Vendor/ OCA\\\\FullTextSearch_Elasticsearch\\\\Vendor",
       "composer dump-autoload -o"
     ],
     "post-update-cmd": [
-      "@composer bin all install --ignore-platform-reqs # unfortunately the flag is required for 8.0",
-      "vendor/bin/php-scoper add-prefix --force # Scope our dependencies",
+      "@composer bin all install --ignore-platform-reqs",
+      "@php vendor/bin/php-scoper add-prefix --force",
       "rm -Rf lib/Vendor && mv build lib/Vendor",
-      "find lib/Vendor/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{} # Remove origins",
+      "find lib/Vendor/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{}",
       "@php lib-vendor-organizer.php lib/Vendor/ OCA\\\\FullTextSearch_Elasticsearch\\\\Vendor",
       "composer dump-autoload -o"
     ]
   },
   "require": {
     "bamarni/composer-bin-plugin": "^1.8",
-    "elasticsearch/elasticsearch": "^8.11"
+    "guzzlehttp/guzzle": "^7.0.0",
+    "elasticsearch/elasticsearch": "^9.2"
   },
   "require-dev": {
     "nextcloud/ocp": "dev-master"
