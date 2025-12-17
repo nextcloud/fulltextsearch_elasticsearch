@@ -4,6 +4,10 @@
 -->
 # Changelog
 
+### 32.0.1
+
+- upgrade elasticsearch-php to 9.2
+
 ### 32.0.0
 
 - compat nc32
