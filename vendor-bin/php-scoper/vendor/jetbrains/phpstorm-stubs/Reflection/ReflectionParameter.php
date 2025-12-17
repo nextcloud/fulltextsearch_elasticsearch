@@ -3,6 +3,7 @@
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Immutable;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
@@ -276,11 +277,13 @@ class ReflectionParameter implements Reflector
     public function isPromoted(): bool {}
 
     /**
+     * @template T
+     *
      * Returns an array of parameter attributes.
      *
-     * @param string|null $name Name of an attribute class
+     * @param class-string<T>|null $name Name of an attribute class
      * @param int $flags Сriteria by which the attribute is searched.
-     * @return ReflectionAttribute[]
+     * @return ReflectionAttribute<T>[]
      * @since 8.0
      */
     #[Pure]
@@ -292,5 +295,15 @@ class ReflectionParameter implements Reflector
      * @link https://php.net/manual/en/reflectionparameter.clone.php
      * @return void
      */
+    #[PhpStormStubsElementAvailable(from: "5.4", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * Clone
+     *
+     * @link https://php.net/manual/en/reflectionparameter.clone.php
+     * @return void
+     */
+    #[PhpStormStubsElementAvailable(from: "8.1")]
+    private function __clone(): void {}
 }

@@ -17,18 +17,15 @@ namespace Humbug\PhpScoper\PhpParser;
 use Humbug\PhpScoper\Scoper\PhpScoper;
 use PhpParser\Error as PhpParserError;
 use PhpParser\Node\Scalar\String_;
-use function Safe\substr;
+use function substr;
 
 /**
  * @private
  */
-final class StringNodePrefixer
+final readonly class StringNodePrefixer
 {
-    private PhpScoper $scoper;
-
-    public function __construct(PhpScoper $scoper)
+    public function __construct(private PhpScoper $scoper)
     {
-        $this->scoper = $scoper;
     }
 
     public function prefixStringValue(String_ $node): void
@@ -43,7 +40,7 @@ final class StringNodePrefixer
             }
 
             $node->value = $newValue;
-        } catch (PhpParserError $error) {
+        } catch (PhpParserError) {
             // Continue without scoping the heredoc which for some reasons contains invalid PHP code
         }
     }

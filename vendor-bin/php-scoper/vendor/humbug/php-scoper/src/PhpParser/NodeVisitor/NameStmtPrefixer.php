@@ -15,11 +15,14 @@ declare(strict_types=1);
 namespace Humbug\PhpScoper\PhpParser\NodeVisitor;
 
 use Humbug\PhpScoper\PhpParser\Node\FullyQualifiedFactory;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
 use Humbug\PhpScoper\PhpParser\NodeVisitor\NamespaceStmt\NamespaceStmtCollection;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\Resolver\OriginalNameResolver;
 use Humbug\PhpScoper\PhpParser\NodeVisitor\UseStmt\UseStmtCollection;
 use Humbug\PhpScoper\PhpParser\UseStmtName;
 use Humbug\PhpScoper\Symbol\EnrichedReflector;
 use PhpParser\Node;
+use PhpParser\Node\Attribute;
 use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Expr\Closure;
@@ -68,6 +71,7 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
 {
     private const SUPPORTED_PARENT_NODE_CLASS_NAMES = [
         Alias::class,
+        Attribute::class,
         ArrowFunction::class,
         Catch_::class,
         ConstFetch::class,
@@ -90,21 +94,12 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
         IntersectionType::class,
     ];
 
-    private string $prefix;
-    private NamespaceStmtCollection $namespaceStatements;
-    private UseStmtCollection $useStatements;
-    private EnrichedReflector $enrichedReflector;
-
     public function __construct(
-        string $prefix,
-        NamespaceStmtCollection $namespaceStatements,
-        UseStmtCollection $useStatements,
-        EnrichedReflector $enrichedReflector
+        private readonly string $prefix,
+        private readonly NamespaceStmtCollection $namespaceStatements,
+        private readonly UseStmtCollection $useStatements,
+        private readonly EnrichedReflector $enrichedReflector,
     ) {
-        $this->prefix = $prefix;
-        $this->namespaceStatements = $namespaceStatements;
-        $this->useStatements = $useStatements;
-        $this->enrichedReflector = $enrichedReflector;
     }
 
     public function enterNode(Node $node): Node
@@ -157,12 +152,11 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
         );
 
         if ($this->doesNameHasUseStatement(
-                $originalName,
-                $resolvedName,
-                $parentNode,
-                $useStatement,
-            )
-        ) {
+            $originalName,
+            $resolvedName,
+            $parentNode,
+            $useStatement,
+        )) {
             // Do not prefix if there is a matching use statement.
             return $originalName;
         }
@@ -175,10 +169,10 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
         $currentNamespace = $this->namespaceStatements->getCurrentNamespaceName();
 
         if (self::doesNameBelongToNamespace(
-                $originalName,
-                $resolvedName,
-                $currentNamespace,
-            )
+            $originalName,
+            $resolvedName,
+            $currentNamespace,
+        )
             // At this point if the name belongs to the global namespace, since
             // we are NOT in an excluded namespace, the current namespace will
             // become prefixed hence there is no need for prefixing.
@@ -219,11 +213,7 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
             // Continue
         }
 
-        return FullyQualifiedFactory::concat(
-            $this->prefix,
-            $resolvedName->toString(),
-            $resolvedName->getAttributes(),
-        );
+        return FullyQualifiedFactory::concat($this->prefix, $resolvedName);
     }
 
     private static function isParentNodeSupported(Node $parentNode): bool
@@ -267,11 +257,11 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
         }
 
         $originalNameFQParts = [
-            ...$namespaceName->parts,
-            ...$originalName->parts,
+            ...$namespaceName->getParts(),
+            ...$originalName->getParts(),
         ];
 
-        return $originalNameFQParts === $resolvedName->parts;
+        return $originalNameFQParts === $resolvedName->getParts();
     }
 
     private function doesNameBelongToGlobalNamespace(
@@ -288,14 +278,16 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
             && !($parentNode instanceof ConstFetch)
 
             // If exposed we cannot keep the original non-FQCN UNLESS belongs
-            // to the global namespace for the reasons mentionned in the caller
-            && (!$this->enrichedReflector->isExposedClass($resolvedName)
+            // to the global namespace for the reasons mentioned in the caller
+            && (
+                !$this->enrichedReflector->isExposedClass($resolvedName)
                 || $this->enrichedReflector->isExposedClassFromGlobalNamespace($resolvedName)
             )
             // If excluded we cannot keep the non-FQCN
             && !$this->enrichedReflector->isClassExcluded($resolvedName)
 
-            && (!$this->enrichedReflector->isExposedFunction($resolvedName)
+            && (
+                !$this->enrichedReflector->isExposedFunction($resolvedName)
                 || $this->enrichedReflector->isExposedFunctionFromGlobalNamespace($resolvedName)
             )
             && !$this->enrichedReflector->isFunctionExcluded($resolvedName);
@@ -312,8 +304,6 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
             // In case the original name is a FQ, we do not skip the prefixing
             // and keep it as FQ
             || $originalName->isFullyQualified()
-            // TODO: review Isolated Finder support
-            || $resolvedName->parts === ['Isolated', 'Symfony', 'Component', 'Finder', 'Finder']
         ) {
             return false;
         }
@@ -356,8 +346,7 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
     private function isPrefixableClassName(
         Name $resolvedName,
         Node $parentNode
-    ): bool
-    {
+    ): bool {
         $isClassNode = $parentNode instanceof ConstFetch || $parentNode instanceof FuncCall;
 
         return (
@@ -391,7 +380,7 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
         // explicitly register a constant to be exposed or that the constant
         // is internal that it is the constant in question and not the one
         // relative to the namespace.
-        // Indeed it would otherwise mean that the user has for example Acme\FOO
+        // Indeed, it would otherwise mean that the user has for example Acme\FOO
         // and \FOO in the codebase AND decide to expose \FOO.
         // It is not only unlikely but sketchy, hence should not be an issue
         // in practice.
@@ -439,20 +428,6 @@ final class NameStmtPrefixer extends NodeVisitorAbstract
                 : null;
         }
 
-        if ($this->enrichedReflector->isFunctionInternal($resolvedNameString)) {
-            return new FullyQualified(
-                $originalName->toString(),
-                $originalName->getAttributes(),
-            );
-        }
-
-        if ($this->enrichedReflector->isExposedFunction($resolvedNameString)) {
-            // TODO: should be able to find a case for it
-            return $this->enrichedReflector->isExposedFunctionFromGlobalNamespace($resolvedNameString)
-                ? $resolvedName
-                : null;
-        }
-
-        return $resolvedName;
+        return $originalName;
     }
 }

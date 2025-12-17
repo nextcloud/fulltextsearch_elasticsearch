@@ -1,6 +1,7 @@
 <?php
 
 // Start of calendar v.
+use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 
 /**
@@ -174,7 +175,7 @@ function easter_date(?int $year, #[PhpStormStubsElementAvailable(from: '8.0')] i
 /**
  * Get number of days after March 21 on which Easter falls for a given year
  * @link https://php.net/manual/en/function.easter-days.php
- * @param int|null $year [optional] <p>
+ * @param positive-int|null $year [optional] <p>
  * The year as a positive number
  * </p>
  * @param int $mode [optional] <p>
@@ -191,12 +192,12 @@ function easter_days(?int $year, int $mode = CAL_EASTER_DEFAULT): int {}
 /**
  * Convert Unix timestamp to Julian Day
  * @link https://php.net/manual/en/function.unixtojd.php
- * @param int|null $timestamp [optional] defaults to time() <p>
+ * @param int|null $timestamp defaults to time() <p>
  * A unix timestamp to convert.
  * </p>
  * @return int|false A julian day number as integer.
  */
-function unixtojd(?int $timestamp = 0): int|false {}
+function unixtojd(?int $timestamp = null): int|false {}
 
 /**
  * Convert Julian Day to Unix timestamp
@@ -247,6 +248,17 @@ function cal_to_jd(int $calendar, int $month, int $day, int $year): int {}
  * day of week, abbreviated and full names of weekday and month and the
  * date in string form "month/day/year".
  */
+#[ArrayShape([
+    "date" => "string",
+    "month" => "int",
+    "day" => "int",
+    "year" => "int",
+    "dow" => "int",
+    "abbrevdayname" => "string",
+    "dayname" => "string",
+    "abbrevmonth" => "string",
+    "monthname" => "string"
+])]
 function cal_from_jd(int $julian_day, int $calendar): array {}
 
 /**
@@ -274,6 +286,7 @@ function cal_days_in_month(int $calendar, int $month, int $year): int {}
  * </p>
  * @return array
  */
+#[ArrayShape(["months" => "array", "abbrevmonths" => "array", "maxdaysinmonth" => "int", "calname" => "string", "calsymbol" => "string"])]
 function cal_info(int $calendar = -1): array {}
 
 define('CAL_GREGORIAN', 0);

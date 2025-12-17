@@ -1,42 +1,17 @@
 <?php
 
-namespace Safe;
-
-use Safe\Exceptions\MysqliException;
-
-/**
- * Returns an empty array.
- * Available only with mysqlnd.
- *
- * @return array Returns an empty array on success, FALSE otherwise.
- * @throws MysqliException
- *
- */
-function mysqli_get_cache_stats(): array
-{
-    error_clear_last();
-    $result = \mysqli_get_cache_stats();
-    if ($result === false) {
-        throw MysqliException::createFromPhpError();
-    }
-    return $result;
+if (str_starts_with(PHP_VERSION, "8.1.")) {
+    require_once __DIR__ . '/8.1/mysqli.php';
 }
-
-
-/**
- * Returns client per-process statistics.
- * Available only with mysqlnd.
- *
- * @return array Returns an array with client stats if success, FALSE otherwise.
- * @throws MysqliException
- *
- */
-function mysqli_get_client_stats(): array
-{
-    error_clear_last();
-    $result = \mysqli_get_client_stats();
-    if ($result === false) {
-        throw MysqliException::createFromPhpError();
-    }
-    return $result;
+if (str_starts_with(PHP_VERSION, "8.2.")) {
+    require_once __DIR__ . '/8.2/mysqli.php';
+}
+if (str_starts_with(PHP_VERSION, "8.3.")) {
+    require_once __DIR__ . '/8.3/mysqli.php';
+}
+if (str_starts_with(PHP_VERSION, "8.4.")) {
+    require_once __DIR__ . '/8.4/mysqli.php';
+}
+if (str_starts_with(PHP_VERSION, "8.5.")) {
+    require_once __DIR__ . '/8.5/mysqli.php';
 }

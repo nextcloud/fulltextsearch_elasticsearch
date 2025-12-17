@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the humbug/php-scoper package.
+ *
+ * Copyright (c) 2017 Théo FIDRY <theo.fidry@gmail.com>,
+ *                    Pádraic Brady <padraic.brady@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Humbug\PhpScoper\Configuration;
 
 use Humbug\PhpScoper\Symbol\NamespaceRegistry;
@@ -9,35 +19,25 @@ use Humbug\PhpScoper\Symbol\SymbolRegistry;
 use InvalidArgumentException;
 use function array_key_exists;
 use function array_keys;
-use function array_map;
-use function array_merge;
-use function array_pop;
-use function array_values;
-use function explode;
 use function get_debug_type;
 use function gettype;
-use function implode;
 use function is_array;
 use function is_bool;
 use function is_string;
-use function ltrim;
-use function Safe\preg_match as native_preg_match;
-use function Safe\sprintf;
-use function Safe\substr;
-use function str_replace;
-use function strpos;
-use function strtolower;
-use function trim;
+use function sprintf;
+use function str_contains;
+use function strrpos;
+use function substr;
 
-final class SymbolsConfigurationFactory
+final readonly class SymbolsConfigurationFactory
 {
-    private RegexChecker $regexChecker;
-
-    public function __construct(RegexChecker $regexChecker)
+    public function __construct(private RegexChecker $regexChecker)
     {
-        $this->regexChecker = $regexChecker;
     }
 
+    /**
+     * @param array<array-key, mixed> $config
+     */
     public function createSymbolsConfiguration(array $config): SymbolsConfiguration
     {
         [
@@ -55,15 +55,6 @@ final class SymbolsConfigurationFactory
             $config,
             ConfigurationKeys::EXPOSE_NAMESPACES_KEYWORD,
         );
-
-        $legacyExposedElements = self::retrieveLegacyExposedElements($config);
-
-        [
-            $legacyExposedSymbols,
-            $legacyExposedSymbolsPatterns,
-            $legacyExposedConstants,
-            $excludedNamespaceNames,
-        ] = self::parseLegacyExposedElements($legacyExposedElements, $excludedNamespaceNames);
 
         $exposeGlobalConstants = self::retrieveExposeGlobalSymbol(
             $config,
@@ -127,34 +118,16 @@ final class SymbolsConfigurationFactory
                 $exposedNamespaceRegexes,
             ),
             SymbolRegistry::create(
-                array_merge(
-                    $exposedClassNames,
-                    $legacyExposedSymbols,
-                ),
-                array_merge(
-                    $exposedClassRegexes,
-                    $legacyExposedSymbolsPatterns,
-                ),
+                $exposedClassNames,
+                $exposedClassRegexes,
             ),
             SymbolRegistry::create(
-                array_merge(
-                    $exposedFunctionNames,
-                    $legacyExposedSymbols,
-                ),
-                array_merge(
-                    $exposedFunctionRegexes,
-                    $legacyExposedSymbolsPatterns,
-                ),
+                $exposedFunctionNames,
+                $exposedFunctionRegexes,
             ),
             SymbolRegistry::createForConstants(
-                array_merge(
-                    $exposedConstantNames,
-                    $legacyExposedConstants,
-                ),
-                array_merge(
-                    $exposedConstantRegexes,
-                    $legacyExposedSymbolsPatterns,
-                ),
+                $exposedConstantNames,
+                $exposedConstantRegexes,
             ),
             $excludedClasses,
             $excludedFunctions,
@@ -162,10 +135,13 @@ final class SymbolsConfigurationFactory
         );
     }
 
+    /**
+     * @param array<array-key, mixed> $config
+     */
     private static function retrieveExposeGlobalSymbol(array $config, string $key): bool
     {
         if (!array_key_exists($key, $config)) {
-            return false;
+            return true;
         }
 
         $value = $config[$key];
@@ -184,46 +160,8 @@ final class SymbolsConfigurationFactory
     }
 
     /**
-     * return list<string>
-     */
-    private static function retrieveLegacyExposedElements(array $config): array
-    {
-        $key = ConfigurationKeys::WHITELIST_KEYWORD;
-
-        if (!array_key_exists($key, $config)) {
-            return [];
-        }
-
-        $whitelist = $config[$key];
-
-        if (!is_array($whitelist)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Expected "%s" to be an array of strings, found "%s" instead.',
-                    $key,
-                    gettype($whitelist),
-                ),
-            );
-        }
-
-        foreach ($whitelist as $index => $className) {
-            if (is_string($className)) {
-                continue;
-            }
-
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Expected whitelist to be an array of string, the "%d" element is not.',
-                    $index,
-                ),
-            );
-        }
-
-        return array_values($whitelist);
-    }
-
-    /**
-     * return array{string[], string[]}
+     * @param  array<array-key, mixed>           $config
+     * @return array{list<string>, list<string>}
      */
     private function retrieveElements(array $config, string $key): array
     {
@@ -233,7 +171,7 @@ final class SymbolsConfigurationFactory
 
         $symbolNamesAndRegexes = $config[$key];
 
-        self::assertIsArrayOfStrings($config[$key], $key);
+        self::assertIsArrayOfStrings($symbolNamesAndRegexes, $key);
 
         // Store the strings in the keys for avoiding a unique check later on
         $names = [];
@@ -246,27 +184,8 @@ final class SymbolsConfigurationFactory
                 continue;
             }
 
-            $regex = $nameOrRegex;
+            $regex = $this->getRegex($nameOrRegex, $key, $index);
 
-            $this->assertValidRegex($regex, $key, (string) $index);
-
-            $errorMessage = $this->regexChecker->validateRegex($regex);
-
-            if (null !== $errorMessage) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Expected "%s" to be an array of valid regexes. The element "%s" with the index "%s" is not: %s.',
-                        $key,
-                        $regex,
-                        $index,
-                        $errorMessage,
-                    ),
-                );
-            }
-
-            // Ensure namespace comparisons are always case-insensitive
-            // TODO: double check that we are not adding it twice or that adding it twice does not break anything
-            $regex .= 'i';
             $regexes[$regex] = null;
         }
 
@@ -276,50 +195,53 @@ final class SymbolsConfigurationFactory
         ];
     }
 
-    /**
-     * @deprecated
-     *
-     * @param list<string> $elements
-     * @param list<string> $excludedNamespaceNames
-     */
-    private static function parseLegacyExposedElements(array $elements, array $excludedNamespaceNames): array
+    private function getRegex(string $regex, string $key, int|string $index): string
     {
-        $exposedSymbols = [];
-        $exposedConstants = [];
-        $exposedSymbolsPatterns = [];
-        $excludedNamespaceNames = array_map('strtolower', $excludedNamespaceNames);
+        $this->assertValidRegex($regex, $key, (string) $index);
 
-        foreach ($elements as $element) {
-            $element = ltrim(trim($element), '\\');
+        $errorMessage = $this->regexChecker->validateRegex($regex);
 
-            self::assertValidElement($element);
-
-            if ('\*' === substr($element, -2)) {
-                $excludedNamespaceNames[] = strtolower(substr($element, 0, -2));
-            } elseif ('*' === $element) {
-                $excludedNamespaceNames[] = '';
-            } elseif (false !== strpos($element, '*')) {
-                $exposedSymbolsPatterns[] = self::createExposePattern($element);
-            } else {
-                $exposedSymbols[] = strtolower($element);
-                $exposedConstants[] = self::lowerCaseConstantName($element);
-            }
+        if (null !== $errorMessage) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Expected "%s" to be an array of valid regexes. The element "%s" with the index "%s" is not: %s.',
+                    $key,
+                    $regex,
+                    $index,
+                    $errorMessage,
+                ),
+            );
         }
 
-        return [
-            $exposedSymbols,
-            $exposedSymbolsPatterns,
-            $exposedConstants,
-            $excludedNamespaceNames,
-        ];
+        $flags = self::getRegexFlags($regex);
+
+        if (!str_contains($flags, 'i')) {
+            // Ensure namespace comparisons are always case-insensitive
+            $regex .= 'i';
+        }
+
+        return $regex;
     }
 
     /**
-     * @psalm-assert string[] $value
-     *
-     * @param mixed $value
+     * @param non-empty-string $regex
      */
-    private static function assertIsArrayOfStrings($value, string $key): void
+    private static function getRegexFlags(string $regex): string
+    {
+        $separator = $regex[0];
+        $lastSeparatorPosition = strrpos($regex, $separator);
+
+        if (false === $lastSeparatorPosition) {
+            return '';
+        }
+
+        return substr($regex, $lastSeparatorPosition);
+    }
+
+    /**
+     * @phpstan-assert string[] $value
+     */
+    private static function assertIsArrayOfStrings(mixed $value, string $key): void
     {
         if (!is_array($value)) {
             throw new InvalidArgumentException(
@@ -347,6 +269,9 @@ final class SymbolsConfigurationFactory
         }
     }
 
+    /**
+     * @phpstan-assert non-empty-string $regex
+     */
     private function assertValidRegex(string $regex, string $key, string $index): void
     {
         $errorMessage = $this->regexChecker->validateRegex($regex);
@@ -362,74 +287,5 @@ final class SymbolsConfigurationFactory
                 ),
             );
         }
-    }
-
-    /**
-     * @deprecated
-     */
-    private static function assertValidElement(string $element): void
-    {
-        if ('' !== $element) {
-            return;
-        }
-
-        throw new InvalidArgumentException(
-            sprintf(
-                'Invalid whitelist element "%s": cannot accept an empty string',
-                $element,
-            ),
-        );
-    }
-
-    /**
-     * @deprecated
-     */
-    private static function createExposePattern(string $element): string
-    {
-        self::assertValidPattern($element);
-
-        return sprintf(
-            '/^%s$/u',
-            str_replace(
-                '\\',
-                '\\\\',
-                str_replace(
-                    '*',
-                    '.*',
-                    $element,
-                ),
-            ),
-        );
-    }
-
-    /**
-     * @deprecated
-     */
-    private static function assertValidPattern(string $element): void
-    {
-        if (1 !== native_preg_match('/^(([\p{L}_]+\\\\)+)?[\p{L}_]*\*$/u', $element)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid whitelist pattern "%s".',
-                    $element,
-                ),
-            );
-        }
-    }
-
-    /**
-     * @deprecated
-     */
-    private static function lowerCaseConstantName(string $name): string
-    {
-        $parts = explode('\\', $name);
-
-        $lastPart = array_pop($parts);
-
-        $parts = array_map('strtolower', $parts);
-
-        $parts[] = $lastPart;
-
-        return implode('\\', $parts);
     }
 }

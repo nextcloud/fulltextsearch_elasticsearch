@@ -16,6 +16,16 @@ use JetBrains\PhpStorm\Pure;
 class ReflectionProperty implements Reflector
 {
     /**
+     * @since 8.4
+     */
+    public const IS_ABSTRACT = 64;
+
+    /**
+     * @since 8.4
+     */
+    public const IS_VIRTUAL = 512;
+
+    /**
      * @var string Name of the property, same as calling the {@see ReflectionProperty::getName()} method
      */
     #[Immutable]
@@ -28,13 +38,6 @@ class ReflectionProperty implements Reflector
     #[Immutable]
     #[LanguageLevelTypeAware(['8.1' => 'string'], default: '')]
     public $class;
-
-    /**
-     * @var bool
-     * @since 8.1
-     */
-    #[Immutable]
-    public bool $isReadonly;
 
     /**
      * Indicates that the property is static.
@@ -67,7 +70,22 @@ class ReflectionProperty implements Reflector
     /**
      * @since 8.1
      */
-    public const IS_READONLY = 5;
+    public const IS_READONLY = 128;
+
+    /**
+     * @since 8.4
+     */
+    public const IS_PROTECTED_SET = 2048;
+
+    /**
+     * @since 8.4
+     */
+    public const IS_PRIVATE_SET = 4096;
+
+    /**
+     * @since 8.4
+     */
+    public const IS_FINAL = 32;
 
     /**
      * Construct a ReflectionProperty object
@@ -137,13 +155,13 @@ class ReflectionProperty implements Reflector
      * @param mixed $objectOrValue If the property is non-static an object must
      * be provided to change the property on. If the property is static this
      * parameter is left out and only $value needs to be provided.
-     * @param mixed $value The new value.
+     * @param mixed $value [optional] The new value.
      * @return void No value is returned.
      */
     #[TentativeType]
     public function setValue(
         #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $objectOrValue,
-        #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $value = null
+        #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $value
     ): void {}
 
     /**
@@ -180,7 +198,7 @@ class ReflectionProperty implements Reflector
      * Checks if property is static
      *
      * @link https://php.net/manual/en/reflectionproperty.isstatic.php
-     * @return bool Retruns {@see true} if the property is static, {@see false} otherwise.
+     * @return bool Returns {@see true} if the property is static, {@see false} otherwise.
      */
     #[Pure]
     #[TentativeType]
@@ -308,7 +326,17 @@ class ReflectionProperty implements Reflector
      * @link https://php.net/manual/en/reflectionproperty.clone.php
      * @return void
      */
+    #[PhpStormStubsElementAvailable(from: "5.4", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * Clone
+     *
+     * @link https://php.net/manual/en/reflectionproperty.clone.php
+     * @return void
+     */
+    #[PhpStormStubsElementAvailable(from: "8.1")]
+    private function __clone(): void {}
 
     /**
      * @return bool
@@ -325,9 +353,13 @@ class ReflectionProperty implements Reflector
     public function getDefaultValue(): mixed {}
 
     /**
-     * @param null|string $name
-     * @param int $flags
-     * @return ReflectionAttribute[]
+     * @template T
+     *
+     * Returns an array of property attributes.
+     *
+     * @param class-string<T>|null $name Name of an attribute class
+     * @param int $flags Сriteria by which the attribute is searched.
+     * @return ReflectionAttribute<T>[]
      * @since 8.0
      */
     #[Pure]
@@ -338,4 +370,84 @@ class ReflectionProperty implements Reflector
      * @since 8.1
      */
     public function isReadOnly(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function getRawValue(object $object): mixed {}
+
+    /**
+     * @since 8.4
+     */
+    public function setRawValue(object $object, mixed $value): void {}
+
+    /**
+     * @since 8.4
+     */
+    public function isAbstract(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function isVirtual(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function getSettableType(): ?ReflectionType {}
+
+    /**
+     * @since 8.4
+     */
+    public function hasHooks(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function getHooks(): array {}
+
+    /**
+     * @since 8.4
+     */
+    public function hasHook(PropertyHookType $type): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function getHook(PropertyHookType $type): ?ReflectionMethod {}
+
+    /**
+     * @since 8.4
+     */
+    public function isPrivateSet(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function isProtectedSet(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function setRawValueWithoutLazyInitialization(object $object, mixed $value): void {}
+
+    /**
+     * @since 8.4
+     */
+    public function skipLazyInitialization(object $object): void {}
+
+    /**
+     * @since 8.4
+     */
+    public function isDynamic(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function isFinal(): bool {}
+
+    /**
+     * @since 8.4
+     */
+    public function isLazy(object $object): bool {}
 }

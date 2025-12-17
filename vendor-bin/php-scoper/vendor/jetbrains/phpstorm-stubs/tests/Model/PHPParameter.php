@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -12,15 +11,20 @@ use function in_array;
 class PHPParameter extends BasePHPElement
 {
     public $indexInSignature = 0;
+
     /** @var string[] */
     public $typesFromSignature = [];
+
     /** @var string[][] */
     public $typesFromAttribute = [];
+
     /** @var string[] */
     public $typesFromPhpDoc = [];
     public $is_vararg = false;
     public $is_passed_by_ref = false;
     public $isOptional = false;
+    public $isDefaultValueAvailable = false;
+    public $markedOptionalInPhpDoc = false;
     public $defaultValue;
 
     /**
@@ -30,11 +34,14 @@ class PHPParameter extends BasePHPElement
     public function readObjectFromReflection($reflectionObject)
     {
         $this->name = $reflectionObject->name;
-        $this->typesFromSignature = self::getReflectionTypeAsArray($reflectionObject->getType());
+        if (method_exists($reflectionObject, 'getType')){
+            $this->typesFromSignature = self::getReflectionTypeAsArray($reflectionObject->getType());
+        }
         $this->is_vararg = $reflectionObject->isVariadic();
         $this->is_passed_by_ref = $reflectionObject->isPassedByReference() && !$reflectionObject->canBePassedByValue();
         $this->isOptional = $reflectionObject->isOptional();
         $this->indexInSignature = $reflectionObject->getPosition();
+        $this->isDefaultValueAvailable = $reflectionObject->isDefaultValueAvailable();
         if ($reflectionObject->isDefaultValueAvailable()) {
             $this->defaultValue = $reflectionObject->getDefaultValue();
             if (in_array('bool', $this->typesFromSignature, true)) {
@@ -59,6 +66,8 @@ class PHPParameter extends BasePHPElement
         $this->is_passed_by_ref = $node->byRef;
         $this->defaultValue = $node->default;
         $this->isOptional = !empty($this->defaultValue) || $this->is_vararg;
+        $this->checkDeprecationTag($node);
+        $this->stubObjectHash = spl_object_hash($this);
         return $this;
     }
 
@@ -66,7 +75,7 @@ class PHPParameter extends BasePHPElement
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $parameter) {
             if ($parameter->name === $this->name && !empty($parameter->problems)) {

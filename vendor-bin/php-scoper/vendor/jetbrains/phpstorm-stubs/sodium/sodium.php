@@ -1,5 +1,6 @@
 <?php
 
+use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 
 const SODIUM_CRYPTO_AEAD_AES256GCM_KEYBYTES = 32;
@@ -75,9 +76,9 @@ const SODIUM_CRYPTO_PWHASH_OPSLIMIT_MODERATE = 3;
 const SODIUM_CRYPTO_PWHASH_MEMLIMIT_MODERATE = 268435456;
 const SODIUM_CRYPTO_PWHASH_OPSLIMIT_SENSITIVE = 4;
 const SODIUM_CRYPTO_PWHASH_MEMLIMIT_SENSITIVE = 1073741824;
-const SODIUM_LIBRARY_VERSION = "1.0.18";
-const SODIUM_LIBRARY_MAJOR_VERSION = 10;
-const SODIUM_LIBRARY_MINOR_VERSION = 3;
+const SODIUM_LIBRARY_VERSION = "1.0.19";
+const SODIUM_LIBRARY_MAJOR_VERSION = 26;
+const SODIUM_LIBRARY_MINOR_VERSION = 1;
 const SODIUM_CRYPTO_KDF_BYTES_MIN = 16;
 const SODIUM_CRYPTO_KDF_BYTES_MAX = 64;
 const SODIUM_CRYPTO_KDF_CONTEXTBYTES = 8;
@@ -148,6 +149,9 @@ function sodium_crypto_stream_xchacha20(int $length, string $nonce, string $key)
 
 #[PhpStormStubsElementAvailable('8.1')]
 function sodium_crypto_stream_xchacha20_xor(string $message, string $nonce, string $key): string {}
+
+#[PhpStormStubsElementAvailable('8.2')]
+function sodium_crypto_stream_xchacha20_xor_ic(#[\SensitiveParameter] string $message, string $nonce, int $counter, #[\SensitiveParameter] string $key): string {}
 
 #[PhpStormStubsElementAvailable('8.1')]
 function sodium_crypto_stream_xchacha20_keygen(): string {}
@@ -575,6 +579,7 @@ function sodium_crypto_generichash_init(
  * @throws SodiumException
  * @since 7.2
  */
+#[LanguageLevelTypeAware(['8.2' => 'true'], default: 'bool')]
 function sodium_crypto_generichash_update(string &$state, string $message): bool {}
 
 /**
@@ -947,12 +952,12 @@ function sodium_compare(string $string1, string $string2): int {}
  * Convert from hex without side-chanels
  * @link https://www.php.net/manual/en/function.sodium-hex2bin.php
  * @param string $string
- * @param string $ignore [optional]
+ * @param string $ignore
  * @return string
  * @throws SodiumException
  * @since 7.2
  */
-function sodium_hex2bin(string $string, string $ignore): string {}
+function sodium_hex2bin(string $string, string $ignore = ''): string {}
 
 /**
  * Increment a string in little-endian
@@ -1127,6 +1132,9 @@ function sodium_crypto_secretstream_xchacha20poly1305_keygen(): string {}
  */
 function sodium_crypto_secretstream_xchacha20poly1305_init_push(string $key): array {}
 
+#[PhpStormStubsElementAvailable('7.2')]
+function sodium_crypto_secretstream_xchacha20poly1305_push(string &$state, #[\SensitiveParameter] string $message, string $additional_data = "", int $tag = SODIUM_CRYPTO_SECRETSTREAM_XCHACHA20POLY1305_TAG_MESSAGE): string {}
+
 /**
  * @param string $header
  * @param string $key
@@ -1136,6 +1144,9 @@ function sodium_crypto_secretstream_xchacha20poly1305_init_push(string $key): ar
  * @see https://www.php.net/manual/en/function.sodium-crypto-secretstream-xchacha20poly1305-init-pull.php
  */
 function sodium_crypto_secretstream_xchacha20poly1305_init_pull(string $header, string $key): string {}
+
+#[PhpStormStubsElementAvailable('7.2')]
+function sodium_crypto_secretstream_xchacha20poly1305_pull(string &$state, string $ciphertext, string $additional_data = ""): array|false {}
 
 /**
  * @param string &$state

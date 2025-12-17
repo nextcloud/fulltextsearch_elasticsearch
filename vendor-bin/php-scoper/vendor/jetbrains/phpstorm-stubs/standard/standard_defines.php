@@ -126,12 +126,12 @@ define('M_SQRT3', 1.7320508075689);
 /**
  * The infinite
  */
-define('INF', INF);
+define('INF', (float)INF);
 
 /**
  * Not A Number
  */
-define('NAN', NAN);
+define('NAN', (float)NAN);
 
 /**
  * Round halves up
@@ -842,6 +842,10 @@ define('ASSERT_ACTIVE', 1);
 define('ASSERT_CALLBACK', 2);
 define('ASSERT_BAIL', 3);
 define('ASSERT_WARNING', 4);
+
+/**
+ * @removed 8.0
+ */
 define('ASSERT_QUIET_EVAL', 5);
 define('ASSERT_EXCEPTION', 5);
 
@@ -874,7 +878,7 @@ define('STREAM_REPORT_ERRORS', 8);
  * not be bound to the actual resource you requested.
  * If the requested resource is network based, this flag will cause the
  * opener to block until the whole contents have been downloaded.
- * @link https://php.net/manual/en/internals2.ze1.streams.constants.php
+ * @link https://www.php.net/manual/en/stream.constants.php
  */
 define('STREAM_MUST_SEEK', 16);
 define('STREAM_URL_STAT_LINK', 1);
@@ -1120,13 +1124,6 @@ define('PHP_QUERY_RFC3986', 2);
 //WI-11254 Stubs for missing constants from PHP 5.4
 
 /**
- * Specifies where the manpages were installed into.
- * @since 5.3.7
- * @link https://php.net/manual/en/reserved.constants.php
- */
-define('PHP_MANDIR', '/usr/local/php/php/man');
-
-/**
  * (PHP4, PHP5)
  * <p>Constant containing either the session name and session ID in the form of "name=ID" or
  * empty string if session ID was set in an appropriate session cookie.
@@ -1267,9 +1264,10 @@ define("STREAM_CRYPTO_PROTO_TLSv1_3", 64);
 /**
  * @since 7.1
  */
-define("MT_RAND_MT19937", 0);
+define('MT_RAND_MT19937', 0);
 /**
  * @since 7.1
+ * @deprecated 8.3
  */
 define("MT_RAND_PHP", 1);
 
@@ -1428,3 +1426,82 @@ define('LOG_NOWAIT', 16);
  * @link https://php.net/manual/en/network.constants.php
  */
 define('LOG_PERROR', 32);
+
+/**
+ * @since 8.2
+ */
+define('DECIMAL_POINT', 65536);
+/**
+ * @since 8.2
+ */
+define('THOUSANDS_SEP', 65537);
+/**
+ * @since 8.2
+ */
+define('GROUPING', 65538);
+
+/**
+ * @since 8.2
+ */
+define('ERA_YEAR', 131117);
+
+/**
+ * @since 8.2
+ */
+define('INT_CURR_SYMBOL', 262144);
+/**
+ * @since 8.2
+ */
+define('CURRENCY_SYMBOL', 262145);
+/**
+ * @since 8.2
+ */
+define('MON_DECIMAL_POINT', 262146);
+/**
+ * @since 8.2
+ */
+define('MON_THOUSANDS_SEP', 262147);
+/**
+ * @since 8.2
+ */
+define('MON_GROUPING', 262148);
+/**
+ * @since 8.2
+ */
+define('POSITIVE_SIGN', 262149);
+/**
+ * @since 8.2
+ */
+define('NEGATIVE_SIGN', 262150);
+/**
+ * @since 8.2
+ */
+define('INT_FRAC_DIGITS', 262151);
+/**
+ * @since 8.2
+ */
+define('FRAC_DIGITS', 262152);
+/**
+ * @since 8.2
+ */
+define('P_CS_PRECEDES', 262153);
+/**
+ * @since 8.2
+ */
+define('P_SEP_BY_SPACE', 262154);
+/**
+ * @since 8.2
+ */
+define('N_CS_PRECEDES', 262155);
+/**
+ * @since 8.2
+ */
+define('N_SEP_BY_SPACE', 262156);
+/**
+ * @since 8.2
+ */
+define('P_SIGN_POSN', 262157);
+/**
+ * @since 8.2
+ */
+define('N_SIGN_POSN', 262158);

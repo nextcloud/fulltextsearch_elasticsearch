@@ -16,10 +16,9 @@ namespace Humbug\PhpScoper\PhpParser\NodeVisitor\UseStmt;
 
 use ArrayIterator;
 use Humbug\PhpScoper\PhpParser\Node\NamedIdentifier;
-use Humbug\PhpScoper\PhpParser\NodeVisitor\OriginalNameResolver;
-use Humbug\PhpScoper\PhpParser\NodeVisitor\ParentNodeAppender;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\Resolver\OriginalNameResolver;
 use Humbug\PhpScoper\PhpParser\UnexpectedParsingScenario;
-use InvalidArgumentException;
 use IteratorAggregate;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ConstFetch;
@@ -29,9 +28,7 @@ use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Use_;
-use PhpParser\Node\Stmt\UseUse;
 use Traversable;
-
 use function array_key_exists;
 use function count;
 use function implode;
@@ -42,13 +39,18 @@ use function strtolower;
  * may use.
  *
  * @private
+ *
+ * @implements IteratorAggregate<string, list<Use_>>
  */
 final class UseStmtCollection implements IteratorAggregate
 {
+    /**
+     * @var array<string, Name|null>
+     */
     private array $hashes = [];
 
     /**
-     * @var array<string, list<Use_[]>>
+     * @var array<string, list<Use_>>
      */
     private array $nodes = [
         null => [],
@@ -96,7 +98,7 @@ final class UseStmtCollection implements IteratorAggregate
                 $name,
                 $isFunctionName ? 'func' : '',
                 $isConstantName ? 'const' : '',
-            ]
+            ],
         );
 
         if (array_key_exists($hash, $this->hashes)) {
@@ -112,7 +114,7 @@ final class UseStmtCollection implements IteratorAggregate
     }
 
     /**
-     * @return Traversable<string, list<Use_[]>>
+     * @return Traversable<string, list<Use_>>
      */
     public function getIterator(): Traversable
     {
@@ -131,14 +133,13 @@ final class UseStmtCollection implements IteratorAggregate
         return strtolower($node->getFirst());
     }
 
+    /**
+     * @param list<Use_> $useStatements
+     */
     private function find(array $useStatements, bool $isFunctionName, bool $isConstantName, string $name): ?Name
     {
         foreach ($useStatements as $use_) {
             foreach ($use_->uses as $useStatement) {
-                if (!($useStatement instanceof UseUse)) {
-                    continue;
-                }
-
                 $type = Use_::TYPE_UNKNOWN !== $use_->type ? $use_->type : $useStatement->type;
 
                 if ($name !== $useStatement->getAlias()->toLowerString()) {
@@ -202,7 +203,7 @@ final class UseStmtCollection implements IteratorAggregate
         // use Foo
         // echo Foo\main();
         // ```
-        return 1 === count($name->parts);
+        return 1 === count($name->getParts());
     }
 
     private static function isConstantName(Name $name, ?Node $parentNode): bool
@@ -222,6 +223,6 @@ final class UseStmtCollection implements IteratorAggregate
         // use Foo
         // echo Foo\DUMMY_CONST;
         // ```
-        return 1 === count($name->parts);
+        return 1 === count($name->getParts());
     }
 }

@@ -17,65 +17,56 @@ namespace Humbug\PhpScoper\Console;
 use Fidry\Console\Application\Application as FidryApplication;
 use Humbug\PhpScoper\Console\Command\AddPrefixCommand;
 use Humbug\PhpScoper\Console\Command\InitCommand;
+use Humbug\PhpScoper\Console\Command\InspectCommand;
 use Humbug\PhpScoper\Console\Command\InspectSymbolCommand;
 use Humbug\PhpScoper\Container;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use function Humbug\PhpScoper\get_php_scoper_version;
-use function Safe\sprintf;
-use function strpos;
+use function sprintf;
+use function str_contains;
 use function trim;
 
 /**
  * @private
- * @codeCoverageIgnore
  */
-final class Application implements FidryApplication
+#[CodeCoverageIgnore]
+final readonly class Application implements FidryApplication
 {
     private const LOGO = <<<'ASCII'
-    
-        ____  __  ______     _____
-       / __ \/ / / / __ \   / ___/_________  ____  ___  _____
-      / /_/ / /_/ / /_/ /   \__ \/ ___/ __ \/ __ \/ _ \/ ___/
-     / ____/ __  / ____/   ___/ / /__/ /_/ / /_/ /  __/ /
-    /_/   /_/ /_/_/       /____/\___/\____/ .___/\___/_/
-                                         /_/
-    
-    
-    ASCII;
+
+            ____  __  ______     _____
+           / __ \/ / / / __ \   / ___/_________  ____  ___  _____
+          / /_/ / /_/ / /_/ /   \__ \/ ___/ __ \/ __ \/ _ \/ ___/
+         / ____/ __  / ____/   ___/ / /__/ /_/ / /_/ /  __/ /
+        /_/   /_/ /_/_/       /____/\___/\____/ .___/\___/_/
+                                             /_/
+
+
+        ASCII;
 
     private const RELEASE_DATE_PLACEHOLDER = '@release-date@';
-
-    private Container $container;
-    private string $version;
-    private string $releaseDate;
-    private bool $isAutoExitEnabled;
-    private bool $areExceptionsCaught;
 
     public static function create(): self
     {
         return new self(
             new Container(),
             get_php_scoper_version(),
-            false === strpos(self::RELEASE_DATE_PLACEHOLDER, '@')
-                ? self::RELEASE_DATE_PLACEHOLDER
-                : '',
+            !str_contains(self::RELEASE_DATE_PLACEHOLDER, '@')
+              ? self::RELEASE_DATE_PLACEHOLDER
+              : '',
             true,
             true,
         );
     }
 
     public function __construct(
-        Container $container,
-        string $version,
-        string $releaseDate,
-        bool $isAutoExitEnabled,
-        bool $areExceptionsCaught
+        private Container $container,
+        private string $version,
+        private string $releaseDate,
+        private bool $isAutoExitEnabled,
+        private bool $areExceptionsCaught,
     ) {
-        $this->container = $container;
-        $this->version = $version;
-        $this->releaseDate = $releaseDate;
-        $this->isAutoExitEnabled = $isAutoExitEnabled;
-        $this->areExceptionsCaught = $areExceptionsCaught;
     }
 
     public function getName(): string
@@ -95,8 +86,8 @@ final class Application implements FidryApplication
                 '<info>%s</info> version <comment>%s</comment> %s',
                 $this->getName(),
                 $this->getVersion(),
-                $this->releaseDate
-            )
+                $this->releaseDate,
+            ),
         );
     }
 
@@ -112,6 +103,11 @@ final class Application implements FidryApplication
                 $this->container->getFileSystem(),
                 $this->container->getScoperFactory(),
                 $this,
+                $this->container->getConfigurationFactory(),
+            ),
+            new InspectCommand(
+                $this->container->getFileSystem(),
+                $this->container->getScoperFactory(),
                 $this->container->getConfigurationFactory(),
             ),
             new InspectSymbolCommand(

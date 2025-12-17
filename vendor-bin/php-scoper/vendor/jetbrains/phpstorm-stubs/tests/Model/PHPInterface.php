@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -18,19 +17,27 @@ class PHPInterface extends BasePHPClass
      */
     public function readObjectFromReflection($reflectionObject)
     {
-        $this->name = $reflectionObject->getName();
+        $this->name = $reflectionObject->getShortName();
+        if (!empty($reflectionObject->getNamespaceName())) {
+            $this->namespace = "\\" . $reflectionObject->getNamespaceName();
+        }
+        $this->id = "$this->namespace\\$this->name";
         foreach ($reflectionObject->getMethods() as $method) {
-            if ($method->getDeclaringClass()->getName() !== $this->name) {
+            if ($method->getDeclaringClass()->getShortName() !== $this->name) {
                 continue;
             }
             $this->methods[$method->name] = (new PHPMethod())->readObjectFromReflection($method);
         }
-        $this->parentInterfaces = $reflectionObject->getInterfaceNames();
-        foreach ($reflectionObject->getReflectionConstants() as $constant) {
-            if ($constant->getDeclaringClass()->getName() !== $this->name) {
-                continue;
+        $this->parentInterfaces = array_map(function ($interface) {
+            return "\\" . $interface;
+        }, $reflectionObject->getInterfaceNames());
+        if (method_exists($reflectionObject, 'getReflectionConstants')) {
+            foreach ($reflectionObject->getReflectionConstants() as $constant) {
+                if ($constant->getDeclaringClass()->getShortName() !== $this->name) {
+                    continue;
+                }
+                $this->constants[$constant->name] = (new PHPClassConstant())->readObjectFromReflection($constant);
             }
-            $this->constants[$constant->name] = (new PHPConst())->readObjectFromReflection($constant);
         }
         return $this;
     }
@@ -41,14 +48,18 @@ class PHPInterface extends BasePHPClass
      */
     public function readObjectFromStubNode($node)
     {
-        $this->name = self::getFQN($node);
+        $this->id = self::getFQN($node);
+        $this->name = self::getShortName($node);
+        $this->namespace = rtrim(str_replace((string)$node->name, "", "\\" . $node->namespacedName), '\\');
         $this->collectTags($node);
+        $this->checkDeprecationTag($node);
         $this->availableVersionsRangeFromAttribute = self::findAvailableVersionsRangeFromAttribute($node->attrGroups);
         if (!empty($node->extends)) {
             foreach ($node->extends as $extend) {
-                $this->parentInterfaces[] = implode('\\', $extend->parts);
+                $this->parentInterfaces[] = $extend->toCodeString();
             }
         }
+        $this->stubObjectHash = spl_object_hash($this);
         return $this;
     }
 
@@ -56,7 +67,7 @@ class PHPInterface extends BasePHPClass
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $interface) {
             if ($interface->name === $this->name) {

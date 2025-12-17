@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Humbug\PhpScoper\PhpParser\NodeVisitor\Resolver;
 
 use Humbug\PhpScoper\PhpParser\Node\NamedIdentifier;
-use Humbug\PhpScoper\PhpParser\NodeVisitor\ParentNodeAppender;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PhpParser\Node\Name\FullyQualified;
@@ -32,13 +32,10 @@ use function ltrim;
  *
  * @private
  */
-final class IdentifierResolver
+final readonly class IdentifierResolver
 {
-    private NameResolver $nameResolver;
-
-    public function __construct(NameResolver $nameResolver)
+    public function __construct(private NameResolver $nameResolver)
     {
-        $this->nameResolver = $nameResolver;
     }
 
     public function resolveIdentifier(Identifier $identifier): Name

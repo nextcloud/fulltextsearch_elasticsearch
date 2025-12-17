@@ -184,11 +184,13 @@ class ReflectionClassConstant implements Reflector
     public function __toString(): string {}
 
     /**
+     * @template T
+     *
      * Returns an array of constant attributes.
      *
-     * @param string|null $name Name of an attribute class
+     * @param class-string<T>|null $name Name of an attribute class
      * @param int $flags Сriteria by which the attribute is searched.
-     * @return ReflectionAttribute[]
+     * @return ReflectionAttribute<T>[]
      * @since 8.0
      */
     #[Pure]
@@ -199,7 +201,16 @@ class ReflectionClassConstant implements Reflector
      *
      * @return void
      */
+    #[PhpStormStubsElementAvailable(from: "5.4", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * ReflectionClassConstant cannot be cloned
+     *
+     * @return void
+     */
+    #[PhpStormStubsElementAvailable(from: "8.1")]
+    private function __clone(): void {}
 
     #[PhpStormStubsElementAvailable('8.1')]
     public function isEnumCase(): bool {}
@@ -209,4 +220,19 @@ class ReflectionClassConstant implements Reflector
      * @since 8.1
      */
     public function isFinal(): bool {}
+
+    /**
+     * @since 8.3
+     */
+    public function hasType(): bool {}
+
+    /**
+     * @since 8.3
+     */
+    public function getType(): ?ReflectionType {}
+
+    /**
+     * @since 8.4
+     */
+    public function isDeprecated(): bool {}
 }

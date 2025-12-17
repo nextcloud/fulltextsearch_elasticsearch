@@ -4,6 +4,7 @@
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Pure;
 
 /**
@@ -50,7 +51,7 @@ function func_get_args(): array {}
  * @param string $string <p>
  * The string being measured for length.
  * </p>
- * @return int The length of the <i>string</i> on success,
+ * @return int<0,max> The length of the <i>string</i> on success,
  * and 0 if the <i>string</i> is empty.
  */
 #[Pure]
@@ -164,6 +165,16 @@ function str_ends_with(string $haystack, string $needle): bool {}
  */
 #[Pure]
 function str_contains(string $haystack, string $needle): bool {}
+
+/**
+ * @since 8.3
+ */
+function str_decrement(string $string): string {}
+
+/**
+ * @since 8.3
+ */
+function str_increment(string $string): string {}
 
 /**
  * Return the current key and value pair from an array and advance the array cursor
@@ -340,7 +351,7 @@ function error_reporting(?int $error_level): int {}
 function define(
     string $constant_name,
     #[LanguageLevelTypeAware(['8.1' => 'mixed'], default: 'null|array|bool|int|float|string')] $value,
-    #[Deprecated()] bool $case_insensitive = false
+    #[Deprecated(since: "7.3")] bool $case_insensitive = false
 ): bool {}
 
 /**
@@ -624,7 +635,8 @@ function get_class_methods(object|string $object_or_class): array {}
  * @return bool This function returns false if wrong <i>error_type</i> is
  * specified, true otherwise.
  */
-function trigger_error(string $message, int $error_level = E_USER_NOTICE): bool {}
+#[LanguageLevelTypeAware(['8.4' => 'true'], default: 'bool')]
+function trigger_error(string $message, int $error_level = E_USER_NOTICE) {}
 
 /**
  * Alias of <b>trigger_error</b>
@@ -634,7 +646,8 @@ function trigger_error(string $message, int $error_level = E_USER_NOTICE): bool 
  * @return bool This function returns false if wrong <i>error_type</i> is
  * specified, true otherwise.
  */
-function user_error(string $message, int $error_level = E_USER_NOTICE): bool {}
+#[LanguageLevelTypeAware(['8.4' => 'true'], default: 'bool')]
+function user_error(string $message, int $error_level = E_USER_NOTICE) {}
 
 /**
  * Sets a user-defined error handler function
@@ -657,6 +670,10 @@ function user_error(string $message, int $error_level = E_USER_NOTICE): bool {}
  * <i>errno</i>
  * The first parameter, <i>errno</i>, contains the
  * level of the error raised, as an integer.</p>
+ * The user function should stop execution if necessary by calling `exit()`.
+ * If the function returns a value other than false, script execution will
+ * continue with the next statement after the one that caused an error.
+ * If the function returns false, the standard PHP error handler is called.
  * @param int $error_levels [optional] <p>
  * Can be used to mask the triggering of the
  * <i>error_handler</i> function just like the error_reporting ini setting
@@ -669,14 +686,26 @@ function user_error(string $message, int $error_level = E_USER_NOTICE): bool {}
  * in case of an error such as an invalid callback. If the previous error handler
  * was a class method, this function will return an indexed array with the class
  * and the method name.
+ *
+ * Note that error_handler chaining is possible by passing the output value as a reference:
+ * ```
+ * $previousErrorHandler = set_error_handler(
+ *     static function (int $errNo, string $errstr, string $errFile, int $errLine) use (&$previousErrorHandler): bool {
+ *         // Handle specific scenarios
+ *
+ *         return $previousErrorHandler !== null ? (bool) $previousErrorHandler(...func_get_args()) : false;
+ *     }
+ * );
+ * ```
  */
-function set_error_handler(?callable $callback, int $error_levels = E_ALL|E_STRICT) {}
+function set_error_handler(?callable $callback, int $error_levels = E_ALL) {}
 
 /**
  * Restores the previous error handler function
  * @link https://php.net/manual/en/function.restore-error-handler.php
  * @return bool This function always returns true.
  */
+#[LanguageLevelTypeAware(['8.2' => 'true'], default: 'bool')]
 function restore_error_handler(): bool {}
 
 /**
@@ -700,6 +729,7 @@ function set_exception_handler(?callable $callback) {}
  * @link https://php.net/manual/en/function.restore-exception-handler.php
  * @return bool This function always returns true.
  */
+#[LanguageLevelTypeAware(['8.2' => 'true'], default: 'bool')]
 function restore_exception_handler(): bool {}
 
 /**
@@ -723,7 +753,7 @@ function get_declared_classes(): array {}
  * @return string[] an array of the names of the declared interfaces in the current
  * script.
  */
-#[Pure]
+#[Pure(true)]
 function get_declared_interfaces(): array {}
 
 /**
@@ -733,7 +763,7 @@ function get_declared_interfaces(): array {}
  * @see class_uses()
  * @since 5.4
  */
-#[Pure]
+#[Pure(true)]
 function get_declared_traits(): array {}
 
 /**
@@ -746,15 +776,15 @@ function get_declared_traits(): array {}
  * the user defined ones using $arr["user"] (see example
  * below).
  */
-#[Pure]
-function get_defined_functions(bool $exclude_disabled = true): array {}
+#[Pure(true)]
+function get_defined_functions(#[PhpStormStubsElementAvailable(from: '7.1')] bool $exclude_disabled = true): array {}
 
 /**
  * Returns an array of all defined variables
  * @link https://php.net/manual/en/function.get-defined-vars.php
  * @return array A multidimensional array with all the variables.
  */
-#[Pure]
+#[Pure(true)]
 function get_defined_vars(): array {}
 
 /**
@@ -1026,7 +1056,10 @@ function debug_backtrace(int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT, int $lim
  * </p>
  * @return void
  */
-function debug_print_backtrace(int $options = 0, int $limit = 0): void {}
+function debug_print_backtrace(
+    int $options = 0,
+    #[PhpStormStubsElementAvailable(from: '7.0')] int $limit = 0
+): void {}
 
 /**
  * Forces collection of any existing garbage cycles
@@ -1040,7 +1073,7 @@ function gc_collect_cycles(): int {}
  * @link https://php.net/manual/en/function.gc-enabled.php
  * @return bool true if the garbage collector is enabled, false otherwise.
  */
-#[Pure]
+#[Pure(true)]
 function gc_enabled(): bool {}
 
 /**
@@ -1070,7 +1103,7 @@ function gc_disable(): void {}
  * @since 7.3
  */
 #[ArrayShape(["runs" => "int", "collected" => "int", "threshold" => "int", "roots" => "int"])]
-#[Pure]
+#[Pure(true)]
 function gc_status(): array {}
 
 /**
@@ -1095,5 +1128,15 @@ function gc_mem_caches(): int {}
  * @return resource[] Returns an array of currently active resources, indexed by resource number.
  * @since 7.0
  */
-#[Pure]
+#[Pure(true)]
 function get_resources(?string $type): array {}
+
+/**
+ * @since 8.4
+ */
+function exit(string|int $status = 0): never {}
+
+/**
+ * @since 8.4
+ */
+function die(string|int $status = 0): never {}

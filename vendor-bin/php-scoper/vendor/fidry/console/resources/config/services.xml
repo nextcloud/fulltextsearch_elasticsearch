@@ -8,7 +8,7 @@
         </prototype>
 
         <prototype namespace="Symfony\Component\Console\Helper\"
-                   resource="../../vendor/symfony/console/Helper/*Helper.php">
+                   resource="%fidry_console_symfony_console_helper_directory%/*Helper.php">
         </prototype>
     </services>
 
