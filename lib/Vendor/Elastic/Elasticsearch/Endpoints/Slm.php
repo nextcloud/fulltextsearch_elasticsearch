@@ -26,17 +26,19 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Slm extends AbstractEndpoint
 {
     /**
-     * Deletes an existing snapshot lifecycle policy.
+     * Delete a policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-delete-policy.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-delete-lifecycle
      *
      * @param array{
      *     policy_id: string, // (REQUIRED) The id of the snapshot lifecycle policy to remove
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -46,29 +48,32 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteLifecycle(array $params = [])
+    public function deleteLifecycle(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['policy_id'], $params);
         $url = '/_slm/policy/' . $this->encode($params['policy_id']);
         $method = 'DELETE';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.delete_lifecycle');
         return $this->client->sendRequest($request);
     }
     /**
-     * Immediately creates a snapshot according to the lifecycle policy, without waiting for the scheduled time.
+     * Run a policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-execute-lifecycle.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-execute-lifecycle
      *
      * @param array{
      *     policy_id: string, // (REQUIRED) The id of the snapshot lifecycle policy to be executed
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -78,28 +83,31 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function executeLifecycle(array $params = [])
+    public function executeLifecycle(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['policy_id'], $params);
         $url = '/_slm/policy/' . $this->encode($params['policy_id']) . '/_execute';
         $method = 'PUT';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.execute_lifecycle');
         return $this->client->sendRequest($request);
     }
     /**
-     * Deletes any snapshots that are expired according to the policy's retention rules.
+     * Run a retention policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-execute-retention.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-execute-retention
      *
      * @param array{
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -108,28 +116,31 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function executeRetention(array $params = [])
+    public function executeRetention(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_slm/_execute_retention';
         $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, [], $request, 'slm.execute_retention');
         return $this->client->sendRequest($request);
     }
     /**
-     * Retrieves one or more snapshot lifecycle policy definitions and information about the latest snapshot attempts.
+     * Get policy information
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-get-policy.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-get-lifecycle
      *
      * @param array{
-     *     policy_id: list, //  Comma-separated list of snapshot lifecycle policies to retrieve
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     policy_id?: string|array<string>, // Comma-separated list of snapshot lifecycle policies to retrieve
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -138,32 +149,35 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getLifecycle(array $params = [])
+    public function getLifecycle(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['policy_id'])) {
-            $url = '/_slm/policy/' . $this->encode($params['policy_id']);
+            $url = '/_slm/policy/' . $this->encode($this->convertValue($params['policy_id']));
             $method = 'GET';
         } else {
             $url = '/_slm/policy';
             $method = 'GET';
         }
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.get_lifecycle');
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns global and policy-level statistics about actions taken by snapshot lifecycle management.
+     * Get snapshot lifecycle management statistics
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/slm-api-get-stats.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-get-stats
      *
      * @param array{
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -172,27 +186,30 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getStats(array $params = [])
+    public function getStats(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_slm/stats';
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, [], $request, 'slm.get_stats');
         return $this->client->sendRequest($request);
     }
     /**
-     * Retrieves the status of snapshot lifecycle management (SLM).
+     * Get the snapshot lifecycle management status
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-get-status.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-get-status
      *
      * @param array{
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -201,29 +218,32 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getStatus(array $params = [])
+    public function getStatus(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_slm/status';
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, [], $request, 'slm.get_status');
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates or updates a snapshot lifecycle policy.
+     * Create or update a policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-put-policy.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-put-lifecycle
      *
      * @param array{
      *     policy_id: string, // (REQUIRED) The id of the snapshot lifecycle policy
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The snapshot lifecycle policy definition to register
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The snapshot lifecycle policy definition to register. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -233,30 +253,31 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putLifecycle(array $params = [])
+    public function putLifecycle(?array $params = null)
     {
-        $this->checkRequiredParameters(['policy_id'], $params);
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['policy_id', 'body'], $params);
         $url = '/_slm/policy/' . $this->encode($params['policy_id']);
         $method = 'PUT';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['policy_id'], $request, 'slm.put_lifecycle');
         return $this->client->sendRequest($request);
     }
     /**
-     * Turns on snapshot lifecycle management (SLM).
+     * Start snapshot lifecycle management
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-start.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-start
      *
      * @param array{
-     *     master_timeout: time, // Timeout for processing on master node
-     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     timeout?: int|string, // Timeout for acknowledgement of update from all nodes in cluster
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -265,8 +286,9 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function start(array $params = [])
+    public function start(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_slm/start';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -276,18 +298,18 @@ class Slm extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Turns off snapshot lifecycle management (SLM).
+     * Stop snapshot lifecycle management
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/slm-api-stop.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-slm-stop
      *
      * @param array{
-     *     master_timeout: time, // Timeout for processing on master node
-     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     timeout?: int|string, // Timeout for acknowledgement of update from all nodes in cluster
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -296,8 +318,9 @@ class Slm extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function stop(array $params = [])
+    public function stop(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_slm/stop';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);

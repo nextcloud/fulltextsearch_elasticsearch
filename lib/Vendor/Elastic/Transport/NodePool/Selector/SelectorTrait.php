@@ -18,17 +18,20 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\InvalidArrayException;
 trait SelectorTrait
 {
+    /**
+     * @var array<Node>
+     */
     protected array $nodes = [];
-    public function setNodes(array $nodes) : void
+    public function setNodes(array $nodes): void
     {
         foreach ($nodes as $node) {
             if (!$node instanceof Node) {
-                throw new InvalidArrayException(\sprintf("The nodes array must contain only %s objects", Node::class));
+                throw new InvalidArrayException(sprintf("The nodes array must contain only %s objects", Node::class));
             }
         }
         $this->nodes = $nodes;
     }
-    public function getNodes() : array
+    public function getNodes(): array
     {
         return $this->nodes;
     }

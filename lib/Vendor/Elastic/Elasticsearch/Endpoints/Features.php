@@ -26,17 +26,17 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Features extends AbstractEndpoint
 {
     /**
-     * Gets a list of features which can be included in snapshots using the feature_states field when creating a snapshot
+     * Get the features
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-features-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-features-get-features
      *
      * @param array{
-     *     master_timeout: time, // Explicit operation timeout for connection to master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -45,8 +45,9 @@ class Features extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getFeatures(array $params = [])
+    public function getFeatures(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_features';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -56,18 +57,18 @@ class Features extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Resets the internal state of features, usually by deleting system indices
+     * Reset the features
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-snapshots.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-features-reset-features
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     master_timeout: time, // Explicit operation timeout for connection to master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -76,8 +77,9 @@ class Features extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function resetFeatures(array $params = [])
+    public function resetFeatures(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_features/_reset';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);

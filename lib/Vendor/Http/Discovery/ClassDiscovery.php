@@ -41,11 +41,11 @@ abstract class ClassDiscovery
     protected static function findOneByType($type)
     {
         // Look in the cache
-        if (null !== ($class = self::getFromCache($type))) {
+        if (null !== $class = self::getFromCache($type)) {
             return $class;
         }
         static $skipStrategy;
-        $skipStrategy ?? ($skipStrategy = self::safeClassExists(Strategy\GeneratedDiscoveryStrategy::class) ? \false : Strategy\GeneratedDiscoveryStrategy::class);
+        $skipStrategy ?? $skipStrategy = self::safeClassExists(Strategy\GeneratedDiscoveryStrategy::class) ? \false : Strategy\GeneratedDiscoveryStrategy::class;
         $exceptions = [];
         foreach (self::$strategies as $strategy) {
             if ($skipStrategy === $strategy) {
@@ -118,7 +118,7 @@ abstract class ClassDiscovery
      *
      * @return string[]
      */
-    public static function getStrategies() : iterable
+    public static function getStrategies(): iterable
     {
         return self::$strategies;
     }
@@ -139,7 +139,7 @@ abstract class ClassDiscovery
      */
     public static function prependStrategy($strategy)
     {
-        \array_unshift(self::$strategies, $strategy);
+        array_unshift(self::$strategies, $strategy);
         self::clearCache();
     }
     public static function clearCache()
@@ -153,17 +153,17 @@ abstract class ClassDiscovery
      */
     protected static function evaluateCondition($condition)
     {
-        if (\is_string($condition)) {
+        if (is_string($condition)) {
             // Should be extended for functions, extensions???
             return self::safeClassExists($condition);
         }
-        if (\is_callable($condition)) {
+        if (is_callable($condition)) {
             return (bool) $condition();
         }
-        if (\is_bool($condition)) {
+        if (is_bool($condition)) {
             return $condition;
         }
-        if (\is_array($condition)) {
+        if (is_array($condition)) {
             foreach ($condition as $c) {
                 if (\false === static::evaluateCondition($c)) {
                     // Immediately stop execution if the condition is false
@@ -186,10 +186,10 @@ abstract class ClassDiscovery
     protected static function instantiateClass($class)
     {
         try {
-            if (\is_string($class)) {
+            if (is_string($class)) {
                 return new $class();
             }
-            if (\is_callable($class)) {
+            if (is_callable($class)) {
                 return $class();
             }
         } catch (\Exception $e) {
@@ -211,7 +211,7 @@ abstract class ClassDiscovery
     public static function safeClassExists($class)
     {
         try {
-            return \class_exists($class) || \interface_exists($class);
+            return class_exists($class) || interface_exists($class);
         } catch (\Exception $e) {
             return \false;
         }

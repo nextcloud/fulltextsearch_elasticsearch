@@ -39,15 +39,15 @@ class Response implements ResponseInterface
         }
         $this->protocol = $version;
     }
-    public function getStatusCode() : int
+    public function getStatusCode(): int
     {
         return $this->statusCode;
     }
-    public function getReasonPhrase() : string
+    public function getReasonPhrase(): string
     {
         return $this->reasonPhrase;
     }
-    public function withStatus($code, $reasonPhrase = '') : ResponseInterface
+    public function withStatus($code, $reasonPhrase = ''): ResponseInterface
     {
         $this->assertStatusCodeIsInteger($code);
         $code = (int) $code;
@@ -63,13 +63,13 @@ class Response implements ResponseInterface
     /**
      * @param mixed $statusCode
      */
-    private function assertStatusCodeIsInteger($statusCode) : void
+    private function assertStatusCodeIsInteger($statusCode): void
     {
-        if (\filter_var($statusCode, \FILTER_VALIDATE_INT) === \false) {
+        if (filter_var($statusCode, \FILTER_VALIDATE_INT) === \false) {
             throw new \InvalidArgumentException('Status code must be an integer value.');
         }
     }
-    private function assertStatusCodeRange(int $statusCode) : void
+    private function assertStatusCodeRange(int $statusCode): void
     {
         if ($statusCode < 100 || $statusCode >= 600) {
             throw new \InvalidArgumentException('Status code must be an integer value between 1xx and 5xx.');

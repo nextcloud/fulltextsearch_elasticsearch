@@ -25,7 +25,6 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoAsyncC
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\NodePoolInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Transport;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\TransportBuilder;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Client as GuzzleHttpClient;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\HttpAsyncClient;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
@@ -111,13 +110,13 @@ class ClientBuilder
     /**
      * Make the constructor final so cannot be overwritten
      */
-    public final function __construct()
+    final public function __construct()
     {
     }
     /**
      * Create an instance of ClientBuilder
      */
-    public static function create() : ClientBuilder
+    public static function create(): ClientBuilder
     {
         return new static();
     }
@@ -136,7 +135,7 @@ class ClientBuilder
      *                     ignore unknown settings
      * @throws ConfigException
      */
-    public static function fromConfig(array $config, bool $quiet = \false) : Client
+    public static function fromConfig(array $config, bool $quiet = \false): Client
     {
         $builder = new static();
         foreach ($config as $key => $value) {
@@ -152,18 +151,18 @@ class ClientBuilder
                 unset($config[$key]);
             }
         }
-        if ($quiet === \false && \count($config) > 0) {
-            $unknown = \implode(\array_keys($config));
+        if ($quiet === \false && count($config) > 0) {
+            $unknown = implode(array_keys($config));
             throw new ConfigException("Unknown parameters provided: {$unknown}");
         }
         return $builder->build();
     }
-    public function setHttpClient(ClientInterface $httpClient) : ClientBuilder
+    public function setHttpClient(ClientInterface $httpClient): ClientBuilder
     {
         $this->httpClient = $httpClient;
         return $this;
     }
-    public function setAsyncHttpClient(HttpAsyncClient $asyncHttpClient) : ClientBuilder
+    public function setAsyncHttpClient(HttpAsyncClient $asyncHttpClient): ClientBuilder
     {
         $this->asyncHttpClient = $asyncHttpClient;
         return $this;
@@ -171,7 +170,7 @@ class ClientBuilder
     /**
      * Set the PSR-3 Logger
      */
-    public function setLogger(LoggerInterface $logger) : ClientBuilder
+    public function setLogger(LoggerInterface $logger): ClientBuilder
     {
         $this->logger = $logger;
         return $this;
@@ -179,7 +178,7 @@ class ClientBuilder
     /**
      * Set the NodePool
      */
-    public function setNodePool(NodePoolInterface $nodePool) : ClientBuilder
+    public function setNodePool(NodePoolInterface $nodePool): ClientBuilder
     {
         $this->nodePool = $nodePool;
         return $this;
@@ -187,7 +186,7 @@ class ClientBuilder
     /**
      * Set the hosts (nodes)
      */
-    public function setHosts(array $hosts) : ClientBuilder
+    public function setHosts(array $hosts): ClientBuilder
     {
         $this->hosts = $hosts;
         return $this;
@@ -199,19 +198,19 @@ class ClientBuilder
      *
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/security-api-create-api-key.html
      */
-    public function setApiKey(string $apiKey, ?string $id = null) : ClientBuilder
+    public function setApiKey(string $apiKey, ?string $id = null): ClientBuilder
     {
         if (empty($id)) {
             $this->apiKey = $apiKey;
         } else {
-            $this->apiKey = \base64_encode($id . ':' . $apiKey);
+            $this->apiKey = base64_encode($id . ':' . $apiKey);
         }
         return $this;
     }
     /**
      * Set the Basic Authentication
      */
-    public function setBasicAuthentication(string $username, string $password) : ClientBuilder
+    public function setBasicAuthentication(string $username, string $password): ClientBuilder
     {
         $this->username = $username;
         $this->password = $password;
@@ -227,7 +226,7 @@ class ClientBuilder
      * 
      * @param int $retries
      */
-    public function setRetries(int $retries) : ClientBuilder
+    public function setRetries(int $retries): ClientBuilder
     {
         if ($retries < 0) {
             throw new InvalidArgumentException('The retries number must be >= 0');
@@ -241,7 +240,7 @@ class ClientBuilder
      * @param string $cert The name of a file containing a PEM formatted certificate
      * @param string $password if the certificate requires a password
      */
-    public function setSSLCert(string $cert, ?string $password = null) : ClientBuilder
+    public function setSSLCert(string $cert, ?string $password = null): ClientBuilder
     {
         $this->sslCert = [$cert, $password];
         return $this;
@@ -251,7 +250,7 @@ class ClientBuilder
      * 
      * @param string $cert The name of a file containing a PEM formatted certificate
      */
-    public function setCABundle(string $cert) : ClientBuilder
+    public function setCABundle(string $cert): ClientBuilder
     {
         $this->sslCA = $cert;
         return $this;
@@ -262,7 +261,7 @@ class ClientBuilder
      * @param string $key The name of a file containing a private SSL key
      * @param string $password if the private key requires a password
      */
-    public function setSSLKey(string $key, ?string $password = null) : ClientBuilder
+    public function setSSLKey(string $key, ?string $password = null): ClientBuilder
     {
         $this->sslKey = [$key, $password];
         return $this;
@@ -270,7 +269,7 @@ class ClientBuilder
     /**
      * Enable or disable the SSL verification 
      */
-    public function setSSLVerification(bool $value = \true) : ClientBuilder
+    public function setSSLVerification(bool $value = \true): ClientBuilder
     {
         $this->sslVerification = $value;
         return $this;
@@ -278,12 +277,12 @@ class ClientBuilder
     /**
      * Enable or disable the x-elastic-client-meta header
      */
-    public function setElasticMetaHeader(bool $value = \true) : ClientBuilder
+    public function setElasticMetaHeader(bool $value = \true): ClientBuilder
     {
         $this->elasticMetaHeader = $value;
         return $this;
     }
-    public function setHttpClientOptions(array $options) : ClientBuilder
+    public function setHttpClientOptions(array $options): ClientBuilder
     {
         $this->httpClientOptions = $options;
         return $this;
@@ -291,7 +290,7 @@ class ClientBuilder
     /**
      * Build and returns the Client object
      */
-    public function build() : Client
+    public function build(): Client
     {
         // Transport builder
         $builder = TransportBuilder::create();
@@ -321,7 +320,7 @@ class ClientBuilder
         $transport = $builder->build();
         // The default retries is equal to the number of hosts
         if (empty($this->retries)) {
-            $this->retries = \count($this->hosts);
+            $this->retries = count($this->hosts);
         }
         $transport->setRetries($this->retries);
         // Async client
@@ -337,30 +336,66 @@ class ClientBuilder
             if (!empty($this->username)) {
                 throw new AuthenticationException('You cannot use APIKey and Basic Authenication together');
             }
-            $transport->setHeader('Authorization', \sprintf("ApiKey %s", $this->apiKey));
+            $transport->setHeader('Authorization', sprintf("ApiKey %s", $this->apiKey));
         }
         /**
-         * Elastic cloud optimized with gzip
+         * Elastic cloud or serverless optimized with gzip
          * @see https://github.com/elastic/elasticsearch-php/issues/1241 omit for Symfony HTTP Client    
          */
-        if (!empty($this->cloudId) && !$this->isSymfonyHttpClient($transport)) {
+        if ((!empty($this->cloudId) || $this->isCloud($this->hosts) || $this->isServerless($this->hosts)) && !$this->isSymfonyHttpClient($transport)) {
             $transport->setHeader('Accept-Encoding', 'gzip');
         }
         $client = new Client($transport, $transport->getLogger());
         // Enable or disable the x-elastic-client-meta header
         $client->setElasticMetaHeader($this->elasticMetaHeader);
+        if ($this->isServerless($this->hosts)) {
+            $client->setServerless(\true);
+        }
         return $client;
+    }
+    /**
+     * Check if the hosts contains an Elastic Cloud url
+     */
+    protected function isCloud(array $hosts): bool
+    {
+        if (empty($hosts) || count($hosts) > 1) {
+            return \false;
+        }
+        $url = $hosts[0];
+        // Elastic Cloud gcp
+        if (preg_match('/\.cloud\.es\.io/i', $url)) {
+            return \true;
+        }
+        // Elastic Cloud aws or azure
+        if (preg_match('/\.elastic-cloud\.com/i', $url)) {
+            return \true;
+        }
+        return \false;
+    }
+    /**
+     * Check if the hosts contains an Elastic Serverless url 
+     */
+    protected function isServerless(array $hosts): bool
+    {
+        if (empty($hosts) || count($hosts) > 1) {
+            return \false;
+        }
+        $url = $hosts[0];
+        if (preg_match('/\.elastic\.cloud/i', $url)) {
+            return \true;
+        }
+        return \false;
     }
     /**
      * Returns true if the transport HTTP client is Symfony
      */
-    protected function isSymfonyHttpClient(Transport $transport) : bool
+    protected function isSymfonyHttpClient(Transport $transport): bool
     {
-        if (\false !== \strpos(\get_class($transport->getClient()), 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Symfony\\Component\\HttpClient')) {
+        if (\false !== strpos(get_class($transport->getClient()), 'OCA\FullTextSearch_Elasticsearch\Vendor\Symfony\Component\HttpClient')) {
             return \true;
         }
         try {
-            if (\false !== \strpos(\get_class($transport->getAsyncClient()), 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Symfony\\Component\\HttpClient')) {
+            if (\false !== strpos(get_class($transport->getAsyncClient()), 'OCA\FullTextSearch_Elasticsearch\Vendor\Symfony\Component\HttpClient')) {
                 return \true;
             }
         } catch (NoAsyncClientException $e) {
@@ -371,7 +406,7 @@ class ClientBuilder
     /**
      * Returns the configuration to be used in the HTTP client
      */
-    protected function getConfig() : array
+    protected function getConfig(): array
     {
         $config = [];
         if (!empty($this->sslCert)) {
@@ -391,18 +426,18 @@ class ClientBuilder
     /**
      * Set the configuration for the specific HTTP client using an adapter
      */
-    protected function setOptions(ClientInterface $client, array $config, array $clientOptions = []) : ClientInterface
+    protected function setOptions(ClientInterface $client, array $config, array $clientOptions = []): ClientInterface
     {
         if (empty($config) && empty($clientOptions)) {
             return $client;
         }
-        $class = \get_class($client);
+        $class = get_class($client);
         if (!isset(AdapterOptions::HTTP_ADAPTERS[$class])) {
-            throw new HttpClientException(\sprintf("The HTTP client %s is not supported for custom options", $class));
+            throw new HttpClientException(sprintf("The HTTP client %s is not supported for custom options", $class));
         }
         $adapterClass = AdapterOptions::HTTP_ADAPTERS[$class];
-        if (!\class_exists($adapterClass) || !\in_array(AdapterInterface::class, \class_implements($adapterClass))) {
-            throw new HttpClientException(\sprintf("The class %s does not exists or does not implement %s", $adapterClass, AdapterInterface::class));
+        if (!class_exists($adapterClass) || !in_array(AdapterInterface::class, class_implements($adapterClass))) {
+            throw new HttpClientException(sprintf("The class %s does not exists or does not implement %s", $adapterClass, AdapterInterface::class));
         }
         $adapter = new $adapterClass();
         return $adapter->setConfig($client, $config, $clientOptions);
