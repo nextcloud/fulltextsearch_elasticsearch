@@ -26,17 +26,19 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Shutdown extends AbstractEndpoint
 {
     /**
-     * Removes a node from the shutdown list. Designed for indirect use by ECE/ESS and ECK. Direct use is not supported.
+     * Cancel node shutdown preparations
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-shutdown-delete-node
      *
      * @param array{
      *     node_id: string, // (REQUIRED) The node id of node to be removed from the shutdown state
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -46,30 +48,31 @@ class Shutdown extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteNode(array $params = [])
+    public function deleteNode(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['node_id'], $params);
         $url = '/_nodes/' . $this->encode($params['node_id']) . '/shutdown';
         $method = 'DELETE';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['node_id'], $request, 'shutdown.delete_node');
         return $this->client->sendRequest($request);
     }
     /**
-     * Retrieve status of a node or nodes that are currently marked as shutting down. Designed for indirect use by ECE/ESS and ECK. Direct use is not supported.
+     * Get the shutdown status
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-shutdown-get-node
      *
      * @param array{
-     *     node_id: string, //  Which node for which to retrieve the shutdown status
-     *     master_timeout: time, // Timeout for processing on master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     node_id?: string, // Which node for which to retrieve the shutdown status
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -78,8 +81,9 @@ class Shutdown extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getNode(array $params = [])
+    public function getNode(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['node_id'])) {
             $url = '/_nodes/' . $this->encode($params['node_id']) . '/shutdown';
             $method = 'GET';
@@ -94,18 +98,20 @@ class Shutdown extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Adds a node to be shut down. Designed for indirect use by ECE/ESS and ECK. Direct use is not supported.
+     * Prepare a node to be shut down
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-shutdown-put-node
      *
      * @param array{
      *     node_id: string, // (REQUIRED) The node id of node to be shut down
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The shutdown type definition to register
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     timeout?: int|string, // Explicit operation timeout
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The shutdown type definition to register. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -115,12 +121,13 @@ class Shutdown extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putNode(array $params = [])
+    public function putNode(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['node_id', 'body'], $params);
         $url = '/_nodes/' . $this->encode($params['node_id']) . '/shutdown';
         $method = 'PUT';
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['node_id'], $request, 'shutdown.put_node');

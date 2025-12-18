@@ -24,18 +24,18 @@ class CsvSerializer implements SerializerInterface
 {
     /**
      * @inheritdoc
-     * 
+     *
      * @throws InvalidIterableException
      */
-    public static function serialize($data, array $options = []) : string
+    public static function serialize($data, array $options = []): string
     {
         if (!is_iterable($data)) {
-            throw new InvalidIterableException(sprintf("The parameter %s is not iterable", \serialize($data)));
+            throw new InvalidIterableException(sprintf("The parameter %s is not iterable", serialize($data)));
         }
         $result = '';
         foreach ($data as $row) {
-            if (\is_array($row) || \is_object($row)) {
-                $result .= \implode(',', (array) $row);
+            if (is_array($row) || is_object($row)) {
+                $result .= implode(',', (array) $row);
             } else {
                 $result .= (string) $row;
             }
@@ -44,13 +44,15 @@ class CsvSerializer implements SerializerInterface
         return empty($result) ? $result : substr($result, 0, -1);
     }
     /**
-     * @return array
+     * @inheritdoc
+     * 
+     * @return array<mixed>
      */
-    public static function unserialize(string $data, array $options = []) : array
+    public static function unserialize(string $data, array $options = []): array
     {
         $result = [];
         foreach (explode("\n", $data) as $row) {
-            $result[] = str_getcsv($row);
+            $result[] = str_getcsv(string: $row, escape: "\\");
         }
         return $result;
     }

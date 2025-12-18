@@ -13,20 +13,20 @@ final class Header
      *
      * @param string|array $header Header to parse into components.
      */
-    public static function parse($header) : array
+    public static function parse($header): array
     {
         static $trimmed = "\"'  \n\t\r";
         $params = $matches = [];
         foreach ((array) $header as $value) {
             foreach (self::splitList($value) as $val) {
                 $part = [];
-                foreach (\preg_split('/;(?=([^"]*"[^"]*")*[^"]*$)/', $val) ?: [] as $kvp) {
-                    if (\preg_match_all('/<[^>]+>|[^=]+/', $kvp, $matches)) {
+                foreach (preg_split('/;(?=([^"]*"[^"]*")*[^"]*$)/', $val) ?: [] as $kvp) {
+                    if (preg_match_all('/<[^>]+>|[^=]+/', $kvp, $matches)) {
                         $m = $matches[0];
                         if (isset($m[1])) {
-                            $part[\trim($m[0], $trimmed)] = \trim($m[1], $trimmed);
+                            $part[trim($m[0], $trimmed)] = trim($m[1], $trimmed);
                         } else {
-                            $part[] = \trim($m[0], $trimmed);
+                            $part[] = trim($m[0], $trimmed);
                         }
                     }
                 }
@@ -45,7 +45,7 @@ final class Header
      *
      * @deprecated Use self::splitList() instead.
      */
-    public static function normalize($header) : array
+    public static function normalize($header): array
     {
         $result = [];
         foreach ((array) $header as $value) {
@@ -68,7 +68,7 @@ final class Header
      *
      * @return string[]
      */
-    public static function splitList($values) : array
+    public static function splitList($values): array
     {
         if (!\is_array($values)) {
             $values = [$values];

@@ -67,15 +67,15 @@ final class CommonClassesStrategy implements DiscoveryStrategy
         $candidates = self::$classes[Psr18Client::class];
         // HTTPlug 2.0 clients implements PSR18Client too.
         foreach (self::$classes[HttpClient::class] as $c) {
-            if (!\is_string($c['class'])) {
+            if (!is_string($c['class'])) {
                 continue;
             }
             try {
-                if (ClassDiscovery::safeClassExists($c['class']) && \is_subclass_of($c['class'], Psr18Client::class)) {
+                if (ClassDiscovery::safeClassExists($c['class']) && is_subclass_of($c['class'], Psr18Client::class)) {
                     $candidates[] = $c;
                 }
             } catch (\Throwable $e) {
-                \trigger_error(\sprintf('Got exception "%s (%s)" while checking if a PSR-18 Client is available', \get_class($e), $e->getMessage()), \E_USER_WARNING);
+                trigger_error(sprintf('Got exception "%s (%s)" while checking if a PSR-18 Client is available', get_class($e), $e->getMessage()), \E_USER_WARNING);
             }
         }
         return $candidates;
@@ -90,11 +90,11 @@ final class CommonClassesStrategy implements DiscoveryStrategy
     }
     public static function isGuzzleImplementingPsr18()
     {
-        return \defined('GuzzleHttp\\ClientInterface::MAJOR_VERSION');
+        return defined('OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\ClientInterface::MAJOR_VERSION');
     }
     public static function isSymfonyImplementingHttpClient()
     {
-        return \is_subclass_of(SymfonyHttplug::class, HttpClient::class);
+        return is_subclass_of(SymfonyHttplug::class, HttpClient::class);
     }
     /**
      * Can be used as a condition.
@@ -108,7 +108,7 @@ final class CommonClassesStrategy implements DiscoveryStrategy
         } catch (NotFoundException $e) {
             return \false;
         } catch (\Throwable $e) {
-            \trigger_error(\sprintf('Got exception "%s (%s)" while checking if a PSR-17 ResponseFactory is available', \get_class($e), $e->getMessage()), \E_USER_WARNING);
+            trigger_error(sprintf('Got exception "%s (%s)" while checking if a PSR-17 ResponseFactory is available', get_class($e), $e->getMessage()), \E_USER_WARNING);
             return \false;
         }
         return \true;

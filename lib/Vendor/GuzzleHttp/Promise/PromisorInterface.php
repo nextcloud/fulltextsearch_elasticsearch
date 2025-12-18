@@ -11,5 +11,5 @@ interface PromisorInterface
     /**
      * Returns a promise.
      */
-    public function promise() : PromiseInterface;
+    public function promise(): PromiseInterface;
 }

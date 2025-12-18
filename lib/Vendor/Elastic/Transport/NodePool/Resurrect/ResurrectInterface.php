@@ -18,5 +18,5 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 interface ResurrectInterface
 {
-    public function ping(Node $node) : bool;
+    public function ping(Node $node): bool;
 }

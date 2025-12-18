@@ -28,9 +28,9 @@ class NDJsonSerializer implements SerializerInterface
      * 'remove_null'  => (bool) enable/disable the removing of
      *                   null values (default is true)
      * 
-     * @param array $data
+     * @param array<mixed> $data
      */
-    public static function serialize($data, array $options = []) : string
+    public static function serialize($data, array $options = []): string
     {
         $result = '';
         foreach ($data as $row) {

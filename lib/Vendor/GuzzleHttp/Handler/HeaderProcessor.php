@@ -17,7 +17,7 @@ final class HeaderProcessor
      *
      * @throws \RuntimeException
      */
-    public static function parseHeaders(array $headers) : array
+    public static function parseHeaders(array $headers): array
     {
         if ($headers === []) {
             throw new \RuntimeException('Expected a non-empty array of header data');

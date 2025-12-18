@@ -19,15 +19,15 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAv
 class RoundRobin implements SelectorInterface
 {
     use SelectorTrait;
-    public function nextNode() : Node
+    public function nextNode(): Node
     {
-        if (empty($this->getNodes())) {
-            $className = \substr(__CLASS__, \strrpos(__CLASS__, '\\') + 1);
-            throw new NoNodeAvailableException(\sprintf("No node available. Please use %s::setNodes() before calling %s::nextNode().", $className, $className));
+        if (empty($this->nodes)) {
+            $className = substr(__CLASS__, strrpos(__CLASS__, '\\') + 1);
+            throw new NoNodeAvailableException(sprintf("No node available. Please use %s::setNodes() before calling %s::nextNode().", $className, $className));
         }
-        $node = \current($this->nodes);
-        if (\false === \next($this->nodes)) {
-            \reset($this->nodes);
+        $node = next($this->nodes);
+        if (\false === $node) {
+            return reset($this->nodes);
         }
         return $node;
     }
