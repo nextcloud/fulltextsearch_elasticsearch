@@ -22,7 +22,7 @@ trait ProductCheckTrait
     /**
      * Check if the response comes from Elasticsearch server
      */
-    private function productCheck(ResponseInterface $response): void
+    private function productCheck(ResponseInterface $response) : void
     {
         $statusCode = (int) $response->getStatusCode();
         if ($statusCode >= 200 && $statusCode < 300) {

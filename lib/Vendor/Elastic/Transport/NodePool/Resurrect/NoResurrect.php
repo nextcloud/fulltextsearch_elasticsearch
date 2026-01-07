@@ -19,7 +19,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 class NoResurrect implements ResurrectInterface
 {
     protected ClientInterface $client;
-    public function ping(Node $node): bool
+    public function ping(Node $node) : bool
     {
         return \false;
     }

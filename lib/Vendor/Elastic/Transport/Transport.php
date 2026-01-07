@@ -74,31 +74,31 @@ final class Transport implements ClientInterface, HttpAsyncClient
         $this->nodePool = $nodePool;
         $this->logger = $logger;
     }
-    public function getClient(): ClientInterface
+    public function getClient() : ClientInterface
     {
         return $this->client;
     }
-    public function getNodePool(): NodePoolInterface
+    public function getNodePool() : NodePoolInterface
     {
         return $this->nodePool;
     }
-    public function getLogger(): LoggerInterface
+    public function getLogger() : LoggerInterface
     {
         return $this->logger;
     }
-    public function getOTelTracer(): TracerInterface
+    public function getOTelTracer() : TracerInterface
     {
         if (empty($this->otelTracer)) {
             $this->otelTracer = OpenTelemetry::getTracer(Globals::tracerProvider());
         }
         return $this->otelTracer;
     }
-    public function setOTelTracer(TracerInterface $tracer): self
+    public function setOTelTracer(TracerInterface $tracer) : self
     {
         $this->otelTracer = $tracer;
         return $this;
     }
-    public function setHeader(string $name, string $value): self
+    public function setHeader(string $name, string $value) : self
     {
         $this->headers[$name] = $value;
         return $this;
@@ -106,7 +106,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
     /**
      * @throws InvalidArgumentException
      */
-    public function setRetries(int $num): self
+    public function setRetries(int $num) : self
     {
         if ($num < 0) {
             throw new InvalidArgumentException('The retries number must be a positive integer');
@@ -114,24 +114,24 @@ final class Transport implements ClientInterface, HttpAsyncClient
         $this->retries = $num;
         return $this;
     }
-    public function getRetries(): int
+    public function getRetries() : int
     {
         return $this->retries;
     }
     /**
      * @return array<mixed>
      */
-    public function getHeaders(): array
+    public function getHeaders() : array
     {
         return $this->headers;
     }
-    public function setUserInfo(string $user, string $password = ''): self
+    public function setUserInfo(string $user, string $password = '') : self
     {
         $this->user = $user;
         $this->password = $password;
         return $this;
     }
-    public function setUserAgent(string $name, string $version): self
+    public function setUserAgent(string $name, string $version) : self
     {
         $this->headers['User-Agent'] = sprintf("%s/%s (%s %s; PHP %s)", $name, $version, \PHP_OS, $this->getOSVersion(), phpversion());
         return $this;
@@ -142,7 +142,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
      * The header format is specified by the following regex:
      * ^[a-z]{1,}=[a-z0-9\.\-]{1,}(?:,[a-z]{1,}=[a-z0-9\.\-]+)*$
      */
-    public function setElasticMetaHeader(string $clientName, string $clientVersion, bool $async = \false): self
+    public function setElasticMetaHeader(string $clientName, string $clientVersion, bool $async = \false) : self
     {
         $phpSemVersion = sprintf("%d.%d.%d", \PHP_MAJOR_VERSION, \PHP_MINOR_VERSION, \PHP_RELEASE_VERSION);
         $meta = sprintf("%s=%s,php=%s,t=%s,a=%d", $clientName, $this->purgePreReleaseTag($clientVersion), $phpSemVersion, $this->purgePreReleaseTag(self::VERSION), $async ? 1 : 0);
@@ -156,22 +156,22 @@ final class Transport implements ClientInterface, HttpAsyncClient
     /**
      * Remove pre-release suffix with a single 'p' letter
      */
-    private function purgePreReleaseTag(string $version): string
+    private function purgePreReleaseTag(string $version) : string
     {
         return str_replace(['alpha', 'beta', 'snapshot', 'rc', 'pre'], 'p', strtolower($version));
     }
-    public function getLastRequest(): ?RequestInterface
+    public function getLastRequest() : ?RequestInterface
     {
         return $this->lastRequest;
     }
-    public function getLastResponse(): ?ResponseInterface
+    public function getLastResponse() : ?ResponseInterface
     {
         return $this->lastResponse;
     }
     /**
      * Setup the headers, if not already present 
      */
-    private function setupHeaders(RequestInterface $request): RequestInterface
+    private function setupHeaders(RequestInterface $request) : RequestInterface
     {
         foreach ($this->headers as $name => $value) {
             if (!$request->hasHeader($name)) {
@@ -183,7 +183,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
     /**
      * Setup the user info, if not already present
      */
-    private function setupUserInfo(RequestInterface $request): RequestInterface
+    private function setupUserInfo(RequestInterface $request) : RequestInterface
     {
         $uri = $request->getUri();
         if (empty($uri->getUserInfo())) {
@@ -196,7 +196,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
     /**
      * Setup the connection Uri 
      */
-    private function setupConnectionUri(Node $node, RequestInterface $request): RequestInterface
+    private function setupConnectionUri(Node $node, RequestInterface $request) : RequestInterface
     {
         $uri = $node->getUri();
         $path = $request->getUri()->getPath();
@@ -204,32 +204,32 @@ final class Transport implements ClientInterface, HttpAsyncClient
         // If the node has a path we need to use it as prefix for the existing path
         // @see https://github.com/elastic/elastic-transport-php/pull/20
         if (!empty($nodePath)) {
-            $path = sprintf("%s/%s", rtrim($nodePath, '/'), ltrim($path, '/'));
+            $path = sprintf("%s/%s", \rtrim($nodePath, '/'), \ltrim($path, '/'));
         }
         // If the user information is not in the request, we check if it is present in the node uri
         // @see https://github.com/elastic/elastic-transport-php/issues/18
         if (empty($request->getUri()->getUserInfo()) && !empty($uri->getUserInfo())) {
-            $userInfo = explode(':', $uri->getUserInfo());
+            $userInfo = \explode(':', $uri->getUserInfo());
             $request = $request->withUri($request->getUri()->withUserInfo($userInfo[0], $userInfo[1] ?? null));
         }
         return $request->withUri($request->getUri()->withHost($uri->getHost())->withPort($uri->getPort())->withScheme($uri->getScheme())->withPath($path));
     }
-    private function decorateRequest(RequestInterface $request): RequestInterface
+    private function decorateRequest(RequestInterface $request) : RequestInterface
     {
         $request = $this->setupHeaders($request);
         return $this->setupUserInfo($request);
     }
-    private function logHeaders(MessageInterface $message): void
+    private function logHeaders(MessageInterface $message) : void
     {
         $this->logger->debug(sprintf("Headers: %s\nBody: %s", json_encode($message->getHeaders()), (string) $message->getBody()));
         $message->getBody()->rewind();
     }
-    private function logRequest(string $title, RequestInterface $request): void
+    private function logRequest(string $title, RequestInterface $request) : void
     {
         $this->logger->info(sprintf("%s: %s %s", $title, $request->getMethod(), (string) $request->getUri()), ['request' => $request]);
         $this->logHeaders($request);
     }
-    private function logResponse(string $title, ResponseInterface $response, int $retry): void
+    private function logResponse(string $title, ResponseInterface $response, int $retry) : void
     {
         $this->logger->info(sprintf("%s (retry %d): %d", $title, $retry, $response->getStatusCode()), ['response' => $response, 'retry' => $retry]);
         $this->logHeaders($response);
@@ -238,7 +238,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
      * @throws NoNodeAvailableException
      * @throws ClientExceptionInterface
      */
-    public function sendRequest(RequestInterface $request): ResponseInterface
+    public function sendRequest(RequestInterface $request) : ResponseInterface
     {
         if (empty($request->getUri()->getHost())) {
             $node = $this->nodePool->nextNode();
@@ -248,7 +248,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
         $this->lastRequest = $request;
         $this->logRequest("Request", $request);
         // OpenTelemetry get tracer
-        if (getenv(OpenTelemetry::ENV_VARIABLE_ENABLED)) {
+        if (\getenv(OpenTelemetry::ENV_VARIABLE_ENABLED)) {
             $tracer = $this->getOTelTracer();
         }
         $lastNetworkException = null;
@@ -303,7 +303,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
         $this->logger->error($exceededMsg);
         throw new NoNodeAvailableException($exceededMsg, 0, $lastNetworkException);
     }
-    public function setAsyncClient(HttpAsyncClient $asyncClient): self
+    public function setAsyncClient(HttpAsyncClient $asyncClient) : self
     {
         $this->asyncClient = $asyncClient;
         return $this;
@@ -311,7 +311,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
     /**
      * @throws NoAsyncClientException
      */
-    public function getAsyncClient(): HttpAsyncClient
+    public function getAsyncClient() : HttpAsyncClient
     {
         if (!empty($this->asyncClient)) {
             return $this->asyncClient;
@@ -326,24 +326,24 @@ final class Transport implements ClientInterface, HttpAsyncClient
         }
         return $this->asyncClient;
     }
-    public function setAsyncOnSuccess(OnSuccessInterface $success): self
+    public function setAsyncOnSuccess(OnSuccessInterface $success) : self
     {
         $this->onAsyncSuccess = $success;
         return $this;
     }
-    public function getAsyncOnSuccess(): OnSuccessInterface
+    public function getAsyncOnSuccess() : OnSuccessInterface
     {
         if (empty($this->onAsyncSuccess)) {
             $this->onAsyncSuccess = new OnSuccessDefault();
         }
         return $this->onAsyncSuccess;
     }
-    public function setAsyncOnFailure(OnFailureInterface $failure): self
+    public function setAsyncOnFailure(OnFailureInterface $failure) : self
     {
         $this->onAsyncFailure = $failure;
         return $this;
     }
-    public function getAsyncOnFailure(): OnFailureInterface
+    public function getAsyncOnFailure() : OnFailureInterface
     {
         if (empty($this->onAsyncFailure)) {
             $this->onAsyncFailure = new OnFailureDefault();
@@ -353,7 +353,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
     /**
      * @throws Exception
      */
-    public function sendAsyncRequest(RequestInterface $request): Promise
+    public function sendAsyncRequest(RequestInterface $request) : Promise
     {
         $client = $this->getAsyncClient();
         $node = null;
@@ -367,13 +367,13 @@ final class Transport implements ClientInterface, HttpAsyncClient
         $count = 0;
         $promise = $client->sendAsyncRequest($request);
         // onFulfilled callable
-        $onFulfilled = function (ResponseInterface $response) use (&$count) {
+        $onFulfilled = function (ResponseInterface $response) use(&$count) {
             $this->lastResponse = $response;
             $this->logResponse("Async Response", $response, $count);
             return $this->getAsyncOnSuccess()->success($response, $count);
         };
         // onRejected callable
-        $onRejected = function (Exception $e) use ($client, $request, &$count, $node) {
+        $onRejected = function (Exception $e) use($client, $request, &$count, $node) {
             $this->logger->error(sprintf("Retry %d: %s", $count, $e->getMessage()));
             $this->getAsyncOnFailure()->failure($e, $request, $count, $node ?? null);
             if (isset($node)) {
@@ -389,7 +389,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
             $promise = $promise->then($onFulfilled, $onRejected);
         }
         // Add the last getRetries()+1 callable for managing the exceeded error
-        $promise = $promise->then($onFulfilled, function (Exception $e) use (&$count) {
+        $promise = $promise->then($onFulfilled, function (Exception $e) use(&$count) {
             $exceededMsg = sprintf("Exceeded maximum number of retries (%d)", $this->getRetries());
             $this->logger->error(sprintf("Retry %d: %s", $count, $e->getMessage()));
             $this->logger->error($exceededMsg);
@@ -401,7 +401,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
      * Get the OS version using php_uname if available
      * otherwise it returns an empty string
      */
-    private function getOSVersion(): string
+    private function getOSVersion() : string
     {
         if (!isset($this->OSVersion)) {
             $disable_functions = (string) ini_get('disable_functions');
@@ -418,16 +418,16 @@ final class Transport implements ClientInterface, HttpAsyncClient
      * 
      * @return array<mixed>
      */
-    private function getClientLibraryInfo(): array
+    private function getClientLibraryInfo() : array
     {
         $clientClass = get_class($this->client);
-        if (\false !== strpos($clientClass, 'OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Client')) {
+        if (\false !== strpos($clientClass, 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\GuzzleHttp\\Client')) {
             return ['gu', InstalledVersions::getPrettyVersion('guzzlehttp/guzzle')];
         }
-        if (\false !== strpos($clientClass, 'OCA\FullTextSearch_Elasticsearch\Vendor\Symfony\Component\HttpClient')) {
+        if (\false !== strpos($clientClass, 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Symfony\\Component\\HttpClient')) {
             return ['sy', InstalledVersions::getPrettyVersion('symfony/http-client')];
         }
-        if (\false !== strpos($clientClass, 'OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Client\Curl')) {
+        if (\false !== strpos($clientClass, 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Elastic\\Transport\\Client\\Curl')) {
             return ['ec', Transport::VERSION];
         }
         return [];
@@ -436,7 +436,7 @@ final class Transport implements ClientInterface, HttpAsyncClient
      * Return the full URL in the format
      * scheme://host:port/path?query_string
      */
-    private function getFullUrl(RequestInterface $request): string
+    private function getFullUrl(RequestInterface $request) : string
     {
         $fullUrl = sprintf("%s://%s:%s%s", $request->getUri()->getScheme(), $request->getUri()->getHost(), $request->getUri()->getPort(), $request->getUri()->getPath());
         $queryString = $request->getUri()->getQuery();

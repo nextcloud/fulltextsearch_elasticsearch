@@ -17,5 +17,5 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transpor
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 interface AdapterInterface
 {
-    public function setConfig(ClientInterface $client, array $config, array $clientOptions): ClientInterface;
+    public function setConfig(ClientInterface $client, array $config, array $clientOptions) : ClientInterface;
 }

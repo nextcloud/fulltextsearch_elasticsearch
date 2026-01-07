@@ -12,7 +12,7 @@ SPDX-FileCopyrightText = "2018 Nextcloud translators"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
-path = ["composer.json", "composer.lock"]
+path = ["composer.json", "composer.lock", "es8/composer.json", "es8/composer.lock"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2017 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
@@ -24,7 +24,7 @@ SPDX-FileCopyrightText = "2018 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
-path = ["vendor-bin/php-scoper/composer.json", "vendor-bin/php-scoper/composer.lock"]
+path = ["vendor-bin/php-scoper/composer.json", "vendor-bin/php-scoper/composer.lock", "es8/vendor-bin/php-scoper/composer.json", "es8/vendor-bin/php-scoper/composer.lock"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2024 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
@@ -67,6 +67,42 @@ SPDX-License-Identifier = "MIT"
 
 [[annotations]]
 path = ["lib/Vendor/Psr/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "PHP Framework Interoperability Group <https://www.php-fig.org/>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor8/Elastic/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Elasticsearch B.V <https://www.elastic.co>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor8/GuzzleHttp/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Guzzle Http contributors <https://github.com/guzzle/guzzle>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor8/Http/Client/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Guzzle Http contributors <https://github.com/php-http/httplug>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor8/Http/Discovery/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "PHP HTTP contributors <https://github.com/php-http/discovery>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor8/Http/Promise/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "PHP HTTP contributors <https://github.com/php-http/promise>"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["lib/Vendor8/Psr/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "PHP Framework Interoperability Group <https://www.php-fig.org/>"
 SPDX-License-Identifier = "MIT"

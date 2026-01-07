@@ -19,7 +19,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Symfony\Component\HttpClient\HttpClient;
 class Symfony implements AdapterInterface
 {
-    public function setConfig(ClientInterface $client, array $config, array $clientOptions): ClientInterface
+    public function setConfig(ClientInterface $client, array $config, array $clientOptions) : ClientInterface
     {
         $symfonyConfig = [];
         foreach ($config as $key => $value) {
@@ -38,8 +38,8 @@ class Symfony implements AdapterInterface
                     $symfonyConfig['cafile'] = $value;
             }
         }
-        $class = get_class($client);
-        $httpClient = HttpClient::create(array_merge($clientOptions, $symfonyConfig));
+        $class = \get_class($client);
+        $httpClient = HttpClient::create(\array_merge($clientOptions, $symfonyConfig));
         return new $class($httpClient);
     }
 }

@@ -75,7 +75,7 @@ class SearchResponseIterator implements Iterator
      * @param  string $timeToLive
      * @return $this
      */
-    public function setScrollTimeout(string $timeToLive): SearchResponseIterator
+    public function setScrollTimeout(string $timeToLive) : SearchResponseIterator
     {
         $this->scrollTtl = $timeToLive;
         return $this;
@@ -87,7 +87,7 @@ class SearchResponseIterator implements Iterator
      * @throws ClientResponseException
      * @throws ServerResponseException
      */
-    private function clearScroll(): void
+    private function clearScroll() : void
     {
         if (!empty($this->scrollId)) {
             /* @phpstan-ignore-next-line */
@@ -103,7 +103,7 @@ class SearchResponseIterator implements Iterator
      * @throws ServerResponseException
      * @see    Iterator::rewind()
      */
-    public function rewind(): void
+    public function rewind() : void
     {
         $this->clearScroll();
         $this->currentKey = 0;
@@ -119,7 +119,7 @@ class SearchResponseIterator implements Iterator
      * @throws ServerResponseException
      * @see    Iterator::next()
      */
-    public function next(): void
+    public function next() : void
     {
         /* @phpstan-ignore-next-line */
         $this->currentScrolledResponse = $this->client->scroll(['body' => ['scroll_id' => $this->scrollId, 'scroll' => $this->scrollTtl]])->asArray();
@@ -132,7 +132,7 @@ class SearchResponseIterator implements Iterator
      * @return bool
      * @see    Iterator::valid()
      */
-    public function valid(): bool
+    public function valid() : bool
     {
         return isset($this->currentScrolledResponse['hits']['hits'][0]);
     }
@@ -142,7 +142,7 @@ class SearchResponseIterator implements Iterator
      * @return array
      * @see    Iterator::current()
      */
-    public function current(): array
+    public function current() : array
     {
         return $this->currentScrolledResponse;
     }
@@ -152,7 +152,7 @@ class SearchResponseIterator implements Iterator
      * @return int
      * @see    Iterator::key()
      */
-    public function key(): int
+    public function key() : int
     {
         return $this->currentKey;
     }

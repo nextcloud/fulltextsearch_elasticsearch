@@ -16,9 +16,9 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool;
 
 interface NodePoolInterface
 {
-    public function nextNode(): Node;
+    public function nextNode() : Node;
     /**
      * @param string[] $hosts
      */
-    public function setHosts(array $hosts): self;
+    public function setHosts(array $hosts) : self;
 }

@@ -151,11 +151,15 @@ class ComposerStaticInit3b0b43e9d0007ccfca51074c11dd0560
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
         ),
-        'Symfony\\Polyfill\\Php84\\' => 
+        'Symfony\\Polyfill\\Php81\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php81',
         ),
-        'Symfony\\Polyfill\\Mbstring\\' => 
+        'Symfony\\Polyfill\\Php80\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
+        ),
+        'Symfony\\Polyfill\\Mbstring\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
         ),
@@ -179,11 +183,7 @@ class ComposerStaticInit3b0b43e9d0007ccfca51074c11dd0560
         array (
             0 => __DIR__ . '/..' . '/symfony/event-dispatcher-contracts',
         ),
-        'Symfony\\Component\\VarDumper\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/var-dumper',
-        ),
-        'Symfony\\Component\\String\\' => 
+        'Symfony\\Component\\String\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/string',
         ),
@@ -199,7 +199,7 @@ class ComposerStaticInit3b0b43e9d0007ccfca51074c11dd0560
         array (
             0 => __DIR__ . '/..' . '/symfony/console',
         ),
-        'Psr\\Log\\' => 
+        'Safe\\' =>
         array (
             0 => __DIR__ . '/..' . '/thecodingmachine/safe/lib',
             1 => __DIR__ . '/..' . '/thecodingmachine/safe/deprecated',
@@ -217,15 +217,15 @@ class ComposerStaticInit3b0b43e9d0007ccfca51074c11dd0560
         array (
             0 => __DIR__ . '/..' . '/nikic/php-parser/lib/PhpParser',
         ),
-        'Humbug\\PhpScoper\\' => 
+        'PackageVersions\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/composer/package-versions-deprecated/src/PackageVersions',
+        ),
+        'Humbug\\PhpScoper\\' =>
         array (
             0 => __DIR__ . '/..' . '/humbug/php-scoper/src',
         ),
-        'Fidry\\FileSystem\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/fidry/filesystem/src',
-        ),
-        'Fidry\\Console\\' => 
+        'Fidry\\Console\\' =>
         array (
             0 => __DIR__ . '/..' . '/fidry/console/src',
         ),

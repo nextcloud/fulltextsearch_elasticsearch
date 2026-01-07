@@ -48,12 +48,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * depending on which one is already installed on the right side.
      */
     private const STICKYNESS_RULES = ['symfony/http-client' => 'symfony/framework-bundle', 'php-http/guzzle7-adapter' => 'guzzlehttp/guzzle:^7', 'php-http/guzzle6-adapter' => 'guzzlehttp/guzzle:^6', 'php-http/guzzle5-adapter' => 'guzzlehttp/guzzle:^5', 'php-http/cakephp-adapter' => 'cakephp/cakephp', 'php-http/react-adapter' => 'react/event-loop', 'php-http/buzz-adapter' => 'kriswallsmith/buzz:^0.15.1', 'php-http/artax-adapter' => 'amphp/artax:^3', 'http-interop/http-factory-guzzle' => 'guzzlehttp/psr7:^1', 'http-interop/http-factory-slim' => 'slim/slim:^3'];
-    private const INTERFACE_MAP = ['php-http/async-client-implementation' => ['OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\HttpAsyncClient'], 'php-http/client-implementation' => ['OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\HttpClient'], 'psr/http-client-implementation' => ['OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface'], 'psr/http-factory-implementation' => ['OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestFactoryInterface', 'OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseFactoryInterface', 'OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ServerRequestFactoryInterface', 'OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamFactoryInterface', 'OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UploadedFileFactoryInterface', 'OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriFactoryInterface']];
-    public static function getSubscribedEvents(): array
+    private const INTERFACE_MAP = ['php-http/async-client-implementation' => ['OCA\\FullTextSearch_Elasticsearch\\Vendor\\Http\\Client\\HttpAsyncClient'], 'php-http/client-implementation' => ['OCA\\FullTextSearch_Elasticsearch\\Vendor\\Http\\Client\\HttpClient'], 'psr/http-client-implementation' => ['OCA\\FullTextSearch_Elasticsearch\\Vendor\\Psr\\Http\\Client\\ClientInterface'], 'psr/http-factory-implementation' => ['OCA\\FullTextSearch_Elasticsearch\\Vendor\\Psr\\Http\\Message\\RequestFactoryInterface', 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Psr\\Http\\Message\\ResponseFactoryInterface', 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Psr\\Http\\Message\\ServerRequestFactoryInterface', 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Psr\\Http\\Message\\StreamFactoryInterface', 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Psr\\Http\\Message\\UploadedFileFactoryInterface', 'OCA\\FullTextSearch_Elasticsearch\\Vendor\\Psr\\Http\\Message\\UriFactoryInterface']];
+    public static function getSubscribedEvents() : array
     {
         return [ScriptEvents::PRE_AUTOLOAD_DUMP => 'preAutoloadDump', ScriptEvents::POST_UPDATE_CMD => 'postUpdate'];
     }
-    public function activate(Composer $composer, IOInterface $io): void
+    public function activate(Composer $composer, IOInterface $io) : void
     {
     }
     public function deactivate(Composer $composer, IOInterface $io)
@@ -78,15 +78,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $pinnedAbstractions[$abstraction] = \true;
         }
         $missingRequires = $this->getMissingRequires($repo, $requires, 'project' === $composer->getPackage()->getType(), $pinnedAbstractions);
-        $missingRequires = ['require' => array_fill_keys(array_merge([], ...array_values($missingRequires[0])), '*'), 'require-dev' => array_fill_keys(array_merge([], ...array_values($missingRequires[1])), '*'), 'remove' => array_fill_keys(array_merge([], ...array_values($missingRequires[2])), '*')];
-        if (!$missingRequires = array_filter($missingRequires)) {
+        $missingRequires = ['require' => \array_fill_keys(\array_merge([], ...\array_values($missingRequires[0])), '*'), 'require-dev' => \array_fill_keys(\array_merge([], ...\array_values($missingRequires[1])), '*'), 'remove' => \array_fill_keys(\array_merge([], ...\array_values($missingRequires[2])), '*')];
+        if (!($missingRequires = \array_filter($missingRequires))) {
             return;
         }
-        $composerJsonContents = file_get_contents(Factory::getComposerFile());
+        $composerJsonContents = \file_get_contents(Factory::getComposerFile());
         $this->updateComposerJson($missingRequires, $composer->getConfig()->get('sort-packages'));
         $installer = null;
         // Find the composer installer, hack borrowed from symfony/flex
-        foreach (debug_backtrace(\DEBUG_BACKTRACE_PROVIDE_OBJECT) as $trace) {
+        foreach (\debug_backtrace(\DEBUG_BACKTRACE_PROVIDE_OBJECT) as $trace) {
             if (isset($trace['object']) && $trace['object'] instanceof Installer) {
                 $installer = $trace['object'];
                 break;
@@ -97,20 +97,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
         $event->stopPropagation();
         $dispatcher = $composer->getEventDispatcher();
-        $disableScripts = !method_exists($dispatcher, 'setRunScripts') || !((array) $dispatcher)["\x00*\x00runScripts"];
+        $disableScripts = !\method_exists($dispatcher, 'setRunScripts') || !((array) $dispatcher)["\x00*\x00runScripts"];
         $composer = Factory::create($event->getIO(), null, \false, $disableScripts);
         /** @var Installer $installer */
         $installer = clone $installer;
-        if (method_exists($installer, 'setAudit')) {
+        if (\method_exists($installer, 'setAudit')) {
             $trace['object']->setAudit(\false);
         }
         // we need a clone of the installer to preserve its configuration state but with our own service objects
         $installer->__construct($event->getIO(), $composer->getConfig(), $composer->getPackage(), $composer->getDownloadManager(), $composer->getRepositoryManager(), $composer->getLocker(), $composer->getInstallationManager(), $composer->getEventDispatcher(), $composer->getAutoloadGenerator());
-        if (method_exists($installer, 'setPlatformRequirementFilter')) {
+        if (\method_exists($installer, 'setPlatformRequirementFilter')) {
             $installer->setPlatformRequirementFilter(((array) $trace['object'])["\x00*\x00platformRequirementFilter"]);
         }
         if (0 !== $installer->run()) {
-            file_put_contents(Factory::getComposerFile(), $composerJsonContents);
+            \file_put_contents(Factory::getComposerFile(), $composerJsonContents);
             return;
         }
         $versionSelector = new VersionSelector(ClassDiscovery::safeClassExists(RepositorySet::class) ? new RepositorySet() : new Pool());
@@ -129,10 +129,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->updateComposerLock($composer, $event->getIO());
         }
     }
-    public function getMissingRequires(InstalledRepositoryInterface $repo, array $requires, bool $isProject, array $pinnedAbstractions): array
+    public function getMissingRequires(InstalledRepositoryInterface $repo, array $requires, bool $isProject, array $pinnedAbstractions) : array
     {
         $allPackages = [];
-        $devPackages = method_exists($repo, 'getDevPackageNames') ? array_fill_keys($repo->getDevPackageNames(), \true) : [];
+        $devPackages = \method_exists($repo, 'getDevPackageNames') ? \array_fill_keys($repo->getDevPackageNames(), \true) : [];
         // One must require "php-http/discovery"
         // to opt-in for auto-installation of virtual package implementations
         if (!isset($requires[0]['php-http/discovery'])) {
@@ -141,7 +141,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         foreach ($repo->getPackages() as $package) {
             $allPackages[$package->getName()] = \true;
             if (1 < \count($names = $package->getNames(\false))) {
-                $allPackages += array_fill_keys($names, \false);
+                $allPackages += \array_fill_keys($names, \false);
                 if (isset($devPackages[$package->getName()])) {
                     $devPackages += $names;
                 }
@@ -158,16 +158,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
         foreach ($requires as $dev => $rules) {
             $abstractions = [];
-            $rules = array_intersect_key(self::PROVIDE_RULES, $rules);
+            $rules = \array_intersect_key(self::PROVIDE_RULES, $rules);
             while ($rules) {
-                $abstraction = key($rules);
+                $abstraction = \key($rules);
                 if (isset($pinnedAbstractions[$abstraction])) {
                     unset($rules[$abstraction]);
                     continue;
                 }
                 $abstractions[] = $abstraction;
-                foreach (array_shift($rules) as $candidate => $deps) {
-                    [$candidate, $version] = explode(':', $candidate, 2) + [1 => null];
+                foreach (\array_shift($rules) as $candidate => $deps) {
+                    [$candidate, $version] = \explode(':', $candidate, 2) + [1 => null];
                     if (!isset($allPackages[$candidate])) {
                         continue;
                     }
@@ -194,13 +194,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 }
             }
             while ($abstractions) {
-                $abstraction = array_shift($abstractions);
+                $abstraction = \array_shift($abstractions);
                 if (isset($missingRequires[$dev][$abstraction])) {
                     continue;
                 }
                 $candidates = self::PROVIDE_RULES[$abstraction];
                 foreach ($candidates as $candidate => $deps) {
-                    [$candidate, $version] = explode(':', $candidate, 2) + [1 => null];
+                    [$candidate, $version] = \explode(':', $candidate, 2) + [1 => null];
                     if (null !== $version && !$repo->findPackage($candidate, $versionParser->parseConstraints($version))) {
                         continue;
                     }
@@ -208,8 +208,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                         continue 2;
                     }
                 }
-                foreach (array_intersect_key(self::STICKYNESS_RULES, $candidates) as $candidate => $stickyRule) {
-                    [$stickyName, $stickyVersion] = explode(':', $stickyRule, 2) + [1 => null];
+                foreach (\array_intersect_key(self::STICKYNESS_RULES, $candidates) as $candidate => $stickyRule) {
+                    [$stickyName, $stickyVersion] = \explode(':', $stickyRule, 2) + [1 => null];
                     if (!isset($allPackages[$stickyName]) || $isProject && !$dev && isset($devPackages[$stickyName])) {
                         continue;
                     }
@@ -219,46 +219,46 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                     $candidates = [$candidate => $candidates[$candidate]];
                     break;
                 }
-                $dep = key($candidates);
-                [$dep] = explode(':', $dep, 2);
+                $dep = \key($candidates);
+                [$dep] = \explode(':', $dep, 2);
                 $missingRequires[$dev][$abstraction] = [$dep];
                 if ($isProject && !$dev && isset($devPackages[$dep])) {
                     $missingRequires[2][$abstraction][] = $dep;
                 }
             }
         }
-        $missingRequires[1] = array_diff_key($missingRequires[1], $missingRequires[0]);
+        $missingRequires[1] = \array_diff_key($missingRequires[1], $missingRequires[0]);
         return $missingRequires;
     }
     public function preAutoloadDump(Event $event)
     {
         $filesystem = new Filesystem();
         // Double realpath() on purpose, see https://bugs.php.net/72738
-        $vendorDir = $filesystem->normalizePath(realpath(realpath($event->getComposer()->getConfig()->get('vendor-dir'))));
+        $vendorDir = $filesystem->normalizePath(\realpath(\realpath($event->getComposer()->getConfig()->get('vendor-dir'))));
         $filesystem->ensureDirectoryExists($vendorDir . '/composer');
         $pinned = $event->getComposer()->getPackage()->getExtra()['discovery'] ?? [];
         $candidates = [];
-        $allInterfaces = array_merge(...array_values(self::INTERFACE_MAP));
+        $allInterfaces = \array_merge(...\array_values(self::INTERFACE_MAP));
         foreach ($pinned as $abstraction => $class) {
             if (isset(self::INTERFACE_MAP[$abstraction])) {
                 $interfaces = self::INTERFACE_MAP[$abstraction];
-            } elseif (\false !== $k = array_search($abstraction, $allInterfaces, \true)) {
+            } elseif (\false !== ($k = \array_search($abstraction, $allInterfaces, \true))) {
                 $interfaces = [$allInterfaces[$k]];
             } else {
-                throw new \UnexpectedValueException(sprintf('Invalid "extra.discovery" pinned in composer.json: "%s" is not one of ["%s"].', $abstraction, implode('", "', array_keys(self::INTERFACE_MAP))));
+                throw new \UnexpectedValueException(\sprintf('Invalid "extra.discovery" pinned in composer.json: "%s" is not one of ["%s"].', $abstraction, \implode('", "', \array_keys(self::INTERFACE_MAP))));
             }
             foreach ($interfaces as $interface) {
-                $candidates[] = sprintf("case %s: return [['class' => %s]];\n", var_export($interface, \true), var_export($class, \true));
+                $candidates[] = \sprintf("case %s: return [['class' => %s]];\n", \var_export($interface, \true), \var_export($class, \true));
             }
         }
         $file = $vendorDir . '/composer/GeneratedDiscoveryStrategy.php';
         if (!$candidates) {
-            if (file_exists($file)) {
-                unlink($file);
+            if (\file_exists($file)) {
+                \unlink($file);
             }
             return;
         }
-        $candidates = implode('            ', $candidates);
+        $candidates = \implode('            ', $candidates);
         $code = <<<EOPHP
 <?php
 
@@ -276,8 +276,8 @@ class GeneratedDiscoveryStrategy implements DiscoveryStrategy
 }
 
 EOPHP;
-        if (!file_exists($file) || $code !== file_get_contents($file)) {
-            file_put_contents($file, $code);
+        if (!\file_exists($file) || $code !== \file_get_contents($file)) {
+            \file_put_contents($file, $code);
         }
         $rootPackage = $event->getComposer()->getPackage();
         $autoload = $rootPackage->getAutoload();
@@ -287,7 +287,7 @@ EOPHP;
     private function updateComposerJson(array $missingRequires, bool $sortPackages)
     {
         $file = Factory::getComposerFile();
-        $contents = file_get_contents($file);
+        $contents = \file_get_contents($file);
         $manipulator = new JsonManipulator($contents);
         foreach ($missingRequires as $key => $packages) {
             foreach ($packages as $package => $constraint) {
@@ -298,15 +298,15 @@ EOPHP;
                 }
             }
         }
-        file_put_contents($file, $manipulator->getContents());
+        \file_put_contents($file, $manipulator->getContents());
     }
     private function updateComposerLock(Composer $composer, IOInterface $io)
     {
         if (\false === $composer->getConfig()->get('lock')) {
             return;
         }
-        $lock = substr(Factory::getComposerFile(), 0, -4) . 'lock';
-        $composerJson = file_get_contents(Factory::getComposerFile());
+        $lock = \substr(Factory::getComposerFile(), 0, -4) . 'lock';
+        $composerJson = \file_get_contents(Factory::getComposerFile());
         $lockFile = new JsonFile($lock, null, $io);
         $locker = ClassDiscovery::safeClassExists(RepositorySet::class) ? new Locker($io, $lockFile, $composer->getInstallationManager(), $composerJson) : new Locker($io, $lockFile, $composer->getRepositoryManager(), $composer->getInstallationManager(), $composerJson);
         if (!$locker->isLocked()) {

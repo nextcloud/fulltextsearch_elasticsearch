@@ -32,10 +32,10 @@ trait EndpointTrait
     /**
      * Check if an array containts nested array
      */
-    private function isNestedArray(array $a): bool
+    private function isNestedArray(array $a) : bool
     {
         foreach ($a as $v) {
-            if (is_array($v)) {
+            if (\is_array($v)) {
                 return \true;
             }
         }
@@ -44,10 +44,10 @@ trait EndpointTrait
     /**
      * Check if an array is associative, i.e. has a string as key
      */
-    protected function isAssociativeArray(array $array): bool
+    protected function isAssociativeArray(array $array) : bool
     {
         foreach ($array as $k => $v) {
-            if (is_string($k)) {
+            if (\is_string($k)) {
                 return \true;
             }
         }
@@ -59,14 +59,14 @@ trait EndpointTrait
      * 
      * @param mixed $value
      */
-    protected function convertValue($value): string
+    protected function convertValue($value) : string
     {
         // Convert a boolean value in 'true' or 'false' string
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             return $value ? 'true' : 'false';
             // Convert to comma-separated list if array
-        } elseif (is_array($value) && $this->isNestedArray($value) === \false) {
-            return implode(',', $value);
+        } elseif (\is_array($value) && $this->isNestedArray($value) === \false) {
+            return \implode(',', $value);
         }
         return (string) $value;
     }
@@ -75,7 +75,7 @@ trait EndpointTrait
      * 
      * @param mixed $value
      */
-    protected function encode($value): string
+    protected function encode($value) : string
     {
         return rawurlencode($this->convertValue($value));
     }
@@ -83,7 +83,7 @@ trait EndpointTrait
      * Returns the URL with the query string from $params
      * extracting the array keys specified in $keys
      */
-    protected function addQueryString(string $url, array $params, array $keys): string
+    protected function addQueryString(string $url, array $params, array $keys) : string
     {
         $queryParams = [];
         foreach ($keys as $k) {
@@ -101,7 +101,7 @@ trait EndpointTrait
      * 
      * @param mixed $body
      */
-    protected function bodySerialize($body, string $contentType): string
+    protected function bodySerialize($body, string $contentType) : string
     {
         if (strpos($contentType, 'application/x-ndjson') !== \false || strpos($contentType, 'application/vnd.elasticsearch+x-ndjson') !== \false) {
             return NDJsonSerializer::serialize($body, ['remove_null' => \false]);
@@ -116,7 +116,7 @@ trait EndpointTrait
      * 
      * @param array|string $body
      */
-    protected function createRequest(string $method, string $url, array $headers, $body = null): ServerRequestInterface
+    protected function createRequest(string $method, string $url, array $headers, $body = null) : ServerRequestInterface
     {
         $requestFactory = Psr17FactoryDiscovery::findServerRequestFactory();
         $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
@@ -126,7 +126,7 @@ trait EndpointTrait
             if (!isset($headers['Content-Type'])) {
                 throw new ContentTypeException(sprintf("The Content-Type is missing for %s %s", $method, $url));
             }
-            $content = is_string($body) ? $body : $this->bodySerialize($body, $headers['Content-Type']);
+            $content = \is_string($body) ? $body : $this->bodySerialize($body, $headers['Content-Type']);
             $request = $request->withBody($streamFactory->createStream($content));
         }
         $client = $this->client ?? $this;
@@ -147,21 +147,21 @@ trait EndpointTrait
      * 
      * @see https://github.com/elastic/elasticsearch-php/pull/1142
      */
-    protected function buildCompatibilityHeaders(array $headers): array
+    protected function buildCompatibilityHeaders(array $headers) : array
     {
         if (isset($headers['Content-Type'])) {
-            if (preg_match('/application\/([^,]+)$/', $headers['Content-Type'], $matches)) {
+            if (\preg_match('/application\\/([^,]+)$/', $headers['Content-Type'], $matches)) {
                 $headers['Content-Type'] = sprintf(Client::API_COMPATIBILITY_HEADER, 'application', $matches[1]);
             }
         }
         if (isset($headers['Accept'])) {
-            $values = explode(',', $headers['Accept']);
+            $values = \explode(',', $headers['Accept']);
             foreach ($values as &$value) {
-                if (preg_match('/(application|text)\/([^,]+)/', $value, $matches)) {
+                if (\preg_match('/(application|text)\\/([^,]+)/', $value, $matches)) {
                     $value = sprintf(Client::API_COMPATIBILITY_HEADER, $matches[1], $matches[2]);
                 }
             }
-            $headers['Accept'] = implode(',', $values);
+            $headers['Accept'] = \implode(',', $values);
         }
         return $headers;
     }
@@ -169,7 +169,7 @@ trait EndpointTrait
      * Check if the $required parameters are present in $params
      * @throws MissingParameterException
      */
-    protected function checkRequiredParameters(array $required, array $params): void
+    protected function checkRequiredParameters(array $required, array $params) : void
     {
         foreach ($required as $req) {
             if (!isset($params[$req])) {
@@ -180,10 +180,10 @@ trait EndpointTrait
     /**
      * Add the OpenTelemetry attributes to the PSR-7 ServerRequest
      */
-    protected function addOtelAttributes(array $params, array $requiredPathParts, ServerRequestInterface $request, string $endpoint): ServerRequestInterface
+    protected function addOtelAttributes(array $params, array $requiredPathParts, ServerRequestInterface $request, string $endpoint) : ServerRequestInterface
     {
-        // Check if OpenTelemetry instrumentation is enbaled 
-        if (!getenv(OpenTelemetry::ENV_VARIABLE_ENABLED)) {
+        // Check if OpenTelemetry instrumentation is enbaled
+        if (!\getenv(OpenTelemetry::ENV_VARIABLE_ENABLED)) {
             return $request;
         }
         $otel = [];
@@ -192,12 +192,12 @@ trait EndpointTrait
                 $otel["db.elasticsearch.path_parts.{$part}"] = $params[$part];
             }
         }
-        if (in_array($endpoint, Client::SEARCH_ENDPOINTS)) {
+        if (\in_array($endpoint, Client::SEARCH_ENDPOINTS)) {
             $body = $request->getBody()->getContents();
             if (!empty($body)) {
                 $otel['db.query.text'] = OpenTelemetry::redactBody($body);
             }
         }
-        return $request->withAttribute(OpenTelemetry::PSR7_OTEL_ATTRIBUTE_NAME, array_merge($otel, ['db.system' => 'elasticsearch', 'db.operation.name' => $endpoint]));
+        return $request->withAttribute(OpenTelemetry::PSR7_OTEL_ATTRIBUTE_NAME, \array_merge($otel, ['db.system' => 'elasticsearch', 'db.operation.name' => $endpoint]));
     }
 }

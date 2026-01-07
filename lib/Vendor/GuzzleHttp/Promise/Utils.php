@@ -20,7 +20,7 @@ final class Utils
      *
      * @param TaskQueueInterface|null $assign Optionally specify a new queue instance.
      */
-    public static function queue(?TaskQueueInterface $assign = null): TaskQueueInterface
+    public static function queue(?TaskQueueInterface $assign = null) : TaskQueueInterface
     {
         static $queue;
         if ($assign) {
@@ -36,11 +36,11 @@ final class Utils
      *
      * @param callable $task Task function to run.
      */
-    public static function task(callable $task): PromiseInterface
+    public static function task(callable $task) : PromiseInterface
     {
         $queue = self::queue();
         $promise = new Promise([$queue, 'run']);
-        $queue->add(function () use ($task, $promise): void {
+        $queue->add(function () use($task, $promise) : void {
             try {
                 if (Is::pending($promise)) {
                     $promise->resolve($task());
@@ -63,7 +63,7 @@ final class Utils
      *
      * @param PromiseInterface $promise Promise or value.
      */
-    public static function inspect(PromiseInterface $promise): array
+    public static function inspect(PromiseInterface $promise) : array
     {
         try {
             return ['state' => PromiseInterface::FULFILLED, 'value' => $promise->wait()];
@@ -83,7 +83,7 @@ final class Utils
      *
      * @param PromiseInterface[] $promises Traversable of promises to wait upon.
      */
-    public static function inspectAll($promises): array
+    public static function inspectAll($promises) : array
     {
         $results = [];
         foreach ($promises as $key => $promise) {
@@ -102,7 +102,7 @@ final class Utils
      *
      * @throws \Throwable on error
      */
-    public static function unwrap($promises): array
+    public static function unwrap($promises) : array
     {
         $results = [];
         foreach ($promises as $key => $promise) {
@@ -121,21 +121,21 @@ final class Utils
      * @param mixed $promises  Promises or values.
      * @param bool  $recursive If true, resolves new promises that might have been added to the stack during its own resolution.
      */
-    public static function all($promises, bool $recursive = \false): PromiseInterface
+    public static function all($promises, bool $recursive = \false) : PromiseInterface
     {
         $results = [];
-        $promise = Each::of($promises, function ($value, $idx) use (&$results): void {
+        $promise = Each::of($promises, function ($value, $idx) use(&$results) : void {
             $results[$idx] = $value;
-        }, function ($reason, $idx, Promise $aggregate): void {
+        }, function ($reason, $idx, Promise $aggregate) : void {
             if (Is::pending($aggregate)) {
                 $aggregate->reject($reason);
             }
-        })->then(function () use (&$results) {
-            ksort($results);
+        })->then(function () use(&$results) {
+            \ksort($results);
             return $results;
         });
         if (\true === $recursive) {
-            $promise = $promise->then(function ($results) use ($recursive, &$promises) {
+            $promise = $promise->then(function ($results) use($recursive, &$promises) {
                 foreach ($promises as $promise) {
                     if (Is::pending($promise)) {
                         return self::all($promises, $recursive);
@@ -160,26 +160,26 @@ final class Utils
      * @param int   $count    Total number of promises.
      * @param mixed $promises Promises or values.
      */
-    public static function some(int $count, $promises): PromiseInterface
+    public static function some(int $count, $promises) : PromiseInterface
     {
         $results = [];
         $rejections = [];
-        return Each::of($promises, function ($value, $idx, PromiseInterface $p) use (&$results, $count): void {
+        return Each::of($promises, function ($value, $idx, PromiseInterface $p) use(&$results, $count) : void {
             if (Is::settled($p)) {
                 return;
             }
             $results[$idx] = $value;
-            if (count($results) >= $count) {
+            if (\count($results) >= $count) {
                 $p->resolve(null);
             }
-        }, function ($reason) use (&$rejections): void {
+        }, function ($reason) use(&$rejections) : void {
             $rejections[] = $reason;
-        })->then(function () use (&$results, &$rejections, $count) {
-            if (count($results) !== $count) {
+        })->then(function () use(&$results, &$rejections, $count) {
+            if (\count($results) !== $count) {
                 throw new AggregateException('Not enough promises to fulfill count', $rejections);
             }
-            ksort($results);
-            return array_values($results);
+            \ksort($results);
+            return \array_values($results);
         });
     }
     /**
@@ -188,7 +188,7 @@ final class Utils
      *
      * @param mixed $promises Promises or values.
      */
-    public static function any($promises): PromiseInterface
+    public static function any($promises) : PromiseInterface
     {
         return self::some(1, $promises)->then(function ($values) {
             return $values[0];
@@ -204,15 +204,15 @@ final class Utils
      *
      * @param mixed $promises Promises or values.
      */
-    public static function settle($promises): PromiseInterface
+    public static function settle($promises) : PromiseInterface
     {
         $results = [];
-        return Each::of($promises, function ($value, $idx) use (&$results): void {
+        return Each::of($promises, function ($value, $idx) use(&$results) : void {
             $results[$idx] = ['state' => PromiseInterface::FULFILLED, 'value' => $value];
-        }, function ($reason, $idx) use (&$results): void {
+        }, function ($reason, $idx) use(&$results) : void {
             $results[$idx] = ['state' => PromiseInterface::REJECTED, 'reason' => $reason];
-        })->then(function () use (&$results) {
-            ksort($results);
+        })->then(function () use(&$results) {
+            \ksort($results);
             return $results;
         });
     }
