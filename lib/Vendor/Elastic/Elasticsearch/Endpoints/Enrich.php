@@ -26,18 +26,19 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Enrich extends AbstractEndpoint
 {
     /**
-     * Deletes an existing enrich policy and its enrich index.
+     * Delete an enrich policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/delete-enrich-policy-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-enrich-delete-policy
+     * @group serverless
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the enrich policy
-     *     master_timeout: time, // Timeout for processing on master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -47,8 +48,9 @@ class Enrich extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deletePolicy(array $params = [])
+    public function deletePolicy(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_enrich/policy/' . $this->encode($params['name']);
         $method = 'DELETE';
@@ -59,19 +61,20 @@ class Enrich extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates the enrich index for an existing enrich policy.
+     * Run an enrich policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/execute-enrich-policy-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-enrich-execute-policy
+     * @group serverless
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the enrich policy
-     *     wait_for_completion: boolean, // Should the request should block until the execution is complete.
-     *     master_timeout: time, // Timeout for processing on master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     wait_for_completion?: bool, // Should the request should block until the execution is complete.
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -81,8 +84,9 @@ class Enrich extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function executePolicy(array $params = [])
+    public function executePolicy(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_enrich/policy/' . $this->encode($params['name']) . '/_execute';
         $method = 'PUT';
@@ -93,18 +97,19 @@ class Enrich extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Gets information about an enrich policy.
+     * Get an enrich policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/get-enrich-policy-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-enrich-get-policy
+     * @group serverless
      *
      * @param array{
-     *     name: list, //  A comma-separated list of enrich policy names
-     *     master_timeout: time, // Timeout for processing on master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name?: string|array<string>, // A comma-separated list of enrich policy names
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -113,10 +118,11 @@ class Enrich extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getPolicy(array $params = [])
+    public function getPolicy(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['name'])) {
-            $url = '/_enrich/policy/' . $this->encode($params['name']);
+            $url = '/_enrich/policy/' . $this->encode($this->convertValue($params['name']));
             $method = 'GET';
         } else {
             $url = '/_enrich/policy';
@@ -129,19 +135,20 @@ class Enrich extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates a new enrich policy.
+     * Create an enrich policy
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/put-enrich-policy-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-enrich-put-policy
+     * @group serverless
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the enrich policy
-     *     master_timeout: time, // Timeout for processing on master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The enrich policy to register
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The enrich policy to register. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -151,8 +158,9 @@ class Enrich extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putPolicy(array $params = [])
+    public function putPolicy(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name', 'body'], $params);
         $url = '/_enrich/policy/' . $this->encode($params['name']);
         $method = 'PUT';
@@ -163,17 +171,17 @@ class Enrich extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Gets enrich coordinator statistics and information about enrich policies that are currently executing.
+     * Get enrich stats
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/enrich-stats-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-enrich-stats
      *
      * @param array{
-     *     master_timeout: time, // Timeout for processing on master node
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -182,8 +190,9 @@ class Enrich extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function stats(array $params = [])
+    public function stats(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_enrich/_stats';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);

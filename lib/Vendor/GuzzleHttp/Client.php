@@ -87,7 +87,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
      * @param array $options Request options to apply to the given
      *                       request and to the transfer. See \GuzzleHttp\RequestOptions.
      */
-    public function sendAsync(RequestInterface $request, array $options = []) : PromiseInterface
+    public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
     {
         // Merge the base URI into the request URI if needed.
         $options = $this->prepareDefaults($options);
@@ -101,7 +101,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
      *
      * @throws GuzzleException
      */
-    public function send(RequestInterface $request, array $options = []) : ResponseInterface
+    public function send(RequestInterface $request, array $options = []): ResponseInterface
     {
         $options[RequestOptions::SYNCHRONOUS] = \true;
         return $this->sendAsync($request, $options)->wait();
@@ -111,7 +111,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
      *
      * {@inheritDoc}
      */
-    public function sendRequest(RequestInterface $request) : ResponseInterface
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
         $options[RequestOptions::SYNCHRONOUS] = \true;
         $options[RequestOptions::ALLOW_REDIRECTS] = \false;
@@ -130,7 +130,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
      * @param string|UriInterface $uri     URI object or string.
      * @param array               $options Request options to apply. See \GuzzleHttp\RequestOptions.
      */
-    public function requestAsync(string $method, $uri = '', array $options = []) : PromiseInterface
+    public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {
         $options = $this->prepareDefaults($options);
         // Remove request modifying parameter because it can be done up-front.
@@ -160,7 +160,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
      *
      * @throws GuzzleException
      */
-    public function request(string $method, $uri = '', array $options = []) : ResponseInterface
+    public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
         $options[RequestOptions::SYNCHRONOUS] = \true;
         return $this->requestAsync($method, $uri, $options)->wait();
@@ -182,7 +182,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
     {
         return $option === null ? $this->config : $this->config[$option] ?? null;
     }
-    private function buildUri(UriInterface $uri, array $config) : UriInterface
+    private function buildUri(UriInterface $uri, array $config): UriInterface
     {
         if (isset($config['base_uri'])) {
             $uri = Psr7\UriResolver::resolve(Psr7\Utils::uriFor($config['base_uri']), $uri);
@@ -196,14 +196,14 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
     /**
      * Configures the default options for a client.
      */
-    private function configureDefaults(array $config) : void
+    private function configureDefaults(array $config): void
     {
         $defaults = ['allow_redirects' => RedirectMiddleware::$defaultSettings, 'http_errors' => \true, 'decode_content' => \true, 'verify' => \true, 'cookies' => \false, 'idn_conversion' => \false];
         // Use the standard Linux HTTP_PROXY and HTTPS_PROXY if set.
         // We can only trust the HTTP_PROXY environment variable in a CLI
         // process due to the fact that PHP has no reliable mechanism to
         // get environment variables that start with "HTTP_".
-        if (\PHP_SAPI === 'cli' && ($proxy = Utils::getenv('HTTP_PROXY'))) {
+        if (\PHP_SAPI === 'cli' && $proxy = Utils::getenv('HTTP_PROXY')) {
             $defaults['proxy']['http'] = $proxy;
         }
         if ($proxy = Utils::getenv('HTTPS_PROXY')) {
@@ -235,7 +235,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
      *
      * @param array $options Options to modify by reference
      */
-    private function prepareDefaults(array $options) : array
+    private function prepareDefaults(array $options): array
     {
         $defaults = $this->config;
         if (!empty($defaults['headers'])) {
@@ -272,7 +272,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
      *
      * @param array $options See \GuzzleHttp\RequestOptions.
      */
-    private function transfer(RequestInterface $request, array $options) : PromiseInterface
+    private function transfer(RequestInterface $request, array $options): PromiseInterface
     {
         $request = $this->applyOptions($request, $options);
         /** @var HandlerStack $handler */
@@ -286,11 +286,11 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
     /**
      * Applies the array of request options to a request.
      */
-    private function applyOptions(RequestInterface $request, array &$options) : RequestInterface
+    private function applyOptions(RequestInterface $request, array &$options): RequestInterface
     {
         $modify = ['set_headers' => []];
         if (isset($options['headers'])) {
-            if (\array_keys($options['headers']) === \range(0, \count($options['headers']) - 1)) {
+            if (array_keys($options['headers']) === range(0, count($options['headers']) - 1)) {
                 throw new InvalidArgumentException('The headers array must have header name as keys.');
             }
             $modify['set_headers'] = $options['headers'];
@@ -395,7 +395,7 @@ class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendo
     /**
      * Return an InvalidArgumentException with pre-set message.
      */
-    private function invalidBody() : InvalidArgumentException
+    private function invalidBody(): InvalidArgumentException
     {
         return new InvalidArgumentException('Passing in the "body" request ' . 'option as an array to send a request is not supported. ' . 'Please use the "form_params" request option to send a ' . 'application/x-www-form-urlencoded request, or the "multipart" ' . 'request option to send a multipart/form-data request.');
     }

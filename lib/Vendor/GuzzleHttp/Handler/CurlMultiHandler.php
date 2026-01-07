@@ -64,7 +64,7 @@ class CurlMultiHandler
         if (isset($options['select_timeout'])) {
             $this->selectTimeout = $options['select_timeout'];
         } elseif ($selectTimeout = Utils::getenv('GUZZLE_CURL_SELECT_TIMEOUT')) {
-            @\trigger_error('Since guzzlehttp/guzzle 7.2.0: Using environment variable GUZZLE_CURL_SELECT_TIMEOUT is deprecated. Use option "select_timeout" instead.', \E_USER_DEPRECATED);
+            @trigger_error('Since guzzlehttp/guzzle 7.2.0: Using environment variable GUZZLE_CURL_SELECT_TIMEOUT is deprecated. Use option "select_timeout" instead.', \E_USER_DEPRECATED);
             $this->selectTimeout = (int) $selectTimeout;
         } else {
             $this->selectTimeout = 1;
@@ -94,7 +94,7 @@ class CurlMultiHandler
         $this->_mh = $multiHandle;
         foreach ($this->options as $option => $value) {
             // A warning is raised in case of a wrong option.
-            \curl_multi_setopt($this->_mh, $option, $value);
+            curl_multi_setopt($this->_mh, $option, $value);
         }
         return $this->_mh;
     }
@@ -105,11 +105,11 @@ class CurlMultiHandler
             unset($this->_mh);
         }
     }
-    public function __invoke(RequestInterface $request, array $options) : PromiseInterface
+    public function __invoke(RequestInterface $request, array $options): PromiseInterface
     {
         $easy = $this->factory->create($request, $options);
         $id = (int) $easy->handle;
-        $promise = new Promise([$this, 'execute'], function () use($id) {
+        $promise = new Promise([$this, 'execute'], function () use ($id) {
             return $this->cancel($id);
         });
         $this->addRequest(['easy' => $easy, 'deferred' => $promise]);
@@ -118,7 +118,7 @@ class CurlMultiHandler
     /**
      * Ticks the curl event loop.
      */
-    public function tick() : void
+    public function tick(): void
     {
         // Add any delayed handles if needed.
         if ($this->delays) {
@@ -148,7 +148,7 @@ class CurlMultiHandler
     /**
      * Runs \curl_multi_exec() inside the event loop, to prevent busy looping
      */
-    private function tickInQueue() : void
+    private function tickInQueue(): void
     {
         if (\curl_multi_exec($this->_mh, $this->active) === \CURLM_CALL_MULTI_PERFORM) {
             \curl_multi_select($this->_mh, 0);
@@ -158,7 +158,7 @@ class CurlMultiHandler
     /**
      * Runs until all outstanding connections have completed.
      */
-    public function execute() : void
+    public function execute(): void
     {
         $queue = P\Utils::queue();
         while ($this->handles || !$queue->isEmpty()) {
@@ -169,7 +169,7 @@ class CurlMultiHandler
             $this->tick();
         }
     }
-    private function addRequest(array $entry) : void
+    private function addRequest(array $entry): void
     {
         $easy = $entry['easy'];
         $id = (int) $easy->handle;
@@ -187,9 +187,9 @@ class CurlMultiHandler
      *
      * @return bool True on success, false on failure.
      */
-    private function cancel($id) : bool
+    private function cancel($id): bool
     {
-        if (!\is_int($id)) {
+        if (!is_int($id)) {
             trigger_deprecation('guzzlehttp/guzzle', '7.4', 'Not passing an integer to %s::%s() is deprecated and will cause an error in 8.0.', __CLASS__, __FUNCTION__);
         }
         // Cannot cancel if it has been processed.
@@ -199,10 +199,12 @@ class CurlMultiHandler
         $handle = $this->handles[$id]['easy']->handle;
         unset($this->delays[$id], $this->handles[$id]);
         \curl_multi_remove_handle($this->_mh, $handle);
-        \curl_close($handle);
+        if (\PHP_VERSION_ID < 80000) {
+            \curl_close($handle);
+        }
         return \true;
     }
-    private function processMessages() : void
+    private function processMessages(): void
     {
         while ($done = \curl_multi_info_read($this->_mh)) {
             if ($done['msg'] !== \CURLMSG_DONE) {
@@ -221,7 +223,7 @@ class CurlMultiHandler
             $entry['deferred']->resolve(CurlFactory::finish($this, $entry['easy'], $this->factory));
         }
     }
-    private function timeToNext() : int
+    private function timeToNext(): int
     {
         $currentTime = Utils::currentTime();
         $nextTime = \PHP_INT_MAX;

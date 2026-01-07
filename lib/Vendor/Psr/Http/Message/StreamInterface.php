@@ -25,13 +25,13 @@ interface StreamInterface
      * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
      * @return string
      */
-    public function __toString() : string;
+    public function __toString(): string;
     /**
      * Closes the stream and any underlying resources.
      *
      * @return void
      */
-    public function close() : void;
+    public function close(): void;
     /**
      * Separates any underlying resources from the stream.
      *
@@ -45,26 +45,26 @@ interface StreamInterface
      *
      * @return int|null Returns the size in bytes if known, or null if unknown.
      */
-    public function getSize() : ?int;
+    public function getSize(): ?int;
     /**
      * Returns the current position of the file read/write pointer
      *
      * @return int Position of the file pointer
      * @throws \RuntimeException on error.
      */
-    public function tell() : int;
+    public function tell(): int;
     /**
      * Returns true if the stream is at the end of the stream.
      *
      * @return bool
      */
-    public function eof() : bool;
+    public function eof(): bool;
     /**
      * Returns whether or not the stream is seekable.
      *
      * @return bool
      */
-    public function isSeekable() : bool;
+    public function isSeekable(): bool;
     /**
      * Seek to a position in the stream.
      *
@@ -77,7 +77,7 @@ interface StreamInterface
      *     SEEK_END: Set position to end-of-stream plus offset.
      * @throws \RuntimeException on failure.
      */
-    public function seek(int $offset, int $whence = \SEEK_SET) : void;
+    public function seek(int $offset, int $whence = \SEEK_SET): void;
     /**
      * Seek to the beginning of the stream.
      *
@@ -88,13 +88,13 @@ interface StreamInterface
      * @link http://www.php.net/manual/en/function.fseek.php
      * @throws \RuntimeException on failure.
      */
-    public function rewind() : void;
+    public function rewind(): void;
     /**
      * Returns whether or not the stream is writable.
      *
      * @return bool
      */
-    public function isWritable() : bool;
+    public function isWritable(): bool;
     /**
      * Write data to the stream.
      *
@@ -102,13 +102,13 @@ interface StreamInterface
      * @return int Returns the number of bytes written to the stream.
      * @throws \RuntimeException on failure.
      */
-    public function write(string $string) : int;
+    public function write(string $string): int;
     /**
      * Returns whether or not the stream is readable.
      *
      * @return bool
      */
-    public function isReadable() : bool;
+    public function isReadable(): bool;
     /**
      * Read data from the stream.
      *
@@ -119,7 +119,7 @@ interface StreamInterface
      *     if no bytes are available.
      * @throws \RuntimeException if an error occurs.
      */
-    public function read(int $length) : string;
+    public function read(int $length): string;
     /**
      * Returns the remaining contents in a string
      *
@@ -127,7 +127,7 @@ interface StreamInterface
      * @throws \RuntimeException if unable to read or an error occurs while
      *     reading.
      */
-    public function getContents() : string;
+    public function getContents(): string;
     /**
      * Get stream metadata as an associative array or retrieve a specific key.
      *

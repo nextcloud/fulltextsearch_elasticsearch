@@ -13,6 +13,10 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\MissingParameterException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ServerResponseException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Client8;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ClientResponseException as ClientResponseException8;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\MissingParameterException as MissingParameterException8;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ServerResponseException as ServerResponseException8;
 use Exception;
 use OC\FullTextSearch\Model\DocumentAccess;
 use OC\FullTextSearch\Model\IndexDocument;
@@ -40,14 +44,14 @@ class SearchService {
 	}
 
 	/**
-	 * @param Client $client
+	 * @param Client|Client8 $client
 	 * @param ISearchResult $searchResult
 	 * @param IDocumentAccess $access
 	 *
 	 * @throws Exception
 	 */
 	public function searchRequest(
-		Client $client,
+		Client|Client8 $client,
 		ISearchResult $searchResult,
 		IDocumentAccess $access
 	): void {
@@ -88,18 +92,18 @@ class SearchService {
 
 
 	/**
-	 * @param Client $client
+	 * @param Client|Client8 $client
 	 * @param string $providerId
 	 * @param string $documentId
 	 *
 	 * @return IIndexDocument
 	 * @throws ConfigurationException
-	 * @throws ClientResponseException
-	 * @throws MissingParameterException
-	 * @throws ServerResponseException
+	 * @throws ClientResponseException|ClientResponseException8
+	 * @throws MissingParameterException|MissingParameterException8
+	 * @throws ServerResponseException|ServerResponseException8
 	 */
 	public function getDocument(
-		Client $client,
+		Client|Client8 $client,
 		string $providerId,
 		string $documentId
 	): IIndexDocument {

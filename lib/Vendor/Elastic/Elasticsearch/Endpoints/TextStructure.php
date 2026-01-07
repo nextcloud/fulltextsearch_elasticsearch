@@ -26,30 +26,30 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class TextStructure extends AbstractEndpoint
 {
     /**
-     * Finds the structure of a text field in an index.
+     * Find the structure of a text field
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/find-field-structure.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/group/endpoint-text_structure
      *
      * @param array{
-     *     index: string, // The index containing the analyzed field
-     *     field: string, // The field that should be analyzed
-     *     documents_to_sample: int, // How many documents should be included in the analysis
-     *     timeout: time, // Timeout after which the analysis will be aborted
-     *     format: enum, // Optional parameter to specify the high level file format
-     *     column_names: list, // Optional parameter containing a comma separated list of the column names for a delimited file
-     *     delimiter: string, // Optional parameter to specify the delimiter character for a delimited file - must be a single character
-     *     quote: string, // Optional parameter to specify the quote character for a delimited file - must be a single character
-     *     should_trim_fields: boolean, // Optional parameter to specify whether the values between delimiters in a delimited file should have whitespace trimmed from them
-     *     grok_pattern: string, // Optional parameter to specify the Grok pattern that should be used to extract fields from messages in a semi-structured text file
-     *     ecs_compatibility: string, // Optional parameter to specify the compatibility mode with ECS Grok patterns - may be either 'v1' or 'disabled'
-     *     timestamp_field: string, // Optional parameter to specify the timestamp field in the file
-     *     timestamp_format: string, // Optional parameter to specify the timestamp format in the file - may be either a Joda or Java time format
-     *     explain: boolean, // Whether to include a commentary on how the structure was derived
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string, // The index containing the analyzed field
+     *     field?: string, // The field that should be analyzed
+     *     documents_to_sample?: int, // How many documents should be included in the analysis
+     *     timeout?: int|string, // Timeout after which the analysis will be aborted
+     *     format?: string, // Optional parameter to specify the high level file format
+     *     column_names?: string|array<string>, // Optional parameter containing a comma separated list of the column names for a delimited file
+     *     delimiter?: string, // Optional parameter to specify the delimiter character for a delimited file - must be a single character
+     *     quote?: string, // Optional parameter to specify the quote character for a delimited file - must be a single character
+     *     should_trim_fields?: bool, // Optional parameter to specify whether the values between delimiters in a delimited file should have whitespace trimmed from them
+     *     grok_pattern?: string, // Optional parameter to specify the Grok pattern that should be used to extract fields from messages in a semi-structured text file
+     *     ecs_compatibility?: string, // The mode of compatibility with ECS compliant Grok patterns.Use this parameter to specify whether to use ECS Grok patterns instead of legacy ones when the structure finder creates a Grok pattern.This setting primarily has an impact when a whole message Grok pattern such as `%{CATALINALOG}` matches the input.If the structure finder identifies a common structure but has no idea of the meaning then generic field names such as `path`, `ipaddress`, `field1`, and `field2` are used in the `grok_pattern` output.The intention in that situation is that a user who knows the meanings will rename the fields before using them.
+     *     timestamp_field?: string, // Optional parameter to specify the timestamp field in the file
+     *     timestamp_format?: string, // Optional parameter to specify the timestamp format in the file - may be either a Joda or Java time format
+     *     explain?: bool, // Whether to include a commentary on how the structure was derived
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -58,8 +58,9 @@ class TextStructure extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function findFieldStructure(array $params = [])
+    public function findFieldStructure(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index', 'field'], $params);
         $url = '/_text_structure/find_field_structure';
         $method = 'GET';
@@ -70,28 +71,28 @@ class TextStructure extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Finds the structure of a list of messages. The messages must contain data that is suitable to be ingested into Elasticsearch.
+     * Find the structure of text messages
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/find-message-structure.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-text-structure-find-message-structure
      *
      * @param array{
-     *     timeout: time, // Timeout after which the analysis will be aborted
-     *     format: enum, // Optional parameter to specify the high level file format
-     *     column_names: list, // Optional parameter containing a comma separated list of the column names for a delimited file
-     *     delimiter: string, // Optional parameter to specify the delimiter character for a delimited file - must be a single character
-     *     quote: string, // Optional parameter to specify the quote character for a delimited file - must be a single character
-     *     should_trim_fields: boolean, // Optional parameter to specify whether the values between delimiters in a delimited file should have whitespace trimmed from them
-     *     grok_pattern: string, // Optional parameter to specify the Grok pattern that should be used to extract fields from messages in a semi-structured text file
-     *     ecs_compatibility: string, // Optional parameter to specify the compatibility mode with ECS Grok patterns - may be either 'v1' or 'disabled'
-     *     timestamp_field: string, // Optional parameter to specify the timestamp field in the file
-     *     timestamp_format: string, // Optional parameter to specify the timestamp format in the file - may be either a Joda or Java time format
-     *     explain: boolean, // Whether to include a commentary on how the structure was derived
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) JSON object with one field [messages], containing an array of messages to be analyzed
+     *     timeout?: int|string, // Timeout after which the analysis will be aborted
+     *     format?: string, // Optional parameter to specify the high level file format
+     *     column_names?: string|array<string>, // Optional parameter containing a comma separated list of the column names for a delimited file
+     *     delimiter?: string, // Optional parameter to specify the delimiter character for a delimited file - must be a single character
+     *     quote?: string, // Optional parameter to specify the quote character for a delimited file - must be a single character
+     *     should_trim_fields?: bool, // Optional parameter to specify whether the values between delimiters in a delimited file should have whitespace trimmed from them
+     *     grok_pattern?: string, // Optional parameter to specify the Grok pattern that should be used to extract fields from messages in a semi-structured text file
+     *     ecs_compatibility?: string, // The mode of compatibility with ECS compliant Grok patterns.Use this parameter to specify whether to use ECS Grok patterns instead of legacy ones when the structure finder creates a Grok pattern.This setting primarily has an impact when a whole message Grok pattern such as `%{CATALINALOG}` matches the input.If the structure finder identifies a common structure but has no idea of meaning then generic field names such as `path`, `ipaddress`, `field1`, and `field2` are used in the `grok_pattern` output, with the intention that a user who knows the meanings rename these fields before using it.
+     *     timestamp_field?: string, // Optional parameter to specify the timestamp field in the file
+     *     timestamp_format?: string, // Optional parameter to specify the timestamp format in the file - may be either a Joda or Java time format
+     *     explain?: bool, // Whether to include a commentary on how the structure was derived
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) JSON object with one field [messages], containing an array of messages to be analyzed. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -100,8 +101,9 @@ class TextStructure extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function findMessageStructure(array $params = [])
+    public function findMessageStructure(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['body'], $params);
         $url = '/_text_structure/find_message_structure';
         $method = empty($params['body']) ? 'GET' : 'POST';
@@ -112,32 +114,32 @@ class TextStructure extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Finds the structure of a text file. The text file must contain data that is suitable to be ingested into Elasticsearch.
+     * Find the structure of a text file
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/find-structure.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-text-structure-find-structure
      *
      * @param array{
-     *     lines_to_sample: int, // How many lines of the file should be included in the analysis
-     *     line_merge_size_limit: int, // Maximum number of characters permitted in a single message when lines are merged to create messages.
-     *     timeout: time, // Timeout after which the analysis will be aborted
-     *     charset: string, // Optional parameter to specify the character set of the file
-     *     format: enum, // Optional parameter to specify the high level file format
-     *     has_header_row: boolean, // Optional parameter to specify whether a delimited file includes the column names in its first row
-     *     column_names: list, // Optional parameter containing a comma separated list of the column names for a delimited file
-     *     delimiter: string, // Optional parameter to specify the delimiter character for a delimited file - must be a single character
-     *     quote: string, // Optional parameter to specify the quote character for a delimited file - must be a single character
-     *     should_trim_fields: boolean, // Optional parameter to specify whether the values between delimiters in a delimited file should have whitespace trimmed from them
-     *     grok_pattern: string, // Optional parameter to specify the Grok pattern that should be used to extract fields from messages in a semi-structured text file
-     *     ecs_compatibility: string, // Optional parameter to specify the compatibility mode with ECS Grok patterns - may be either 'v1' or 'disabled'
-     *     timestamp_field: string, // Optional parameter to specify the timestamp field in the file
-     *     timestamp_format: string, // Optional parameter to specify the timestamp format in the file - may be either a Joda or Java time format
-     *     explain: boolean, // Whether to include a commentary on how the structure was derived
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The contents of the file to be analyzed
+     *     lines_to_sample?: int, // How many lines of the file should be included in the analysis
+     *     line_merge_size_limit?: int, // Maximum number of characters permitted in a single message when lines are merged to create messages.
+     *     timeout?: int|string, // Timeout after which the analysis will be aborted
+     *     charset?: string, // Optional parameter to specify the character set of the file
+     *     format?: string, // Optional parameter to specify the high level file format
+     *     has_header_row?: bool, // Optional parameter to specify whether a delimited file includes the column names in its first row
+     *     column_names?: string|array<string>, // Optional parameter containing a comma separated list of the column names for a delimited file
+     *     delimiter?: string, // Optional parameter to specify the delimiter character for a delimited file - must be a single character
+     *     quote?: string, // Optional parameter to specify the quote character for a delimited file - must be a single character
+     *     should_trim_fields?: bool, // Optional parameter to specify whether the values between delimiters in a delimited file should have whitespace trimmed from them
+     *     grok_pattern?: string, // Optional parameter to specify the Grok pattern that should be used to extract fields from messages in a semi-structured text file
+     *     ecs_compatibility?: string, // Optional parameter to specify the compatibility mode with ECS Grok patterns - may be either 'v1' or 'disabled'
+     *     timestamp_field?: string, // Optional parameter to specify the timestamp field in the file
+     *     timestamp_format?: string, // Optional parameter to specify the timestamp format in the file - may be either a Joda or Java time format
+     *     explain?: bool, // Whether to include a commentary on how the structure was derived
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The contents of the file to be analyzed. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -146,8 +148,9 @@ class TextStructure extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function findStructure(array $params = [])
+    public function findStructure(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['body'], $params);
         $url = '/_text_structure/find_structure';
         $method = 'POST';
@@ -158,18 +161,18 @@ class TextStructure extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Tests a Grok pattern on some text.
+     * Test a Grok pattern
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/test-grok-pattern.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-text-structure-test-grok-pattern
      *
      * @param array{
-     *     ecs_compatibility: string, // Optional parameter to specify the compatibility mode with ECS Grok patterns - may be either 'v1' or 'disabled'
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The Grok pattern and text.
+     *     ecs_compatibility?: string, // Optional parameter to specify the compatibility mode with ECS Grok patterns - may be either 'v1' or 'disabled'
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The Grok pattern and text.. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -178,8 +181,9 @@ class TextStructure extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function testGrokPattern(array $params = [])
+    public function testGrokPattern(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['body'], $params);
         $url = '/_text_structure/test_grok_pattern';
         $method = empty($params['body']) ? 'GET' : 'POST';

@@ -23,59 +23,80 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
  */
 trait MessageResponseTrait
 {
-    public function getProtocolVersion() : string
+    public function getProtocolVersion(): string
     {
         return $this->response->getProtocolVersion();
     }
-    public function withProtocolVersion($version) : MessageInterface
+    /**
+     * @return MessageInterface
+     */
+    public function withProtocolVersion($version): MessageInterface
     {
         return $this->response->withProtocolVersion($version);
     }
-    public function getHeaders() : array
+    public function getHeaders(): array
     {
         return $this->response->getHeaders();
     }
-    public function hasHeader(string $name) : bool
+    public function hasHeader(string $name): bool
     {
         return $this->response->hasHeader($name);
     }
-    public function getHeader(string $name) : array
+    public function getHeader(string $name): array
     {
         return $this->response->getHeader($name);
     }
-    public function getHeaderLine(string $name) : string
+    public function getHeaderLine(string $name): string
     {
         return $this->response->getHeaderLine($name);
     }
-    public function withHeader(string $name, $value) : MessageInterface
+    /**
+     * @return MessageInterface
+     */
+    public function withHeader(string $name, $value): MessageInterface
     {
         return $this->response->withHeader($name, $value);
     }
-    public function withAddedHeader(string $name, $value) : MessageInterface
+    /**
+     * @return MessageInterface
+     */
+    public function withAddedHeader(string $name, $value): MessageInterface
     {
         return $this->response->withAddedHeader($name, $value);
     }
-    public function withoutHeader(string $name) : MessageInterface
+    /**
+     * @return MessageInterface
+     */
+    public function withoutHeader(string $name): MessageInterface
     {
         return $this->response->withoutHeader($name);
     }
-    public function getBody() : StreamInterface
+    /**
+     * @return StreamInterface
+     */
+    public function getBody(): StreamInterface
     {
         return $this->response->getBody();
     }
-    public function withBody(StreamInterface $body) : MessageInterface
+    /**
+     * @return MessageInterface
+     */
+    public function withBody(StreamInterface $body): MessageInterface
     {
         return $this->response->withBody($body);
     }
-    public function getStatusCode() : int
+    public function getStatusCode(): int
     {
         return $this->response->getStatusCode();
     }
-    public function withStatus(int $code, string $reasonPhrase = '') : ResponseInterface
+    /**
+     * @return ResponseInterface
+     */
+    public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
         return $this->response->withStatus($code, $reasonPhrase);
     }
-    public function getReasonPhrase() : string
+    public function getReasonPhrase(): string
     {
         return $this->response->getReasonPhrase();
     }

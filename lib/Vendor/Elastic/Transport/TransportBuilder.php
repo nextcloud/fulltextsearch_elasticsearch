@@ -14,11 +14,13 @@
 declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport;
 
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Client\Curl;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\NodePoolInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\SimpleNodePool;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Resurrect\NoResurrect;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Selector\RoundRobin;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception\NotFoundException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Psr18ClientDiscovery;
 use OCA\FullTextSearch_Elasticsearch\Vendor\OpenTelemetry\API\Trace\TracerInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
@@ -30,81 +32,97 @@ class TransportBuilder
     protected ClientInterface $client;
     protected NodePoolInterface $nodePool;
     protected LoggerInterface $logger;
+    /**
+     * @var array<string>
+     */
     protected array $hosts = [];
     protected TracerInterface $OTelTracer;
-    public final function __construct()
+    final public function __construct()
     {
     }
-    public static function create() : TransportBuilder
+    public static function create(): TransportBuilder
     {
         return new static();
     }
-    public function setClient(ClientInterface $client) : self
+    public function setClient(ClientInterface $client): self
     {
         $this->client = $client;
         return $this;
     }
-    public function getClient() : ClientInterface
+    public function getClient(): ClientInterface
     {
         if (empty($this->client)) {
-            $this->client = Psr18ClientDiscovery::find();
+            try {
+                $this->client = Psr18ClientDiscovery::find();
+            } catch (NotFoundException $e) {
+                $this->client = new Curl();
+            }
         }
         return $this->client;
     }
-    public function setNodePool(NodePoolInterface $nodePool) : self
+    public function setNodePool(NodePoolInterface $nodePool): self
     {
         $this->nodePool = $nodePool;
         return $this;
     }
-    public function getNodePool() : NodePoolInterface
+    public function getNodePool(): NodePoolInterface
     {
         if (empty($this->nodePool)) {
             $this->nodePool = new SimpleNodePool(new RoundRobin(), new NoResurrect());
         }
         return $this->nodePool;
     }
-    public function setLogger(LoggerInterface $logger) : self
+    public function setLogger(LoggerInterface $logger): self
     {
         $this->logger = $logger;
         return $this;
     }
-    public function getLogger() : LoggerInterface
+    public function getLogger(): LoggerInterface
     {
         if (empty($this->logger)) {
             $this->logger = new NullLogger();
         }
         return $this->logger;
     }
-    public function setHosts(array $hosts) : self
+    /**
+     * @param array<string> $hosts
+     */
+    public function setHosts(array $hosts): self
     {
         $this->hosts = $hosts;
         return $this;
     }
-    public function getHosts() : array
+    /**
+     * @return array<string>
+     */
+    public function getHosts(): array
     {
         return $this->hosts;
     }
-    public function setCloudId(string $cloudId) : self
+    public function setCloudId(string $cloudId): self
     {
         $this->hosts = [$this->parseElasticCloudId($cloudId)];
         return $this;
     }
-    public function build() : Transport
+    public function build(): Transport
     {
         return new Transport($this->getClient(), $this->getNodePool()->setHosts($this->hosts), $this->getLogger());
     }
     /**
      * Return the URL of Elastic Cloud from the Cloud ID
+     * 
+     * @throws Exception\CloudIdParseException
      */
-    private function parseElasticCloudId(string $cloudId) : string
+    private function parseElasticCloudId(string $cloudId): string
     {
-        try {
-            list($name, $encoded) = \explode(':', $cloudId);
-            list($uri, $uuids) = \explode('$', \base64_decode($encoded));
-            list($es, ) = \explode(':', $uuids);
-            return \sprintf("https://%s.%s", $es, $uri);
-        } catch (Throwable $t) {
-            throw new Exception\CloudIdParseException('Cloud ID not valid');
+        if (strpos($cloudId, ':') !== \false) {
+            list($name, $encoded) = explode(':', $cloudId, 2);
+            $base64 = base64_decode($encoded, \true);
+            if ($base64 !== \false && strpos($base64, '$') !== \false) {
+                list($uri, $uuids) = explode('$', $base64);
+                return sprintf("https://%s.%s", $uuids, $uri);
+            }
         }
+        throw new Exception\CloudIdParseException(sprintf('Cloud ID %s is not valid', $name ?? ''));
     }
 }

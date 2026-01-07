@@ -26,18 +26,18 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class License extends AbstractEndpoint
 {
     /**
-     * Deletes licensing information for the cluster
+     * Delete the license
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/delete-license.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-license-delete
      *
      * @param array{
-     *     master_timeout: time, // Timeout for processing on master node
-     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     timeout?: int|string, // Timeout for acknowledgement of update from all nodes in cluster
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -46,8 +46,9 @@ class License extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function delete(array $params = [])
+    public function delete(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_license';
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -57,18 +58,19 @@ class License extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Retrieves licensing information for the cluster
+     * Get license information
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-license.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-license-get
+     * @group serverless
      *
      * @param array{
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     accept_enterprise: boolean, // Supported for backwards compatibility with 7.x. If this param is used it must be set to true
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     accept_enterprise?: bool, // Supported for backwards compatibility with 7.x. If this param is used it must be set to true
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -77,8 +79,9 @@ class License extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function get(array $params = [])
+    public function get(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_license';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['local', 'accept_enterprise', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -88,16 +91,16 @@ class License extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Retrieves information about the status of the basic license.
+     * Get the basic license status
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-basic-status.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-license-get-basic-status
      *
      * @param array{
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -106,8 +109,9 @@ class License extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getBasicStatus(array $params = [])
+    public function getBasicStatus(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_license/basic_status';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -117,16 +121,16 @@ class License extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Retrieves information about the status of the trial license.
+     * Get the trial status
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/get-trial-status.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-license-get-trial-status
      *
      * @param array{
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -135,8 +139,9 @@ class License extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getTrialStatus(array $params = [])
+    public function getTrialStatus(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_license/trial_status';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -146,20 +151,20 @@ class License extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Updates the license for the cluster.
+     * Update the license
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/update-license.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-license-post
      *
      * @param array{
-     *     acknowledge: boolean, // whether the user has acknowledged acknowledge messages (default: false)
-     *     master_timeout: time, // Timeout for processing on master node
-     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  licenses to be installed
+     *     acknowledge?: bool, // whether the user has acknowledged acknowledge messages (default: false)
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     timeout?: int|string, // Timeout for acknowledgement of update from all nodes in cluster
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // licenses to be installed. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -168,8 +173,9 @@ class License extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function post(array $params = [])
+    public function post(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_license';
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['acknowledge', 'master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -179,19 +185,19 @@ class License extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Starts an indefinite basic license.
+     * Start a basic license
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/start-basic.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-license-post-start-basic
      *
      * @param array{
-     *     acknowledge: boolean, // whether the user has acknowledged acknowledge messages (default: false)
-     *     master_timeout: time, // Timeout for processing on master node
-     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     acknowledge?: bool, // whether the user has acknowledged acknowledge messages (default: false)
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     timeout?: int|string, // Timeout for acknowledgement of update from all nodes in cluster
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -200,8 +206,9 @@ class License extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function postStartBasic(array $params = [])
+    public function postStartBasic(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_license/start_basic';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['acknowledge', 'master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -211,20 +218,19 @@ class License extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * starts a limited time trial license.
+     * Start a trial
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/start-trial.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-license-post-start-trial
      *
      * @param array{
-     *     type: string, // The type of trial license to generate (default: "trial")
-     *     acknowledge: boolean, // whether the user has acknowledged acknowledge messages (default: false)
-     *     master_timeout: time, // Timeout for processing on master node
-     *     timeout: time, // Timeout for acknowledgement of update from all nodes in cluster
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     type?: string, // The type of trial license to generate (default: "trial")
+     *     acknowledge?: bool, // whether the user has acknowledged acknowledge messages (default: false)
+     *     master_timeout?: int|string, // Timeout for processing on master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -233,11 +239,12 @@ class License extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function postStartTrial(array $params = [])
+    public function postStartTrial(?array $params = null)
     {
+        $params = $params ?? [];
         $url = '/_license/start_trial';
         $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['type', 'acknowledge', 'master_timeout', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['type', 'acknowledge', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, [], $request, 'license.post_start_trial');
