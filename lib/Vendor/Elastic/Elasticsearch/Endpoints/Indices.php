@@ -26,23 +26,24 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Indices extends AbstractEndpoint
 {
     /**
-     * Adds a block to an index.
+     * Add an index block
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-blocks.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-add-block
+     * @group serverless
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma separated list of indices to add a block to
+     *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to add a block to
      *     block: string, // (REQUIRED) The block to add (one of read, write, read_only or metadata)
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -52,10 +53,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function addBlock(array $params = [])
+    public function addBlock(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index', 'block'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_block/' . $this->encode($params['block']);
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_block/' . $this->encode($params['block']);
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -64,18 +66,19 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Performs the analysis process on a text and return the tokens breakdown of the text.
+     * Get tokens from text analysis
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-analyze.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-analyze
+     * @group serverless
      *
      * @param array{
-     *     index: string, //  The name of the index to scope the operation
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  Define analyzer/tokenizer parameters and the text on which the analysis should be performed
+     *     index?: string, // The name of the index to scope the operation
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) Define analyzer/tokenizer parameters and the text on which the analysis should be performed. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -84,8 +87,10 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function analyze(array $params = [])
+    public function analyze(?array $params = null)
     {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['body'], $params);
         if (isset($params['index'])) {
             $url = '/' . $this->encode($params['index']) . '/_analyze';
             $method = empty($params['body']) ? 'GET' : 'POST';
@@ -100,24 +105,58 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Clears all or specific caches for one or more indices.
+     * Cancel a migration reindex operation
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-clearcache.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-cancel-migrate-reindex
+     * @group serverless
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index name to limit the operation
-     *     fielddata: boolean, // Clear field data
-     *     fields: list, // A comma-separated list of fields to clear when using the `fielddata` parameter (default: all)
-     *     query: boolean, // Clear query caches
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     request: boolean, // Clear request cache
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string, // (REQUIRED) The index or data stream name
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function cancelMigrateReindex(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['index'], $params);
+        $url = '/_migration/reindex/' . $this->encode($params['index']) . '/_cancel';
+        $method = 'POST';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'indices.cancel_migrate_reindex');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Clear the cache
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-clear-cache
+     *
+     * @param array{
+     *     index?: string|array<string>, // A comma-separated list of index name to limit the operation
+     *     fielddata?: bool, // Clear field data
+     *     fields?: string|array<string>, // A comma-separated list of fields to clear when using the `fielddata` parameter (default: all)
+     *     query?: bool, // Clear query caches
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     request?: bool, // Clear request cache
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -126,10 +165,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function clearCache(array $params = [])
+    public function clearCache(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_cache/clear';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_cache/clear';
             $method = 'POST';
         } else {
             $url = '/_cache/clear';
@@ -142,22 +182,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Clones an index
+     * Clone an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-clone-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-clone
      *
      * @param array{
      *     index: string, // (REQUIRED) The name of the source index to clone
      *     target: string, // (REQUIRED) The name of the target index to clone into
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     wait_for_active_shards: string, // Set the number of active shards to wait for on the cloned index before the operation returns.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The configuration for the target index (`settings` and `aliases`)
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the cloned index before the operation returns.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // The configuration for the target index (`settings` and `aliases`). If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -167,8 +207,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function clone(array $params = [])
+    public function clone(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index', 'target'], $params);
         $url = '/' . $this->encode($params['index']) . '/_clone/' . $this->encode($params['target']);
         $method = 'PUT';
@@ -179,23 +220,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Closes an index.
+     * Close an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-close
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma separated list of indices to close
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     wait_for_active_shards: string, // Sets the number of active shards to wait for before the operation returns.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to close
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     wait_for_active_shards?: string, // Sets the number of active shards to wait for before the operation returns.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -205,10 +246,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function close(array $params = [])
+    public function close(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_close';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_close';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'wait_for_active_shards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -217,21 +259,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates an index with optional settings and mappings.
+     * Create an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-create-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-create
+     * @group serverless
      *
      * @param array{
      *     index: string, // (REQUIRED) The name of the index
-     *     wait_for_active_shards: string, // Set the number of active shards to wait for before the operation returns.
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The configuration for the index (`settings` and `mappings`)
+     *     wait_for_active_shards?: string, // Set the number of active shards to wait for before the operation returns.
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // The configuration for the index (`settings` and `mappings`). If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -241,8 +284,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function create(array $params = [])
+    public function create(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
         $url = '/' . $this->encode($params['index']);
         $method = 'PUT';
@@ -253,19 +297,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates a data stream
+     * Create a data stream
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-create-data-stream
+     * @group serverless
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the data stream
-     *     timeout: time, // Specify timeout for acknowledging the cluster state update
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     timeout?: int|string, // Specify timeout for acknowledging the cluster state update
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -275,8 +320,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function createDataStream(array $params = [])
+    public function createDataStream(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_data_stream/' . $this->encode($params['name']);
         $method = 'PUT';
@@ -287,57 +333,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Provides statistics on operations happening in a data stream.
+     * Create an index from a source index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams.html
-     *
-     * @param array{
-     *     name: list, //  A comma-separated list of data stream names; use `_all` or empty string to perform the operation on all data streams
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     * } $params
-     *
-     * @throws NoNodeAvailableException if all the hosts are offline
-     * @throws ClientResponseException if the status code of response is 4xx
-     * @throws ServerResponseException if the status code of response is 5xx
-     *
-     * @return Elasticsearch|Promise
-     */
-    public function dataStreamsStats(array $params = [])
-    {
-        if (isset($params['name'])) {
-            $url = '/_data_stream/' . $this->encode($params['name']) . '/_stats';
-            $method = 'GET';
-        } else {
-            $url = '/_data_stream/_stats';
-            $method = 'GET';
-        }
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
-        $headers = ['Accept' => 'application/json'];
-        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
-        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.data_streams_stats');
-        return $this->client->sendRequest($request);
-    }
-    /**
-     * Deletes an index.
-     *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-delete-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-create-from
+     * @group serverless
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma-separated list of indices to delete; use `_all` or `*` string to delete all indices
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     ignore_unavailable: boolean, // Ignore unavailable indexes (default: false)
-     *     allow_no_indices: boolean, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open, closed, or hidden indices
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     source: string, // (REQUIRED) The source index name
+     *     dest: string, // (REQUIRED) The destination index name
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // The body contains the fields `mappings_override`, `settings_override`, and `remove_index_blocks`.. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -347,10 +356,87 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function delete(array $params = [])
+    public function createFrom(?array $params = null)
     {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['source', 'dest'], $params);
+        $url = '/_create_from/' . $this->encode($params['source']) . '/' . $this->encode($params['dest']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['source', 'dest'], $request, 'indices.create_from');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Get data stream stats
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-data-streams-stats-1
+     *
+     * @param array{
+     *     name?: string|array<string>, // A comma-separated list of data stream names; use `_all` or empty string to perform the operation on all data streams
+     *     expand_wildcards?: string|array<string>, // Whether to expand wildcard expressions to concrete data stream names that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function dataStreamsStats(?array $params = null)
+    {
+        $params = $params ?? [];
+        if (isset($params['name'])) {
+            $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_stats';
+            $method = 'GET';
+        } else {
+            $url = '/_data_stream/_stats';
+            $method = 'GET';
+        }
+        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.data_streams_stats');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Delete indices
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-delete
+     * @group serverless
+     *
+     * @param array{
+     *     index: string|array<string>, // (REQUIRED) A comma-separated list of indices to delete; use `_all` or `*` string to delete all indices
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     ignore_unavailable?: bool, // Ignore unavailable indexes (default: false)
+     *     allow_no_indices?: bool, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open, closed, or hidden indices
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function delete(?array $params = null)
+    {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']);
+        $url = '/' . $this->encode($this->convertValue($params['index']));
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -359,20 +445,21 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Deletes an alias.
+     * Delete an alias
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-aliases.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-delete-alias
+     * @group serverless
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma-separated list of index names (supports wildcards); use `_all` for all indices
-     *     name: list, // (REQUIRED) A comma-separated list of aliases to delete (supports wildcards); use `_all` to delete all aliases for the specified indices.
-     *     timeout: time, // Explicit timestamp for the document
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names (supports wildcards); use `_all` for all indices
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of aliases to delete (supports wildcards); use `_all` to delete all aliases for the specified indices.
+     *     timeout?: int|string, // Explicit timestamp for the document
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -382,10 +469,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteAlias(array $params = [])
+    public function deleteAlias(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index', 'name'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_alias/' . $this->encode($params['name']);
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_alias/' . $this->encode($this->convertValue($params['name']));
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -394,20 +482,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Deletes the data stream lifecycle of the selected data streams.
+     * Delete data stream lifecycles
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams-delete-lifecycle.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-delete-data-lifecycle
      *
      * @param array{
-     *     name: list, // (REQUIRED) A comma-separated list of data streams of which the data stream lifecycle will be deleted; use `*` to get all data streams
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     timeout: time, // Explicit timestamp for the document
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams of which the data stream lifecycle will be deleted; use `*` to get all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     timeout?: int|string, // Explicit timestamp for the document
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -417,10 +505,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteDataLifecycle(array $params = [])
+    public function deleteDataLifecycle(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']) . '/_lifecycle';
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_lifecycle';
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['expand_wildcards', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -429,19 +518,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Deletes a data stream.
+     * Delete data streams
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-delete-data-stream
+     * @group serverless
      *
      * @param array{
-     *     name: list, // (REQUIRED) A comma-separated list of data streams to delete; use `*` to delete all data streams
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams to delete; use `*` to delete all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -451,10 +541,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteDataStream(array $params = [])
+    public function deleteDataStream(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']);
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name']));
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['expand_wildcards', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -463,19 +554,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Deletes an index template.
+     * Delete data stream options
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-delete-template.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-delete-data-stream-options
      *
      * @param array{
-     *     name: string, // (REQUIRED) The name of the template
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams of which the data stream options will be deleted; use `*` to get all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     timeout?: int|string, // Explicit timestamp for the document
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -485,8 +577,45 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteIndexTemplate(array $params = [])
+    public function deleteDataStreamOptions(?array $params = null)
     {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name'], $params);
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_options';
+        $method = 'DELETE';
+        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.delete_data_stream_options');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Delete an index template
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-delete-index-template
+     * @group serverless
+     *
+     * @param array{
+     *     name: string, // (REQUIRED) The name of the template
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function deleteIndexTemplate(?array $params = null)
+    {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_index_template/' . $this->encode($params['name']);
         $method = 'DELETE';
@@ -497,19 +626,19 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Deletes an index template.
+     * Delete a legacy index template
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-delete-template-v1.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-delete-template
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the template
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -519,8 +648,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function deleteTemplate(array $params = [])
+    public function deleteTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_template/' . $this->encode($params['name']);
         $method = 'DELETE';
@@ -531,23 +661,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Analyzes the disk usage of each field of an index or data stream
+     * Analyze the index disk usage
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-disk-usage.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-disk-usage
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
      *     index: string, // (REQUIRED) Comma-separated list of indices or data streams to analyze the disk usage
-     *     run_expensive_tasks: boolean, // Must be set to [true] in order for the task to be performed. Defaults to false.
-     *     flush: boolean, // Whether flush or not before analyzing the index disk usage. Defaults to true
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     run_expensive_tasks?: bool, // Must be set to [true] in order for the task to be performed. Defaults to false.
+     *     flush?: bool, // Whether flush or not before analyzing the index disk usage. Defaults to true
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -557,8 +687,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function diskUsage(array $params = [])
+    public function diskUsage(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
         $url = '/' . $this->encode($params['index']) . '/_disk_usage';
         $method = 'POST';
@@ -571,18 +702,18 @@ class Indices extends AbstractEndpoint
     /**
      * Downsample an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/xpack-rollup.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-downsample
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
      *     index: string, // (REQUIRED) The index to downsample
      *     target_index: string, // (REQUIRED) The name of the target index to store downsampled data
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The downsampling configuration
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The downsampling configuration. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -592,8 +723,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function downsample(array $params = [])
+    public function downsample(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index', 'target_index', 'body'], $params);
         $url = '/' . $this->encode($params['index']) . '/_downsample/' . $this->encode($params['target_index']);
         $method = 'POST';
@@ -604,23 +736,24 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns information about whether a particular index exists.
+     * Check indices
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-exists.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-exists
+     * @group serverless
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma-separated list of index names
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     ignore_unavailable: boolean, // Ignore unavailable indexes (default: false)
-     *     allow_no_indices: boolean, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     include_defaults: boolean, // Whether to return all default setting for each of the indices.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     ignore_unavailable?: bool, // Ignore unavailable indexes (default: false)
+     *     allow_no_indices?: bool, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     include_defaults?: bool, // Whether to return all default setting for each of the indices.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -630,10 +763,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function exists(array $params = [])
+    public function exists(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']);
+        $url = '/' . $this->encode($this->convertValue($params['index']));
         $method = 'HEAD';
         $url = $this->addQueryString($url, $params, ['local', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'flat_settings', 'include_defaults', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -642,22 +776,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns information about whether a particular alias exists.
+     * Check aliases
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-aliases.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-exists-alias
+     * @group serverless
      *
      * @param array{
-     *     name: list, // (REQUIRED) A comma-separated list of alias names to return
-     *     index: list, //  A comma-separated list of index names to filter aliases
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of alias names to return
+     *     index?: string|array<string>, // A comma-separated list of index names to filter aliases
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -667,37 +802,39 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function existsAlias(array $params = [])
+    public function existsAlias(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_alias/' . $this->encode($params['name']);
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_alias/' . $this->encode($this->convertValue($params['name']));
             $method = 'HEAD';
         } else {
-            $url = '/_alias/' . $this->encode($params['name']);
+            $url = '/_alias/' . $this->encode($this->convertValue($params['name']));
             $method = 'HEAD';
         }
-        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'local', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['name', 'index'], $request, 'indices.exists_alias');
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns information about whether a particular index template exists.
+     * Check index templates
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/index-templates.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-exists-index-template
+     * @group serverless
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the template
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     master_timeout: time, // Explicit operation timeout for connection to master node
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -707,8 +844,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function existsIndexTemplate(array $params = [])
+    public function existsIndexTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_index_template/' . $this->encode($params['name']);
         $method = 'HEAD';
@@ -719,20 +857,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns information about whether a particular index template exists.
+     * Check existence of index templates
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-template-exists-v1.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-exists-template
      *
      * @param array{
-     *     name: list, // (REQUIRED) The comma separated names of the index templates
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     master_timeout: time, // Explicit operation timeout for connection to master node
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string|array<string>, // (REQUIRED) The comma separated names of the index templates
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -742,10 +880,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function existsTemplate(array $params = [])
+    public function existsTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_template/' . $this->encode($params['name']);
+        $url = '/_template/' . $this->encode($this->convertValue($params['name']));
         $method = 'HEAD';
         $url = $this->addQueryString($url, $params, ['flat_settings', 'master_timeout', 'local', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -754,19 +893,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Retrieves information about the index's current data stream lifecycle, such as any potential encountered error, time since creation etc.
+     * Get the status for a data stream lifecycle
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/data-streams-explain-lifecycle.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-explain-data-lifecycle
+     * @group serverless
      *
      * @param array{
      *     index: string, // (REQUIRED) The name of the index to explain
-     *     include_defaults: boolean, // indicates if the API should return the default values the system uses for the index's lifecycle
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     include_defaults?: bool, // indicates if the API should return the default values the system uses for the index's lifecycle
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -776,8 +916,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function explainDataLifecycle(array $params = [])
+    public function explainDataLifecycle(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
         $url = '/' . $this->encode($params['index']) . '/_lifecycle/explain';
         $method = 'GET';
@@ -788,22 +929,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns the field usage stats for each field of an index
+     * Get field usage stats
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/field-usage-stats.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-field-usage-stats
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
      *     index: string, // (REQUIRED) A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     fields: list, // A comma-separated list of fields to include in the stats if only a subset of fields should be returned (supports wildcards)
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     fields?: string|array<string>, // A comma-separated list of fields to include in the stats if only a subset of fields should be returned (supports wildcards)
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -813,8 +954,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function fieldUsageStats(array $params = [])
+    public function fieldUsageStats(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
         $url = '/' . $this->encode($params['index']) . '/_field_usage_stats';
         $method = 'GET';
@@ -825,22 +967,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Performs the flush operation on one or more indices.
+     * Flush data streams or indices
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-flush.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-flush
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string for all indices
-     *     force: boolean, // Whether a flush should be forced even if it is not necessarily needed ie. if no changes will be committed to the index. This is useful if transaction log IDs should be incremented even if no uncommitted changes are present. (This setting can be considered as internal)
-     *     wait_if_ongoing: boolean, // If set to true the flush operation will block until the flush can be executed if another flush operation is already executing. The default is true. If set to false the flush will be skipped iff if another flush operation is already running.
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string for all indices
+     *     force?: bool, // Whether a flush should be forced even if it is not necessarily needed ie. if no changes will be committed to the index. This is useful if transaction log IDs should be incremented even if no uncommitted changes are present. (This setting can be considered as internal)
+     *     wait_if_ongoing?: bool, // If set to true the flush operation will block until the flush can be executed if another flush operation is already executing. The default is true. If set to false the flush will be skipped iff if another flush operation is already running.
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -849,14 +991,15 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function flush(array $params = [])
+    public function flush(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_flush';
-            $method = empty($params['body']) ? 'GET' : 'POST';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_flush';
+            $method = 'POST';
         } else {
             $url = '/_flush';
-            $method = empty($params['body']) ? 'GET' : 'POST';
+            $method = 'POST';
         }
         $url = $this->addQueryString($url, $params, ['force', 'wait_if_ongoing', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -865,24 +1008,24 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Performs the force merge operation on one or more indices.
+     * Force a merge
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-forcemerge.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-forcemerge
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     flush: boolean, // Specify whether the index should be flushed after performing the operation (default: true)
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     max_num_segments: number, // The number of segments the index should be merged into (default: dynamic)
-     *     only_expunge_deletes: boolean, // Specify whether the operation should only expunge deleted documents
-     *     wait_for_completion: boolean, // Should the request wait until the force merge is completed.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     flush?: bool, // Specify whether the index should be flushed after performing the operation (default: true)
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     max_num_segments?: int, // The number of segments the index should be merged into (default: dynamic)
+     *     only_expunge_deletes?: bool, // Specify whether the operation should only expunge deleted documents
+     *     wait_for_completion?: bool, // Should the request wait until the force merge is completed.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -891,10 +1034,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function forcemerge(array $params = [])
+    public function forcemerge(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_forcemerge';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_forcemerge';
             $method = 'POST';
         } else {
             $url = '/_forcemerge';
@@ -907,25 +1051,26 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns information about one or more indices.
+     * Get index information
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-get-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get
+     * @group serverless
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma-separated list of index names
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     ignore_unavailable: boolean, // Ignore unavailable indexes (default: false)
-     *     allow_no_indices: boolean, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     features: enum, // Return only information on specified index features
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     include_defaults: boolean, // Whether to return all default setting for each of the indices.
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     ignore_unavailable?: bool, // Ignore unavailable indexes (default: false)
+     *     allow_no_indices?: bool, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     features?: string, // Return only information on specified index features
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     include_defaults?: bool, // Whether to return all default setting for each of the indices.
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -935,10 +1080,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function get(array $params = [])
+    public function get(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']);
+        $url = '/' . $this->encode($this->convertValue($params['index']));
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['local', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'features', 'flat_settings', 'include_defaults', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -947,22 +1093,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns an alias.
+     * Get aliases
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-aliases.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-alias
+     * @group serverless
      *
      * @param array{
-     *     name: list, //  A comma-separated list of alias names to return
-     *     index: list, //  A comma-separated list of index names to filter aliases
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name?: string|array<string>, // A comma-separated list of alias names to return
+     *     index?: string|array<string>, // A comma-separated list of index names to filter aliases
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -971,42 +1118,44 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getAlias(array $params = [])
+    public function getAlias(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index']) && isset($params['name'])) {
-            $url = '/' . $this->encode($params['index']) . '/_alias/' . $this->encode($params['name']);
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_alias/' . $this->encode($this->convertValue($params['name']));
             $method = 'GET';
         } elseif (isset($params['name'])) {
-            $url = '/_alias/' . $this->encode($params['name']);
+            $url = '/_alias/' . $this->encode($this->convertValue($params['name']));
             $method = 'GET';
         } elseif (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_alias';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_alias';
             $method = 'GET';
         } else {
             $url = '/_alias';
             $method = 'GET';
         }
-        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'local', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['name', 'index'], $request, 'indices.get_alias');
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns the data stream lifecycle of the selected data streams.
+     * Get data stream lifecycles
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams-get-lifecycle.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-data-lifecycle
+     * @group serverless
      *
      * @param array{
-     *     name: list, // (REQUIRED) A comma-separated list of data streams to get; use `*` to get all data streams
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     include_defaults: boolean, // Return all relevant default configurations for the data stream (default: false)
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams to get; use `*` to get all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     include_defaults?: bool, // Return all relevant default configurations for the data stream (default: false)
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1016,10 +1165,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getDataLifecycle(array $params = [])
+    public function getDataLifecycle(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']) . '/_lifecycle';
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_lifecycle';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['expand_wildcards', 'include_defaults', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -1028,21 +1178,16 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns data streams.
+     * Get data stream lifecycle stats
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-data-lifecycle-stats
      *
      * @param array{
-     *     name: list, //  A comma-separated list of data streams to get; use `*` to get all data streams
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     include_defaults: boolean, // Return all relevant default configurations for the data stream (default: false)
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     verbose: boolean, // Whether the maximum timestamp for each data stream should be calculated and returned (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1051,10 +1196,47 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getDataStream(array $params = [])
+    public function getDataLifecycleStats(?array $params = null)
     {
+        $params = $params ?? [];
+        $url = '/_lifecycle/stats';
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'indices.get_data_lifecycle_stats');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Get data streams
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-data-stream
+     * @group serverless
+     *
+     * @param array{
+     *     name?: string|array<string>, // A comma-separated list of data streams to get; use `*` to get all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     include_defaults?: bool, // Return all relevant default configurations for the data stream (default: false)
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     verbose?: bool, // Whether the maximum timestamp for each data stream should be calculated and returned (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getDataStream(?array $params = null)
+    {
+        $params = $params ?? [];
         if (isset($params['name'])) {
-            $url = '/_data_stream/' . $this->encode($params['name']);
+            $url = '/_data_stream/' . $this->encode($this->convertValue($params['name']));
             $method = 'GET';
         } else {
             $url = '/_data_stream';
@@ -1067,23 +1249,19 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns mapping for one or more fields.
+     * Get data stream mappings
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-get-field-mapping.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-data-stream-mappings
+     * @group serverless
      *
      * @param array{
-     *     fields: list, // (REQUIRED) A comma-separated list of fields
-     *     index: list, //  A comma-separated list of index names
-     *     include_defaults: boolean, // Whether the default mapping values should be returned as well
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1093,38 +1271,149 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getFieldMapping(array $params = [])
+    public function getDataStreamMappings(?array $params = null)
     {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name'], $params);
+        $url = '/_data_stream/' . $this->encode($params['name']) . '/_mappings';
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.get_data_stream_mappings');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Get data stream options
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-data-stream-options
+     * @group serverless
+     *
+     * @param array{
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams to get; use `*` to get all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getDataStreamOptions(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name'], $params);
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_options';
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.get_data_stream_options');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Get data stream settings
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-data-stream-settings
+     * @group serverless
+     *
+     * @param array{
+     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getDataStreamSettings(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name'], $params);
+        $url = '/_data_stream/' . $this->encode($params['name']) . '/_settings';
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.get_data_stream_settings');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Get mapping definitions
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-mapping
+     *
+     * @param array{
+     *     fields: string|array<string>, // (REQUIRED) A comma-separated list of fields
+     *     index?: string|array<string>, // A comma-separated list of index names
+     *     include_defaults?: bool, // Whether the default mapping values should be returned as well
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getFieldMapping(?array $params = null)
+    {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['fields'], $params);
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_mapping/field/' . $this->encode($params['fields']);
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_mapping/field/' . $this->encode($this->convertValue($params['fields']));
             $method = 'GET';
         } else {
-            $url = '/_mapping/field/' . $this->encode($params['fields']);
+            $url = '/_mapping/field/' . $this->encode($this->convertValue($params['fields']));
             $method = 'GET';
         }
-        $url = $this->addQueryString($url, $params, ['include_defaults', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'local', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['include_defaults', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['fields', 'index'], $request, 'indices.get_field_mapping');
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns an index template.
+     * Get index templates
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-get-template.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-index-template
+     * @group serverless
      *
      * @param array{
-     *     name: string, //  A pattern that returned template names must match
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     master_timeout: time, // Explicit operation timeout for connection to master node
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     include_defaults: boolean, // Return all relevant default configurations for the index template (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name?: string, // A pattern that returned template names must match
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     include_defaults?: bool, // Return all relevant default configurations for the index template (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1133,8 +1422,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getIndexTemplate(array $params = [])
+    public function getIndexTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['name'])) {
             $url = '/_index_template/' . $this->encode($params['name']);
             $method = 'GET';
@@ -1149,22 +1439,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns mappings for one or more indices.
+     * Get mapping definitions
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-get-mapping.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-mapping
+     * @group serverless
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string|array<string>, // A comma-separated list of index names
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1173,10 +1464,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getMapping(array $params = [])
+    public function getMapping(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_mapping';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_mapping';
             $method = 'GET';
         } else {
             $url = '/_mapping';
@@ -1189,25 +1481,60 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns settings for one or more indices.
+     * Get the migration reindexing status
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-get-settings.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/group/endpoint-migration
+     * @group serverless
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     name: list, //  The name of the settings that should be included
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     include_defaults: boolean, // Whether to return all default setting for each of the indices.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string, // (REQUIRED) The index or data stream name
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getMigrateReindexStatus(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['index'], $params);
+        $url = '/_migration/reindex/' . $this->encode($params['index']) . '/_status';
+        $method = 'GET';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'indices.get_migrate_reindex_status');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Get index settings
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-settings
+     * @group serverless
+     *
+     * @param array{
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     name?: string|array<string>, // The name of the settings that should be included
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     include_defaults?: bool, // Whether to return all default setting for each of the indices.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1216,16 +1543,17 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getSettings(array $params = [])
+    public function getSettings(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index']) && isset($params['name'])) {
-            $url = '/' . $this->encode($params['index']) . '/_settings/' . $this->encode($params['name']);
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_settings/' . $this->encode($this->convertValue($params['name']));
             $method = 'GET';
         } elseif (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_settings';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_settings';
             $method = 'GET';
         } elseif (isset($params['name'])) {
-            $url = '/_settings/' . $this->encode($params['name']);
+            $url = '/_settings/' . $this->encode($this->convertValue($params['name']));
             $method = 'GET';
         } else {
             $url = '/_settings';
@@ -1238,20 +1566,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns an index template.
+     * Get legacy index templates
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-get-template-v1.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-get-template
      *
      * @param array{
-     *     name: list, //  The comma separated names of the index templates
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     master_timeout: time, // Explicit operation timeout for connection to master node
-     *     local: boolean, // Return local information, do not retrieve the state from master node (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name?: string|array<string>, // The comma separated names of the index templates
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1260,10 +1588,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function getTemplate(array $params = [])
+    public function getTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['name'])) {
-            $url = '/_template/' . $this->encode($params['name']);
+            $url = '/_template/' . $this->encode($this->convertValue($params['name']));
             $method = 'GET';
         } else {
             $url = '/_template';
@@ -1276,19 +1605,52 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Migrates an alias to a data stream
+     * Reindex legacy backing indices
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-migrate-reindex
+     *
+     * @param array{
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The body contains the fields `mode` and `source.index, where the only mode currently supported is `upgrade`, and the `source.index` must be a data stream name. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function migrateReindex(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['body'], $params);
+        $url = '/_migration/reindex';
+        $method = 'POST';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, [], $request, 'indices.migrate_reindex');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Convert an index alias to a data stream
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-migrate-to-data-stream
+     * @group serverless
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the alias to migrate
-     *     timeout: time, // Specify timeout for acknowledging the cluster state update
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     timeout?: int|string, // Specify timeout for acknowledging the cluster state update
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1298,8 +1660,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function migrateToDataStream(array $params = [])
+    public function migrateToDataStream(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_data_stream/_migrate/' . $this->encode($params['name']);
         $method = 'POST';
@@ -1310,17 +1673,18 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Modifies a data stream
+     * Update data streams
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-modify-data-stream
+     * @group serverless
      *
      * @param array{
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The data stream modifications
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The data stream modifications. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1329,8 +1693,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function modifyDataStream(array $params = [])
+    public function modifyDataStream(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['body'], $params);
         $url = '/_data_stream/_modify';
         $method = 'POST';
@@ -1341,23 +1706,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Opens an index.
+     * Open a closed index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-open
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma separated list of indices to open
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     wait_for_active_shards: string, // Sets the number of active shards to wait for before the operation returns.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to open
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     wait_for_active_shards?: string, // Sets the number of active shards to wait for before the operation returns.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1367,10 +1732,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function open(array $params = [])
+    public function open(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_open';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_open';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'wait_for_active_shards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -1379,18 +1745,18 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Promotes a data stream from a replicated data stream managed by CCR to a regular data stream
+     * Promote a data stream
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-promote-data-stream
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the data stream
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1400,8 +1766,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function promoteDataStream(array $params = [])
+    public function promoteDataStream(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_data_stream/_promote/' . $this->encode($params['name']);
         $method = 'POST';
@@ -1412,21 +1779,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates or updates an alias.
+     * Create or update an alias
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-aliases.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-alias
+     * @group serverless
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma-separated list of index names the alias should point to (supports wildcards); use `_all` to perform the operation on all indices.
+     *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names the alias should point to (supports wildcards); use `_all` to perform the operation on all indices.
      *     name: string, // (REQUIRED) The name of the alias to be created or updated
-     *     timeout: time, // Explicit timestamp for the document
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The settings for the alias, such as `routing` or `filter`
+     *     timeout?: int|string, // Explicit timestamp for the document
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // The settings for the alias, such as `routing` or `filter`. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1436,10 +1804,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putAlias(array $params = [])
+    public function putAlias(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index', 'name'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_alias/' . $this->encode($params['name']);
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_alias/' . $this->encode($params['name']);
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -1448,21 +1817,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Updates the data stream lifecycle of the selected data streams.
+     * Update data stream lifecycles
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/data-streams-put-lifecycle.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-data-lifecycle
+     * @group serverless
      *
      * @param array{
-     *     name: list, // (REQUIRED) A comma-separated list of data streams whose lifecycle will be updated; use `*` to set the lifecycle to all data streams
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     timeout: time, // Explicit timestamp for the document
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The data stream lifecycle configuration that consist of the data retention
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams whose lifecycle will be updated; use `*` to set the lifecycle to all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     timeout?: int|string, // Explicit timestamp for the document
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The data stream lifecycle configuration that consist of the data retention. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1472,10 +1842,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putDataLifecycle(array $params = [])
+    public function putDataLifecycle(?array $params = null)
     {
-        $this->checkRequiredParameters(['name'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']) . '/_lifecycle';
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name', 'body'], $params);
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_lifecycle';
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['expand_wildcards', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -1484,21 +1855,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates or updates an index template.
+     * Update data stream mappings
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-put-template.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-data-stream-mappings
+     * @group serverless
      *
      * @param array{
-     *     name: string, // (REQUIRED) The name of the template
-     *     create: boolean, // Whether the index template should only be added if new or can also replace an existing one
-     *     cause: string, // User defined reason for creating/updating the index template
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The template definition
+     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
+     *     dry_run?: bool, // Whether this request should only be a dry run rather than actually applying mappings
+     *     timeout?: int|string, // Period to wait for a response
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The data stream mappings to be updated. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1508,8 +1880,123 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putIndexTemplate(array $params = [])
+    public function putDataStreamMappings(?array $params = null)
     {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name', 'body'], $params);
+        $url = '/_data_stream/' . $this->encode($params['name']) . '/_mappings';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['dry_run', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.put_data_stream_mappings');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Update data stream options
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-data-stream-options
+     * @group serverless
+     *
+     * @param array{
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams whose options will be updated; use `*` to set the options to all data streams
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     timeout?: int|string, // Explicit timestamp for the document
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The data stream options configuration that consist of the failure store configuration. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putDataStreamOptions(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name', 'body'], $params);
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_options';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.put_data_stream_options');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Update data stream settings
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-data-stream-settings
+     * @group serverless
+     *
+     * @param array{
+     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
+     *     dry_run?: bool, // Whether this request should only be a dry run rather than actually applying settings
+     *     timeout?: int|string, // Period to wait for a response
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The data stream settings to be updated. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putDataStreamSettings(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name', 'body'], $params);
+        $url = '/_data_stream/' . $this->encode($params['name']) . '/_settings';
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['dry_run', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.put_data_stream_settings');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Create or update an index template
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-index-template
+     * @group serverless
+     *
+     * @param array{
+     *     name: string, // (REQUIRED) The name of the template
+     *     create?: bool, // Whether the index template should only be added if new or can also replace an existing one
+     *     cause?: string, // User defined reason for creating/updating the index template
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The template definition. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putIndexTemplate(?array $params = null)
+    {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name', 'body'], $params);
         $url = '/_index_template/' . $this->encode($params['name']);
         $method = 'PUT';
@@ -1520,24 +2007,25 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Updates the index mappings.
+     * Update field mappings
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-put-mapping.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-mapping
+     * @group serverless
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma-separated list of index names the mapping should be added to (supports wildcards); use `_all` or omit to add the mapping on all indices.
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     write_index_only: boolean, // When true, applies mappings only to the write index of an alias or data stream
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The mapping definition
+     *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names the mapping should be added to (supports wildcards); use `_all` or omit to add the mapping on all indices.
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     write_index_only?: bool, // When true, applies mappings only to the write index of an alias or data stream
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The mapping definition. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1547,10 +2035,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putMapping(array $params = [])
+    public function putMapping(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index', 'body'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_mapping';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_mapping';
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'write_index_only', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -1559,26 +2048,27 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Updates the index settings.
+     * Update index settings
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-update-settings.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-settings
+     * @group serverless
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     timeout: time, // Explicit operation timeout
-     *     preserve_existing: boolean, // Whether to update existing settings. If set to `true` existing settings on an index remain unchanged, the default is `false`
-     *     reopen: boolean, // Whether to close and reopen the index to apply non-dynamic settings. If set to `true` the indices to which the settings are being applied will be closed temporarily and then reopened in order to apply the changes. The default is `false`
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     flat_settings: boolean, // Return settings in flat format (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The index settings to be updated
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     timeout?: int|string, // Explicit operation timeout
+     *     preserve_existing?: bool, // Whether to update existing settings. If set to `true` existing settings on an index remain unchanged, the default is `false`
+     *     reopen?: bool, // Whether to close and reopen the index to apply non-dynamic settings. If set to `true` the indices to which the settings are being applied will be closed temporarily and then reopened in order to apply the changes. The default is `false`
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The index settings to be updated. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1587,11 +2077,12 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putSettings(array $params = [])
+    public function putSettings(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['body'], $params);
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_settings';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_settings';
             $method = 'PUT';
         } else {
             $url = '/_settings';
@@ -1604,21 +2095,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Creates or updates an index template.
+     * Create or update a legacy index template
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-templates-v1.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-put-template
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the template
-     *     order: number, // The order for this template when merging multiple matching ones (higher numbers are merged later, overriding the lower numbers)
-     *     create: boolean, // Whether the index template should only be added if new or can also replace an existing one
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The template definition
+     *     order?: int, // The order for this template when merging multiple matching ones (higher numbers are merged later, overriding the lower numbers)
+     *     create?: bool, // Whether the index template should only be added if new or can also replace an existing one
+     *     cause?: string, // User defined reason for creating/updating the index template
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The template definition. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1628,31 +2120,35 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function putTemplate(array $params = [])
+    public function putTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name', 'body'], $params);
         $url = '/_template/' . $this->encode($params['name']);
         $method = 'PUT';
-        $url = $this->addQueryString($url, $params, ['order', 'create', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['order', 'create', 'cause', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.put_template');
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns information about ongoing index shard recoveries.
+     * Get index recovery information
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-recovery.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-recovery
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     detailed: boolean, // Whether to display detailed information about shard recovery
-     *     active_only: boolean, // Display only those recoveries that are currently on-going
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     detailed?: bool, // Whether to display detailed information about shard recovery
+     *     active_only?: bool, // Display only those recoveries that are currently on-going
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1661,36 +2157,38 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function recovery(array $params = [])
+    public function recovery(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_recovery';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_recovery';
             $method = 'GET';
         } else {
             $url = '/_recovery';
             $method = 'GET';
         }
-        $url = $this->addQueryString($url, $params, ['detailed', 'active_only', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['detailed', 'active_only', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['index'], $request, 'indices.recovery');
         return $this->client->sendRequest($request);
     }
     /**
-     * Performs the refresh operation in one or more indices.
+     * Refresh an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-refresh.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-refresh
+     * @group serverless
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1699,14 +2197,15 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function refresh(array $params = [])
+    public function refresh(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_refresh';
-            $method = empty($params['body']) ? 'GET' : 'POST';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_refresh';
+            $method = 'POST';
         } else {
             $url = '/_refresh';
-            $method = empty($params['body']) ? 'GET' : 'POST';
+            $method = 'POST';
         }
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -1715,21 +2214,21 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Reloads an index's search analyzers and their resources.
+     * Reload search analyzers
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-reload-analyzers.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-reload-search-analyzers
      *
      * @param array{
-     *     index: list, // (REQUIRED) A comma-separated list of index names to reload analyzers for
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     resource: string, // changed resource to reload analyzers from if applicable
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names to reload analyzers for
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     resource?: string, // changed resource to reload analyzers from if applicable
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1739,11 +2238,12 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function reloadSearchAnalyzers(array $params = [])
+    public function reloadSearchAnalyzers(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_reload_search_analyzers';
-        $method = empty($params['body']) ? 'GET' : 'POST';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_reload_search_analyzers';
+        $method = 'GET';
         $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'resource', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
@@ -1751,21 +2251,24 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Resolves the specified index expressions to return information about each cluster, including the local cluster, if included.
+     * Remove an index block
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-resolve-cluster-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-remove-block
+     * @group serverless
      *
      * @param array{
-     *     name: list, // (REQUIRED) A comma-separated list of cluster:index names or wildcard expressions
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     ignore_throttled: boolean, // Whether specified concrete, expanded or aliased indices should be ignored when throttled
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to remove a block from
+     *     block: string, // (REQUIRED) The block to remove (one of read, write, read_only or metadata)
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1775,32 +2278,77 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function resolveCluster(array $params = [])
+    public function removeBlock(?array $params = null)
     {
-        $this->checkRequiredParameters(['name'], $params);
-        $url = '/_resolve/cluster/' . $this->encode($params['name']);
-        $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'ignore_throttled', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['index', 'block'], $params);
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_block/' . $this->encode($params['block']);
+        $method = 'DELETE';
+        $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index', 'block'], $request, 'indices.remove_block');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Resolve the cluster
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-resolve-cluster
+     *
+     * @param array{
+     *     name?: string|array<string>, // A comma-separated list of cluster:index names or wildcard expressions
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed). Only allowed when providing an index expression.
+     *     ignore_throttled?: bool, // Whether specified concrete, expanded or aliased indices should be ignored when throttled. Only allowed when providing an index expression.
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified). Only allowed when providing an index expression.
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open). Only allowed when providing an index expression.
+     *     timeout?: int|string, // The maximum time to wait for remote clusters to respond
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function resolveCluster(?array $params = null)
+    {
+        $params = $params ?? [];
+        if (isset($params['name'])) {
+            $url = '/_resolve/cluster/' . $this->encode($this->convertValue($params['name']));
+            $method = 'GET';
+        } else {
+            $url = '/_resolve/cluster';
+            $method = 'GET';
+        }
+        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'ignore_throttled', 'allow_no_indices', 'expand_wildcards', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.resolve_cluster');
         return $this->client->sendRequest($request);
     }
     /**
-     * Returns information about any matching indices, aliases, and data streams
+     * Resolve indices
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-resolve-index-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-resolve-index
+     * @group serverless
      *
      * @param array{
-     *     name: list, // (REQUIRED) A comma-separated list of names or wildcard expressions
-     *     expand_wildcards: enum, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of names or wildcard expressions
+     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     mode?: string, // Filter indices by index mode. Comma-separated list of IndexMode. Empty means no filter.
+     *     project_routing?: string, // A Lucene query using project metadata tags to limit which projects to search, such as _alias:_origin or _alias:*pr*. Only supported in serverless.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1810,38 +2358,38 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function resolveIndex(array $params = [])
+    public function resolveIndex(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_resolve/index/' . $this->encode($params['name']);
+        $url = '/_resolve/index/' . $this->encode($this->convertValue($params['name']));
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'ignore_unavailable', 'allow_no_indices', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'ignore_unavailable', 'allow_no_indices', 'mode', 'project_routing', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.resolve_index');
         return $this->client->sendRequest($request);
     }
     /**
-     * Updates an alias to point to a new index when the existing index
-     * is considered to be too large or too old.
+     * Roll over to a new index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-rollover-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-rollover
+     * @group serverless
      *
      * @param array{
      *     alias: string, // (REQUIRED) The name of the alias to rollover
-     *     new_index: string, //  The name of the rollover index
-     *     timeout: time, // Explicit operation timeout
-     *     dry_run: boolean, // If set to true the rollover action will only be validated but not actually performed even if a condition matches. The default is false
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     wait_for_active_shards: string, // Set the number of active shards to wait for on the newly created rollover index before the operation returns.
-     *     lazy: boolean, // If set to true, the rollover action will only mark a data stream to signal that it needs to be rolled over at the next write. Only allowed on data streams.
-     *     target_failure_store: boolean, // If set to true, the rollover action will be applied on the failure store of the data stream.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The conditions that needs to be met for executing rollover
+     *     new_index?: string, // The name of the rollover index
+     *     timeout?: int|string, // Explicit operation timeout
+     *     dry_run?: bool, // If set to true the rollover action will only be validated but not actually performed even if a condition matches. The default is false
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the newly created rollover index before the operation returns.
+     *     lazy?: bool, // If set to true, the rollover action will only mark a data stream to signal that it needs to be rolled over at the next write. Only allowed on data streams.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // The conditions that needs to be met for executing rollover. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1851,8 +2399,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function rollover(array $params = [])
+    public function rollover(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['alias'], $params);
         if (isset($params['new_index'])) {
             $url = '/' . $this->encode($params['alias']) . '/_rollover/' . $this->encode($params['new_index']);
@@ -1861,28 +2410,27 @@ class Indices extends AbstractEndpoint
             $url = '/' . $this->encode($params['alias']) . '/_rollover';
             $method = 'POST';
         }
-        $url = $this->addQueryString($url, $params, ['timeout', 'dry_run', 'master_timeout', 'wait_for_active_shards', 'lazy', 'target_failure_store', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['timeout', 'dry_run', 'master_timeout', 'wait_for_active_shards', 'lazy', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['alias', 'new_index'], $request, 'indices.rollover');
         return $this->client->sendRequest($request);
     }
     /**
-     * Provides low-level information about segments in a Lucene index.
+     * Get index segments
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-segments.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-segments
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     verbose: boolean, // Includes detailed memory usage by Lucene.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1891,37 +2439,38 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function segments(array $params = [])
+    public function segments(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_segments';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_segments';
             $method = 'GET';
         } else {
             $url = '/_segments';
             $method = 'GET';
         }
-        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'verbose', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['index'], $request, 'indices.segments');
         return $this->client->sendRequest($request);
     }
     /**
-     * Provides store information for shard copies of indices.
+     * Get index shard stores
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-shards-stores.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-shard-stores
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     status: list, // A comma-separated list of statuses used to filter on shards to get store information for
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     status?: string|array<string>, // A comma-separated list of statuses used to filter on shards to get store information for
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -1930,10 +2479,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function shardStores(array $params = [])
+    public function shardStores(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_shard_stores';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_shard_stores';
             $method = 'GET';
         } else {
             $url = '/_shard_stores';
@@ -1946,22 +2496,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Allow to shrink an existing index into a new index with fewer primary shards.
+     * Shrink an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-shrink-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-shrink
      *
      * @param array{
      *     index: string, // (REQUIRED) The name of the source index to shrink
      *     target: string, // (REQUIRED) The name of the target index to shrink into
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     wait_for_active_shards: string, // Set the number of active shards to wait for on the shrunken index before the operation returns.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The configuration for the target index (`settings` and `aliases`)
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the shrunken index before the operation returns.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The configuration for the target index (`settings` and `aliases`). If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -1971,9 +2521,10 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function shrink(array $params = [])
+    public function shrink(?array $params = null)
     {
-        $this->checkRequiredParameters(['index', 'target'], $params);
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['index', 'target', 'body'], $params);
         $url = '/' . $this->encode($params['index']) . '/_shrink/' . $this->encode($params['target']);
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'wait_for_active_shards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -1983,22 +2534,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Simulate matching the given index name against the index templates in the system
+     * Simulate an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-simulate-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-simulate-index-template
+     * @group serverless
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the index (it must be a concrete index name)
-     *     create: boolean, // Whether the index template we optionally defined in the body should only be dry-run added if new or can also replace an existing one
-     *     cause: string, // User defined reason for dry-run creating the new template for simulation purposes
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     include_defaults: boolean, // Return all relevant default configurations for this index template simulation (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  New index template definition, which will be included in the simulation, as if it already exists in the system
+     *     create?: bool, // Whether the index template we optionally defined in the body should only be dry-run added if new or can also replace an existing one
+     *     cause?: string, // User defined reason for dry-run creating the new template for simulation purposes
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     include_defaults?: bool, // Return all relevant default configurations for this index template simulation (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // New index template definition, which will be included in the simulation, as if it already exists in the system. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -2008,8 +2560,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function simulateIndexTemplate(array $params = [])
+    public function simulateIndexTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_index_template/_simulate_index/' . $this->encode($params['name']);
         $method = 'POST';
@@ -2020,22 +2573,23 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Simulate resolving the given template name or body
+     * Simulate an index template
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-simulate-template.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-simulate-template
+     * @group serverless
      *
      * @param array{
-     *     name: string, //  The name of the index template
-     *     create: boolean, // Whether the index template we optionally defined in the body should only be dry-run added if new or can also replace an existing one
-     *     cause: string, // User defined reason for dry-run creating the new template for simulation purposes
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     include_defaults: boolean, // Return all relevant default configurations for this template simulation (default: false)
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  New index template definition to be simulated, if no index template name is specified
+     *     name?: string, // The name of the index template
+     *     create?: bool, // Whether the index template we optionally defined in the body should only be dry-run added if new or can also replace an existing one
+     *     cause?: string, // User defined reason for dry-run creating the new template for simulation purposes
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     include_defaults?: bool, // Return all relevant default configurations for this template simulation (default: false)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // New index template definition to be simulated, if no index template name is specified. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -2044,8 +2598,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function simulateTemplate(array $params = [])
+    public function simulateTemplate(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['name'])) {
             $url = '/_index_template/_simulate/' . $this->encode($params['name']);
             $method = 'POST';
@@ -2060,22 +2615,22 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Allows you to split an existing index into a new index with more primary shards.
+     * Split an index
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-split-index.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-split
      *
      * @param array{
      *     index: string, // (REQUIRED) The name of the source index to split
      *     target: string, // (REQUIRED) The name of the target index to split into
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     wait_for_active_shards: string, // Set the number of active shards to wait for on the shrunken index before the operation returns.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The configuration for the target index (`settings` and `aliases`)
+     *     timeout?: int|string, // Explicit operation timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the shrunken index before the operation returns.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The configuration for the target index (`settings` and `aliases`). If body is a string must be a valid JSON.
      * } $params
      *
      * @throws MissingParameterException if a required parameter is missing
@@ -2085,9 +2640,10 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function split(array $params = [])
+    public function split(?array $params = null)
     {
-        $this->checkRequiredParameters(['index', 'target'], $params);
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['index', 'target', 'body'], $params);
         $url = '/' . $this->encode($params['index']) . '/_split/' . $this->encode($params['target']);
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'wait_for_active_shards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
@@ -2097,27 +2653,27 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Provides statistics on operations happening in an index.
+     * Get index statistics
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-stats.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-stats
      *
      * @param array{
-     *     metric: list, //  Limit the information returned the specific metrics.
-     *     index: list, //  A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     completion_fields: list, // A comma-separated list of fields for the `completion` index metric (supports wildcards)
-     *     fielddata_fields: list, // A comma-separated list of fields for the `fielddata` index metric (supports wildcards)
-     *     fields: list, // A comma-separated list of fields for `fielddata` and `completion` index metric (supports wildcards)
-     *     groups: list, // A comma-separated list of search groups for `search` index metric
-     *     level: enum, // Return stats aggregated at cluster, index or shard level
-     *     include_segment_file_sizes: boolean, // Whether to report the aggregated disk usage of each one of the Lucene index files (only applies if segment stats are requested)
-     *     include_unloaded_segments: boolean, // If set to true segment stats will include stats for segments that are not currently loaded into memory
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     forbid_closed_indices: boolean, // If set to false stats will also collected from closed indices if explicitly specified or if expand_wildcards expands to closed indices
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
+     *     metric?: string|array<string>, // Limit the information returned the specific metrics.
+     *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
+     *     completion_fields?: string|array<string>, // A comma-separated list of fields for the `completion` index metric (supports wildcards)
+     *     fielddata_fields?: string|array<string>, // A comma-separated list of fields for the `fielddata` index metric (supports wildcards)
+     *     fields?: string|array<string>, // A comma-separated list of fields for `fielddata` and `completion` index metric (supports wildcards)
+     *     groups?: string|array<string>, // A comma-separated list of search groups for `search` index metric
+     *     level?: string, // Return stats aggregated at cluster, index or shard level
+     *     include_segment_file_sizes?: bool, // Whether to report the aggregated disk usage of each one of the Lucene index files (only applies if segment stats are requested)
+     *     include_unloaded_segments?: bool, // If set to true segment stats will include stats for segments that are not currently loaded into memory
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     forbid_closed_indices?: bool, // If set to false stats will also collected from closed indices if explicitly specified or if expand_wildcards expands to closed indices
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -2126,16 +2682,17 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function stats(array $params = [])
+    public function stats(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index']) && isset($params['metric'])) {
-            $url = '/' . $this->encode($params['index']) . '/_stats/' . $this->encode($params['metric']);
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_stats/' . $this->encode($this->convertValue($params['metric']));
             $method = 'GET';
         } elseif (isset($params['metric'])) {
-            $url = '/_stats/' . $this->encode($params['metric']);
+            $url = '/_stats/' . $this->encode($this->convertValue($params['metric']));
             $method = 'GET';
         } elseif (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_stats';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_stats';
             $method = 'GET';
         } else {
             $url = '/_stats';
@@ -2148,57 +2705,20 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Unfreezes an index. When a frozen index is unfrozen, the index goes through the normal recovery process and becomes writeable again.
+     * Create or update an alias
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/unfreeze-index-api.html
-     *
-     * @param array{
-     *     index: string, // (REQUIRED) The name of the index to unfreeze
-     *     timeout: time, // Explicit operation timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     wait_for_active_shards: string, // Sets the number of active shards to wait for before the operation returns.
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     * } $params
-     *
-     * @throws MissingParameterException if a required parameter is missing
-     * @throws NoNodeAvailableException if all the hosts are offline
-     * @throws ClientResponseException if the status code of response is 4xx
-     * @throws ServerResponseException if the status code of response is 5xx
-     *
-     * @return Elasticsearch|Promise
-     */
-    public function unfreeze(array $params = [])
-    {
-        $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_unfreeze';
-        $method = 'POST';
-        $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'wait_for_active_shards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
-        $headers = ['Accept' => 'application/json'];
-        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
-        $request = $this->addOtelAttributes($params, ['index'], $request, 'indices.unfreeze');
-        return $this->client->sendRequest($request);
-    }
-    /**
-     * Updates index aliases.
-     *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-aliases.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-update-aliases
+     * @group serverless
      *
      * @param array{
-     *     timeout: time, // Request timeout
-     *     master_timeout: time, // Specify timeout for connection to master
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The definition of `actions` to perform
+     *     timeout?: int|string, // Request timeout
+     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The definition of `actions` to perform. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -2207,8 +2727,9 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function updateAliases(array $params = [])
+    public function updateAliases(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['body'], $params);
         $url = '/_aliases';
         $method = 'POST';
@@ -2219,30 +2740,31 @@ class Indices extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
-     * Allows a user to validate a potentially expensive query without executing it.
+     * Validate a query
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/search-validate.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-indices-validate-query
+     * @group serverless
      *
      * @param array{
-     *     index: list, //  A comma-separated list of index names to restrict the operation; use `_all` or empty string to perform the operation on all indices
-     *     explain: boolean, // Return detailed information about the error
-     *     ignore_unavailable: boolean, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices: boolean, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards: enum, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     q: string, // Query in the Lucene query string syntax
-     *     analyzer: string, // The analyzer to use for the query string
-     *     analyze_wildcard: boolean, // Specify whether wildcard and prefix queries should be analyzed (default: false)
-     *     default_operator: enum, // The default operator for query string query (AND or OR)
-     *     df: string, // The field to use as default where no field prefix is given in the query string
-     *     lenient: boolean, // Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
-     *     rewrite: boolean, // Provide a more detailed explanation showing the actual Lucene query that will be executed.
-     *     all_shards: boolean, // Execute validation on all shards instead of one random shard per index
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, //  The query definition specified with the Query DSL
+     *     index?: string|array<string>, // A comma-separated list of index names to restrict the operation; use `_all` or empty string to perform the operation on all indices
+     *     explain?: bool, // Return detailed information about the error
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     q?: string, // Query in the Lucene query string syntax
+     *     analyzer?: string, // The analyzer to use for the query string
+     *     analyze_wildcard?: bool, // Specify whether wildcard and prefix queries should be analyzed (default: false)
+     *     default_operator?: string, // The default operator for query string query (AND or OR)
+     *     df?: string, // The field to use as default where no field prefix is given in the query string
+     *     lenient?: bool, // Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
+     *     rewrite?: bool, // Provide a more detailed explanation showing the actual Lucene query that will be executed.
+     *     all_shards?: bool, // Execute validation on all shards instead of one random shard per index
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body?: string|array<mixed>, // The query definition specified with the Query DSL. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -2251,10 +2773,11 @@ class Indices extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function validateQuery(array $params = [])
+    public function validateQuery(?array $params = null)
     {
+        $params = $params ?? [];
         if (isset($params['index'])) {
-            $url = '/' . $this->encode($params['index']) . '/_validate/query';
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_validate/query';
             $method = empty($params['body']) ? 'GET' : 'POST';
         } else {
             $url = '/_validate/query';

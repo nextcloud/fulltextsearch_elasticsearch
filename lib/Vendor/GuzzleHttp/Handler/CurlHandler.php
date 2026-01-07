@@ -30,7 +30,7 @@ class CurlHandler
     {
         $this->factory = $options['handle_factory'] ?? new CurlFactory(3);
     }
-    public function __invoke(RequestInterface $request, array $options) : PromiseInterface
+    public function __invoke(RequestInterface $request, array $options): PromiseInterface
     {
         if (isset($options['delay'])) {
             \usleep($options['delay'] * 1000);

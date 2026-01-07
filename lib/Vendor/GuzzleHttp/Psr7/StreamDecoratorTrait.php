@@ -32,7 +32,7 @@ trait StreamDecoratorTrait
         }
         throw new \UnexpectedValueException("{$name} not found on class");
     }
-    public function __toString() : string
+    public function __toString(): string
     {
         try {
             if ($this->isSeekable()) {
@@ -43,11 +43,11 @@ trait StreamDecoratorTrait
             if (\PHP_VERSION_ID >= 70400) {
                 throw $e;
             }
-            \trigger_error(\sprintf('%s::__toString exception: %s', self::class, (string) $e), \E_USER_ERROR);
+            trigger_error(sprintf('%s::__toString exception: %s', self::class, (string) $e), \E_USER_ERROR);
             return '';
         }
     }
-    public function getContents() : string
+    public function getContents(): string
     {
         return Utils::copyToString($this);
     }
@@ -64,7 +64,7 @@ trait StreamDecoratorTrait
         // Always return the wrapped object if the result is a return $this
         return $result === $this->stream ? $this : $result;
     }
-    public function close() : void
+    public function close(): void
     {
         $this->stream->close();
     }
@@ -79,43 +79,43 @@ trait StreamDecoratorTrait
     {
         return $this->stream->detach();
     }
-    public function getSize() : ?int
+    public function getSize(): ?int
     {
         return $this->stream->getSize();
     }
-    public function eof() : bool
+    public function eof(): bool
     {
         return $this->stream->eof();
     }
-    public function tell() : int
+    public function tell(): int
     {
         return $this->stream->tell();
     }
-    public function isReadable() : bool
+    public function isReadable(): bool
     {
         return $this->stream->isReadable();
     }
-    public function isWritable() : bool
+    public function isWritable(): bool
     {
         return $this->stream->isWritable();
     }
-    public function isSeekable() : bool
+    public function isSeekable(): bool
     {
         return $this->stream->isSeekable();
     }
-    public function rewind() : void
+    public function rewind(): void
     {
         $this->seek(0);
     }
-    public function seek($offset, $whence = \SEEK_SET) : void
+    public function seek($offset, $whence = \SEEK_SET): void
     {
         $this->stream->seek($offset, $whence);
     }
-    public function read($length) : string
+    public function read($length): string
     {
         return $this->stream->read($length);
     }
-    public function write($string) : int
+    public function write($string): int
     {
         return $this->stream->write($string);
     }
@@ -124,7 +124,7 @@ trait StreamDecoratorTrait
      *
      * @throws \BadMethodCallException
      */
-    protected function createStream() : StreamInterface
+    protected function createStream(): StreamInterface
     {
         throw new \BadMethodCallException('Not implemented');
     }

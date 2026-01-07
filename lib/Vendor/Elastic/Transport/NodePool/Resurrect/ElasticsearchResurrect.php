@@ -24,7 +24,7 @@ class ElasticsearchResurrect implements ResurrectInterface
 {
     protected ClientInterface $client;
     protected RequestFactoryInterface $requestFactory;
-    public function ping(Node $node) : bool
+    public function ping(Node $node): bool
     {
         $request = $this->getRequestFactory()->createRequest("HEAD", $node->getUri());
         try {
@@ -34,14 +34,14 @@ class ElasticsearchResurrect implements ResurrectInterface
             return \false;
         }
     }
-    public function getClient() : ClientInterface
+    public function getClient(): ClientInterface
     {
         if (empty($this->client)) {
             $this->client = Psr18ClientDiscovery::find();
         }
         return $this->client;
     }
-    public function getRequestFactory() : RequestFactoryInterface
+    public function getRequestFactory(): RequestFactoryInterface
     {
         if (empty($this->requestFactory)) {
             $this->requestFactory = Psr17FactoryDiscovery::findRequestFactory();

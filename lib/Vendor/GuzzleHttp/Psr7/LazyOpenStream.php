@@ -34,7 +34,7 @@ final class LazyOpenStream implements StreamInterface
     /**
      * Creates the underlying stream lazily when required.
      */
-    protected function createStream() : StreamInterface
+    protected function createStream(): StreamInterface
     {
         return Utils::streamFor(Utils::tryFopen($this->filename, $this->mode));
     }

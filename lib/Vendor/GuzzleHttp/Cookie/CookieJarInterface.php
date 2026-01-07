@@ -28,14 +28,14 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
      *
      * @return RequestInterface returns the modified request.
      */
-    public function withCookieHeader(RequestInterface $request) : RequestInterface;
+    public function withCookieHeader(RequestInterface $request): RequestInterface;
     /**
      * Extract cookies from an HTTP response and store them in the CookieJar.
      *
      * @param RequestInterface  $request  Request that was sent
      * @param ResponseInterface $response Response that was received
      */
-    public function extractCookies(RequestInterface $request, ResponseInterface $response) : void;
+    public function extractCookies(RequestInterface $request, ResponseInterface $response): void;
     /**
      * Sets a cookie in the cookie jar.
      *
@@ -43,7 +43,7 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
      *
      * @return bool Returns true on success or false on failure
      */
-    public function setCookie(SetCookie $cookie) : bool;
+    public function setCookie(SetCookie $cookie): bool;
     /**
      * Remove cookies currently held in the cookie jar.
      *
@@ -58,7 +58,7 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
      * @param string|null $path   Clears cookies matching a domain and path
      * @param string|null $name   Clears cookies matching a domain, path, and name
      */
-    public function clear(?string $domain = null, ?string $path = null, ?string $name = null) : void;
+    public function clear(?string $domain = null, ?string $path = null, ?string $name = null): void;
     /**
      * Discard all sessions cookies.
      *
@@ -66,9 +66,9 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
      * field set to true. To be called when the user agent shuts down according
      * to RFC 2965.
      */
-    public function clearSessionCookies() : void;
+    public function clearSessionCookies(): void;
     /**
      * Converts the cookie jar to an array.
      */
-    public function toArray() : array;
+    public function toArray(): array;
 }
