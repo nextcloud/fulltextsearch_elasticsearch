@@ -21,7 +21,7 @@ interface SerializerInterface
      * @param array<mixed> $options
      * @return string
      */
-    public static function serialize($data, array $options = []): string;
+    public static function serialize($data, array $options = []) : string;
     /**
      * @param string $data
      * @param array<mixed> $options

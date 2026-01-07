@@ -20,5 +20,5 @@ interface ElasticsearchInterface
     /**
      * Set the HTTP PSR-7 response 
      */
-    public function setResponse(ResponseInterface $response, bool $throwException = \true): void;
+    public function setResponse(ResponseInterface $response, bool $throwException = \true) : void;
 }

@@ -13,7 +13,7 @@ trait RequestAwareTrait
     {
         $this->request = $request;
     }
-    public function getRequest(): RequestInterface
+    public function getRequest() : RequestInterface
     {
         return $this->request;
     }

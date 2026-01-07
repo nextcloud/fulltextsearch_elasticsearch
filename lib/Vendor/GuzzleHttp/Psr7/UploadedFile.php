@@ -58,11 +58,11 @@ class UploadedFile implements UploadedFileInterface
      *
      * @throws InvalidArgumentException
      */
-    private function setStreamOrFile($streamOrFile): void
+    private function setStreamOrFile($streamOrFile) : void
     {
-        if (is_string($streamOrFile)) {
+        if (\is_string($streamOrFile)) {
             $this->file = $streamOrFile;
-        } elseif (is_resource($streamOrFile)) {
+        } elseif (\is_resource($streamOrFile)) {
             $this->stream = new Stream($streamOrFile);
         } elseif ($streamOrFile instanceof StreamInterface) {
             $this->stream = $streamOrFile;
@@ -73,32 +73,32 @@ class UploadedFile implements UploadedFileInterface
     /**
      * @throws InvalidArgumentException
      */
-    private function setError(int $error): void
+    private function setError(int $error) : void
     {
         if (!isset(UploadedFile::ERROR_MAP[$error])) {
             throw new InvalidArgumentException('Invalid error status for UploadedFile');
         }
         $this->error = $error;
     }
-    private static function isStringNotEmpty($param): bool
+    private static function isStringNotEmpty($param) : bool
     {
-        return is_string($param) && \false === empty($param);
+        return \is_string($param) && \false === empty($param);
     }
     /**
      * Return true if there is no upload error
      */
-    private function isOk(): bool
+    private function isOk() : bool
     {
         return $this->error === \UPLOAD_ERR_OK;
     }
-    public function isMoved(): bool
+    public function isMoved() : bool
     {
         return $this->moved;
     }
     /**
      * @throws RuntimeException if is moved or not ok
      */
-    private function validateActive(): void
+    private function validateActive() : void
     {
         if (\false === $this->isOk()) {
             throw new RuntimeException(\sprintf('Cannot retrieve stream due to upload error (%s)', self::ERROR_MAP[$this->error]));
@@ -107,7 +107,7 @@ class UploadedFile implements UploadedFileInterface
             throw new RuntimeException('Cannot retrieve stream after it has already been moved');
         }
     }
-    public function getStream(): StreamInterface
+    public function getStream() : StreamInterface
     {
         $this->validateActive();
         if ($this->stream instanceof StreamInterface) {
@@ -117,35 +117,35 @@ class UploadedFile implements UploadedFileInterface
         $file = $this->file;
         return new LazyOpenStream($file, 'r+');
     }
-    public function moveTo($targetPath): void
+    public function moveTo($targetPath) : void
     {
         $this->validateActive();
         if (\false === self::isStringNotEmpty($targetPath)) {
             throw new InvalidArgumentException('Invalid path provided for move operation; must be a non-empty string');
         }
         if ($this->file) {
-            $this->moved = \PHP_SAPI === 'cli' ? rename($this->file, $targetPath) : move_uploaded_file($this->file, $targetPath);
+            $this->moved = \PHP_SAPI === 'cli' ? \rename($this->file, $targetPath) : \move_uploaded_file($this->file, $targetPath);
         } else {
             Utils::copyToStream($this->getStream(), new LazyOpenStream($targetPath, 'w'));
             $this->moved = \true;
         }
         if (\false === $this->moved) {
-            throw new RuntimeException(sprintf('Uploaded file could not be moved to %s', $targetPath));
+            throw new RuntimeException(\sprintf('Uploaded file could not be moved to %s', $targetPath));
         }
     }
-    public function getSize(): ?int
+    public function getSize() : ?int
     {
         return $this->size;
     }
-    public function getError(): int
+    public function getError() : int
     {
         return $this->error;
     }
-    public function getClientFilename(): ?string
+    public function getClientFilename() : ?string
     {
         return $this->clientFilename;
     }
-    public function getClientMediaType(): ?string
+    public function getClientMediaType() : ?string
     {
         return $this->clientMediaType;
     }

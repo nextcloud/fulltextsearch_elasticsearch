@@ -55,7 +55,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      * @throws ClientResponseException if status code 4xx
      * @throws ServerResponseException if status code 5xx
      */
-    public function setResponse(ResponseInterface $response, bool $throwException = \true): void
+    public function setResponse(ResponseInterface $response, bool $throwException = \true) : void
     {
         $this->productCheck($response);
         // Check for Serverless response
@@ -63,31 +63,31 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
         $this->response = $response;
         $status = $response->getStatusCode();
         if ($throwException && $status > 399 && $status < 500) {
-            $error = new ClientResponseException(sprintf("%s %s: %s", $status, $response->getReasonPhrase(), (string) $response->getBody()), $status);
+            $error = new ClientResponseException(\sprintf("%s %s: %s", $status, $response->getReasonPhrase(), (string) $response->getBody()), $status);
             throw $error->setResponse($response);
         } elseif ($throwException && $status > 499 && $status < 600) {
-            $error = new ServerResponseException(sprintf("%s %s: %s", $status, $response->getReasonPhrase(), (string) $response->getBody()), $status);
+            $error = new ServerResponseException(\sprintf("%s %s: %s", $status, $response->getReasonPhrase(), (string) $response->getBody()), $status);
             throw $error->setResponse($response);
         }
     }
     /**
      * Check whether the response is from Serverless
      */
-    private function isServerlessResponse(ResponseInterface $response): bool
+    private function isServerlessResponse(ResponseInterface $response) : bool
     {
         return !empty($response->getHeader(Client::API_VERSION_HEADER));
     }
     /**
      * Return true if the response is from Serverless
      */
-    public function isServerless(): bool
+    public function isServerless() : bool
     {
         return $this->serverless;
     }
     /**
      * Return true if status code is 2xx
      */
-    public function asBool(): bool
+    public function asBool() : bool
     {
         return $this->response->getStatusCode() >= 200 && $this->response->getStatusCode() < 300;
     }
@@ -98,7 +98,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      * 
      * @throws UnknownContentTypeException
      */
-    public function asArray(): array
+    public function asArray() : array
     {
         if (isset($this->asArray)) {
             return $this->asArray;
@@ -107,19 +107,19 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
             throw new UnknownContentTypeException('No Content-Type specified in the response');
         }
         $contentType = $this->response->getHeaderLine('Content-Type');
-        if (strpos($contentType, 'application/json') !== \false || strpos($contentType, 'application/vnd.elasticsearch+json') !== \false) {
+        if (\strpos($contentType, 'application/json') !== \false || \strpos($contentType, 'application/vnd.elasticsearch+json') !== \false) {
             $this->asArray = JsonSerializer::unserialize($this->asString());
             return $this->asArray;
         }
-        if (strpos($contentType, 'application/x-ndjson') !== \false || strpos($contentType, 'application/vnd.elasticsearch+x-ndjson') !== \false) {
+        if (\strpos($contentType, 'application/x-ndjson') !== \false || \strpos($contentType, 'application/vnd.elasticsearch+x-ndjson') !== \false) {
             $this->asArray = NDJsonSerializer::unserialize($this->asString());
             return $this->asArray;
         }
-        if (strpos($contentType, 'text/csv') !== \false) {
+        if (\strpos($contentType, 'text/csv') !== \false) {
             $this->asArray = CsvSerializer::unserialize($this->asString());
             return $this->asArray;
         }
-        throw new UnknownContentTypeException(sprintf("Cannot deserialize the response as array with Content-Type: %s", $contentType));
+        throw new UnknownContentTypeException(\sprintf("Cannot deserialize the response as array with Content-Type: %s", $contentType));
     }
     /**
      * Converts the body content to object, if possible.
@@ -128,30 +128,30 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      * 
      * @throws UnknownContentTypeException
      */
-    public function asObject(): object
+    public function asObject() : object
     {
         if (isset($this->asObject)) {
             return $this->asObject;
         }
         $contentType = $this->response->getHeaderLine('Content-Type');
-        if (strpos($contentType, 'application/json') !== \false || strpos($contentType, 'application/vnd.elasticsearch+json') !== \false) {
+        if (\strpos($contentType, 'application/json') !== \false || \strpos($contentType, 'application/vnd.elasticsearch+json') !== \false) {
             $this->asObject = JsonSerializer::unserialize($this->asString(), ['type' => 'object']);
             return $this->asObject;
         }
-        if (strpos($contentType, 'application/x-ndjson') !== \false || strpos($contentType, 'application/vnd.elasticsearch+x-ndjson') !== \false) {
+        if (\strpos($contentType, 'application/x-ndjson') !== \false || \strpos($contentType, 'application/vnd.elasticsearch+x-ndjson') !== \false) {
             $this->asObject = NDJsonSerializer::unserialize($this->asString(), ['type' => 'object']);
             return $this->asObject;
         }
-        if (strpos($contentType, 'text/xml') !== \false || strpos($contentType, 'application/xml') !== \false) {
+        if (\strpos($contentType, 'text/xml') !== \false || \strpos($contentType, 'application/xml') !== \false) {
             $this->asObject = XmlSerializer::unserialize($this->asString());
             return $this->asObject;
         }
-        throw new UnknownContentTypeException(sprintf("Cannot deserialize the response as object with Content-Type: %s", $contentType));
+        throw new UnknownContentTypeException(\sprintf("Cannot deserialize the response as object with Content-Type: %s", $contentType));
     }
     /**
      * Converts the body content to string
      */
-    public function asString(): string
+    public function asString() : string
     {
         if (empty($this->asString)) {
             $this->asString = (string) $this->response->getBody();
@@ -161,7 +161,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
     /**
      * Converts the body content to string
      */
-    public function __toString(): string
+    public function __toString() : string
     {
         return $this->asString();
     }
@@ -179,7 +179,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      * 
      * @see https://www.php.net/manual/en/class.arrayaccess.php
      */
-    public function offsetExists($offset): bool
+    public function offsetExists($offset) : bool
     {
         return isset($this->asArray()[$offset]);
     }
@@ -200,7 +200,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      * 
      * @see https://www.php.net/manual/en/class.arrayaccess.php
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet($offset, $value) : void
     {
         throw new ArrayAccessException('The array is reading only');
     }
@@ -209,7 +209,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      * 
      * @see https://www.php.net/manual/en/class.arrayaccess.php
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset($offset) : void
     {
         throw new ArrayAccessException('The array is reading only');
     }
@@ -222,19 +222,19 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
      * 
      * @return object[] 
      */
-    public function mapTo(string $class = stdClass::class): array
+    public function mapTo(string $class = stdClass::class) : array
     {
         $response = $this->asArray();
         if (!isset($response['columns']) || !isset($response['values'])) {
-            throw new UnknownContentTypeException(sprintf("The response is not a valid ES|QL result. I cannot mapTo(\"%s\")", $class));
+            throw new UnknownContentTypeException(\sprintf("The response is not a valid ES|QL result. I cannot mapTo(\"%s\")", $class));
         }
         $iterator = [];
-        $ncol = count($response['columns']);
+        $ncol = \count($response['columns']);
         foreach ($response['values'] as $value) {
             $obj = new $class();
             for ($i = 0; $i < $ncol; $i++) {
                 $field = Utility::formatVariableName($response['columns'][$i]['name']);
-                if ($class !== stdClass::class && !property_exists($obj, $field)) {
+                if ($class !== stdClass::class && !\property_exists($obj, $field)) {
                     continue;
                 }
                 switch ($response['columns'][$i]['type']) {

@@ -1649,7 +1649,7 @@ class Ml extends AbstractEndpoint
         $url = '/_ml/anomaly_detectors/' . $this->encode($params['job_id']) . '/_data';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['reset_start', 'reset_end', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
-        $headers = ['Accept' => 'application/json', 'Content-Type' => is_string($params['body']) || $this->isAssociativeArray($params['body']) ? 'application/json' : 'application/x-ndjson'];
+        $headers = ['Accept' => 'application/json', 'Content-Type' => \is_string($params['body']) || $this->isAssociativeArray($params['body']) ? 'application/json' : 'application/x-ndjson'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['job_id'], $request, 'ml.post_data');
         return $this->client->sendRequest($request);

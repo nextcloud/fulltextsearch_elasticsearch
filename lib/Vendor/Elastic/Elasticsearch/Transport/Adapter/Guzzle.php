@@ -19,7 +19,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\RequestOptions as GuzzleO
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 class Guzzle implements AdapterInterface
 {
-    public function setConfig(ClientInterface $client, array $config, array $clientOptions): ClientInterface
+    public function setConfig(ClientInterface $client, array $config, array $clientOptions) : ClientInterface
     {
         $guzzleConfig = [];
         foreach ($config as $key => $value) {
@@ -37,7 +37,7 @@ class Guzzle implements AdapterInterface
                     $guzzleConfig[GuzzleOptions::VERIFY] = $value;
             }
         }
-        $class = get_class($client);
-        return new $class(array_merge($clientOptions, $guzzleConfig));
+        $class = \get_class($client);
+        return new $class(\array_merge($clientOptions, $guzzleConfig));
     }
 }

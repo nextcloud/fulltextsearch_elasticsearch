@@ -40,12 +40,12 @@ class OpenTelemetry
     const ENV_VARIABLE_BODY_SANITIZE_KEYS = 'OTEL_PHP_INSTRUMENTATION_ELASTICSEARCH_SEARCH_QUERY_SANITIZE_KEYS';
     const DEFAULT_SANITIZER_KEY_PATTERNS = ['password', 'passwd', 'pwd', 'secret', 'key', 'token', 'session', 'credit', 'card', 'auth', 'set-cookie', 'email', 'tel', 'phone'];
     const REDACTED_STRING = 'REDACTED';
-    public static function redactBody(string $body): string
+    public static function redactBody(string $body) : string
     {
         switch (self::getBodyStrategy()) {
             case 'sanitize':
-                $sanitizeKeys = getenv(self::ENV_VARIABLE_BODY_SANITIZE_KEYS);
-                $sanitizeKeys = \false !== $sanitizeKeys ? explode(',', $sanitizeKeys) : [];
+                $sanitizeKeys = \getenv(self::ENV_VARIABLE_BODY_SANITIZE_KEYS);
+                $sanitizeKeys = \false !== $sanitizeKeys ? \explode(',', $sanitizeKeys) : [];
                 return self::sanitizeBody($body, $sanitizeKeys);
             case 'raw':
                 return $body;
@@ -53,39 +53,39 @@ class OpenTelemetry
                 return '';
         }
     }
-    private static function getBodyStrategy(): string
+    private static function getBodyStrategy() : string
     {
-        $strategy = getenv(self::ENV_VARIABLE_BODY_STRATEGY);
+        $strategy = \getenv(self::ENV_VARIABLE_BODY_STRATEGY);
         if (\false === $strategy) {
             $strategy = self::DEFAULT_BODY_STRATEGY;
         }
-        if (!in_array($strategy, self::ALLOWED_BODY_STRATEGIES)) {
-            throw new InvalidArgumentException(sprintf('The body strategy specified %s is not valid. The available strategies are %s', $strategy, implode(',', self::ALLOWED_BODY_STRATEGIES)));
+        if (!\in_array($strategy, self::ALLOWED_BODY_STRATEGIES)) {
+            throw new InvalidArgumentException(\sprintf('The body strategy specified %s is not valid. The available strategies are %s', $strategy, \implode(',', self::ALLOWED_BODY_STRATEGIES)));
         }
         return $strategy;
     }
-    public static function getTracer(TracerProviderInterface $tracerProvider): TracerInterface
+    public static function getTracer(TracerProviderInterface $tracerProvider) : TracerInterface
     {
         return $tracerProvider->getTracer(self::OTEL_TRACER_NAME, Transport::VERSION);
     }
     /**
      * @param array<mixed> $sanitizeKeys
      */
-    private static function sanitizeBody(string $body, array $sanitizeKeys): string
+    private static function sanitizeBody(string $body, array $sanitizeKeys) : string
     {
         if (empty($body)) {
             return '';
         }
-        $json = json_decode($body, \true);
-        if (!is_array($json)) {
+        $json = \json_decode($body, \true);
+        if (!\is_array($json)) {
             return '';
         }
-        $patterns = array_merge(self::DEFAULT_SANITIZER_KEY_PATTERNS, $sanitizeKeys);
+        $patterns = \array_merge(self::DEFAULT_SANITIZER_KEY_PATTERNS, $sanitizeKeys);
         // Convert the patterns array into a regex
-        $regex = sprintf('/%s/', implode('|', $patterns));
+        $regex = \sprintf('/%s/', \implode('|', $patterns));
         // Recursively traverse the array and redact the specified keys
-        array_walk_recursive($json, function (&$value, $key) use ($regex) {
-            if (preg_match($regex, $key, $matches)) {
+        \array_walk_recursive($json, function (&$value, $key) use($regex) {
+            if (\preg_match($regex, $key, $matches)) {
                 $value = self::REDACTED_STRING;
             }
         });

@@ -24,43 +24,43 @@ interface ClientInterface
     /**
      * Get the Elastic\Transport\Transport
      */
-    public function getTransport(): Transport;
+    public function getTransport() : Transport;
     /**
      * Get the PSR-3 logger
      */
-    public function getLogger(): LoggerInterface;
+    public function getLogger() : LoggerInterface;
     /**
      * Set the asyncronous HTTP request
      */
-    public function setAsync(bool $async): self;
+    public function setAsync(bool $async) : self;
     /**
      * Get the asyncronous HTTP request setting
      */
-    public function getAsync(): bool;
+    public function getAsync() : bool;
     /**
      * Enable or disable the x-elastic-client-meta header
      */
-    public function setElasticMetaHeader(bool $active): self;
+    public function setElasticMetaHeader(bool $active) : self;
     /**
      * Get the status of x-elastic-client-meta header
      */
-    public function getElasticMetaHeader(): bool;
+    public function getElasticMetaHeader() : bool;
     /**
      * Enable or disable the response Exception
      */
-    public function setResponseException(bool $active): self;
+    public function setResponseException(bool $active) : self;
     /**
      * Get the status of response Exception
      */
-    public function getResponseException(): bool;
+    public function getResponseException() : bool;
     /**
      * Set Elastic Serverless to true or false
      */
-    public function setServerless(bool $value): self;
+    public function setServerless(bool $value) : self;
     /**
      * Returns true if the client is set (or connected) to Serverless
      */
-    public function getServerless(): bool;
+    public function getServerless() : bool;
     /**
      * Send the HTTP request using the Elastic Transport.
      * It manages syncronous and asyncronus requests using Client::getAsync()

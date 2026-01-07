@@ -45,6 +45,7 @@
       "rm -Rf lib/Vendor && mv build lib/Vendor",
       "find lib/Vendor/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{}",
       "@php lib-vendor-organizer.php lib/Vendor/ OCA\\\\FullTextSearch_Elasticsearch\\\\Vendor",
+      "@composer install --working-dir=es8",
       "composer dump-autoload -o"
     ],
     "post-update-cmd": [
@@ -53,6 +54,7 @@
       "rm -Rf lib/Vendor && mv build lib/Vendor",
       "find lib/Vendor/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{}",
       "@php lib-vendor-organizer.php lib/Vendor/ OCA\\\\FullTextSearch_Elasticsearch\\\\Vendor",
+      "@composer install --working-dir=es8",
       "composer dump-autoload -o"
     ]
   },

@@ -30,7 +30,7 @@ class NDJsonSerializer implements SerializerInterface
      * 
      * @param array<mixed> $data
      */
-    public static function serialize($data, array $options = []): string
+    public static function serialize($data, array $options = []) : string
     {
         $result = '';
         foreach ($data as $row) {

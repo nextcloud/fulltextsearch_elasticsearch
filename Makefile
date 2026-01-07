@@ -86,6 +86,7 @@ appstore: clean composer
 	--exclude=/tests \
 	--exclude=.git \
 	--exclude=/.github \
+	--exclude=/es8 \
 	--exclude=/l10n/l10n.pl \
 	--exclude=/CONTRIBUTING.md \
 	--exclude=/issue_template.md \

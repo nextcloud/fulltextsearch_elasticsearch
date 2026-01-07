@@ -39,7 +39,7 @@ class SimpleNodePool implements NodePoolInterface
         $this->selector = $selector;
         $this->resurrect = $resurrect;
     }
-    public function setHosts(array $hosts): self
+    public function setHosts(array $hosts) : self
     {
         $this->nodes = [];
         foreach ($hosts as $host) {
@@ -50,7 +50,7 @@ class SimpleNodePool implements NodePoolInterface
         $this->selector->setNodes($this->nodes);
         return $this;
     }
-    public function nextNode(): Node
+    public function nextNode() : Node
     {
         $totNodes = count($this->nodes);
         $dead = 0;
