@@ -22,6 +22,9 @@ class Node
 {
     protected UriInterface $uri;
     protected bool $alive = \true;
+    protected int $failedPings = 0;
+    protected ?int $lastPing = null;
+    // timestamp
     public function __construct(string $host)
     {
         if (substr($host, 0, 5) !== 'http:' && substr($host, 0, 6) !== 'https:') {
@@ -29,16 +32,26 @@ class Node
         }
         $this->uri = Psr17FactoryDiscovery::findUriFactory()->createUri($host);
     }
-    public function markAlive(bool $alive) : void
+    public function markAlive(bool $alive): void
     {
         $this->alive = $alive;
+        $this->failedPings = $alive ? 0 : $this->failedPings + 1;
+        $this->lastPing = time();
     }
-    public function isAlive() : bool
+    public function isAlive(): bool
     {
         return $this->alive;
     }
-    public function getUri() : UriInterface
+    public function getUri(): UriInterface
     {
         return $this->uri;
+    }
+    public function getLastPing(): ?int
+    {
+        return $this->lastPing;
+    }
+    public function getFailedPings(): int
+    {
+        return $this->failedPings;
     }
 }

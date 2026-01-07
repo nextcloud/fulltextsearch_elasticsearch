@@ -11,17 +11,17 @@ final class MimeType
      *
      * @see https://raw.githubusercontent.com/jshttp/mime-db/master/db.json
      */
-    public static function fromFilename(string $filename) : ?string
+    public static function fromFilename(string $filename): ?string
     {
-        return self::fromExtension(\pathinfo($filename, \PATHINFO_EXTENSION));
+        return self::fromExtension(pathinfo($filename, \PATHINFO_EXTENSION));
     }
     /**
      * Maps a file extensions to a mimetype.
      *
      * @see https://raw.githubusercontent.com/jshttp/mime-db/master/db.json
      */
-    public static function fromExtension(string $extension) : ?string
+    public static function fromExtension(string $extension): ?string
     {
-        return self::MIME_TYPES[\strtolower($extension)] ?? null;
+        return self::MIME_TYPES[strtolower($extension)] ?? null;
     }
 }

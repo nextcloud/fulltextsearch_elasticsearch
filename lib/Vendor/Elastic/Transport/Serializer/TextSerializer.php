@@ -21,17 +21,17 @@ class TextSerializer implements SerializerInterface
     /**
      * @throws SerializeException
      */
-    public static function serialize($data, array $options = []) : string
+    public static function serialize($data, array $options = []): string
     {
-        if (\is_string($data) || \is_numeric($data) || \is_object($data) && \method_exists($data, '__toString')) {
+        if (is_string($data) || is_numeric($data) || is_object($data) && method_exists($data, '__toString')) {
             return (string) $data;
         }
-        throw new SerializeException(\sprintf("I cannot serialize %s in a text", serialize($data)));
+        throw new SerializeException(sprintf("I cannot serialize %s in a text", serialize($data)));
     }
     /**
      * @return string
      */
-    public static function unserialize(string $data, array $options = []) : string
+    public static function unserialize(string $data, array $options = []): string
     {
         return $data;
     }

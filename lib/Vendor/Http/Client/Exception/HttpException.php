@@ -40,7 +40,7 @@ class HttpException extends RequestException
      */
     public static function create(RequestInterface $request, ResponseInterface $response, ?\Exception $previous = null)
     {
-        $message = \sprintf('[url] %s [http method] %s [status code] %s [reason phrase] %s', $request->getRequestTarget(), $request->getMethod(), $response->getStatusCode(), $response->getReasonPhrase());
+        $message = sprintf('[url] %s [http method] %s [status code] %s [reason phrase] %s', $request->getRequestTarget(), $request->getMethod(), $response->getStatusCode(), $response->getReasonPhrase());
         return new static($message, $request, $response, $previous);
     }
 }
