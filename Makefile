@@ -83,6 +83,7 @@ appstore: clean composer
 	--exclude=/docs \
 	--exclude=/translationfiles \
 	--exclude=/.tx \
+	--exclude=/es8 \
 	--exclude=/tests \
 	--exclude=.git \
 	--exclude=/.github \
@@ -91,7 +92,8 @@ appstore: clean composer
 	--exclude=/issue_template.md \
 	--exclude=/README.md \
 	--exclude=/composer.json \
-	--exclude=/testConfiguration.json \
+	--exclude=/lib-vendor-organizer.php \
+	--exclude=/scoper.inc.php \
 	--exclude=/vendor \
 	--exclude=/lib/VendorPsr \
 	--exclude=/vendor-bin \
