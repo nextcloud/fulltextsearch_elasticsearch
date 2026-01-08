@@ -17,6 +17,7 @@ namespace Humbug\PhpScoper\Console;
 use Fidry\Console\Application\Application as FidryApplication;
 use Fidry\Console\IO;
 use Humbug\PhpScoper\Throwable\Exception\ParsingException;
+use PHPUnit\Framework\Attributes\CodeCoverageIgnore;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,24 +26,22 @@ use function memory_get_peak_usage;
 use function memory_get_usage;
 use function microtime;
 use function round;
-use function Safe\sprintf;
+use function sprintf;
 
 /**
  * @private
  * @final
- * @codeCoverageIgnore
  */
+#[CodeCoverageIgnore]
 class ScoperLogger
 {
-    private FidryApplication $application;
-    private IO $io;
-    private float $startTime;
+    private readonly float $startTime;
     private ProgressBar $progressBar;
 
-    public function __construct(FidryApplication $application, IO $io)
-    {
-        $this->io = $io;
-        $this->application = $application;
+    public function __construct(
+        private readonly FidryApplication $application,
+        private readonly IO $io,
+    ) {
         $this->startTime = microtime(true);
         $this->progressBar = new ProgressBar(new NullOutput());
     }
@@ -84,8 +83,6 @@ class ScoperLogger
 
     /**
      * Output file count message if relevant.
-     *
-     * @param int $count
      */
     public function outputFileCount(int $count): void
     {
@@ -99,8 +96,6 @@ class ScoperLogger
 
     /**
      * Output scoping success message.
-     *
-     * @param string $path
      */
     public function outputSuccess(string $path): void
     {
@@ -108,8 +103,8 @@ class ScoperLogger
             $this->io->writeln(
                 sprintf(
                     ' * [<info>OK</info>] %s',
-                    $path
-                )
+                    $path,
+                ),
             );
         }
 
@@ -122,8 +117,8 @@ class ScoperLogger
             $this->io->writeln(
                 sprintf(
                     ' * [<error>NO</error>] %s',
-                    $path
-                )
+                    $path,
+                ),
             );
         }
 
@@ -132,8 +127,8 @@ class ScoperLogger
                 sprintf(
                     "\t".'%s: %s',
                     $exception->getMessage(),
-                    (string) $exception->getPrevious()
-                )
+                    (string) $exception->getPrevious(),
+                ),
             );
         }
 
@@ -159,8 +154,8 @@ class ScoperLogger
             $this->io->success(
                 sprintf(
                     'Successfully prefixed %d files.',
-                    $this->progressBar->getMaxSteps()
-                )
+                    $this->progressBar->getMaxSteps(),
+                ),
             );
         }
 
@@ -170,8 +165,8 @@ class ScoperLogger
                     '<info>Memory usage: %.2fMB (peak: %.2fMB), time: %.2fs<info>',
                     round(memory_get_usage() / 1024 / 1024, 2),
                     round(memory_get_peak_usage() / 1024 / 1024, 2),
-                    round(microtime(true) - $this->startTime, 2)
-                )
+                    round(microtime(true) - $this->startTime, 2),
+                ),
             );
         }
     }

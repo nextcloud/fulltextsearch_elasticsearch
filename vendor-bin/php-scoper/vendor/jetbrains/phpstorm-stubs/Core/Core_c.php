@@ -3,6 +3,7 @@
 // Start of Core v.5.3.6-13ubuntu3.2
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
@@ -23,6 +24,10 @@ interface iterable {}
  * Instead it must be implemented by either {@see IteratorAggregate} or {@see Iterator}.
  *
  * @link https://php.net/manual/en/class.traversable.php
+ * @template TKey
+ * @template-covariant TValue
+ *
+ * @template-extends iterable<TKey, TValue>
  */
 interface Traversable extends iterable {}
 
@@ -30,14 +35,15 @@ interface Traversable extends iterable {}
  * Interface to create an external Iterator.
  * @link https://php.net/manual/en/class.iteratoraggregate.php
  * @template TKey
- * @template TValue
+ * @template-covariant TValue
+ * @template-extends Traversable<TKey, TValue>
  */
 interface IteratorAggregate extends Traversable
 {
     /**
      * Retrieve an external iterator
      * @link https://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable|TValue[] An instance of an object implementing <b>Iterator</b> or
+     * @return Traversable<TKey, TValue>|TValue[] An instance of an object implementing <b>Iterator</b> or
      * <b>Traversable</b>
      * @throws Exception on failure.
      */
@@ -49,13 +55,16 @@ interface IteratorAggregate extends Traversable
  * Interface for external iterators or objects that can be iterated
  * themselves internally.
  * @link https://php.net/manual/en/class.iterator.php
+ * @template TKey
+ * @template-covariant TValue
+ * @template-extends Traversable<TKey, TValue>
  */
 interface Iterator extends Traversable
 {
     /**
      * Return the current element
      * @link https://php.net/manual/en/iterator.current.php
-     * @return mixed Can return any type.
+     * @return TValue Can return any type.
      */
     #[TentativeType]
     public function current(): mixed;
@@ -71,7 +80,7 @@ interface Iterator extends Traversable
     /**
      * Return the key of the current element
      * @link https://php.net/manual/en/iterator.key.php
-     * @return string|float|int|bool|null scalar on success, or null on failure.
+     * @return TKey|null TKey on success, or null on failure.
      */
     #[TentativeType]
     public function key(): mixed;
@@ -97,13 +106,15 @@ interface Iterator extends Traversable
 /**
  * Interface to provide accessing objects as arrays.
  * @link https://php.net/manual/en/class.arrayaccess.php
+ * @template TKey
+ * @template TValue
  */
 interface ArrayAccess
 {
     /**
      * Whether a offset exists
      * @link https://php.net/manual/en/arrayaccess.offsetexists.php
-     * @param mixed $offset <p>
+     * @param TKey $offset <p>
      * An offset to check for.
      * </p>
      * @return bool true on success or false on failure.
@@ -117,10 +128,10 @@ interface ArrayAccess
     /**
      * Offset to retrieve
      * @link https://php.net/manual/en/arrayaccess.offsetget.php
-     * @param mixed $offset <p>
+     * @param TKey $offset <p>
      * The offset to retrieve.
      * </p>
-     * @return mixed Can return all value types.
+     * @return TValue Can return all value types.
      */
     #[TentativeType]
     public function offsetGet(#[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $offset): mixed;
@@ -128,10 +139,10 @@ interface ArrayAccess
     /**
      * Offset to set
      * @link https://php.net/manual/en/arrayaccess.offsetset.php
-     * @param mixed $offset <p>
+     * @param TKey $offset <p>
      * The offset to assign the value to.
      * </p>
-     * @param mixed $value <p>
+     * @param TValue $value <p>
      * The value to set.
      * </p>
      * @return void
@@ -145,7 +156,7 @@ interface ArrayAccess
     /**
      * Offset to unset
      * @link https://php.net/manual/en/arrayaccess.offsetunset.php
-     * @param mixed $offset <p>
+     * @param TKey $offset <p>
      * The offset to unset.
      * </p>
      * @return void
@@ -155,7 +166,9 @@ interface ArrayAccess
 }
 
 /**
- * Interface for customized serializing.
+ * Interface for customized serializing.<br>
+ * As of PHP 8.1.0, a class which implements Serializable without also implementing `__serialize()` and `__unserialize()`
+ * will generate a deprecation warning.
  * @link https://php.net/manual/en/class.serializable.php
  */
 interface Serializable
@@ -268,11 +281,14 @@ class Exception implements Throwable
 {
     /** The error message */
     protected $message;
+
     /** The error code */
     protected $code;
+
     /** The filename where the error happened  */
     #[LanguageLevelTypeAware(['8.1' => 'string'], default: '')]
     protected $file;
+
     /** The line where the error happened */
     #[LanguageLevelTypeAware(['8.1' => 'int'], default: '')]
     protected $line;
@@ -283,7 +299,17 @@ class Exception implements Throwable
      * @link https://php.net/manual/en/exception.clone.php
      * @return void
      */
+    #[PhpStormStubsElementAvailable(from: "5.4", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * Clone the exception
+     * Tries to clone the Exception, which results in Fatal error.
+     * @link https://php.net/manual/en/exception.clone.php
+     * @return void
+     */
+    #[PhpStormStubsElementAvailable("8.1")]
+    private function __clone(): void {}
 
     /**
      * Construct the exception. Note: The message is NOT binary safe.
@@ -380,11 +406,14 @@ class Error implements Throwable
 {
     /** The error message */
     protected $message;
+
     /** The error code */
     protected $code;
+
     /** The filename where the error happened  */
     #[LanguageLevelTypeAware(['8.1' => 'string'], default: '')]
     protected $file;
+
     /** The line where the error happened */
     #[LanguageLevelTypeAware(['8.1' => 'int'], default: '')]
     protected $line;
@@ -481,7 +510,17 @@ class Error implements Throwable
      * @return void
      * @link https://php.net/manual/en/error.clone.php
      */
+    #[PhpStormStubsElementAvailable(from: "7.0", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * Clone the error
+     * Error can not be clone, so this method results in fatal error.
+     * @return void
+     * @link https://php.net/manual/en/error.clone.php
+     */
+    #[PhpStormStubsElementAvailable('8.1')]
+    private function __clone(): void {}
 
     #[TentativeType]
     public function __wakeup(): void {}
@@ -544,6 +583,11 @@ class DivisionByZeroError extends ArithmeticError {}
 class UnhandledMatchError extends Error {}
 
 /**
+ * @since 8.4
+ */
+class RequestParseBodyException extends Exception {}
+
+/**
  * An Error Exception.
  * @link https://php.net/manual/en/class.errorexception.php
  */
@@ -567,8 +611,8 @@ class ErrorException extends Exception
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $message = "",
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $code = 0,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $severity = 1,
-        #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $filename = __FILE__,
-        #[LanguageLevelTypeAware(['8.0' => 'int|null'], default: '')] $line = __LINE__,
+        #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $filename = null,
+        #[LanguageLevelTypeAware(['8.0' => 'int|null'], default: '')] $line = null,
         #[LanguageLevelTypeAware(['8.0' => 'Throwable|null'], default: 'Throwable')] $previous = null
     ) {}
 
@@ -611,11 +655,12 @@ final class Closure
      * Duplicates the closure with a new bound object and class scope
      * @link https://secure.php.net/manual/en/closure.bindto.php
      * @param object|null $newThis The object to which the given anonymous function should be bound, or NULL for the closure to be unbound.
-     * @param mixed $newScope The class scope to which associate the closure is to be associated, or 'static' to keep the current one.
+     * @param object|class-string|null $newScope The class scope to which associate the closure is to be associated, or 'static' to keep the current one.
      * If an object is given, the type of the object will be used instead.
      * This determines the visibility of protected and private methods of the bound object.
-     * @return Closure|false Returns the newly created Closure object or FALSE on failure
+     * @return Closure|null Returns the newly created Closure object or null on failure
      */
+    #[Pure]
     public function bindTo(?object $newThis, object|string|null $newScope = 'static'): ?Closure {}
 
     /**
@@ -624,11 +669,12 @@ final class Closure
      * @link https://secure.php.net/manual/en/closure.bind.php
      * @param Closure $closure The anonymous functions to bind.
      * @param object|null $newThis The object to which the given anonymous function should be bound, or NULL for the closure to be unbound.
-     * @param mixed $newScope The class scope to which associate the closure is to be associated, or 'static' to keep the current one.
+     * @param object|class-string|null $newScope The class scope to which associate the closure is to be associated, or 'static' to keep the current one.
      * If an object is given, the type of the object will be used instead.
      * This determines the visibility of protected and private methods of the bound object.
-     * @return Closure|false Returns the newly created Closure object or FALSE on failure
+     * @return Closure|null Returns the newly created Closure object or null on failure
      */
+    #[Pure]
     public static function bind(Closure $closure, ?object $newThis, object|string|null $newScope = 'static'): ?Closure {}
 
     /**
@@ -659,7 +705,7 @@ interface Countable
     /**
      * Count elements of an object
      * @link https://php.net/manual/en/countable.count.php
-     * @return int The custom count as an integer.
+     * @return int<0,max> The custom count as an integer.
      * <p>
      * The return value is cast to an integer.
      * </p>
@@ -672,6 +718,7 @@ interface Countable
  * Weak references allow the programmer to retain a reference to an
  * object which does not prevent the object from being destroyed.
  * They are useful for implementing cache like structures.
+ * @template T of object
  * @link https://www.php.net/manual/en/class.weakreference.php
  * @since 7.4
  */
@@ -687,19 +734,22 @@ final class WeakReference
     /**
      * Create a new weak reference.
      * @link https://www.php.net/manual/en/weakreference.create.php
-     * @param object $referent The object to be weakly referenced.
-     * @return WeakReference the freshly instantiated object.
+     * @template TIn of object
+     * @param TIn $object Any object.
+     * @return WeakReference<TIn> The freshly instantiated object.
      * @since 7.4
      */
-    public static function create($referent) {}
+    #[Pure]
+    public static function create(object $object): WeakReference {}
 
     /**
      * Gets a weakly referenced object. If the object has already been
      * destroyed, NULL is returned.
      * @link https://www.php.net/manual/en/weakreference.get.php
-     * @return object|null
+     * @return T|null
      * @since 7.4
      */
+    #[Pure]
     public function get(): ?object {}
 }
 
@@ -710,6 +760,10 @@ final class WeakReference
  * it will simply be removed from the map.
  *
  * @since 8.0
+ *
+ * @template TKey of object
+ * @template TValue
+ * @template-implements IteratorAggregate<TKey, TValue>
  */
 final class WeakMap implements ArrayAccess, Countable, IteratorAggregate
 {
@@ -717,24 +771,26 @@ final class WeakMap implements ArrayAccess, Countable, IteratorAggregate
      * Returns {@see true} if the value for the object is contained in
      * the {@see WeakMap} and {@see false} instead.
      *
-     * @param object $object Any object
+     * @param TKey $object Any object
      * @return bool
      */
+    #[Pure]
     public function offsetExists($object): bool {}
 
     /**
      * Returns the existsing value by an object.
      *
-     * @param object $object Any object
-     * @return mixed Value associated with the key object
+     * @param TKey $object Any object
+     * @return TValue Value associated with the key object
      */
+    #[Pure]
     public function offsetGet($object): mixed {}
 
     /**
      * Sets a new value for an object.
      *
-     * @param object $object Any object
-     * @param mixed $value Any value
+     * @param TKey $object Any object
+     * @param TValue $value Any value
      * @return void
      */
     public function offsetSet($object, mixed $value): void {}
@@ -742,7 +798,7 @@ final class WeakMap implements ArrayAccess, Countable, IteratorAggregate
     /**
      * Force removes an object value from the {@see WeakMap} instance.
      *
-     * @param object $object Any object
+     * @param TKey $object Any object
      * @return void
      */
     public function offsetUnset($object): void {}
@@ -750,29 +806,30 @@ final class WeakMap implements ArrayAccess, Countable, IteratorAggregate
     /**
      * Returns an iterator in the "[object => mixed]" format.
      *
-     * @return Traversable
+     * @return Iterator<TKey, TValue>
      */
+    #[Pure]
     public function getIterator(): Iterator {}
 
     /**
      * Returns the number of items in the {@see WeakMap} instance.
      *
-     * @return int
+     * @return int<0,max>
      */
+    #[Pure]
     public function count(): int {}
 }
 
 /**
- * Stringable interface marks classes as available for serialization
- * in a string.
+ * Stringable interface denotes a class as having a __toString() method.
  *
  * @since 8.0
  */
 interface Stringable
 {
     /**
-     * Magic method {@see https://www.php.net/manual/en/language.oop5.magic.php}
-     * called during serialization to string.
+     * Magic method {@see https://www.php.net/manual/en/language.oop5.magic.php#object.tostring}
+     * allows a class to decide how it will react when it is treated like a string.
      *
      * @return string Returns string representation of the object that
      * implements this interface (and/or "__toString" magic method).
@@ -787,6 +844,7 @@ interface Stringable
 final class Attribute
 {
     public int $flags;
+
     /**
      * Marks that attribute declaration is allowed only in classes.
      */
@@ -858,11 +916,12 @@ final class InternalIterator implements Iterator
  */
 interface UnitEnum
 {
-    public string $name;
+    public readonly string $name;
 
     /**
      * @return static[]
      */
+    #[Pure]
     public static function cases(): array;
 }
 
@@ -871,18 +930,30 @@ interface UnitEnum
  */
 interface BackedEnum extends UnitEnum
 {
-    public string $value;
+    public readonly int|string $value;
 
     /**
+     * Translates a string or int into the corresponding <code>Enum</code>
+     * case, if any. If there is no matching case defined, it will throw a
+     * <code>ValueError</code>.
      * @param int|string $value
+     * @throws ValueError
+     * @throws TypeError
      * @return static
+     * @link https://www.php.net/manual/en/backedenum.from.php
      */
+    #[Pure]
     public static function from(int|string $value): static;
 
     /**
+     * Translates a string or int into the corresponding <code>Enum</code>
+     * case, if any. If there is no matching case defined, it will return null.
      * @param int|string $value
-     * @return static|null
+     * @return static|null A case instance of this enumeration, or null if not
+     * found.
+     * @link https://www.php.net/manual/en/backedenum.tryfrom.php
      */
+    #[Pure]
     public static function tryFrom(int|string $value): ?static;
 }
 
@@ -894,18 +965,20 @@ interface BackedEnum extends UnitEnum
  */
 interface IntBackedEnum extends BackedEnum
 {
-    public int $value;
+    public readonly int $value;
 
     /**
      * @param int $value
      * @return static
      */
+    #[Pure]
     public static function from(int $value): static;
 
     /**
      * @param int $value
      * @return static|null
      */
+    #[Pure]
     public static function tryFrom(int $value): ?static;
 }
 
@@ -917,15 +990,22 @@ interface IntBackedEnum extends BackedEnum
  */
 interface StringBackedEnum extends BackedEnum
 {
-    public string $value;
+    public readonly string $value;
 
+    #[Pure]
     public static function from(string $value): static;
 
+    #[Pure]
     public static function tryFrom(string $value): ?static;
 }
 
 /**
  * @since 8.1
+ *
+ * @template TStart
+ * @template TResume
+ * @template TReturn
+ * @template TSuspend
  */
 final class Fiber
 {
@@ -937,9 +1017,9 @@ final class Fiber
     /**
      * Starts execution of the fiber. Returns when the fiber suspends or terminates.
      *
-     * @param mixed ...$args Arguments passed to fiber function.
+     * @param TStart ...$args Arguments passed to fiber function.
      *
-     * @return mixed Value from the first suspension point or NULL if the fiber returns.
+     * @return TSuspend|null Value from the first suspension point or NULL if the fiber returns.
      *
      * @throws FiberError If the fiber has already been started.
      * @throws Throwable If the fiber callable throws an uncaught exception.
@@ -950,9 +1030,9 @@ final class Fiber
      * Resumes the fiber, returning the given value from {@see Fiber::suspend()}.
      * Returns when the fiber suspends or terminates.
      *
-     * @param mixed $value
+     * @param TResume $value
      *
-     * @return mixed Value from the next suspension point or NULL if the fiber returns.
+     * @return TSuspend|null Value from the next suspension point or NULL if the fiber returns.
      *
      * @throws FiberError If the fiber has not started, is running, or has terminated.
      * @throws Throwable If the fiber callable throws an uncaught exception.
@@ -965,7 +1045,7 @@ final class Fiber
      *
      * @param Throwable $exception
      *
-     * @return mixed Value from the next suspension point or NULL if the fiber returns.
+     * @return TSuspend|null Value from the next suspension point or NULL if the fiber returns.
      *
      * @throws FiberError If the fiber has not started, is running, or has terminated.
      * @throws Throwable If the fiber callable throws an uncaught exception.
@@ -993,27 +1073,25 @@ final class Fiber
     public function isTerminated(): bool {}
 
     /**
-     * @return mixed Return value of the fiber callback. NULL is returned if the fiber does not have a return statement.
+     * @return TReturn Return value of the fiber callback. NULL is returned if the fiber does not have a return statement.
      *
      * @throws FiberError If the fiber has not terminated or the fiber threw an exception.
      */
     public function getReturn(): mixed {}
 
-    public static function getCurrent(): ?Fiber {}
-
     /**
-     * @return self|null Returns the currently executing fiber instance or NULL if in {main}.
+     * @return Fiber|null Returns the currently executing fiber instance or NULL if in {main}.
      */
-    public static function this() {}
+    public static function getCurrent(): ?Fiber {}
 
     /**
      * Suspend execution of the fiber. The fiber may be resumed with {@see Fiber::resume()} or {@see Fiber::throw()}.
      *
      * Cannot be called from {main}.
      *
-     * @param mixed $value Value to return from {@see Fiber::resume()} or {@see Fiber::throw()}.
+     * @param TSuspend $value Value to return from {@see Fiber::resume()} or {@see Fiber::throw()}.
      *
-     * @return mixed Value provided to {@see Fiber::resume()}.
+     * @return TResume Value provided to {@see Fiber::resume()}.
      *
      * @throws FiberError Thrown if not within a fiber (i.e., if called from {main}).
      * @throws Throwable Exception provided to {@see Fiber::throw()}.
@@ -1036,4 +1114,57 @@ final class FiberError extends Error
 final class ReturnTypeWillChange
 {
     public function __construct() {}
+}
+
+/**
+ * @since 8.2
+ */
+#[Attribute(Attribute::TARGET_CLASS)]
+final class AllowDynamicProperties
+{
+    public function __construct() {}
+}
+
+/**
+ * @since 8.2
+ */
+#[Attribute(Attribute::TARGET_PARAMETER)]
+final class SensitiveParameter
+{
+    public function __construct() {}
+}
+
+/**
+ * @since 8.2
+ */
+final class SensitiveParameterValue
+{
+    private readonly mixed $value;
+
+    public function __construct(mixed $value) {}
+
+    public function getValue(): mixed {}
+
+    public function __debugInfo(): array {}
+}
+
+/**
+ * @since 8.3
+ */
+#[Attribute(Attribute::TARGET_METHOD)]
+final class Override
+{
+    public function __construct() {}
+}
+
+/**
+ * @since 8.4
+ */
+#[Attribute(Attribute::TARGET_METHOD|Attribute::TARGET_FUNCTION|Attribute::TARGET_CLASS_CONSTANT)]
+final class Deprecated
+{
+    public readonly ?string $message;
+    public readonly ?string $since;
+
+    public function __construct(?string $message = null, ?string $since = null) {}
 }

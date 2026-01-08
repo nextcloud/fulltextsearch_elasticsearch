@@ -18,12 +18,12 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 trait ResponseTrait
 {
     protected ResponseInterface $response;
-    public function setResponse(ResponseInterface $response) : self
+    public function setResponse(ResponseInterface $response): self
     {
         $this->response = $response;
         return $this;
     }
-    public function getResponse() : ResponseInterface
+    public function getResponse(): ResponseInterface
     {
         return $this->response;
     }

@@ -8,5 +8,5 @@ interface BodySummarizerInterface
     /**
      * Returns a summarized message body.
      */
-    public function summarize(MessageInterface $message) : ?string;
+    public function summarize(MessageInterface $message): ?string;
 }

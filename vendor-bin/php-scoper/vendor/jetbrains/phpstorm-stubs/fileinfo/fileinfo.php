@@ -14,7 +14,7 @@ class finfo
      * @param string $magic_database [optional]
      */
     public function __construct(
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags,
+        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = 0,
         #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $magic_database
     ) {}
 
@@ -35,13 +35,15 @@ class finfo
      * </p>
      * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
+    #[LanguageLevelTypeAware(['8.4' => 'true'], default: 'bool')]
+    #[TentativeType]
     public function set_flags(#[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags) {}
 
     /**
      * (PHP &gt;= 5.3.0, PECL fileinfo &gt;= 0.1.0)<br/>
      * Return information about a file
      * @link https://php.net/manual/en/function.finfo-file.php
-     * @param string $filename [optional] <p>
+     * @param string $filename <p>
      * Name of a file to be checked.
      * </p>
      * @param int $flags [optional] <p>
@@ -57,7 +59,7 @@ class finfo
     #[Pure]
     #[TentativeType]
     public function file(
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $filename = null,
+        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $filename,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = FILEINFO_NONE,
         $context = null
     ): string|false {}
@@ -66,7 +68,7 @@ class finfo
      * (PHP 5 &gt;= 5.3.0, PECL fileinfo &gt;= 0.1.0)<br/>
      * Return information about a string buffer
      * @link https://php.net/manual/en/function.finfo-buffer.php
-     * @param string $string [optional] <p>
+     * @param string $string <p>
      * Content of a file to be checked.
      * </p>
      * @param int $flags [optional] <p>
@@ -80,7 +82,7 @@ class finfo
     #[Pure]
     #[TentativeType]
     public function buffer(
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $string = null,
+        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $string,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = FILEINFO_NONE,
         $context = null
     ): string|false {}
@@ -90,7 +92,7 @@ class finfo
  * (PHP &gt;= 5.3.0, PECL fileinfo &gt;= 0.1.0)<br/>
  * Create a new fileinfo resource
  * @link https://php.net/manual/en/function.finfo-open.php
- * @param int $flags [optional] <p>
+ * @param int $flags <p>
  * One or disjunction of more Fileinfo
  * constants.
  * </p>
@@ -105,7 +107,7 @@ class finfo
  * @return resource|false a magic database resource on success or <b>FALSE</b> on failure.
  */
 #[LanguageLevelTypeAware(['8.1' => 'finfo|false'], default: 'resource|false')]
-function finfo_open(int $flags, ?string $magic_database = null) {}
+function finfo_open(int $flags = 0, ?string $magic_database = null) {}
 
 /**
  * (PHP &gt;= 5.3.0, PECL fileinfo &gt;= 0.1.0)<br/>
@@ -131,7 +133,8 @@ function finfo_close(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: 'reso
  * </p>
  * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
  */
-function finfo_set_flags(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: 'resource')] $finfo, int $flags): bool {}
+#[LanguageLevelTypeAware(['8.4' => 'true'], default: 'bool')]
+function finfo_set_flags(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: 'resource')] $finfo, int $flags) {}
 
 /**
  * (PHP &gt;= 5.3.0, PECL fileinfo &gt;= 0.1.0)<br/>
@@ -143,7 +146,7 @@ function finfo_set_flags(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: '
  * @param string $filename <p>
  * Name of a file to be checked.
  * </p>
- * @param int $flags [optional] <p>
+ * @param int $flags <p>
  * One or disjunction of more Fileinfo
  * constants.
  * </p>
@@ -153,7 +156,7 @@ function finfo_set_flags(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: '
  * @return string|false a textual description of the contents of the
  * <i>filename</i> argument, or <b>FALSE</b> if an error occurred.
  */
-function finfo_file(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: 'resource')] $finfo, string $filename, int $flags, $context): string|false {}
+function finfo_file(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: 'resource')] $finfo, string $filename, int $flags = 0, $context): string|false {}
 
 /**
  * (PHP 5 &gt;= 5.3.0, PECL fileinfo &gt;= 0.1.0)<br/>
@@ -176,7 +179,7 @@ function finfo_buffer(#[LanguageLevelTypeAware(['8.1' => 'finfo'], default: 'res
 /**
  * Detect MIME Content-type for a file
  * @link https://php.net/manual/en/function.mime-content-type.php
- * @param string $filename <p>
+ * @param resource|string $filename <p>
  * Path to the tested file.
  * </p>
  * @return string|false the content type in MIME format, like
@@ -246,5 +249,10 @@ define('FILEINFO_RAW', 256);
  * @since 7.2
  */
 define('FILEINFO_EXTENSION', 2097152);
+
+/**
+ * @since 8.2
+ */
+define('FILEINFO_APPLE', 2048);
 
 // End of fileinfo v.1.0.5

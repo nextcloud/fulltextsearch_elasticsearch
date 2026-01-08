@@ -23,7 +23,7 @@ class AsyncOnSuccessNoException implements OnSuccessInterface
     public function __construct(protected ?ClientInterface $client = null)
     {
     }
-    public function success(ResponseInterface $response, int $count) : Elasticsearch
+    public function success(ResponseInterface $response, int $count): Elasticsearch
     {
         $result = new Elasticsearch();
         $result->setResponse($response, \false);

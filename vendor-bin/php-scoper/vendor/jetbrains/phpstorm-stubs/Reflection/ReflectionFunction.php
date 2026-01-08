@@ -3,6 +3,7 @@
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Immutable;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
@@ -97,9 +98,12 @@ class ReflectionFunction extends ReflectionFunctionAbstract
      * Returns a dynamically created closure for the function
      *
      * @link https://php.net/manual/en/reflectionfunction.getclosure.php
-     * @return Closure Returns {@see Closure} or {@see null} in case of an error.
+     * @return Closure|null Returns {@see Closure} or {@see null} in case of an error.
      */
     #[Pure]
     #[TentativeType]
     public function getClosure(): Closure {}
+
+    #[PhpStormStubsElementAvailable(from: '8.2')]
+    public function isAnonymous(): bool {}
 }

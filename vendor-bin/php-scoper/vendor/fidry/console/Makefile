@@ -2,27 +2,31 @@
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-# General variables
-TOUCH = bash .makefile/touch.sh
 
-# PHP variables
-COMPOSER = $(shell which composer)
+TYPED_INPUT = src/Input/TypedInput.php
+
 COVERAGE_DIR = dist/coverage
-COVERS_VALIDATOR_BIN = vendor-bin/covers-validator/vendor/ockcyp/covers-validator/covers-validator
-COVERS_VALIDATOR = $(COVERS_VALIDATOR_BIN)
+COVERAGE_XML_DIR = $(COVERAGE_DIR)/coverage-xml
+COVERAGE_JUNIT = $(COVERAGE_DIR)/phpunit.junit.xml
+COVERAGE_HTML_DIR = $(COVERAGE_DIR)/html
+
 INFECTION_BIN = vendor/bin/infection
-INFECTION = php -d zend.enable_gc=0 $(INFECTION_BIN) --skip-initial-tests --coverage=$(COVERAGE_DIR) --only-covered --threads=4 --min-msi=100 --min-covered-msi=100 --ansi
+INFECTION = SYMFONY_DEPRECATIONS_HELPER="disabled=1" php -d zend.enable_gc=0 $(INFECTION_BIN) --skip-initial-tests --coverage=$(COVERAGE_DIR) --only-covered --show-mutations --min-msi=100 --min-covered-msi=100 --ansi --threads=max
+INFECTION_WITH_INITIAL_TESTS = SYMFONY_DEPRECATIONS_HELPER="disabled=1" php -d zend.enable_gc=0 $(INFECTION_BIN) --only-covered --show-mutations --min-msi=100 --min-covered-msi=100 --ansi --threads=max
+
 PHPUNIT_BIN = vendor/bin/phpunit
 PHPUNIT = php -d zend.enable_gc=0 $(PHPUNIT_BIN)
-PHPUNIT_COVERAGE = XDEBUG_MODE=coverage $(PHPUNIT) --coverage-xml=$(COVERAGE_DIR)/coverage-xml --log-junit=$(COVERAGE_DIR)/phpunit.junit.xml
+PHPUNIT_COVERAGE_INFECTION = XDEBUG_MODE=coverage $(PHPUNIT) --coverage-xml=$(COVERAGE_XML_DIR) --log-junit=$(COVERAGE_JUNIT)
+PHPUNIT_COVERAGE_HTML = XDEBUG_MODE=coverage $(PHPUNIT) --coverage-html=$(COVERAGE_HTML_DIR)
+
 PSALM_BIN = vendor-bin/psalm/vendor/vimeo/psalm/psalm
 PSALM = $(PSALM_BIN) --no-cache
+
 PHP_CS_FIXER_BIN = vendor-bin/php-cs-fixer/vendor/friendsofphp/php-cs-fixer/php-cs-fixer
-# To keep in sync with the command defined in the parent Makefile
-PHP_CS_FIXER = $(PHP_CS_FIXER_BIN) fix --ansi --verbose --config=.php-cs-fixer.php
+PHP_CS_FIXER = PHP_CS_FIXER_IGNORE_ENV=1 $(PHP_CS_FIXER_BIN) fix --ansi --verbose --config=.php-cs-fixer.php
 
 
-.DEFAULT_GOAL := default
+.DEFAULT_GOAL := check
 
 
 #
@@ -30,95 +34,178 @@ PHP_CS_FIXER = $(PHP_CS_FIXER_BIN) fix --ansi --verbose --config=.php-cs-fixer.p
 #---------------------------------------------------------------------------
 
 .PHONY: help
-help: ## Shows the help
+help: 	## Shows the help
 help:
 	@printf "\033[33mUsage:\033[0m\n  make TARGET\n\n\033[32m#\n# Commands\n#---------------------------------------------------------------------------\033[0m\n"
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//' | awk 'BEGIN {FS = ":"}; {printf "\033[33m%s:\033[0m%s\n", $$1, $$2}'
 
 
-.PHONY: default
-default: ## Runs the default task: CS fix and all the tests
-default: cs test
+.PHONY: dump
+dump:	## Dumps the getter
+dump:
+	$(MAKE) $(TYPED_INPUT)
 
 
-.PHONY: cs
-cs: ## Runs PHP-CS-Fixer
-cs: $(PHP_CS_FIXER_BIN)
-	$(PHP_CS_FIXER)
+.PHONY: check
+check:  ## Runs all the checks
+check: cs autoreview infection
 
 
-.PHONY: psalm
-psalm: ## Runs Psalm
-psalm: $(PSALM_BIN) vendor
-	$(PSALM)
-
-
-.PHONY: infection
-infection: ## Runs infection
-infection: $(INFECTION_BIN) $(COVERAGE_DIR) vendor
-	if [ -d $(COVERAGE_DIR)/coverage-xml ]; then $(INFECTION); fi
+.PHONY: autoreview
+autoreview: ## Runs the AutoReview checks
+autoreview: cs_lint psalm phpunit_autoreview
 
 
 .PHONY: test
-test: ## Runs all the tests
-test: clear-cache validate-package covers-validator psalm coverage infection
+test: 	    ## Runs the tests
+test: composer_validate_package infection
 
 
-.PHONY: validate-package
-validate-package: ## Validates the Composer package
-validate-package: vendor
+.PHONY: cs
+cs: 	    ## Runs the CS fixers
+cs: gitignore_sort composer_normalize php_cs_fixer
+
+
+.PHONY: cs_lint
+cs_lint:    ## Runs the CS linters
+cs_lint: composer_normalize_lint php_cs_fixer_lint
+
+
+.PHONY: composer_normalize
+composer_normalize: vendor
+	composer normalize
+
+.PHONY: composer_normalize_lint
+composer_normalize_lint: vendor
+	composer normalize --dry-run
+
+.PHONY: gitignore_sort
+gitignore_sort:
+	LC_ALL=C sort -u .gitignore -o .gitignore
+	LC_ALL=C sort -u .gitattributes -o .gitattributes
+
+.PHONY: php_cs_fixer
+php_cs_fixer: $(PHP_CS_FIXER_BIN)
+	$(PHP_CS_FIXER)
+
+.PHONY: php_cs_fixer_lint
+php_cs_fixer_lint: $(PHP_CS_FIXER_BIN)
+	$(PHP_CS_FIXER) --dry-run --verbose
+
+.PHONY: psalm
+psalm: $(PSALM_BIN) vendor
+	$(PSALM)
+
+.PHONY: infection
+infection: $(INFECTION_BIN) vendor
+	$(INFECTION_WITH_INITIAL_TESTS)
+
+.PHONY: _infection
+_infection: $(INFECTION_BIN) $(COVERAGE_XML_DIR) $(COVERAGE_JUNIT) vendor
+	$(INFECTION)
+
+.PHONY: composer_validate_package
+composer_validate_package: vendor
 	composer validate --strict
 
-
-.PHONY: covers-validator
-covers-validator: ## Validates the PHPUnit @covers annotations
-covers-validator: $(COVERS_VALIDATOR_BIN) vendor
-	$(COVERS_VALIDATOR)
-
-
 .PHONY: phpunit
-phpunit: ## Runs PHPUnit
 phpunit: $(PHPUNIT_BIN) vendor
-	$(PHPUNIT)
+	$(PHPUNIT) --testsuite=Tests
+
+.PHONY: phpunit_autoreview
+phpunit_autoreview: $(PHPUNIT_BIN) vendor
+	$(PHPUNIT) --testsuite=AutoReview
+
+.PHONY: phpunit_coverage_infection
+phpunit_coverage_infection: ## Runs PHPUnit tests with test coverage
+phpunit_coverage_infection: $(PHPUNIT_BIN) vendor
+	$(PHPUNIT_COVERAGE_INFECTION) --testsuite=Tests
+
+.PHONY: phpunit_coverage_html
+phpunit_coverage_html:	    ## Runs PHPUnit with code coverage with HTML report
+phpunit_coverage_html: $(PHPUNIT_BIN) vendor
+	$(PHPUNIT_COVERAGE_HTML) --testsuite=Tests
+	@echo "You can check the report by opening the file \"$(COVERAGE_HTML_DIR)/index.html\"."
+
+.PHONY: clean
+clean:  ## Cleans up all artefacts
+clean:
+	@# Legacy entries.
+	@rm -f \
+		.php-cs-fixer.cache \
+		.phpunit.result.cache \
+		infection.log \
+		|| true
+
+	rm -rf \
+		tests/Integration/**/cache \
+		dist \
+		|| true
+
+	$(MAKE) dist
 
 
-.PHONY: coverage
-coverage: ## Runs PHPUnit with code coverage
-coverage: $(PHPUNIT_BIN) vendor
-	$(PHPUNIT_COVERAGE)
+.PHONY: install_symfony5
+install_symfony5: ## Installs latest dependencies with Symfony5
+install_symfony5: vendor
+	SYMFONY_REQUIRE="5.4.*" composer update --no-scripts
+	touch -c vendor $(PHPUNIT_BIN) $(INFECTION_BIN)
 
 
-.PHONY: clear-cache
-clear-cache: ## Clears the integration test app cache
-clear-cache:
-	rm -rf tests/Integration/**/cache || true
+.PHONY: install_symfony6
+install_symfony6: ## Installs latest dependencies with Symfony6
+install_symfony6: vendor
+	SYMFONY_REQUIRE="6.*.*" composer update --no-scripts
+	touch -c vendor $(PHPUNIT_BIN) $(INFECTION_BIN)
 
 
 #
 # Rules
 #---------------------------------------------------------------------------
 
-# Vendor does not depend on the composer.lock since the later is not tracked
-# or committed.
-vendor: composer.json
-	$(COMPOSER) update --no-scripts
-	$(TOUCH) "$@"
+vendor_install: composer.json $(wildcard composer.lock)
+	composer update --no-scripts
+	touch -c vendor
+	touch -c $(PHPUNIT_BIN)
+	touch -c $(INFECTION_BIN)
+
+vendor:
+	$(MAKE) vendor_install
 
 $(PHPUNIT_BIN): vendor
-	$(TOUCH) "$@"
+	touch -c $@
 
 $(INFECTION_BIN): vendor
-	$(TOUCH) "$@"
+	touch -c $@
 
-$(COVERAGE_DIR): $(PHPUNIT_BIN) src tests phpunit.xml.dist
-	$(PHPUNIT_COVERAGE)
-	$(TOUCH) "$@"
+$(COVERAGE_XML_DIR): $(PHPUNIT_BIN) src tests phpunit.xml.dist
+	$(PHPUNIT_COVERAGE_INFECTION)
+	touch -c $@
+	touch -c $(COVERAGE_JUNIT)
 
-$(PHP_CS_FIXER_BIN):
-	$(MAKE) --directory ../.. vendor-bin/php-cs-fixer/vendor
+$(COVERAGE_JUNIT): $(PHPUNIT_BIN) src tests phpunit.xml.dist
+	$(PHPUNIT_COVERAGE_INFECTION)
+	touch -c $@
+	touch -c $(COVERAGE_XML_DIR)
 
-$(PSALM_BIN):
-	$(MAKE) --directory ../.. vendor-bin/psalm/vendor/bin/psalm
+php_cs_fixer_install: $(PHP_CS_FIXER_BIN)
+	# Nothing to do
 
-$(COVERS_VALIDATOR_BIN):
-	$(MAKE) --directory ../.. vendor-bin/covers-validator/vendor/bin/covers-validator
+$(PHP_CS_FIXER_BIN): vendor
+	composer bin php-cs-fixer install
+	touch -c $@
+
+psalm_install: $(PSALM_BIN)
+	# Nothing to do
+
+$(PSALM_BIN): vendor
+	composer bin psalm install
+	touch -c $@
+
+$(TYPED_INPUT): src vendor
+	./bin/dump-getters
+	touch -c $@
+
+dist:
+	mkdir -p dist
+	touch dist/.gitkeep

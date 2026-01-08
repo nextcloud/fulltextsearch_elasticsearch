@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console\DependencyInjection;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
@@ -29,48 +30,48 @@ use Symfony\Component\DependencyInjection\TypedReference;
  */
 class AddConsoleCommandPass implements CompilerPassInterface
 {
-    private $commandLoaderServiceId;
-    private $commandTag;
-    private $noPreloadTag;
-    private $privateTagName;
-
-    public function __construct(string $commandLoaderServiceId = 'console.command_loader', string $commandTag = 'console.command', string $noPreloadTag = 'container.no_preload', string $privateTagName = 'container.private')
+    public function process(ContainerBuilder $container): void
     {
-        if (0 < \func_num_args()) {
-            trigger_deprecation('symfony/console', '5.3', 'Configuring "%s" is deprecated.', __CLASS__);
-        }
-
-        $this->commandLoaderServiceId = $commandLoaderServiceId;
-        $this->commandTag = $commandTag;
-        $this->noPreloadTag = $noPreloadTag;
-        $this->privateTagName = $privateTagName;
-    }
-
-    public function process(ContainerBuilder $container)
-    {
-        $commandServices = $container->findTaggedServiceIds($this->commandTag, true);
+        $commandServices = $container->findTaggedServiceIds('console.command', true);
         $lazyCommandMap = [];
         $lazyCommandRefs = [];
         $serviceIds = [];
 
         foreach ($commandServices as $id => $tags) {
             $definition = $container->getDefinition($id);
-            $definition->addTag($this->noPreloadTag);
             $class = $container->getParameterBag()->resolveValue($definition->getClass());
 
-            if (isset($tags[0]['command'])) {
-                $aliases = $tags[0]['command'];
-            } else {
-                if (!$r = $container->getReflectionClass($class)) {
-                    throw new InvalidArgumentException(sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
-                }
-                if (!$r->isSubclassOf(Command::class)) {
-                    throw new InvalidArgumentException(sprintf('The service "%s" tagged "%s" must be a subclass of "%s".', $id, $this->commandTag, Command::class));
-                }
-                $aliases = str_replace('%', '%%', $class::getDefaultName() ?? '');
+            if (!$r = $container->getReflectionClass($class)) {
+                throw new InvalidArgumentException(\sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
             }
 
-            $aliases = explode('|', $aliases ?? '');
+            if (!$r->isSubclassOf(Command::class)) {
+                if (!$r->hasMethod('__invoke')) {
+                    throw new InvalidArgumentException(\sprintf('The service "%s" tagged "%s" must either be a subclass of "%s" or have an "__invoke()" method.', $id, 'console.command', Command::class));
+                }
+
+                $invokableRef = new Reference($id);
+                $definition = $container->register($id .= '.command', $class = Command::class)
+                    ->addMethodCall('setCode', [$invokableRef]);
+            } else {
+                $invokableRef = null;
+            }
+
+            $definition->addTag('container.no_preload');
+
+            /** @var AsCommand|null $attribute */
+            $attribute = ($r->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
+
+            if (Command::class !== (new \ReflectionMethod($class, 'getDefaultName'))->class) {
+                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
+
+                $defaultName = $class::getDefaultName();
+            } else {
+                $defaultName = $attribute?->name;
+            }
+
+            $aliases = str_replace('%', '%%', $tags[0]['command'] ?? $defaultName ?? '');
+            $aliases = explode('|', $aliases);
             $commandName = array_shift($aliases);
 
             if ($isHidden = '' === $commandName) {
@@ -78,7 +79,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
             }
 
             if (null === $commandName) {
-                if (!$definition->isPublic() || $definition->isPrivate() || $definition->hasTag($this->privateTagName)) {
+                if ($definition->isPrivate() || $definition->hasTag('container.private')) {
                     $commandId = 'console.command.public_alias.'.$id;
                     $container->setAlias($commandId, $id)->setPublic(true);
                     $id = $commandId;
@@ -89,6 +90,8 @@ class AddConsoleCommandPass implements CompilerPassInterface
             }
 
             $description = $tags[0]['description'] ?? null;
+            $help = $tags[0]['help'] ?? null;
+            $usages = $tags[0]['usages'] ?? null;
 
             unset($tags[0]);
             $lazyCommandMap[$commandName] = $id;
@@ -104,7 +107,9 @@ class AddConsoleCommandPass implements CompilerPassInterface
                     $lazyCommandMap[$tag['command']] = $id;
                 }
 
-                $description = $description ?? $tag['description'] ?? null;
+                $description ??= $tag['description'] ?? null;
+                $help ??= $tag['help'] ?? null;
+                $usages ??= $tag['usages'] ?? null;
             }
 
             $definition->addMethodCall('setName', [$commandName]);
@@ -117,30 +122,41 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $definition->addMethodCall('setHidden', [true]);
             }
 
+            if ($help && $invokableRef) {
+                $definition->addMethodCall('setHelp', [str_replace('%', '%%', $help)]);
+            }
+
+            if ($usages) {
+                foreach ($usages as $usage) {
+                    $definition->addMethodCall('addUsage', [$usage]);
+                }
+            }
+
             if (!$description) {
-                if (!$r = $container->getReflectionClass($class)) {
-                    throw new InvalidArgumentException(sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
+                if (Command::class !== (new \ReflectionMethod($class, 'getDefaultDescription'))->class) {
+                    trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultDescription()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
+
+                    $description = $class::getDefaultDescription();
+                } else {
+                    $description = $attribute?->description;
                 }
-                if (!$r->isSubclassOf(Command::class)) {
-                    throw new InvalidArgumentException(sprintf('The service "%s" tagged "%s" must be a subclass of "%s".', $id, $this->commandTag, Command::class));
-                }
-                $description = str_replace('%', '%%', $class::getDefaultDescription() ?? '');
             }
 
             if ($description) {
-                $definition->addMethodCall('setDescription', [$description]);
+                $escapedDescription = str_replace('%', '%%', $description);
+                $definition->addMethodCall('setDescription', [$escapedDescription]);
 
                 $container->register('.'.$id.'.lazy', LazyCommand::class)
-                    ->setArguments([$commandName, $aliases, $description, $isHidden, new ServiceClosureArgument($lazyCommandRefs[$id])]);
+                    ->setArguments([$commandName, $aliases, $escapedDescription, $isHidden, new ServiceClosureArgument($lazyCommandRefs[$id])]);
 
                 $lazyCommandRefs[$id] = new Reference('.'.$id.'.lazy');
             }
         }
 
         $container
-            ->register($this->commandLoaderServiceId, ContainerCommandLoader::class)
+            ->register('console.command_loader', ContainerCommandLoader::class)
             ->setPublic(true)
-            ->addTag($this->noPreloadTag)
+            ->addTag('container.no_preload')
             ->setArguments([ServiceLocatorTagPass::register($container, $lazyCommandRefs), $lazyCommandMap]);
 
         $container->setParameter('console.command.ids', $serviceIds);

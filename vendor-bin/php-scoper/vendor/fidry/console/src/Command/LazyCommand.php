@@ -16,4 +16,6 @@ namespace Fidry\Console\Command;
 interface LazyCommand extends Command
 {
     public static function getName(): string;
+
+    public static function getDescription(): string;
 }

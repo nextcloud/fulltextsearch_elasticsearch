@@ -32,6 +32,7 @@ $_COOKIE = [];
 $_ENV = [];
 /**
  * @deprecated 4.1
+ * @removed 5.4
  */
 $HTTP_ENV_VARS = [];
 
@@ -49,6 +50,7 @@ $HTTP_ENV_VARS = [];
 $_FILES = [];
 /**
  * @deprecated 4.1
+ * @removed 5.4
  */
 $HTTP_POST_FILES = [];
 
@@ -65,6 +67,7 @@ $HTTP_POST_FILES = [];
 $_GET = [];
 /**
  * @deprecated 4.1
+ * @removed 5.4
  */
 $HTTP_GET_VARS = [];
 
@@ -82,6 +85,7 @@ $HTTP_GET_VARS = [];
 $_POST = [];
 /**
  * @deprecated 4.1
+ * @removed 5.4
  */
 $HTTP_POST_VARS = [];
 
@@ -118,6 +122,7 @@ $_REQUEST = [];
 $_SERVER = [];
 /**
  * @deprecated 4.1
+ * @removed 5.4
  */
 $HTTP_SERVER_VARS = [];
 
@@ -130,7 +135,8 @@ $_SERVER['SERVER_NAME'] = 'localhost';
 $_SERVER['SERVER_SOFTWARE'] = '';
 $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.0';
 $_SERVER['REQUEST_METHOD'] = 'GET';
-$_SERVER['REQUEST_TIME'] = '';
+$_SERVER['REQUEST_TIME'] = 946713600;
+$_SERVER['REQUEST_TIME_FLOAT'] = 946713600.123456;
 $_SERVER['QUERY_STRING'] = '';
 $_SERVER['DOCUMENT_ROOT'] = '';
 $_SERVER['HTTP_ACCEPT'] = '';
@@ -145,6 +151,8 @@ $_SERVER['HTTPS'] = '';
 $_SERVER['REMOTE_ADDR'] = '';
 $_SERVER['REMOTE_HOST'] = '';
 $_SERVER['REMOTE_PORT'] = '';
+$_SERVER['REMOTE_USER'] = '';
+$_SERVER['REDIRECT_REMOTE_USER'] = '';
 $_SERVER['SCRIPT_FILENAME'] = '';
 $_SERVER['SERVER_ADMIN'] = '';
 $_SERVER['SERVER_PORT'] = '80';
@@ -173,11 +181,13 @@ $_SERVER['ORIG_PATH_INFO'] = '';
 $_SESSION = [];
 /**
  * @deprecated 4.1
+ * @removed 5.4
  */
 $HTTP_SESSION_VARS = [];
 
 /**
  * @xglobal $argc int
+ * @type int<1, max>
  *
  * The number of arguments passed to script
  *
@@ -194,7 +204,7 @@ $argc = 0;
  * <p><a href="https://secure.php.net/manual/en/reserved.variables.php">
  * https://secure.php.net/manual/en/reserved.variables.php</a>
  */
-$argv = [];
+$argv = [1 + 1 => "a" . "b"];
 
 /**
  * @xglobal $HTTP_RAW_POST_DATA string
@@ -205,6 +215,7 @@ $argv = [];
  * https://secure.php.net/manual/en/reserved.variables.php</a>
  *
  * @deprecated 5.6 Deprecated as of PHP 5.6.0. Use the php://input stream instead.
+ * @removed 7.0
  */
 $HTTP_RAW_POST_DATA = '';
 
@@ -224,5 +235,6 @@ $http_response_header = [];
  *
  * <p><a href="https://secure.php.net/manual/en/reserved.variables.php">
  * https://secure.php.net/manual/en/reserved.variables.php</a>
+ * @deprecated 7.2
  */
 $php_errormsg = '';

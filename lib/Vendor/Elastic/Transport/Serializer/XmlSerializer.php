@@ -23,7 +23,7 @@ use function simplexml_load_string;
 use function sprintf;
 class XmlSerializer implements SerializerInterface
 {
-    public static function serialize($data, array $options = []) : string
+    public static function serialize($data, array $options = []): string
     {
         if ($data instanceof SimpleXMLElement) {
             $xml = $data->asXML();
@@ -34,7 +34,7 @@ class XmlSerializer implements SerializerInterface
     /**
      * @return SimpleXMLElement
      */
-    public static function unserialize(string $data, array $options = []) : SimpleXMLElement
+    public static function unserialize(string $data, array $options = []): SimpleXMLElement
     {
         $result = simplexml_load_string($data);
         if (\false === $result) {

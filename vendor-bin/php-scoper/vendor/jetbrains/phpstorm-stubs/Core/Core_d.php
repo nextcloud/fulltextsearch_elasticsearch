@@ -47,6 +47,7 @@ define('E_NOTICE', 8);
  * to your code which will ensure the best interoperability
  * and forward compatibility of your code.
  * @link https://php.net/manual/en/errorfunc.constants.php
+ * @deprecated 8.4
  */
 define('E_STRICT', 2048);
 
@@ -126,7 +127,7 @@ define('E_USER_DEPRECATED', 16384);
  * 30719 in PHP 5.3.x, 6143 in PHP 5.2.x, 2047 previously
  * @link https://php.net/manual/en/errorfunc.constants.php
  */
-define('E_ALL', 32767);
+define('E_ALL', 30719);
 define('DEBUG_BACKTRACE_PROVIDE_OBJECT', 1);
 define('DEBUG_BACKTRACE_IGNORE_ARGS', 2);
 define('S_MEMORY', 1);
@@ -268,3 +269,15 @@ define('PHP_OUTPUT_HANDLER_STDFLAGS', 112);
 define('PHP_OUTPUT_HANDLER_STARTED', 4096);
 /** @link https://php.net/manual/en/outcontrol.constants.php */
 define('PHP_OUTPUT_HANDLER_DISABLED', 8192);
+
+/**
+ * @since 8.4
+ */
+const PHP_SBINDIR = '/usr/local/sbin', PHP_OUTPUT_HANDLER_PROCESSED = 16384;
+
+/**
+ * Specifies where the manpages were installed into.
+ * @since 5.3.7
+ * @link https://php.net/manual/en/reserved.constants.php
+ */
+define('PHP_MANDIR', '/usr/local/php/php/man');

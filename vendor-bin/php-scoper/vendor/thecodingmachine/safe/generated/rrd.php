@@ -1,23 +1,17 @@
 <?php
 
-namespace Safe;
-
-use Safe\Exceptions\RrdException;
-
-/**
- * Creates the rdd database file.
- *
- * @param string $filename Filename for newly created rrd file.
- * @param array $options Options for rrd create - list of strings. See man page of rrd create
- * for whole list of options.
- * @throws RrdException
- *
- */
-function rrd_create(string $filename, array $options): void
-{
-    error_clear_last();
-    $result = \rrd_create($filename, $options);
-    if ($result === false) {
-        throw RrdException::createFromPhpError();
-    }
+if (str_starts_with(PHP_VERSION, "8.1.")) {
+    require_once __DIR__ . '/8.1/rrd.php';
+}
+if (str_starts_with(PHP_VERSION, "8.2.")) {
+    require_once __DIR__ . '/8.2/rrd.php';
+}
+if (str_starts_with(PHP_VERSION, "8.3.")) {
+    require_once __DIR__ . '/8.3/rrd.php';
+}
+if (str_starts_with(PHP_VERSION, "8.4.")) {
+    require_once __DIR__ . '/8.4/rrd.php';
+}
+if (str_starts_with(PHP_VERSION, "8.5.")) {
+    require_once __DIR__ . '/8.5/rrd.php';
 }

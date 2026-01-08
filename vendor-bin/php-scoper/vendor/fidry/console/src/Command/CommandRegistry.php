@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Fidry\Console\Command;
 
+use Fidry\Console\Bridge\Command\ReversedSymfonyCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 

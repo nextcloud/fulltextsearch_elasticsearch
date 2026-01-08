@@ -2,36 +2,39 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of the humbug/php-scoper package.
+ *
+ * Copyright (c) 2017 Théo FIDRY <theo.fidry@gmail.com>,
+ *                    Pádraic Brady <padraic.brady@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Humbug\PhpScoper\Symbol;
 
 use InvalidArgumentException;
+use function array_flip;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
 use function array_pop;
 use function array_unique;
+use function array_values;
 use function explode;
 use function implode;
 use function ltrim;
-use function Safe\array_flip;
 use function Safe\preg_match;
 use function strtolower;
 use function trim;
-use const SORT_STRING;
 
 final class SymbolRegistry
 {
     /**
      * @var array<string, mixed>
      */
-    private array $names;
-
-    /**
-     * @var list<string>
-     */
-    private array $regexes;
-
-    private bool $constants;
+    private readonly array $names;
 
     /**
      * @param string[] $names
@@ -42,11 +45,8 @@ final class SymbolRegistry
         array $regexes = []
     ): self {
         return new self(
-            array_map(
-                static fn (string $name) => strtolower(trim($name, '\\')),
-                $names,
-            ),
-            array_unique($regexes, SORT_STRING),
+            array_values(self::normalizeNames($names)),
+            array_values(array_unique($regexes)),
             false,
         );
     }
@@ -63,13 +63,8 @@ final class SymbolRegistry
         array $regexes = []
     ): self {
         return new self(
-            array_map(
-                static fn (string $name) => self::lowerCaseConstantName(
-                    trim($name, '\\'),
-                ),
-                $names,
-            ),
-            array_unique($regexes, SORT_STRING),
+            array_values(self::normalizeConstantNames($names)),
+            array_values(array_unique($regexes)),
             true,
         );
     }
@@ -80,12 +75,18 @@ final class SymbolRegistry
      */
     private function __construct(
         array $names,
-        array $regexes,
-        bool $constants
+        private readonly array $regexes,
+        private readonly bool $constants
     ) {
         $this->names = array_flip($names);
-        $this->regexes = $regexes;
-        $this->constants = $constants;
+
+        if (array_key_exists('', $this->names)) {
+            throw new InvalidArgumentException('Cannot register "" as a symbol name.');
+        }
+
+        if (array_key_exists('', array_flip($regexes))) {
+            throw new InvalidArgumentException('Cannot register "" as a symbol regex.');
+        }
     }
 
     public function matches(string $symbol): bool
@@ -108,7 +109,7 @@ final class SymbolRegistry
         return false;
     }
 
-    public function merge(SymbolRegistry $registry): self
+    public function merge(self $registry): self
     {
         if ($this->constants !== $registry->constants) {
             throw new InvalidArgumentException('Cannot merge registries of different symbol types');
@@ -143,11 +144,46 @@ final class SymbolRegistry
     /**
      * @internal
      *
-     * @erturn list<string>
+     * @return list<string>
      */
     public function getRegexes(): array
     {
         return $this->regexes;
+    }
+
+    /**
+     * @param string[] $names
+     *
+     * @return string[]
+     */
+    private static function normalizeNames(array $names): array
+    {
+        return array_map(
+            static fn (string $name) => strtolower(
+                self::normalizeName($name),
+            ),
+            $names,
+        );
+    }
+
+    /**
+     * @param string[] $names
+     *
+     * @return string[]
+     */
+    private static function normalizeConstantNames(array $names): array
+    {
+        return array_map(
+            static fn (string $name) => self::lowerCaseConstantName(
+                self::normalizeName($name),
+            ),
+            $names,
+        );
+    }
+
+    private static function normalizeName(string $name): string
+    {
+        return trim($name, '\\ ');
     }
 
     /**

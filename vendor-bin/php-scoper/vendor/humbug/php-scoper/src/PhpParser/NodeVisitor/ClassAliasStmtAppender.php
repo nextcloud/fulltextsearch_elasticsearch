@@ -15,19 +15,22 @@ declare(strict_types=1);
 namespace Humbug\PhpScoper\PhpParser\NodeVisitor;
 
 use Humbug\PhpScoper\PhpParser\Node\ClassAliasFuncCall;
-use Humbug\PhpScoper\PhpParser\Node\FullyQualifiedFactory;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
 use Humbug\PhpScoper\PhpParser\NodeVisitor\Resolver\IdentifierResolver;
 use Humbug\PhpScoper\PhpParser\UnexpectedParsingScenario;
-use Humbug\PhpScoper\Symbol\EnrichedReflector;
+use Humbug\PhpScoper\Symbol\SymbolsRegistry;
 use PhpParser\Node;
 use PhpParser\Node\Name\FullyQualified;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Expression;
+use PhpParser\Node\Stmt\If_;
 use PhpParser\Node\Stmt\Interface_;
-use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt\Switch_;
+use PhpParser\Node\Stmt\TryCatch;
 use PhpParser\NodeVisitorAbstract;
 use function array_reduce;
+use function in_array;
 
 /**
  * Appends a `class_alias` statement to the exposed classes.
@@ -56,44 +59,60 @@ use function array_reduce;
  */
 final class ClassAliasStmtAppender extends NodeVisitorAbstract
 {
-    private string $prefix;
-    private EnrichedReflector $enrichedReflector;
-    private IdentifierResolver $identifierResolver;
-
     public function __construct(
-        string $prefix,
-        EnrichedReflector $enrichedReflector,
-        IdentifierResolver $identifierResolver
+        private readonly IdentifierResolver $identifierResolver,
+        private readonly SymbolsRegistry $symbolsRegistry,
     ) {
-        $this->prefix = $prefix;
-        $this->enrichedReflector = $enrichedReflector;
-        $this->identifierResolver = $identifierResolver;
     }
 
+    /**
+     * @param Node[] $nodes
+     *
+     * @return Node[]
+     */
     public function afterTraverse(array $nodes): array
     {
-        $newNodes = [];
+        $this->traverseNodes($nodes);
 
-        foreach ($nodes as $node) {
-            if ($node instanceof Namespace_) {
-                $node = $this->appendToNamespaceStmt($node);
-            }
-
-            $newNodes[] = $node;
-        }
-
-        return $newNodes;
+        return $nodes;
     }
 
-    private function appendToNamespaceStmt(Namespace_ $namespace): Namespace_
+    /**
+     * @param Node[] $nodes
+     */
+    private function traverseNodes(array $nodes): void
     {
-        $namespace->stmts = array_reduce(
-            $namespace->stmts,
-            fn (array $stmts, Stmt $stmt) => $this->createNamespaceStmts($stmts, $stmt),
+        foreach ($nodes as $node) {
+            if (self::isNodeAStatementWithStatements($node)) {
+                $this->updateStatements($node);
+            }
+        }
+    }
+
+    /**
+     * @phpstan-assert-if-true Stmt $node
+     */
+    private static function isNodeAStatementWithStatements(Node $node): bool
+    {
+        return $node instanceof Stmt && in_array('stmts', $node->getSubNodeNames(), true);
+    }
+
+    /**
+     * @template T of Stmt
+     *
+     * @param T|null $statement
+     */
+    private function updateStatements(?Stmt $statement): void
+    {
+        if (null === $statement || null === $statement->stmts) {
+            return;
+        }
+
+        $statement->stmts = array_reduce(
+            $statement->stmts,
+            fn (array $stmts, Stmt $stmt) => $this->appendClassAliasStmtIfApplicable($stmts, $stmt),
             [],
         );
-
-        return $namespace;
     }
 
     /**
@@ -101,16 +120,41 @@ final class ClassAliasStmtAppender extends NodeVisitorAbstract
      *
      * @return Stmt[]
      */
-    private function createNamespaceStmts(array $stmts, Stmt $stmt): array
+    private function appendClassAliasStmtIfApplicable(array $stmts, Stmt $stmt): array
     {
         $stmts[] = $stmt;
 
         $isClassOrInterface = $stmt instanceof Class_ || $stmt instanceof Interface_;
 
-        if (!$isClassOrInterface) {
-            return $stmts;
+        if ($isClassOrInterface) {
+            return $this->appendClassAliasStmtIfNecessary($stmts, $stmt);
         }
 
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
+        if (self::isNodeAStatementWithStatements($stmt)) {
+            $this->updateStatements($stmt);
+        }
+
+        if ($stmt instanceof If_) {
+            $this->updateStatements($stmt->else);
+            $this->traverseNodes($stmt->elseifs);
+        } elseif ($stmt instanceof Switch_) {
+            $this->traverseNodes($stmt->cases);
+        } elseif ($stmt instanceof TryCatch) {
+            $this->traverseNodes($stmt->catches);
+            $this->updateStatements($stmt->finally);
+        }
+
+        return $stmts;
+    }
+
+    /**
+     * @param Stmt[] $stmts
+     *
+     * @return Stmt[]
+     */
+    private function appendClassAliasStmtIfNecessary(array $stmts, Class_|Interface_ $stmt): array
+    {
         $name = $stmt->name;
 
         if (null === $name) {
@@ -119,24 +163,27 @@ final class ClassAliasStmtAppender extends NodeVisitorAbstract
 
         $resolvedName = $this->identifierResolver->resolveIdentifier($name);
 
-        if ($resolvedName instanceof FullyQualified
-            && $this->enrichedReflector->isExposedClass((string) $resolvedName)
-        ) {
-            $stmts[] = self::createAliasStmt($resolvedName, $stmt, $this->prefix);
+        if (!($resolvedName instanceof FullyQualified)) {
+            return $stmts;
+        }
+
+        $record = $this->symbolsRegistry->getRecordedClass((string) $resolvedName);
+
+        if (null !== $record) {
+            $stmts[] = self::createAliasStmt($record[0], $record[1], $stmt);
         }
 
         return $stmts;
     }
 
     private static function createAliasStmt(
-        FullyQualified $originalName,
-        Node $stmt,
-        string $prefix
-    ): Expression
-    {
+        string $originalName,
+        string $prefixedName,
+        Node $stmt
+    ): Expression {
         $call = new ClassAliasFuncCall(
-            FullyQualifiedFactory::concat($prefix, $originalName),
-            $originalName,
+            new FullyQualified($prefixedName),
+            new FullyQualified($originalName),
             $stmt->getAttributes(),
         );
 

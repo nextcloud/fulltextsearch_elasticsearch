@@ -30,12 +30,12 @@ class JsonSerializer implements SerializerInterface
      * 
      * @param mixed $data
      */
-    public static function serialize($data, array $options = []) : string
+    public static function serialize($data, array $options = []): string
     {
         if (empty($data)) {
             return '{}';
         }
-        if (\is_string($data)) {
+        if (is_string($data)) {
             return $data;
         }
         try {

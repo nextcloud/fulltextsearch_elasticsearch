@@ -27,7 +27,11 @@ abstract class BaseApplication implements Application
     {
         if ('UNKNOWN' !== $this->getName()) {
             if ('UNKNOWN' !== $this->getVersion()) {
-                return sprintf('%s <info>%s</info>', $this->getName(), $this->getVersion());
+                return sprintf(
+                    '%s <info>%s</info>',
+                    $this->getName(),
+                    $this->getVersion(),
+                );
             }
 
             return $this->getName();

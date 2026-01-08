@@ -34,7 +34,7 @@ final class QuestionHelper
      *
      * @return mixed The user answer
      */
-    public function ask(IO $io, Question $question)
+    public function ask(IO $io, Question $question): mixed
     {
         return $this->helper->ask(
             $io->getInput(),

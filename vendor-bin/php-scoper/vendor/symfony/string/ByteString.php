@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\String;
 
+use Random\Randomizer;
 use Symfony\Component\String\Exception\ExceptionInterface;
 use Symfony\Component\String\Exception\InvalidArgumentException;
 use Symfony\Component\String\Exception\RuntimeException;
@@ -45,7 +46,7 @@ class ByteString extends AbstractString
     public static function fromRandom(int $length = 16, ?string $alphabet = null): self
     {
         if ($length <= 0) {
-            throw new InvalidArgumentException(sprintf('A strictly positive length is expected, "%d" given.', $length));
+            throw new InvalidArgumentException(\sprintf('A strictly positive length is expected, "%d" given.', $length));
         }
 
         $alphabet ??= self::ALPHABET_ALPHANUMERIC;
@@ -55,34 +56,7 @@ class ByteString extends AbstractString
             throw new InvalidArgumentException('The length of the alphabet must in the [2^1, 2^56] range.');
         }
 
-        $ret = '';
-        while ($length > 0) {
-            $urandomLength = (int) ceil(2 * $length * $bits / 8.0);
-            $data = random_bytes($urandomLength);
-            $unpackedData = 0;
-            $unpackedBits = 0;
-            for ($i = 0; $i < $urandomLength && $length > 0; ++$i) {
-                // Unpack 8 bits
-                $unpackedData = ($unpackedData << 8) | \ord($data[$i]);
-                $unpackedBits += 8;
-
-                // While we have enough bits to select a character from the alphabet, keep
-                // consuming the random data
-                for (; $unpackedBits >= $bits && $length > 0; $unpackedBits -= $bits) {
-                    $index = ($unpackedData & ((1 << $bits) - 1));
-                    $unpackedData >>= $bits;
-                    // Unfortunately, the alphabet size is not necessarily a power of two.
-                    // Worst case, it is 2^k + 1, which means we need (k+1) bits and we
-                    // have around a 50% chance of missing as k gets larger
-                    if ($index < $alphabetSize) {
-                        $ret .= $alphabet[$index];
-                        --$length;
-                    }
-                }
-            }
-        }
-
-        return new static($ret);
+        return new static((new Randomizer())->getBytesFromString($alphabet, $length));
     }
 
     public function bytesAt(int $offset): array
@@ -335,7 +309,7 @@ class ByteString extends AbstractString
     public function slice(int $start = 0, ?int $length = null): static
     {
         $str = clone $this;
-        $str->string = (string) substr($this->string, $start, $length ?? \PHP_INT_MAX);
+        $str->string = substr($this->string, $start, $length ?? \PHP_INT_MAX);
 
         return $str;
     }
@@ -436,7 +410,7 @@ class ByteString extends AbstractString
         }
 
         if (!$validEncoding) {
-            throw new InvalidArgumentException(sprintf('Invalid "%s" string.', $fromEncoding ?? 'Windows-1252'));
+            throw new InvalidArgumentException(\sprintf('Invalid "%s" string.', $fromEncoding ?? 'Windows-1252'));
         }
 
         $u->string = mb_convert_encoding($this->string, 'UTF-8', $fromEncoding ?? 'Windows-1252');

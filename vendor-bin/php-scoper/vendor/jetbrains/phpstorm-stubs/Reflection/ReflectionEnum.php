@@ -1,5 +1,7 @@
 <?php
 
+use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+
 /**
  * @link https://php.net/manual/en/class.reflectionenum.php
  * @since 8.1
@@ -15,12 +17,12 @@ class ReflectionEnum extends ReflectionClass
     public function hasCase(string $name): bool {}
 
     /**
-     * @return ReflectionEnumPureCase[]|ReflectionEnumBackedCase[]
+     * @return ReflectionEnumUnitCase[]|ReflectionEnumBackedCase[]
      */
     public function getCases(): array {}
 
     /**
-     * @return ReflectionEnumPureCase|ReflectionEnumBackedCase
+     * @return ReflectionEnumUnitCase|ReflectionEnumBackedCase
      * @throws ReflectionException If no found single reflection object for the corresponding case
      */
     public function getCase(string $name): ReflectionEnumUnitCase {}
@@ -33,5 +35,6 @@ class ReflectionEnum extends ReflectionClass
     /**
      * @return ReflectionType|null
      */
-    public function getBackingType(): ?ReflectionType {}
+    #[LanguageLevelTypeAware(['8.2' => 'null|ReflectionNamedType'], default: 'null|ReflectionType')]
+    public function getBackingType() {}
 }
