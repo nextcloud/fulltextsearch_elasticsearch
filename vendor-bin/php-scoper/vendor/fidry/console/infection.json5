@@ -1,0 +1,89 @@
+{
+    "$schema": "./vendor/infection/infection/resources/schema.json",
+
+    "source": {
+        "directories": [
+            "src"
+        ],
+        "excludes": [
+            "src/Input/Compatibility"
+        ]
+    },
+    "tmpDir": "dist/infection",
+    "mutators": {
+        "@default": true,
+        "MBString": false,
+        "global-ignoreSourceCodeByRegex": [
+            "Assert::.*",
+            "ConsoleAssert::.*",
+            "break;"
+        ],
+        "CastString": {
+            "ignore": [
+                "Fidry\\Console\\IO::getStringArgument"
+            ]
+        },
+        "CastInt": {
+            "ignore": [
+                "Fidry\\Console\\InputAssert::castThrowException"
+            ]
+        },
+        "Identical": {
+            "ignore": [
+                // This is purely for BC
+                "Fidry\\Console\\Bridge\\Application\\SymfonyApplication"
+            ]
+        },
+        "IncrementInteger": {
+            "ignore": [
+                "Fidry\\Console\\Output\\DecoratesOutput::writeln",
+                "Fidry\\Console\\Input\\DecoratesInput::hasParameterOption",
+            ]
+        },
+        "DecrementInteger": {
+            "ignore": [
+                "Fidry\\Console\\Output\\DecoratesOutput::writeln",
+                "Fidry\\Console\\Input\\DecoratesInput::hasParameterOption",
+            ]
+        },
+        "FalseValue": {
+            "ignore": [
+                "Fidry\\Console\\Input\\DecoratesInput::hasParameterOption"
+            ]
+        },
+        "LessThan": {
+            "ignoreSourceCodeByRegex": [
+                ".*\\$min < \\$max.*"
+            ]
+        },
+        "LogicalOr": {
+            "ignore": [
+                "Fidry\\Console\\Internal\\Generator\\GetterGenerator::isPsalmTypeRedundant"
+            ]
+        },
+        "MethodCallRemoval": {
+            "ignore": [
+                "Fidry\\Console\\Command\\SymfonyCommand::setApplication",
+                "Fidry\\Console\\Input\\IO::__construct",
+                "Fidry\\Console\\Internal\\Type\\NaturalType::coerceValue",
+                "Fidry\\Console\\Internal\\Type\\PositiveIntegerType::coerceValue"
+            ],
+            ignoreSourceCodeByRegex: [
+                ".*InputAssert::assert.*",  // This is likely caused by a bug in the coverage report; indeed the newly
+                                            // introduced test causing this does not test the IO object.
+            ]
+        },
+        "PublicVisibility": false,
+        "UnwrapStrReplace": {
+            "ignore": [
+                "Fidry\\Console\\DisplayNormalizer::removeTrailingSpaces"
+            ]
+        },
+        "UnwrapArrayValues": {
+            "ignore": [
+                // The following should be caught by Psalm not unit tests.
+                "Fidry\\Console\\Bridge\\Application\\SymfonyApplication::getSymfonyCommands"
+            ]
+        }
+    }
+}
