@@ -1,6 +1,7 @@
 <?php
 
 // Start of sysvmsg v.
+use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 
 /**
@@ -141,7 +142,7 @@ function msg_send(#[LanguageLevelTypeAware(["8.0" => "SysvMessageQueue"], defaul
  * msg_rtime is set to the current time.
  * </p>
  */
-function msg_receive(#[LanguageLevelTypeAware(["8.0" => "SysvMessageQueue"], default: "resource")] $queue, int $desired_message_type, &$received_message_type, int $max_message_size, mixed &$message, bool $unserialize = true, int $flags = 0, &$error_code): bool {}
+function msg_receive(#[LanguageLevelTypeAware(["8.0" => "SysvMessageQueue"], default: "resource")] $queue, int $desired_message_type, &$received_message_type, int $max_message_size, mixed & $message, bool $unserialize = true, int $flags = 0, &$error_code): bool {}
 
 /**
  * Destroy a message queue
@@ -227,6 +228,18 @@ function msg_remove_queue(#[LanguageLevelTypeAware(["8.0" => "SysvMessageQueue"]
  * </tr>
  * </table>
  */
+#[ArrayShape([
+    "msg_perm.uid" => "int",
+    "msg_perm.gid" => "int",
+    "msg_perm.mode" => "int",
+    "msg_stime" => "int",
+    "msg_rtime" => "int",
+    "msg_ctime" => "int",
+    "msg_qnum" => "int",
+    "msg_qbytes" => "int",
+    "msg_lspid" => "int",
+    "msg_lrpid" => "int",
+])]
 function msg_stat_queue(#[LanguageLevelTypeAware(["8.0" => "SysvMessageQueue"], default: "resource")] $queue): array|false {}
 
 /**

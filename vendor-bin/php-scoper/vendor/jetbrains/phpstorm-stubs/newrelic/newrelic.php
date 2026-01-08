@@ -275,23 +275,24 @@ function newrelic_name_transaction(string $name): bool {}
  * case:
  * - newrelic_notice_error(string $message)
  * - newrelic_notice_error(Throwable|Exception $e)
+ * - newrelic_notice_error(string $errstr, Throwable|Exception $e)
  * - newrelic_notice_error(int $errno, string $errstr, string $errfile, int $errline, string $errcontext)
  *
  * @link  https://docs.newrelic.com/docs/agents/php-agent/php-agent-api/newrelic_notice_error/
  * @since 2.6
  *
- * @param string|Throwable|Exception|int $messageOrExceptionOrCode Either an error message, an exception object, or
+ * @param string|Throwable|Exception|int  $messageOrExceptionOrCode Either an error message, an exception object, or
  *                                                                 an
  *                                                                 integer error code
- * @param string|null                    $errstr                   [optional] Required if first argument is an
+ * @param string|Throwable|Exception|null $errstrOrException       [optional] Required if first argument is an
  *                                                                 integer, Provide an error message that will be
  *                                                                 meaningful to you when it displays in error
- *                                                                 traces.
- * @param string|null                    $errfile                  [optional] The name of the file that the error
+ *                                                                 traces or an exception object.
+ * @param string|null                     $errfile                  [optional] The name of the file that the error
  *                                                                 occurred in.
- * @param int|null                       $errline                  [optional] The line number where the error
+ * @param int|null                        $errline                  [optional] The line number where the error
  *                                                                 occurred.
- * @param string|null                    $errcontext               [optional] An array that points to the symbol
+ * @param string|null                     $errcontext               [optional] An array that points to the symbol
  *                                                                 table
  *                                                                 that was active when the error occurred.
  *
@@ -299,7 +300,7 @@ function newrelic_name_transaction(string $name): bool {}
  */
 function newrelic_notice_error(
     string|Throwable|Exception|int $messageOrExceptionOrCode,
-    string $errstr = null,
+    string|Throwable|Exception $errstrOrException = null,
     string $errfile = null,
     int $errline = null,
     string $errcontext = null
@@ -399,6 +400,20 @@ function newrelic_set_appname(string $name, string $license, bool $xmit = false)
  * @return bool
  */
 function newrelic_set_user_attributes(string $user_value, string $account_value, string $product_value): bool {}
+
+/**
+ * Associate a unique user ID with the current transaction.
+ *
+ * @param string $user_id Should be a unique value (such as a UUID) that will be assigned to the current transaction.
+ *
+ * This function will return true if the user ID was added successfully, otherwise false.
+ *
+ * @link https://docs.newrelic.com/docs/apm/agents/php-agent/php-agent-api/newrelic_set_user_id/
+ * @since 10.12
+ *
+ * @return bool
+ */
+function newrelic_set_user_id(string $user_id): bool {}
 
 /**
  * Start a new transaction manually. Usually used after manually ending a transaction with

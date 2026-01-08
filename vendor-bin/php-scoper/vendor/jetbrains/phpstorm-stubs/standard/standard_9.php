@@ -4,6 +4,7 @@
  * @since 5.6
  */
 
+use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
@@ -19,11 +20,15 @@ define("ARRAY_FILTER_USE_KEY", 2);
 /**
  * Merge two or more arrays recursively
  * @link https://php.net/manual/en/function.array-merge-recursive.php
- * @param array ...$arrays [optional] Variable list of arrays to recursively merge.
+ * @param array ...$arrays Variable list of arrays to recursively merge.
  * @return array An array of values resulted from merging the arguments together.
  */
 #[Pure]
-function array_merge_recursive(#[PhpStormStubsElementAvailable(from: '5.3', to: '7.3')] array $arr1, array ...$arrays): array {}
+function array_merge_recursive(
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.3')] array $arr1,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] array $arrays,
+    array ...$arrays
+): array {}
 
 /**
  * array_replace() replaces the values of the first array with the same values from all the following arrays.
@@ -36,13 +41,17 @@ function array_merge_recursive(#[PhpStormStubsElementAvailable(from: '5.3', to: 
  * @param array $array <p>
  * The array in which elements are replaced.
  * </p>
- * @param array ...$replacements [optional] <p>
+ * @param array ...$replacements <p>
  * The array from which elements will be extracted.
  * </p>
  * @return array or null if an error occurs.
  */
 #[Pure]
-function array_replace(array $array, array ...$replacements): array {}
+function array_replace(
+    array $array,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] $replacements,
+    array ...$replacements
+): array {}
 
 /**
  * Replaces elements from passed arrays into the first array recursively
@@ -50,13 +59,17 @@ function array_replace(array $array, array ...$replacements): array {}
  * @param array $array <p>
  * The array in which elements are replaced.
  * </p>
- * @param array ...$replacements [optional] <p>
+ * @param array ...$replacements <p>
  * The array from which elements will be extracted.
  * </p>
  * @return array an array, or null if an error occurs.
  */
 #[Pure]
-function array_replace_recursive(array $array, array ...$replacements): array {}
+function array_replace_recursive(
+    array $array,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] $replacements,
+    array ...$replacements
+): array {}
 
 /**
  * Return all the keys or a subset of the keys of an array
@@ -100,7 +113,6 @@ function array_values(array $array): array {}
 function array_count_values(array $array): array {}
 
 /**
- * (PHP 5 &gt;=5.5.0)<br/>
  * Return the values from a single column in the input array
  * @link https://secure.php.net/manual/en/function.array-column.php
  * @param array $array <p>A multi-dimensional array (record set) from which to pull a column of values.</p>
@@ -157,7 +169,7 @@ function array_reverse(array $array, bool $preserve_keys = false): array {}
  * </p>
  * @meta
  */
-function array_reduce(array $array, callable $callback, mixed $initial): mixed {}
+function array_reduce(array $array, callable $callback, mixed $initial = null): mixed {}
 
 /**
  * Pad array to the specified length with a value
@@ -199,7 +211,7 @@ function array_flip(array $array): array {}
  * @param array $array <p>
  * The array to work on
  * </p>
- * @param int $case [optional] <p>
+ * @param int $case <p>
  * Either CASE_UPPER or
  * CASE_LOWER (default)
  * </p>
@@ -207,7 +219,7 @@ function array_flip(array $array): array {}
  * @meta
  */
 #[Pure]
-function array_change_key_case(array $array, int $case): array {}
+function array_change_key_case(array $array, int $case = CASE_LOWER): array {}
 
 /**
  * Pick one or more random keys out of an array
@@ -266,8 +278,9 @@ function array_unique(array $array, int $flags = SORT_STRING): array {}
  * The array with main values to check.
  * </p>
  * @param array ...$arrays arrays to compare values against.
- * @return array an array containing all of the values in
- * array1 whose values exist in all of the parameters.
+ * @return array an array containing all the values of
+ * <code>array</code> that are present in all the arguments.
+ * Note that keys are preserved.
  * @meta
  */
 #[Pure]
@@ -280,8 +293,8 @@ function array_intersect(array $array, #[PhpStormStubsElementAvailable(from: '5.
  * The array with main keys to check.
  * </p>
  * @param array ...$arrays
- * @return array an associative array containing all the entries of
- * array1 which have keys that are present in all
+ * @return array an array containing all the entries of
+ * <code>array</code>  which have keys that are present in all the
  * arguments.
  * @meta
  */
@@ -301,7 +314,8 @@ function array_intersect_key(array $array, #[PhpStormStubsElementAvailable(from:
  * User supplied callback function to do the comparison.
  * </p>
  * @param ...$rest [optional]
- * @return array the values of array1 whose keys exist
+ * @return array an array containing all the values of
+ * <code>array</code> which have matching keys that are present
  * in all the arguments.
  * @meta
  */
@@ -331,7 +345,7 @@ function array_intersect_ukey(
  * the first argument is considered to be respectively less than, equal
  * to, or greater than the second.
  * </p>
- * @return array an array containing all the values of array1
+ * @return array an array containing all the values of <code>array</code>
  * that are present in all the arguments.
  * @meta
  */
@@ -350,7 +364,7 @@ function array_uintersect(
  * </p>
  * @param array $arrays
  * @return array an associative array containing all the values in
- * array1 that are present in all of the arguments.
+ * <code>array</code> that are present in all of the arguments.
  * @meta
  */
 #[Pure]
@@ -374,7 +388,7 @@ function array_intersect_assoc(array $array, #[PhpStormStubsElementAvailable(fro
  * </p>
  * @param array ...$rest
  * @return array an array containing all the values of
- * array1 that are present in all the arguments.
+ * <code>array</code> that are present in all the arguments.
  * @meta
  */
 function array_uintersect_assoc(
@@ -397,8 +411,7 @@ function array_uintersect_assoc(
  * User supplied callback function to do the comparison.
  * </p>
  * @param array ...$rest
- * @return array the values of array1 whose values exist
- * in all of the arguments.
+ * @return array the values of <code>array</code> whose values exist in all of the arguments.
  * @meta
  */
 function array_intersect_uassoc(
@@ -428,7 +441,7 @@ function array_intersect_uassoc(
  * Key comparison callback function.
  * </p>
  * @param array ...$rest
- * @return array an array containing all the values of
+ * @return array an array containing all the values and keys of
  * array1 that are present in all the arguments.
  * @meta
  */
@@ -449,7 +462,8 @@ function array_uintersect_uassoc(
  * </p>
  * @param array ...$arrays
  * @return array an array containing all the entries from
- * array1 that are not present in any of the other arrays.
+ * <code>array</code> that are not present in any of the other
+ * arrays. Keys in the array <code>array</code> are preserved.
  * @meta
  */
 #[Pure]
@@ -465,8 +479,7 @@ function array_diff(array $array, #[PhpStormStubsElementAvailable(from: '5.3', t
  * An array to compare against
  * </p>
  * @return array an array containing all the entries from
- * array1 whose keys are not present in any of the
- * other arrays.
+ * <code>array</code> whose keys are absent from all of the other arrays.
  * @meta
  */
 #[Pure]
@@ -489,7 +502,7 @@ function array_diff_key(array $array, #[PhpStormStubsElementAvailable(from: '5.3
  * </p>
  * @param array ...$rest [optional]
  * @return array an array containing all the entries from
- * array1 that are not present in any of the other arrays.
+ * <code>array</code> that are not present in any of the other arrays.
  * @meta
  */
 function array_diff_ukey(
@@ -518,8 +531,8 @@ function array_diff_ukey(
  * to, or greater than the second.
  * </p>
  * @param array ...$rest [optional]
- * @return array an array containing all the values of array1
- * that are not present in any of the other arguments.
+ * @return array an array containing all the values of
+ * <code>array</code> that are not present in any of the other arguments.
  * @meta
  */
 function array_udiff(
@@ -539,7 +552,7 @@ function array_udiff(
  * An array to compare against
  * </p>
  * @return array an array containing all the values from
- * array1 that are not present in any of the other arrays.
+ * <code>array</code> that are not present in any of the other arrays.
  * @meta
  */
 #[Pure]
@@ -568,8 +581,7 @@ function array_diff_assoc(
  * to, or greater than the second.
  * </p>
  * @param array ...$rest [optional]
- * @return array array_udiff_assoc returns an array
- * containing all the values from array1
+ * @return array returns an array containing all the values from <code>array</code>
  * that are not present in any of the other arguments.
  * Note that the keys are used in the comparison unlike
  * array_diff and array_udiff.
@@ -602,8 +614,8 @@ function array_udiff_assoc(
  * be respectively less than, equal to, or greater than the second.
  * </p>
  * @param array ...$rest [optional]
- * @return array an array containing all the entries from
- * array1 that are not present in any of the other arrays.
+ * @return array an array containing all the values and keys from
+ * <code>array</code> that are not present in any of the other arrays.
  * @meta
  */
 function array_diff_uassoc(
@@ -645,8 +657,8 @@ function array_diff_uassoc(
  * the indices by using an internal function.
  * </p>
  * @param array ...$rest [optional]
- * @return array an array containing all the values from
- * array1 that are not present in any of the other
+ * @return array an array containing all the values and keys from
+ * <code>array</code> that are not present in any of the other
  * arguments.
  * @meta
  */
@@ -840,7 +852,7 @@ function pos(object|array $array): mixed {}
  * @link https://php.net/manual/en/function.sizeof.php
  * @param array|Countable $value
  * @param int $mode [optional]
- * @return int
+ * @return int<0, max>
  */
 #[Pure]
 function sizeof(Countable|array $value, int $mode = COUNT_NORMAL): int {}
@@ -875,7 +887,7 @@ function key_exists($key, array $array): bool {}
  */
 function assert(
     mixed $assertion,
-    #[LanguageLevelTypeAware(['8.0' => 'Throwable|string|null'], default: 'string')] $description = ''
+    #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['7.0' => 'Throwable|string|null'], default: 'string')] $description = null
 ): bool {}
 
 /**
@@ -937,6 +949,7 @@ class AssertionError extends Error {}
  * </p>
  * @return mixed The original setting of any option.
  */
+#[Deprecated(since: "8.3")]
 function assert_options(int $option, mixed $value): mixed {}
 
 /**
@@ -973,6 +986,7 @@ function assert_options(int $option, mixed $value): mixed {}
  * function will return true if the relationship is the one specified
  * by the operator, false otherwise.
  */
+#[ExpectedValues([-1, 0, 1, false, true])]
 function version_compare(
     string $version1,
     string $version2,
@@ -1006,7 +1020,7 @@ function version_compare(
  * @return int On success the return value will be the created key value, otherwise
  * -1 is returned.
  */
-#[Pure]
+#[Pure(true)]
 function ftok(string $filename, string $project_id): int {}
 
 /**
@@ -1023,10 +1037,10 @@ function str_rot13(string $string): string {}
 /**
  * Retrieve list of registered filters
  * @link https://php.net/manual/en/function.stream-get-filters.php
- * @return array an indexed array containing the name of all stream filters
+ * @return list<string> an indexed array containing the name of all stream filters
  * available.
  */
-#[Pure]
+#[Pure(true)]
 function stream_get_filters(): array {}
 
 /**
@@ -1161,7 +1175,8 @@ function stream_filter_register(string $filter_name, string $class): bool {}
  * @param resource $brigade
  * @return object|null
  */
-function stream_bucket_make_writeable($brigade): ?object {}
+#[LanguageLevelTypeAware(["8.4" => "StreamBucket|null"], default: "object|null")]
+function stream_bucket_make_writeable($brigade) {}
 
 /**
  * Prepend bucket to brigade
@@ -1170,7 +1185,7 @@ function stream_bucket_make_writeable($brigade): ?object {}
  * @param object $bucket
  * @return void
  */
-function stream_bucket_prepend($brigade, object $bucket): void {}
+function stream_bucket_prepend($brigade, #[LanguageLevelTypeAware(['8.4' => 'StreamBucket'], default: 'object')] $bucket): void {}
 
 /**
  * Append bucket to brigade
@@ -1179,7 +1194,7 @@ function stream_bucket_prepend($brigade, object $bucket): void {}
  * @param object $bucket
  * @return void
  */
-function stream_bucket_append($brigade, object $bucket): void {}
+function stream_bucket_append($brigade, #[LanguageLevelTypeAware(['8.4' => 'StreamBucket'], default: 'object')] $bucket): void {}
 
 /**
  * Create a new bucket for use on the current stream
@@ -1188,7 +1203,8 @@ function stream_bucket_append($brigade, object $bucket): void {}
  * @param string $buffer
  * @return object
  */
-function stream_bucket_new($stream, string $buffer): object {}
+#[LanguageLevelTypeAware(["8.4" => "StreamBucket"], default: "object")]
+function stream_bucket_new($stream, string $buffer) {}
 
 /**
  * Add URL rewriter values

@@ -10,15 +10,15 @@ final class Create
      *
      * @param mixed $value Promise or value.
      */
-    public static function promiseFor($value) : PromiseInterface
+    public static function promiseFor($value): PromiseInterface
     {
         if ($value instanceof PromiseInterface) {
             return $value;
         }
         // Return a Guzzle promise that shadows the given promise.
-        if (\is_object($value) && \method_exists($value, 'then')) {
-            $wfn = \method_exists($value, 'wait') ? [$value, 'wait'] : null;
-            $cfn = \method_exists($value, 'cancel') ? [$value, 'cancel'] : null;
+        if (is_object($value) && method_exists($value, 'then')) {
+            $wfn = method_exists($value, 'wait') ? [$value, 'wait'] : null;
+            $cfn = method_exists($value, 'cancel') ? [$value, 'cancel'] : null;
             $promise = new Promise($wfn, $cfn);
             $value->then([$promise, 'resolve'], [$promise, 'reject']);
             return $promise;
@@ -31,7 +31,7 @@ final class Create
      *
      * @param mixed $reason Promise or reason.
      */
-    public static function rejectionFor($reason) : PromiseInterface
+    public static function rejectionFor($reason): PromiseInterface
     {
         if ($reason instanceof PromiseInterface) {
             return $reason;
@@ -43,7 +43,7 @@ final class Create
      *
      * @param mixed $reason
      */
-    public static function exceptionFor($reason) : \Throwable
+    public static function exceptionFor($reason): \Throwable
     {
         if ($reason instanceof \Throwable) {
             return $reason;
@@ -55,12 +55,12 @@ final class Create
      *
      * @param mixed $value
      */
-    public static function iterFor($value) : \Iterator
+    public static function iterFor($value): \Iterator
     {
         if ($value instanceof \Iterator) {
             return $value;
         }
-        if (\is_array($value)) {
+        if (is_array($value)) {
             return new \ArrayIterator($value);
         }
         return new \ArrayIterator([$value]);

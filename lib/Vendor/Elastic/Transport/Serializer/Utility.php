@@ -27,7 +27,7 @@ class Utility
      * @param mixed $data
      * @return void
      */
-    public static function removeNullValue(&$data) : void
+    public static function removeNullValue(&$data): void
     {
         if (!is_object($data) && !is_array($data)) {
             throw new InvalidArgumentException(sprintf("The parameter %s must be an object or array", var_export($data, \true)));

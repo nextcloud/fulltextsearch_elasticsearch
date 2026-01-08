@@ -575,6 +575,49 @@
   ],
   "functions": [
     {
+      "name": "round",
+      "parameters": [
+        {
+          "name": "mode",
+          "problems": [
+            {
+              "description": "wrong default value",
+              "versions": [8.4]
+            }
+          ]
+        }
+        ]
+    },
+    {
+      "name": "each",
+      "problems": [
+        {
+          "description": "deprecated function",
+          "versions": [7.2, 7.3, 7.4]
+        }
+      ]
+    },
+    {
+      "name": "datefmt_set_timezone_id",
+      "problems": [
+        {
+          "description": "deprecated function",
+          "versions": [5.6]
+        }
+      ]
+    },
+    {
+      "name": "imagefilledpolygon",
+      "problems": [
+        {
+          "description": "has duplicate in stubs",
+          "versions": [
+            "ALL"
+          ]
+        }
+      ]
+    },
+    {
       "name": "session_set_save_handler",
       "problems": [
         {
@@ -789,129 +832,6 @@
       ]
     },
     {
-      "name": "timezone_transitions_get",
-      "parameters": [
-        {
-          "name": "timestampBegin",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "timestampEnd",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "mb_encode_mimeheader",
-      "parameters": [
-        {
-          "name": "newline",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "trim",
-      "parameters": [
-        {
-          "name": "characters",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "rtrim",
-      "parameters": [
-        {
-          "name": "characters",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "chop",
-      "parameters": [
-        {
-          "name": "characters",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ltrim",
-      "parameters": [
-        {
-          "name": "characters",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "explode",
-      "parameters": [
-        {
-          "name": "limit",
-          "problems": [
-            {
-              "description": "wrong default value",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "bcdiv",
       "problems": [
         {
@@ -934,10 +854,69 @@
       ]
     },
     {
-      "name": "sodium_crypto_secretstream_xchacha20poly1305_push",
+      "name": "hash_update_file",
       "problems": [
         {
-          "description": "missing function",
+          "description": "parameter mismatch",
+          "versions": [
+            5.6,
+            7.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "var_dump",
+      "parameters": [
+        {
+          "name": "vars",
+          "problems": [
+            {
+              "description": "wrong optionallity",
+              "versions": [
+                5.6,
+                7.0,
+                7.1,
+                7.2,
+                7.3,
+                7.4
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "print_r",
+      "problems": [
+        {
+          "description": "wrong return typehint",
+          "versions": [
+            8.0,
+            8.1,
+            8.2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rewinddir",
+      "problems": [
+        {
+          "description": "wrong return typehint",
+          "versions": [
+            8.0,
+            8.1,
+            8.2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stream_get_filters",
+      "problems": [
+        {
+          "description": "has type mismatch in signature and phpdoc",
           "versions": [
             "ALL"
           ]
@@ -945,12 +924,51 @@
       ]
     },
     {
-      "name": "sodium_crypto_secretstream_xchacha20poly1305_pull",
+      "name": "stream_get_transports",
       "problems": [
         {
-          "description": "missing function",
+          "description": "has type mismatch in signature and phpdoc",
           "versions": [
             "ALL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "stream_get_wrappers",
+      "problems": [
+        {
+          "description": "has type mismatch in signature and phpdoc",
+          "versions": [
+            "ALL"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hrtime",
+      "parameters": [
+        {
+          "name": "get_as_number",
+          "problems": [
+            {
+              "description": "wrong optionallity",
+              "versions": [
+                7.3,
+                7.4
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "hash_pbkdf2",
+      "problems": [
+        {
+          "description": "parameter mismatch",
+          "versions": [
+            8.2
           ]
         }
       ]
@@ -958,33 +976,32 @@
   ],
   "classes": [
     {
-      "name": "Exception",
-      "methods": [
+      "name": "GMP",
+      "problems": [
         {
-          "name": "__clone",
-          "problems": [
-            {
-              "description":"has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
+          "description": "has wrong final modifier",
+          "versions": [5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
+        }
+      ]
+    },
+    {
+      "name": "DOMException",
+      "problems": [
+        {
+          "description": "has wrong final modifier",
+          "versions": [
+            5.6
           ]
         }
       ]
     },
     {
-      "name": "Error",
-      "methods": [
+      "name": "mysqli_sql_exception",
+      "problems": [
         {
-          "name": "__clone",
-          "problems": [
-            {
-              "description":"has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
+          "description": "has wrong final modifier",
+          "versions": [
+            5.6
           ]
         }
       ]
@@ -998,7 +1015,8 @@
             {
               "description": "parameter mismatch",
               "versions": [
-                8.0, 8.1
+                8.0,
+                8.1
               ]
             }
           ]
@@ -1053,17 +1071,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
-          ]
         }
       ]
     },
@@ -1072,10 +1079,7 @@
       "problems": [
         {
           "description": "has wrong final modifier",
-          "versions": [
-            8.0,
-            8.1
-          ]
+          "versions": [7.4, 8.0, 8.1, 8.2, 8.3]
         }
       ],
       "methods": [
@@ -1115,17 +1119,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
-          ]
         }
       ]
     },
@@ -1155,33 +1148,6 @@
               "description": "has type mismatch in signature and phpdoc",
               "versions": [
                 "ALL"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ReflectionZendExtension",
-      "methods": [
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
               ]
             }
           ]
@@ -1740,6 +1706,25 @@
       ]
     },
     {
+      "name": "ArrayObject",
+      "methods": [
+        {
+          "name": "__construct",
+          "problems": [
+            {
+              "description": "parameter mismatch",
+              "versions": [
+                5.3,
+                5.4,
+                5.5,
+                5.6
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "RecursiveRegexIterator",
       "methods": [
         {
@@ -1768,82 +1753,12 @@
               ]
             }
           ]
-        },
-        {
-          "name": "__construct",
-          "parameters": [
-            {
-              "name": "flags",
-              "problems": [
-                {
-                  "description": "wrong default value",
-                  "versions": [
-                    "ALL"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "addEmptyDir",
-          "parameters": [
-            {
-              "name": "dirname",
-              "problems": [
-                {
-                  "description": "wrong optionallity",
-                  "versions": [
-                    7.1,
-                    7.2,
-                    7.3,
-                    7.4
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "addFromString",
-          "parameters": [
-            {
-              "name": "contents",
-              "problems": [
-                {
-                  "description": "wrong optionallity",
-                  "versions": [
-                    7.1,
-                    7.2,
-                    7.3,
-                    7.4
-                  ]
-                }
-              ]
-            }
-          ]
         }
       ]
     },
     {
       "name": "PharData",
       "methods": [
-        {
-          "name": "__construct",
-          "parameters": [
-            {
-              "name": "flags",
-              "problems": [
-                {
-                  "description": "wrong default value",
-                  "versions": [
-                    "ALL"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
         {
           "name": "__destruct",
           "problems": [
@@ -2515,17 +2430,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
-          ]
         }
       ]
     },
@@ -2542,33 +2446,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "ReflectionType",
-      "methods": [
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
-              ]
-            }
-          ]
         }
       ]
     },
@@ -2582,17 +2459,6 @@
               "description": "parameter mismatch",
               "versions": [
                 "ALL"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "__clone",
-          "problems": [
-            {
-              "description": "has wrong final modifier",
-              "versions": [
-                8.1
               ]
             }
           ]
@@ -2756,101 +2622,11 @@
               ]
             }
           ]
-        },
-        {
-          "name": "getTransitions",
-          "parameters": [
-            {
-              "name": "timestampBegin",
-              "problems": [
-                {
-                  "description": "wrong default value",
-                  "versions": [
-                    "ALL"
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "timestampEnd",
-              "problems": [
-                {
-                  "description": "wrong default value",
-                  "versions": [
-                    "ALL"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "RecursiveCachingIterator",
-      "methods": [
-        {
-          "name": "__construct",
-          "parameters": [
-            {
-              "name": "flags",
-              "problems": [
-                {
-                  "description": "wrong default value",
-                  "versions": [
-                    "ALL"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "RecursiveTreeIterator",
-      "methods": [
-        {
-          "name": "__construct",
-          "parameters": [
-            {
-              "name": "mode",
-              "problems": [
-                {
-                  "description": "wrong default value",
-                  "versions": [
-                    "ALL"
-                  ]
-                }
-              ]
-            }
-          ]
         }
       ]
     },
     {
       "name": "FilesystemIterator",
-      "methods": [
-        {
-          "name": "__construct",
-          "parameters": [
-            {
-              "name": "flags",
-              "problems": [
-                {
-                  "description": "wrong default value",
-                  "versions": [
-                    "ALL"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "MultipleIterator",
       "methods": [
         {
           "name": "__construct",
@@ -3075,60 +2851,6 @@
       ]
     },
     {
-      "name": "WeakReference",
-      "methods": [
-        {
-          "name": "create",
-          "problems": [
-            {
-              "description": "parameter mismatch",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Directory",
-      "methods": [
-        {
-          "name": "close",
-          "problems": [
-            {
-              "description": "parameter mismatch",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "rewind",
-          "problems": [
-            {
-              "description": "parameter mismatch",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "read",
-          "problems": [
-            {
-              "description": "parameter mismatch",
-              "versions": [
-                "ALL"
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "IntlCalendar",
       "methods": [
         {
@@ -3145,11 +2867,35 @@
       ]
     },
     {
+      "name": "IntlBreakIterator",
+      "methods": [
+        {
+          "name": "getPartsIterator",
+          "parameters": [
+            {
+              "name": "type",
+              "problems": [
+                {
+                  "description": "parameter type mismatch",
+                  "versions": [
+                    8.0,
+                    8.1,
+                    8.2
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "ParseError",
       "problems": [
         {
           "description": "wrong parent",
           "versions": [
+            7.0,
             7.1,
             7.2
           ]
@@ -3165,6 +2911,8 @@
             {
               "description": "has wrong final modifier",
               "versions": [
+                5.6,
+                7.0,
                 7.1,
                 7.2,
                 7.3,
@@ -3228,6 +2976,8 @@
             {
               "description": "has wrong static modifier",
               "versions": [
+                5.6,
+                7.0,
                 7.1,
                 7.2,
                 7.3,
@@ -3242,6 +2992,8 @@
             {
               "description": "has wrong static modifier",
               "versions": [
+                5.6,
+                7.0,
                 7.1,
                 7.2,
                 7.3,
@@ -3273,39 +3025,6 @@
               ]
             }
           ]
-        },
-        {
-          "name": "getNamedItemNS",
-          "parameters": [
-            {
-              "name": "namespaceURI",
-              "problems": [
-                {
-                  "description": "wrong optionallity",
-                  "versions": [
-                    7.1,
-                    7.2,
-                    7.3,
-                    7.4
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "localName",
-              "problems": [
-                {
-                  "description": "wrong optionallity",
-                  "versions": [
-                    7.1,
-                    7.2,
-                    7.3,
-                    7.4
-                  ]
-                }
-              ]
-            }
-          ]
         }
       ]
     },
@@ -3314,10 +3033,7 @@
       "problems": [
         {
           "description": "has wrong final modifier",
-          "versions": [
-            8.0,
-            8.1
-          ]
+          "versions": [5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
         }
       ]
     },
@@ -3330,8 +3046,7 @@
             7.1,
             7.2,
             7.3,
-            7.4,
-            8.0
+            7.4
           ]
         }
       ]
@@ -3343,7 +3058,26 @@
           "description": "has wrong final modifier",
           "versions": [
             8.0,
-            8.1
+            8.1,
+            8.2,
+            8.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Transliterator",
+      "properties": [
+        {
+          "name": "id",
+          "problems": [
+            {
+              "description": "wrong readonly",
+              "versions": [
+                8.1,
+                8.2
+              ]
+            }
           ]
         }
       ]
@@ -3416,5 +3150,6 @@
         }
       ]
     }
-  ]
+  ],
+  "enums": []
 }

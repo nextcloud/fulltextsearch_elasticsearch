@@ -17,13 +17,13 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Sel
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 interface SelectorInterface
 {
-    public function nextNode() : Node;
+    public function nextNode(): Node;
     /**
      * @param Node[] $nodes
      */
-    public function setNodes(array $nodes) : void;
+    public function setNodes(array $nodes): void;
     /**
      * @return Node[]
      */
-    public function getNodes() : array;
+    public function getNodes(): array;
 }

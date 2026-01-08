@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model\Tags;
 
@@ -10,10 +9,10 @@ use phpDocumentor\Reflection\Types\Context;
 
 class RemovedTag extends BaseTag
 {
-    private const REGEX_VECTOR = '(?:\d\S*|[^\s\:]+\:\s*\$[^\$]+\$)';
-    private $version;
+    const string REGEX_VECTOR = '(?:\d\S*|[^\s\:]+\:\s*\$[^\$]+\$)';
+    private ?string $version;
 
-    public function __construct(?string $version = null, Description $description = null)
+    public function __construct(?string $version = null, ?Description $description = null)
     {
         $this->version = $version;
         $this->name = 'removed';

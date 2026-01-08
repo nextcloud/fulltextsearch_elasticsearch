@@ -1,8 +1,0 @@
-{
-    "autoload": {
-        "files": [
-            "src/functions.php"
-        ]
-    },
-    "bin": ["main.php"]
-}

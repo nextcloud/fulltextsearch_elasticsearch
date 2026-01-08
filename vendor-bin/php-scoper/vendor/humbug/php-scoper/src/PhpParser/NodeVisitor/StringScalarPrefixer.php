@@ -14,14 +14,14 @@ declare(strict_types=1);
 
 namespace Humbug\PhpScoper\PhpParser\NodeVisitor;
 
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
 use Humbug\PhpScoper\PhpParser\UnexpectedParsingScenario;
 use Humbug\PhpScoper\Symbol\EnrichedReflector;
-use InvalidArgumentException;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
+use PhpParser\Node\ArrayItem;
 use PhpParser\Node\Const_;
 use PhpParser\Node\Expr\Array_;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\Assign;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\New_;
@@ -41,10 +41,8 @@ use function array_values;
 use function explode;
 use function implode;
 use function in_array;
-use function is_string;
 use function ltrim;
 use function preg_match as native_preg_match;
-use function strpos;
 use function strtolower;
 
 /**
@@ -73,6 +71,7 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
 
     // Function for which we know the argument IS a FQCN
     private const SPECIAL_FUNCTION_NAMES = [
+        'call_user_func_array',
         'class_alias',
         'class_exists',
         'define',
@@ -80,8 +79,18 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
         'function_exists',
         'interface_exists',
         'is_a',
+        'is_callable',
         'is_subclass_of',
+        'method_exists',
+        'spl_autoload_register',
         'trait_exists',
+    ];
+
+    // Function for which we know the FIRST argument IS a FQCN
+    private const SPECIAL_ARRAY_FUNCTION_NAMES = [
+        'call_user_func_array',
+        'is_callable',
+        'spl_autoload_register',
     ];
 
     private const DATETIME_CLASSES = [
@@ -89,17 +98,35 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
         'datetimeimmutable',
     ];
 
-    private const CLASS_LIKE_PATTERN = '/^((\\\\)?[\p{L}_\d]+)$|((\\\\)?(?:[\p{L}_\d]+\\\\+)+[\p{L}_\d]+)$/u';
+    private const CLASS_LIKE_PATTERN = <<<'REGEX'
+        /^
+            (\\)?               # leading backslash
+            (
+                [\p{L}_]        # class-like name first character
+                [\p{L}_\d]*     # class-like name
+                \\              # separator
+            )*
+            [\p{L}_\d]+         # class-like name
+        $/ux
+        REGEX;
 
-    private string $prefix;
-    private EnrichedReflector $enrichedReflector;
+    private const CONSTANT_FETCH_PATTERN = <<<'REGEX'
+        /^
+            (\\)?               # leading backslash
+            (
+                [\p{L}_\d]+     # class-like name
+                \\              # separator
+            )*
+            [\p{L}_\d]+         # class-like name
+            ::[\p{L}_\d]+       # constant-like name
+        $/ux
+        REGEX;
 
     public function __construct(
-        string $prefix,
-        EnrichedReflector $enrichedReflector
+        private readonly string $prefix,
+        private readonly EnrichedReflector $enrichedReflector,
+        private readonly ExcludedFunctionExistsStringNodeStack $excludedFunctionExistsStringNodeStack,
     ) {
-        $this->prefix = $prefix;
-        $this->enrichedReflector = $enrichedReflector;
     }
 
     public function enterNode(Node $node): Node
@@ -111,8 +138,11 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
 
     private function prefixStringScalar(String_ $string): String_
     {
-        if (!(ParentNodeAppender::hasParent($string) && is_string($string->value))
-            || 1 !== native_preg_match(self::CLASS_LIKE_PATTERN, $string->value)
+        if (!(ParentNodeAppender::hasParent($string))
+            || (
+                1 !== native_preg_match(self::CLASS_LIKE_PATTERN, $string->value)
+                && 1 !== native_preg_match(self::CONSTANT_FETCH_PATTERN, $string->value)
+            )
         ) {
             return $string;
         }
@@ -182,11 +212,10 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
     {
         $class = $newNode->class;
 
-        if (!($class instanceof Name)) {
-            throw UnexpectedParsingScenario::create();
-        }
-
-        if (in_array(strtolower($class->toString()), self::DATETIME_CLASSES, true)) {
+        if ($class instanceof Name
+            && in_array(strtolower($class->toString()), self::DATETIME_CLASSES, true)
+        ) {
+            // Value cannot be a class name, hence we should not try to prefix it.
             return $string;
         }
 
@@ -208,26 +237,45 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
         }
 
         if ('function_exists' === $functionName) {
-            return $this->enrichedReflector->isFunctionExcluded($normalizedValue)
-                ? $string
-                : $this->createPrefixedString($string);
+            if ($this->enrichedReflector->isFunctionExcluded($normalizedValue)) {
+                $this->excludedFunctionExistsStringNodeStack->push($string);
+
+                return $string;
+            }
+
+            return $this->createPrefixedString($string);
         }
 
         $isConstantNode = self::isConstantNode($string);
 
-        if (!$isConstantNode) {
-            if ('define' === $functionName
-                && $this->belongsToTheGlobalNamespace($string)
-            ) {
-                return $string;
-            }
-
-            return $this->enrichedReflector->isClassExcluded($normalizedValue)
+        if ($isConstantNode) {
+            return $this->enrichedReflector->isExposedConstant($normalizedValue)
                 ? $string
                 : $this->createPrefixedString($string);
         }
 
-        return $this->enrichedReflector->isExposedConstant($normalizedValue)
+        if ('define' === $functionName
+            && $this->belongsToTheGlobalNamespace($string)
+        ) {
+            return $string;
+        }
+
+        if ('method_exists' === $functionName) {
+            $firstArgument = $functionNode->args[0];
+            $isFirstArgument = $firstArgument instanceof Arg
+                && $firstArgument->value === $string;
+
+            if ($isFirstArgument) {
+                return $this->enrichedReflector->isClassExcluded($normalizedValue)
+                    ? $string
+                    : $this->createPrefixedString($string);
+            }
+
+            return $string;
+        }
+
+        return $this->enrichedReflector->isClassExcluded($normalizedValue)
+            || $this->enrichedReflector->isFunctionExcluded($normalizedValue)
             ? $string
             : $this->createPrefixedString($string);
     }
@@ -257,8 +305,7 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
         String_ $string,
         ArrayItem $parentNode,
         string $normalizedValue
-    ): String_
-    {
+    ): String_ {
         // ArrayItem can lead to two results: either the string is used for
         // `spl_autoload_register()`, e.g. `spl_autoload_register(['Swift', 'autoload'])`
         // in which case the string `'Swift'` is guaranteed to be class name, or
@@ -297,11 +344,11 @@ final class StringScalarPrefixer extends NodeVisitorAbstract
 
         $functionName = (string) $functionNode->name;
 
-        return ('spl_autoload_register' === $functionName
+        return (in_array($functionName, self::SPECIAL_ARRAY_FUNCTION_NAMES, true)
                 && array_key_exists(0, $arrayNode->items)
                 && $arrayItemNode === $arrayNode->items[0]
                 && !$this->enrichedReflector->isClassExcluded($normalizedValue)
-            )
+        )
             ? $this->createPrefixedString($string)
             : $string;
     }

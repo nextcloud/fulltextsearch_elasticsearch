@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace Fidry\Console\Application;
 
 use Fidry\Console\Command\Command;
+use Fidry\Console\Command\LazyCommandEnvelope;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 
 interface Application
 {
     /**
-     * Name of the application. Typically shown when running the application
+     * Name of the application. Typically, shown when running the application
      * or displaying the current version.
      */
     public function getName(): string;
@@ -43,13 +45,13 @@ interface Application
      * Exhaustive list of the custom commands. A few more commands such as
      * the HelpCommand or ListCommand are also included besides those.
      *
-     * @return Command[]
+     * @return array<LazyCommandEnvelope|Command|SymfonyCommand>
      */
     public function getCommands(): array;
 
     /**
      * The default command executed when the application is being run without
-     * any command specified. Typically the list command which will display all
+     * any command specified. Typically, the list command which will display all
      * the available commands.
      */
     public function getDefaultCommand(): string;

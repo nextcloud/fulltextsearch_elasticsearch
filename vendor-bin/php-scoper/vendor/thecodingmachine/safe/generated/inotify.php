@@ -1,44 +1,17 @@
 <?php
 
-namespace Safe;
-
-use Safe\Exceptions\InotifyException;
-
-/**
- * Initialize an inotify instance for use with
- * inotify_add_watch
- *
- * @return resource A stream resource.
- * @throws InotifyException
- *
- */
-function inotify_init()
-{
-    error_clear_last();
-    $result = \inotify_init();
-    if ($result === false) {
-        throw InotifyException::createFromPhpError();
-    }
-    return $result;
+if (str_starts_with(PHP_VERSION, "8.1.")) {
+    require_once __DIR__ . '/8.1/inotify.php';
 }
-
-
-/**
- * inotify_rm_watch removes the watch
- * watch_descriptor from the inotify instance
- * inotify_instance.
- *
- * @param resource $inotify_instance Resource returned by
- * inotify_init
- * @param int $watch_descriptor Watch to remove from the instance
- * @throws InotifyException
- *
- */
-function inotify_rm_watch($inotify_instance, int $watch_descriptor): void
-{
-    error_clear_last();
-    $result = \inotify_rm_watch($inotify_instance, $watch_descriptor);
-    if ($result === false) {
-        throw InotifyException::createFromPhpError();
-    }
+if (str_starts_with(PHP_VERSION, "8.2.")) {
+    require_once __DIR__ . '/8.2/inotify.php';
+}
+if (str_starts_with(PHP_VERSION, "8.3.")) {
+    require_once __DIR__ . '/8.3/inotify.php';
+}
+if (str_starts_with(PHP_VERSION, "8.4.")) {
+    require_once __DIR__ . '/8.4/inotify.php';
+}
+if (str_starts_with(PHP_VERSION, "8.5.")) {
+    require_once __DIR__ . '/8.5/inotify.php';
 }

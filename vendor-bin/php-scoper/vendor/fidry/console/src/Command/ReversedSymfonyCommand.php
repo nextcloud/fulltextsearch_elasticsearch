@@ -11,41 +11,17 @@
 
 declare(strict_types=1);
 
-namespace Fidry\Console\Command;
+namespace Fidry\Console\Application;
 
-use Fidry\Console\IO;
-use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Fidry\Console\Bridge\Command\ReversedSymfonyCommand as BridgeReversedSymfonyCommand;
+use Fidry\Console\Command\ReversedSymfonyCommand as PreviousReversedSymfonyCommand;
+use Fidry\Console\Deprecation;
+use function class_alias;
 
-/**
- * Bridge between a new Command API and a traditional Symfony console command.
- *
- * @private
- */
-final class ReversedSymfonyCommand implements Command
-{
-    private SymfonyCommand $command;
+class_alias(BridgeReversedSymfonyCommand::class, PreviousReversedSymfonyCommand::class);
 
-    public function __construct(SymfonyCommand $command)
-    {
-        $this->command = $command;
-    }
-
-    public function getConfiguration(): Configuration
-    {
-        return new Configuration(
-            $this->command->getName() ?? '',
-            $this->command->getDescription(),
-            $this->command->getHelp(),
-            $this->command->getDefinition()->getArguments(),
-            $this->command->getDefinition()->getOptions(),
-        );
-    }
-
-    public function execute(IO $io): int
-    {
-        return $this->command->run(
-            $io->getInput(),
-            $io->getOutput(),
-        );
-    }
-}
+Deprecation::classRenamed(
+    PreviousReversedSymfonyCommand::class,
+    BridgeReversedSymfonyCommand::class,
+    '0.5',
+);

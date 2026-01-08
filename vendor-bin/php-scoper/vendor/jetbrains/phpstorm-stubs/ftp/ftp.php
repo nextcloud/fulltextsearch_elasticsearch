@@ -18,12 +18,8 @@ function ftp_append(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     string $remote_filename,
     string $local_filename,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY
 ): bool {}
 
 /**
@@ -306,12 +302,8 @@ function ftp_get(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     string $local_filename,
     string $remote_filename,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
 ): bool {}
 
@@ -339,12 +331,8 @@ function ftp_fget(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     $stream,
     string $remote_filename,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
 ): bool {}
 
@@ -370,12 +358,8 @@ function ftp_put(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     string $remote_filename,
     string $local_filename,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
 ): bool {}
 
@@ -401,12 +385,8 @@ function ftp_fput(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     string $remote_filename,
     $stream,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
 ): bool {}
 
@@ -584,12 +564,8 @@ function ftp_nb_fget(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     $stream,
     string $remote_filename,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
 ): int {}
 
@@ -609,22 +585,19 @@ function ftp_nb_fget(
  * The transfer mode. Must be either <b>FTP_ASCII</b> or <b>FTP_BINARY</b>. Optional since PHP 7.3
  * </p>
  * @param int $offset [optional] <p>The position in the remote file to start downloading from.</p>
- * @return int <b>FTP_FAILED</b> or <b>FTP_FINISHED</b>
+ * @return int|false <b>FTP_FAILED</b> or <b>FTP_FINISHED</b>
  * or <b>FTP_MOREDATA</b>.
  */
 #[EV([FTP_FAILED, FTP_FINISHED, FTP_MOREDATA])]
+#[LanguageLevelTypeAware(["8.1" => "int|false"], default: "int")]
 function ftp_nb_get(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     string $local_filename,
     string $remote_filename,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
-): int {}
+) {}
 
 /**
  * Continues retrieving/sending a file (non-blocking)
@@ -662,12 +635,8 @@ function ftp_nb_put(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     string $remote_filename,
     string $local_filename,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
 ): int|false {}
 
@@ -695,12 +664,8 @@ function ftp_nb_fput(
     #[LanguageLevelTypeAware(['8.1' => 'FTP\Connection'], default: 'resource')] $ftp,
     string $remote_filename,
     $stream,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')]
-    int $mode,
-    #[EV([FTP_ASCII, FTP_BINARY])]
-    #[PhpStormStubsElementAvailable(from: '7.3')]
-    int $mode = FTP_BINARY,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '5.3', to: '7.2')] int $mode,
+    #[EV([FTP_ASCII, FTP_BINARY])] #[PhpStormStubsElementAvailable(from: '7.3')] int $mode = FTP_BINARY,
     int $offset = 0
 ): int {}
 

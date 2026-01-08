@@ -1,21 +1,17 @@
 <?php
 
-namespace Safe;
-
-use Safe\Exceptions\RpminfoException;
-
-/**
- * Add an additional retrieved tag in subsequent queries.
- *
- * @param int $tag One of RPMTAG_* constant, see the rpminfo constants page.
- * @throws RpminfoException
- *
- */
-function rpmaddtag(int $tag): void
-{
-    error_clear_last();
-    $result = \rpmaddtag($tag);
-    if ($result === false) {
-        throw RpminfoException::createFromPhpError();
-    }
+if (str_starts_with(PHP_VERSION, "8.1.")) {
+    require_once __DIR__ . '/8.1/rpminfo.php';
+}
+if (str_starts_with(PHP_VERSION, "8.2.")) {
+    require_once __DIR__ . '/8.2/rpminfo.php';
+}
+if (str_starts_with(PHP_VERSION, "8.3.")) {
+    require_once __DIR__ . '/8.3/rpminfo.php';
+}
+if (str_starts_with(PHP_VERSION, "8.4.")) {
+    require_once __DIR__ . '/8.4/rpminfo.php';
+}
+if (str_starts_with(PHP_VERSION, "8.5.")) {
+    require_once __DIR__ . '/8.5/rpminfo.php';
 }

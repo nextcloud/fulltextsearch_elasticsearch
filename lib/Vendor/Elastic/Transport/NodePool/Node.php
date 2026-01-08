@@ -32,25 +32,25 @@ class Node
         }
         $this->uri = Psr17FactoryDiscovery::findUriFactory()->createUri($host);
     }
-    public function markAlive(bool $alive) : void
+    public function markAlive(bool $alive): void
     {
         $this->alive = $alive;
         $this->failedPings = $alive ? 0 : $this->failedPings + 1;
-        $this->lastPing = \time();
+        $this->lastPing = time();
     }
-    public function isAlive() : bool
+    public function isAlive(): bool
     {
         return $this->alive;
     }
-    public function getUri() : UriInterface
+    public function getUri(): UriInterface
     {
         return $this->uri;
     }
-    public function getLastPing() : ?int
+    public function getLastPing(): ?int
     {
         return $this->lastPing;
     }
-    public function getFailedPings() : int
+    public function getFailedPings(): int
     {
         return $this->failedPings;
     }

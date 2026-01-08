@@ -20,14 +20,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SingleCommandApplication extends Command
 {
-    private $version = 'UNKNOWN';
-    private $autoExit = true;
-    private $running = false;
+    private string $version = 'UNKNOWN';
+    private bool $autoExit = true;
+    private bool $running = false;
 
     /**
      * @return $this
      */
-    public function setVersion(string $version): self
+    public function setVersion(string $version): static
     {
         $this->version = $version;
 
@@ -39,7 +39,7 @@ class SingleCommandApplication extends Command
      *
      * @return $this
      */
-    public function setAutoExit(bool $autoExit): self
+    public function setAutoExit(bool $autoExit): static
     {
         $this->autoExit = $autoExit;
 
@@ -57,7 +57,7 @@ class SingleCommandApplication extends Command
         $application->setAutoExit($this->autoExit);
         // Fix the usage of the command displayed with "--help"
         $this->setName($_SERVER['argv'][0]);
-        $application->add($this);
+        $application->addCommand($this);
         $application->setDefaultCommand($this->getName(), true);
 
         $this->running = true;
@@ -67,6 +67,6 @@ class SingleCommandApplication extends Command
             $this->running = false;
         }
 
-        return $ret ?? 1;
+        return $ret;
     }
 }

@@ -5,10 +5,9 @@ namespace StubTests\Parsers;
 
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
-use RuntimeException;
 use StubTests\Model\BasePHPElement;
 use StubTests\Model\CommonUtils;
-use StubTests\Model\PHPConst;
+use StubTests\Model\PHPClassConstant;
 use StubTests\Model\PHPMethod;
 use StubTests\Model\PhpVersions;
 use StubTests\Model\Tags\RemovedTag;
@@ -21,9 +20,6 @@ class ParserUtils
         return (bool)preg_match('/^[1-9]+\.\d+(\.[1-9]+\d*)*$/', $tag->getVersion()); //find version like any but 7.4.0
     }
 
-    /**
-     * @throws RuntimeException
-     */
     public static function getDeclaredSinceVersion(BasePHPElement $element): ?float
     {
         $allSinceVersions = self::getSinceVersionsFromPhpDoc($element);
@@ -33,17 +29,14 @@ class ParserUtils
                 return null;
             }
             $allSinceVersions[] = self::getSinceVersionsFromParentClass($element);
-        } elseif ($element instanceof PHPConst && !empty($element->parentName)) {
+        } elseif ($element instanceof PHPClassConstant && !empty($element->parentId)) {
             $allSinceVersions[] = self::getSinceVersionsFromParentClass($element);
         }
         $flattenedArray = CommonUtils::flattenArray($allSinceVersions, false);
         sort($flattenedArray, SORT_DESC);
-        return array_pop($flattenedArray);
+        return array_pop($flattenedArray) ?: 5.3;
     }
 
-    /**
-     * @throws RuntimeException
-     */
     public static function getLatestAvailableVersion(BasePHPElement $element): ?float
     {
         $latestVersionsFromPhpDoc = self::getLatestAvailableVersionFromPhpDoc($element);
@@ -53,7 +46,7 @@ class ParserUtils
                 return null;
             }
             $latestVersionsFromPhpDoc[] = self::getLatestAvailableVersionsFromParentClass($element);
-        } elseif ($element instanceof PHPConst && !empty($element->parentName)) {
+        } elseif ($element instanceof PHPClassConstant && !empty($element->parentId)) {
             $latestVersionsFromPhpDoc[] = self::getLatestAvailableVersionsFromParentClass($element);
         }
         if (empty($latestVersionsFromAttribute)) {
@@ -65,9 +58,6 @@ class ParserUtils
         return array_pop($flattenedArray);
     }
 
-    /**
-     * @throws RuntimeException
-     */
     public static function getAvailableInVersions(?BasePHPElement $element): array
     {
         if ($element !== null) {
@@ -118,13 +108,19 @@ class ParserUtils
 
     /**
      * @return float[]
-     * @throws RuntimeException
      */
-    private static function getSinceVersionsFromParentClass(PHPMethod|PHPConst $element): array
+    private static function getSinceVersionsFromParentClass(PHPMethod|PHPClassConstant $element): array
     {
-        $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getClass($element->parentName, shouldSuitCurrentPhpVersion: false);
+        $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getEnum(
+            $element->parentId,
+            sourceFilePath: $element->sourceFilePath,
+            shouldSuitCurrentPhpVersion: false
+        );
         if ($parentClass === null) {
-            $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($element->parentName, shouldSuitCurrentPhpVersion: false);
+            $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getClass($element->parentId, sourceFilePath: $element->sourceFilePath, shouldSuitCurrentPhpVersion: false);
+        }
+        if ($parentClass === null) {
+            $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($element->parentId, sourceFilePath: $element->sourceFilePath, shouldSuitCurrentPhpVersion: false);
         }
         $allSinceVersions = [self::getSinceVersionsFromPhpDoc($parentClass)];
         $allSinceVersions[] = self::getSinceVersionsFromAttribute($parentClass);
@@ -133,13 +129,19 @@ class ParserUtils
 
     /**
      * @return float[]
-     * @throws RuntimeException
      */
-    public static function getLatestAvailableVersionsFromParentClass(PHPMethod|PHPConst $element): array
+    public static function getLatestAvailableVersionsFromParentClass(PHPMethod|PHPClassConstant $element): array
     {
-        $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getClass($element->parentName, shouldSuitCurrentPhpVersion: false);
+        $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getEnum(
+            $element->parentId,
+            sourceFilePath: $element->sourceFilePath,
+            shouldSuitCurrentPhpVersion: false
+        );
         if ($parentClass === null) {
-            $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($element->parentName, shouldSuitCurrentPhpVersion: false);
+            $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getClass($element->parentId, sourceFilePath: $element->sourceFilePath, shouldSuitCurrentPhpVersion: false);
+        }
+        if ($parentClass === null) {
+            $parentClass = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($element->parentId, sourceFilePath: $element->sourceFilePath, shouldSuitCurrentPhpVersion: false);
         }
         $latestAvailableVersionFromPhpDoc = self::getLatestAvailableVersionFromPhpDoc($parentClass);
         $latestAvailableVersionFromAttribute = self::getLatestAvailableVersionsFromAttribute($parentClass);
@@ -168,5 +170,10 @@ class ParserUtils
             $latestAvailableVersions[] = $element->availableVersionsRangeFromAttribute['to'];
         }
         return $latestAvailableVersions;
+    }
+
+    public static function entitySuitsCurrentPhpVersion(BasePHPElement $element): bool
+    {
+        return in_array((float)getenv('PHP_VERSION'), ParserUtils::getAvailableInVersions($element), true);
     }
 }

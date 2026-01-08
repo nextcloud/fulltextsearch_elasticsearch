@@ -57,7 +57,7 @@ class SearchHitIterator implements Iterator, Countable
      * @throws ServerResponseException
      * @see    Iterator::rewind()
      */
-    public function rewind() : void
+    public function rewind(): void
     {
         $this->currentKey = 0;
         $this->searchResponses->rewind();
@@ -82,7 +82,7 @@ class SearchHitIterator implements Iterator, Countable
      * @throws ServerResponseException
      * @see    Iterator::next()
      */
-    public function next() : void
+    public function next(): void
     {
         $this->currentKey++;
         $this->currentHitIndex++;
@@ -100,9 +100,9 @@ class SearchHitIterator implements Iterator, Countable
      * @return bool
      * @see    Iterator::valid()
      */
-    public function valid() : bool
+    public function valid(): bool
     {
-        return \is_array($this->currentHitData);
+        return is_array($this->currentHitData);
     }
     /**
      * Returns the current hit
@@ -110,7 +110,7 @@ class SearchHitIterator implements Iterator, Countable
      * @return array
      * @see    Iterator::current()
      */
-    public function current() : array
+    public function current(): array
     {
         return $this->currentHitData;
     }
@@ -120,7 +120,7 @@ class SearchHitIterator implements Iterator, Countable
      * @return int
      * @see    Iterator::key()
      */
-    public function key() : int
+    public function key(): int
     {
         return $this->currentKey;
     }
@@ -129,7 +129,7 @@ class SearchHitIterator implements Iterator, Countable
      *
      * @internal
      */
-    private function readPageData() : void
+    private function readPageData(): void
     {
         if ($this->searchResponses->valid()) {
             $currentPage = $this->searchResponses->current();
@@ -142,7 +142,7 @@ class SearchHitIterator implements Iterator, Countable
     /**
      * {@inheritDoc}
      */
-    public function count() : int
+    public function count(): int
     {
         return $this->count;
     }

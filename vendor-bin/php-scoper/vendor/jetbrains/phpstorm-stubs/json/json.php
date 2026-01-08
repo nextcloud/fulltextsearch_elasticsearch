@@ -108,7 +108,7 @@ function json_encode(mixed $value, int $flags = 0, int $depth = 512): string|fal
  * JSON - it will also encode and decode scalar types and <b>NULL</b>. The JSON standard
  * only supports these values when they are nested inside an array or an object.
  * </p>
- * @param bool|null $associative [optional] <p>
+ * @param bool|null $associative <p>
  * When <b>TRUE</b>, returned objects will be converted into
  * associative arrays.
  * </p>
@@ -120,7 +120,7 @@ function json_encode(mixed $value, int $flags = 0, int $depth = 512): string|fal
  * {@see JSON_BIGINT_AS_STRING} decodes large integers as their original string value.<br/>
  * {@see JSON_INVALID_UTF8_IGNORE} ignores invalid UTF-8 characters,<br/>
  * {@see JSON_INVALID_UTF8_SUBSTITUTE} converts invalid UTF-8 characters to \0xfffd,<br/>
- * {@see JSON_OBJECT_AS_ARRAY} decodes JSON objects as PHP array, since 7.2.0 used by default if $assoc parameter is null,<br/>
+ * {@see JSON_OBJECT_AS_ARRAY} decodes JSON objects as PHP array, since 7.2.0 used by default if $assoc parameter is true,<br/>
  * {@see JSON_THROW_ON_ERROR} when passed this flag, the error behaviour of these functions is changed. The global error state is left untouched, and if an error occurs that would otherwise set it, these functions instead throw a JsonException<br/>
  * </p>
  * @return mixed the value encoded in <i>json</i> in appropriate
@@ -130,7 +130,7 @@ function json_encode(mixed $value, int $flags = 0, int $depth = 512): string|fal
  * <i>json</i> cannot be decoded or if the encoded
  * data is deeper than the recursion limit.
  */
-function json_decode(string $json, ?bool $associative = false, int $depth = 512, int $flags = 0): mixed {}
+function json_decode(string $json, ?bool $associative = null, int $depth = 512, int $flags = 0): mixed {}
 
 /**
  * Returns the last error occurred
@@ -234,6 +234,11 @@ function json_last_error(): int {}
  */
 #[Pure]
 function json_last_error_msg(): string {}
+
+/**
+ * @since 8.3
+ */
+function json_validate(string $json, int $depth = 512, int $flags = 0): bool {}
 
 /**
  * All &lt; and &gt; are converted to \u003C and \u003E.
@@ -443,6 +448,11 @@ define('JSON_ERROR_UTF16', 10);
  * @since 7.3
  */
 define('JSON_THROW_ON_ERROR', 4194304);
+
+/**
+ * @since 8.1
+ */
+define('JSON_ERROR_NON_BACKED_ENUM', 11);
 
 /**
  * Class JsonException

@@ -11,7 +11,7 @@ use JetBrains\PhpStorm\Pure;
  * @link https://www.php.net/manual/en/class.reflectionreference.php
  * @since 7.4
  */
-class ReflectionReference
+final class ReflectionReference
 {
     /**
      * ReflectionReference cannot be created explicitly.
@@ -24,7 +24,7 @@ class ReflectionReference
      * @link https://php.net/manual/en/reflectionreference.fromarrayelement.php
      * @param array $array The array which contains the potential reference.
      * @param int|string $key The key; either an integer or a string.
-     * @return self|null
+     * @return ReflectionReference|null
      */
     public static function fromArrayElement(
         array $array,

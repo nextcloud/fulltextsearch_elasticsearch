@@ -11,7 +11,10 @@ use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
  * </p>
  * @return DOMElement|null The <b>DOMElement</b> node added or <b>NULL</b> if any errors occur.
  */
-#[LanguageLevelTypeAware(['8.0' => 'DOMElement'], default: 'DOMElement|null')]
+#[LanguageLevelTypeAware([
+    '8.0' => 'DOMElement',
+    '8.2' => 'DOMAttr|DOMElement'
+], default: 'DOMElement|null')]
 function dom_import_simplexml(object $node) {}
 
 /**
@@ -105,6 +108,7 @@ define('XML_ATTRIBUTE_NOTATION', 10);
 /**
  * Error code not part of the DOM specification. Meant for PHP errors.
  * @link https://php.net/manual/en/dom.constants.php
+ * @deprecated 8.4
  */
 define('DOM_PHP_ERR', 0);
 

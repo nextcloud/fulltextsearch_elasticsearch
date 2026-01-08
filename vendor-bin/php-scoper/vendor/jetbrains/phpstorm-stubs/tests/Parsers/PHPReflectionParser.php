@@ -1,20 +1,26 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Parsers;
 
 use ReflectionClass;
+use ReflectionEnum;
 use ReflectionFunction;
 use StubTests\Model\CommonUtils;
 use StubTests\Model\PHPClass;
+use StubTests\Model\PHPConstant;
 use StubTests\Model\PHPDefineConstant;
+use StubTests\Model\PHPEnum;
 use StubTests\Model\PHPFunction;
 use StubTests\Model\PHPInterface;
 use StubTests\Model\StubsContainer;
 
 class PHPReflectionParser
 {
-    public static function getStubs(): StubsContainer
+    /**
+     * @return StubsContainer
+     * @throws \ReflectionException
+     */
+    public static function getStubs()
     {
         if (file_exists(__DIR__ . '/../../ReflectionData.json')) {
             $stubs = unserialize(file_get_contents(__DIR__ . '/../../ReflectionData.json'));
@@ -26,7 +32,11 @@ class PHPReflectionParser
             unset($const_groups['user']);
             $const_groups = CommonUtils::flattenArray($const_groups, true);
             foreach ($const_groups as $name => $value) {
-                $constant = (new PHPDefineConstant())->readObjectFromReflection([$name, $value]);
+                if (class_exists('\ReflectionConstant')) {
+                    $constant = (new PHPConstant())->readObjectFromReflection(new \ReflectionConstant($name));
+                } else {
+                    $constant = (new PHPDefineConstant())->readObjectFromReflection([$name, $value]);
+                }
                 $constant->readMutedProblems($jsonData->constants);
                 $stubs->addConstant($constant);
             }
@@ -41,9 +51,15 @@ class PHPReflectionParser
             foreach (get_declared_classes() as $clazz) {
                 $reflectionClass = new ReflectionClass($clazz);
                 if ($reflectionClass->isInternal()) {
-                    $class = (new PHPClass())->readObjectFromReflection($reflectionClass);
-                    $class->readMutedProblems($jsonData->classes);
-                    $stubs->addClass($class);
+                    if (method_exists($reflectionClass, 'isEnum') && $reflectionClass->isEnum()) {
+                        $enum = (new PHPEnum())->readObjectFromReflection(new ReflectionEnum($clazz));
+                        $enum->readMutedProblems($jsonData->enums);
+                        $stubs->addEnum($enum);
+                    } else {
+                        $class = (new PHPClass())->readObjectFromReflection($reflectionClass);
+                        $class->readMutedProblems($jsonData->classes);
+                        $stubs->addClass($class);
+                    }
                 }
             }
 
