@@ -26,20 +26,21 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 class Simulate extends AbstractEndpoint
 {
     /**
-     * Simulates running ingest with example documents.
+     * Simulate data ingestion
      *
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/simulate-ingest-api.html
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-simulate-ingest
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     index: string, //  Default index for docs which don't provide one
-     *     pipeline: string, // The pipeline id to preprocess incoming documents with if no pipeline is given for a particular document
-     *     pretty: boolean, // Pretty format the returned JSON response. (DEFAULT: false)
-     *     human: boolean, // Return human readable values for statistics. (DEFAULT: true)
-     *     error_trace: boolean, // Include the stack trace of returned errors. (DEFAULT: false)
-     *     source: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-     *     filter_path: list, // A comma-separated list of filters used to reduce the response.
-     *     body: array, // (REQUIRED) The simulate definition
+     *     index?: string, // Default index for docs which don't provide one
+     *     pipeline?: string, // The pipeline id to preprocess incoming documents with if no pipeline is given for a particular document
+     *     merge_type?: string, // The mapping merge type if mapping overrides are being provided in mapping_addition.The allowed values are one of index or template.The index option merges mappings the way they would be merged into an existing index.The template option merges mappings the way they would be merged into a template.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The simulate definition. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -48,8 +49,9 @@ class Simulate extends AbstractEndpoint
      *
      * @return Elasticsearch|Promise
      */
-    public function ingest(array $params = [])
+    public function ingest(?array $params = null)
     {
+        $params = $params ?? [];
         $this->checkRequiredParameters(['body'], $params);
         if (isset($params['index'])) {
             $url = '/_ingest/' . $this->encode($params['index']) . '/_simulate';
@@ -58,7 +60,7 @@ class Simulate extends AbstractEndpoint
             $url = '/_ingest/_simulate';
             $method = empty($params['body']) ? 'GET' : 'POST';
         }
-        $url = $this->addQueryString($url, $params, ['pipeline', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['pipeline', 'merge_type', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['index'], $request, 'simulate.ingest');

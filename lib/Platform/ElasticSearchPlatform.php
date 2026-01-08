@@ -9,12 +9,9 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 
-use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientBuilder;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
 use Exception;
 use InvalidArgumentException;
+use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ClientException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
@@ -22,7 +19,15 @@ use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use OCA\FullTextSearch_Elasticsearch\Service\IndexService;
 use OCA\FullTextSearch_Elasticsearch\Service\SearchService;
 use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientBuilder;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Client8;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\ClientBuilder as ClientBuilder8;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException as NoNodeAvailableException8;
 use OCP\AppFramework\Services\IAppConfig;
+use OCP\FullTextSearch\Exceptions\PlatformTemporaryException;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -41,8 +46,9 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 	use TArrayTools;
 
-	private ?Client $client = null;
+	private null|Client|Client8 $client = null;
 	private ?IRunner $runner = null;
+    private bool $downgradingES = false;
 
 	public function __construct(
 		private readonly IAppConfig $appConfig,
@@ -192,9 +198,8 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			);
 
 			return $index;
-		} catch (NoNodeAvailableException $e) {
-			// replace with \OCP\FullTextSearch\Exceptions\PlatformTemporaryException for version 28.
-			throw new \OCA\FullTextSearch\Exceptions\PlatformTemporaryException();
+		} catch (NoNodeAvailableException|NoNodeAvailableException8) {
+			throw new PlatformTemporaryException();
 		} catch (Exception $e) {
 			$this->manageIndexErrorException($document, $e);
 		}
@@ -382,11 +387,16 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	private function connectToElastic(array $hosts): void {
 		$hosts = array_map([$this, 'cleanHost'], $hosts);
-		$cb = ClientBuilder::create()
-			->setHosts($hosts)
-			->setRetries(3);
+        if ($this->downgradingES) {
+            $cb = ClientBuilder8::create();
+        } else {
+            $cb = ClientBuilder::create();
+        }
 
-		if ($this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED)) {
+        $cb->setHosts($hosts)
+            ->setRetries(3);
+
+        if ($this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED)) {
 			$cb->setLogger($this->logger);
 		}
 
@@ -394,12 +404,30 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->configureAuthentication($cb, $hosts);
 
 		$this->client = $cb->build();
+        $this->confirmESVersion();
 	}
+
+    /**
+     * if we cannot connect to ES, we try using old lib
+     */
+    private function confirmESVersion(): void {
+        if ($this->downgradingES === true) {
+            return;
+        }
+
+        try {
+            $this->getClient()->info();
+        } catch (ClientResponseException) {
+            $this->downgradingES = true;
+            $this->loadPlatform();
+        }
+    }
+
 
 	/**
 	 * setBasicAuthentication() on ClientBuilder if available, using list of hosts
 	 */
-	private function configureAuthentication(ClientBuilder $cb, array $hosts): void {
+	private function configureAuthentication(ClientBuilder|ClientBuilder8 $cb, array $hosts): void {
 		foreach ($hosts as $host) {
 			$user = parse_url($host, PHP_URL_USER) ?? '';
 			$pass = parse_url($host, PHP_URL_PASS) ?? '';
@@ -459,10 +487,10 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 
 	/**
-	 * @return Client
+	 * @return Client|Client8
 	 * @throws ClientException
 	 */
-	private function getClient(): Client {
+	private function getClient(): Client|Client8 {
 		if ($this->client === null) {
 			throw new ClientException('platform not loaded');
 		}

@@ -18,6 +18,9 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\InvalidArrayException;
 trait SelectorTrait
 {
+    /**
+     * @var array<Node>
+     */
     protected array $nodes = [];
     public function setNodes(array $nodes) : void
     {

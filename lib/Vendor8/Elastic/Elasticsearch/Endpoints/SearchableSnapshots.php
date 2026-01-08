@@ -1,0 +1,180 @@
+<?php
+
+/**
+ * Elasticsearch PHP Client
+ *
+ * @link      https://github.com/elastic/elasticsearch-php
+ * @copyright Copyright (c) Elasticsearch B.V (https://www.elastic.co)
+ * @license   https://opensource.org/licenses/MIT MIT License
+ *
+ * Licensed to Elasticsearch B.V under one or more agreements.
+ * Elasticsearch B.V licenses this file to you under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+declare (strict_types=1);
+namespace OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Endpoints;
+
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ClientResponseException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\MissingParameterException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ServerResponseException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Response\Elasticsearch;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Transport\Exception\NoNodeAvailableException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Http\Promise\Promise;
+/**
+ * @generated This file is generated, please do not edit
+ */
+class SearchableSnapshots extends AbstractEndpoint
+{
+    /**
+     * Retrieve node-level cache statistics about searchable snapshots.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/searchable-snapshots-apis.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     node_id?: string|array<string>, // A comma-separated list of node IDs or names to limit the returned information; use `_local` to return information from the node you're connecting to, leave empty to get information from all nodes
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function cacheStats(?array $params = null)
+    {
+        $params = $params ?? [];
+        if (isset($params['node_id'])) {
+            $url = '/_searchable_snapshots/' . $this->encode($this->convertValue($params['node_id'])) . '/cache/stats';
+            $method = 'GET';
+        } else {
+            $url = '/_searchable_snapshots/cache/stats';
+            $method = 'GET';
+        }
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['node_id'], $request, 'searchable_snapshots.cache_stats');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Clear the cache of searchable snapshots.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/searchable-snapshots-apis.html
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     index?: string|array<string>, // A comma-separated list of index names
+     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
+     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
+     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function clearCache(?array $params = null)
+    {
+        $params = $params ?? [];
+        if (isset($params['index'])) {
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_searchable_snapshots/cache/clear';
+            $method = 'POST';
+        } else {
+            $url = '/_searchable_snapshots/cache/clear';
+            $method = 'POST';
+        }
+        $url = $this->addQueryString($url, $params, ['ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'searchable_snapshots.clear_cache');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Mount a snapshot as a searchable index.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/searchable-snapshots-api-mount-snapshot.html
+     *
+     * @param array{
+     *     repository: string, // (REQUIRED) The name of the repository containing the snapshot of the index to mount
+     *     snapshot: string, // (REQUIRED) The name of the snapshot of the index to mount
+     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
+     *     wait_for_completion?: bool, // Should this request wait until the operation has completed before returning
+     *     storage?: string, // Selects the kind of local storage used to accelerate searches. Experimental, and defaults to `full_copy`
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The restore configuration for mounting the snapshot as searchable. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function mount(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['repository', 'snapshot', 'body'], $params);
+        $url = '/_snapshot/' . $this->encode($params['repository']) . '/' . $this->encode($params['snapshot']) . '/_mount';
+        $method = 'POST';
+        $url = $this->addQueryString($url, $params, ['master_timeout', 'wait_for_completion', 'storage', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['repository', 'snapshot'], $request, 'searchable_snapshots.mount');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Retrieve shard-level statistics about searchable snapshots.
+     *
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/master/searchable-snapshots-apis.html
+     *
+     * @param array{
+     *     index?: string|array<string>, // A comma-separated list of index names
+     *     level?: string, // Return stats aggregated at cluster, index or shard level
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function stats(?array $params = null)
+    {
+        $params = $params ?? [];
+        if (isset($params['index'])) {
+            $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_searchable_snapshots/stats';
+            $method = 'GET';
+        } else {
+            $url = '/_searchable_snapshots/stats';
+            $method = 'GET';
+        }
+        $url = $this->addQueryString($url, $params, ['level', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['index'], $request, 'searchable_snapshots.stats');
+        return $this->client->sendRequest($request);
+    }
+}

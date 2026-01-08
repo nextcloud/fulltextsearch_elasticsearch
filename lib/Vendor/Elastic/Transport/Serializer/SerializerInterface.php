@@ -18,13 +18,13 @@ interface SerializerInterface
 {
     /**
      * @param mixed $data
-     * @param array $options
+     * @param array<mixed> $options
      * @return string
      */
     public static function serialize($data, array $options = []) : string;
     /**
      * @param string $data
-     * @param array $options
+     * @param array<mixed> $options
      * @return mixed
      */
     public static function unserialize(string $data, array $options = []);

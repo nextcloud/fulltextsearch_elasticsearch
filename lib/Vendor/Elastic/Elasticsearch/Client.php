@@ -23,18 +23,22 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transport\Asyn
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Transport;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 final class Client implements ClientInterface
 {
     const CLIENT_NAME = 'es';
-    const VERSION = '8.17.0';
-    const API_COMPATIBILITY_HEADER = '%s/vnd.elasticsearch+%s; compatible-with=8';
+    const VERSION = '9.2.0';
+    const API_COMPATIBILITY_HEADER = '%s/vnd.elasticsearch+%s; compatible-with=9';
+    const API_VERSION_HEADER = 'elastic-api-version';
+    const API_VERSION = '2023-10-31';
     const SEARCH_ENDPOINTS = ['search', 'async_search.submit', 'msearch', 'eql.search', 'terms_enum', 'search_template', 'msearch_template', 'render_search_template', 'esql.query', 'knnSearch'];
     use ClientEndpointsTrait;
     use EndpointTrait;
     use NamespaceTrait;
     protected Transport $transport;
     protected LoggerInterface $logger;
+    protected bool $serverless = \false;
     /**
      * Specify is the request is asyncronous
      */
@@ -126,6 +130,21 @@ final class Client implements ClientInterface
     /**
      * @inheritdoc
      */
+    public function setServerless(bool $value) : self
+    {
+        $this->serverless = $value;
+        return $this;
+    }
+    /**
+     * @inheritdoc
+     */
+    public function getServerless() : bool
+    {
+        return $this->serverless;
+    }
+    /**
+     * @inheritdoc
+     */
     public function sendRequest(RequestInterface $request)
     {
         // If async returns a Promise
@@ -133,7 +152,7 @@ final class Client implements ClientInterface
             if ($this->getElasticMetaHeader()) {
                 $this->transport->setElasticMetaHeader(Client::CLIENT_NAME, Client::VERSION, \true);
             }
-            $this->transport->setAsyncOnSuccess($request->getMethod() === 'HEAD' ? new AsyncOnSuccessNoException() : ($this->getResponseException() ? new AsyncOnSuccess() : new AsyncOnSuccessNoException()));
+            $this->transport->setAsyncOnSuccess($request->getMethod() === 'HEAD' ? new AsyncOnSuccessNoException($this) : ($this->getResponseException() ? new AsyncOnSuccess($this) : new AsyncOnSuccessNoException($this)));
             return $this->transport->sendAsyncRequest($request);
         }
         if ($this->getElasticMetaHeader()) {
@@ -144,6 +163,7 @@ final class Client implements ClientInterface
         $this->logger->info(\sprintf("Response time in %.3f sec", \microtime(\true) - $start));
         $result = new Elasticsearch();
         $result->setResponse($response, $request->getMethod() === 'HEAD' ? \false : $this->getResponseException());
+        $this->serverless = $result->isServerless();
         return $result;
     }
 }

@@ -68,6 +68,9 @@ class OpenTelemetry
     {
         return $tracerProvider->getTracer(self::OTEL_TRACER_NAME, Transport::VERSION);
     }
+    /**
+     * @param array<mixed> $sanitizeKeys
+     */
     private static function sanitizeBody(string $body, array $sanitizeKeys) : string
     {
         if (empty($body)) {

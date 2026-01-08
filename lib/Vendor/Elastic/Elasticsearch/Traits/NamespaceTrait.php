@@ -38,6 +38,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Ml;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Monitoring;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Nodes;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Profiling;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Project;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\QueryRules;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Rollup;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\SearchApplication;
@@ -49,6 +50,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Slm;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Snapshot;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Sql;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Ssl;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Streams;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Synonyms;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Tasks;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\TextStructure;
@@ -230,6 +232,13 @@ trait NamespaceTrait
         }
         return $this->namespace['Profiling'];
     }
+    public function project() : Project
+    {
+        if (!isset($this->namespace['Project'])) {
+            $this->namespace['Project'] = new Project($this);
+        }
+        return $this->namespace['Project'];
+    }
     public function queryRules() : QueryRules
     {
         if (!isset($this->namespace['QueryRules'])) {
@@ -306,6 +315,13 @@ trait NamespaceTrait
             $this->namespace['Ssl'] = new Ssl($this);
         }
         return $this->namespace['Ssl'];
+    }
+    public function streams() : Streams
+    {
+        if (!isset($this->namespace['Streams'])) {
+            $this->namespace['Streams'] = new Streams($this);
+        }
+        return $this->namespace['Streams'];
     }
     public function synonyms() : Synonyms
     {

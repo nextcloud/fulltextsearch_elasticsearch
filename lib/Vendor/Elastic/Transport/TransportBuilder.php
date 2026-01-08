@@ -14,11 +14,13 @@
 declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport;
 
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Client\Curl;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\NodePoolInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\SimpleNodePool;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Resurrect\NoResurrect;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Selector\RoundRobin;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception\NotFoundException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Psr18ClientDiscovery;
 use OCA\FullTextSearch_Elasticsearch\Vendor\OpenTelemetry\API\Trace\TracerInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
@@ -30,6 +32,9 @@ class TransportBuilder
     protected ClientInterface $client;
     protected NodePoolInterface $nodePool;
     protected LoggerInterface $logger;
+    /**
+     * @var array<string>
+     */
     protected array $hosts = [];
     protected TracerInterface $OTelTracer;
     public final function __construct()
@@ -47,7 +52,11 @@ class TransportBuilder
     public function getClient() : ClientInterface
     {
         if (empty($this->client)) {
-            $this->client = Psr18ClientDiscovery::find();
+            try {
+                $this->client = Psr18ClientDiscovery::find();
+            } catch (NotFoundException $e) {
+                $this->client = new Curl();
+            }
         }
         return $this->client;
     }
@@ -75,11 +84,17 @@ class TransportBuilder
         }
         return $this->logger;
     }
+    /**
+     * @param array<string> $hosts
+     */
     public function setHosts(array $hosts) : self
     {
         $this->hosts = $hosts;
         return $this;
     }
+    /**
+     * @return array<string>
+     */
     public function getHosts() : array
     {
         return $this->hosts;
@@ -95,16 +110,19 @@ class TransportBuilder
     }
     /**
      * Return the URL of Elastic Cloud from the Cloud ID
+     * 
+     * @throws Exception\CloudIdParseException
      */
     private function parseElasticCloudId(string $cloudId) : string
     {
-        try {
-            list($name, $encoded) = \explode(':', $cloudId);
-            list($uri, $uuids) = \explode('$', \base64_decode($encoded));
-            list($es, ) = \explode(':', $uuids);
-            return \sprintf("https://%s.%s", $es, $uri);
-        } catch (Throwable $t) {
-            throw new Exception\CloudIdParseException('Cloud ID not valid');
+        if (\strpos($cloudId, ':') !== \false) {
+            list($name, $encoded) = \explode(':', $cloudId, 2);
+            $base64 = \base64_decode($encoded, \true);
+            if ($base64 !== \false && \strpos($base64, '$') !== \false) {
+                list($uri, $uuids) = \explode('$', $base64);
+                return \sprintf("https://%s.%s", $uuids, $uri);
+            }
         }
+        throw new Exception\CloudIdParseException(\sprintf('Cloud ID %s is not valid', $name ?? ''));
     }
 }

@@ -1,0 +1,58 @@
+{
+  "name": "nextcloud/fulltextsearch_elasticsearch",
+  "description": "fulltextsearch_elasticsearch",
+  "minimum-stability": "stable",
+  "license": "agpl",
+  "config": {
+    "optimize-autoloader": true,
+    "classmap-authoritative": true,
+    "autoloader-suffix": "FullTextSearch_Elasticsearch",
+    "platform": {
+      "php": "8.2"
+    },
+    "sort-packages": true,
+    "allow-plugins": {
+      "php-http/discovery": true,
+      "bamarni/composer-bin-plugin": true
+    }
+  },
+  "authors": [
+    {
+      "name": "Maxence Lange",
+      "email": "maxence@artificial-owl.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "OCA\\FullTextSearch_Elasticsearch\\": "lib/"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@composer bin all install --ignore-platform-reqs",
+      "@php vendor/bin/php-scoper add-prefix --force",
+      "rm -fR lib/Vendor8 && mv build lib/Vendor8",
+      "find lib/Vendor8/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{}",
+      "@php lib-vendor-organizer.php lib/Vendor8/ OCA\\\\FullTextSearch_Elasticsearch\\\\Vendor8",
+      "rm -fR ../lib/Vendor8 && mv lib/Vendor8 ../lib/Vendor8"
+    ],
+    "post-update-cmd": [
+      "@composer bin all install --ignore-platform-reqs",
+      "@php vendor/bin/php-scoper add-prefix --force",
+      "rm -fR lib/Vendor8 && mv build lib/Vendor8",
+      "find lib/Vendor8/ -maxdepth 1 -mindepth 1 -type d | cut -d '/' -f3 | xargs -I {} rm -Rf vendor/{}",
+      "@php lib-vendor-organizer.php lib/Vendor8/ OCA\\\\FullTextSearch_Elasticsearch\\\\Vendor8",
+      "rm -fR ../lib/Vendor8 && mv lib/Vendor8 ../lib/Vendor8"
+    ]
+  },
+  "require": {
+    "bamarni/composer-bin-plugin": "^1.8",
+    "guzzlehttp/guzzle": "^7.0.0",
+    "elasticsearch/elasticsearch": "^8"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "OCP\\": "vendor/nextcloud/ocp/OCP"
+    }
+  }
+}

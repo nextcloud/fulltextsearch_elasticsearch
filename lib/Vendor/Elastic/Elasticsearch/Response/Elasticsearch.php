@@ -16,6 +16,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Response
 
 use ArrayAccess;
 use DateTime;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ArrayAccessException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ServerResponseException;
@@ -41,6 +42,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
     protected array $asArray;
     protected object $asObject;
     protected string $asString;
+    protected bool $serverless = \false;
     /**
      * The PSR-7 response
      */
@@ -56,6 +58,8 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
     public function setResponse(ResponseInterface $response, bool $throwException = \true) : void
     {
         $this->productCheck($response);
+        // Check for Serverless response
+        $this->serverless = $this->isServerlessResponse($response);
         $this->response = $response;
         $status = $response->getStatusCode();
         if ($throwException && $status > 399 && $status < 500) {
@@ -65,6 +69,20 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
             $error = new ServerResponseException(\sprintf("%s %s: %s", $status, $response->getReasonPhrase(), (string) $response->getBody()), $status);
             throw $error->setResponse($response);
         }
+    }
+    /**
+     * Check whether the response is from Serverless
+     */
+    private function isServerlessResponse(ResponseInterface $response) : bool
+    {
+        return !empty($response->getHeader(Client::API_VERSION_HEADER));
+    }
+    /**
+     * Return true if the response is from Serverless
+     */
+    public function isServerless() : bool
+    {
+        return $this->serverless;
     }
     /**
      * Return true if status code is 2xx
@@ -101,7 +119,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
             $this->asArray = CsvSerializer::unserialize($this->asString());
             return $this->asArray;
         }
-        throw new UnknownContentTypeException(\sprintf("Cannot deserialize the reponse as array with Content-Type: %s", $contentType));
+        throw new UnknownContentTypeException(\sprintf("Cannot deserialize the response as array with Content-Type: %s", $contentType));
     }
     /**
      * Converts the body content to object, if possible.
@@ -128,7 +146,7 @@ class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayA
             $this->asObject = XmlSerializer::unserialize($this->asString());
             return $this->asObject;
         }
-        throw new UnknownContentTypeException(\sprintf("Cannot deserialize the reponse as object with Content-Type: %s", $contentType));
+        throw new UnknownContentTypeException(\sprintf("Cannot deserialize the response as object with Content-Type: %s", $contentType));
     }
     /**
      * Converts the body content to string

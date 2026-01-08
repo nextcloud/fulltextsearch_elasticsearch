@@ -24,7 +24,7 @@ class CsvSerializer implements SerializerInterface
 {
     /**
      * @inheritdoc
-     * 
+     *
      * @throws InvalidIterableException
      */
     public static function serialize($data, array $options = []) : string
@@ -44,13 +44,15 @@ class CsvSerializer implements SerializerInterface
         return empty($result) ? $result : substr($result, 0, -1);
     }
     /**
-     * @return array
+     * @inheritdoc
+     * 
+     * @return array<mixed>
      */
     public static function unserialize(string $data, array $options = []) : array
     {
         $result = [];
         foreach (explode("\n", $data) as $row) {
-            $result[] = str_getcsv($row);
+            $result[] = str_getcsv(string: $row, escape: "\\");
         }
         return $result;
     }
