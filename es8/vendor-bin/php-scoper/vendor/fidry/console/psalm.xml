@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<psalm
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="https://getpsalm.org/schema/config"
+        xsi:schemaLocation="https://getpsalm.org/schema/config vendor-bin/psalm/vendor/vimeo/psalm/config.xsd"
+        strictBinaryOperands="true"
+        ignoreInternalFunctionFalseReturn="false"
+        ignoreInternalFunctionNullReturn="false"
+        findUnusedBaselineEntry="true"
+        findUnusedVariablesAndParams="true"
+        findUnusedCode="true"
+        findUnusedPsalmSuppress="true"
+        ensureArrayStringOffsetsExist="true"
+        ensureArrayIntOffsetsExist="true"
+        phpVersion="8.1">
+
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
+    </plugins>
+
+    <projectFiles>
+        <directory name="src"/>
+        <directory name="tests"/>
+
+        <ignoreFiles>
+            <directory name="vendor"/>
+            <directory name="tests/Integration/var"/>
+            <file name="tests/Internal/Type/ConfigurableType.php"/>
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <DuplicateArrayKey>
+            <errorLevel type="suppress">
+                <file name="src/Bridge/Application/SymfonyApplication.php"/>
+            </errorLevel>
+        </DuplicateArrayKey>
+        
+        <DuplicateClass>
+            <errorLevel type="suppress">
+                <file name="tests/IO/DummyLogger.php"/>
+            </errorLevel>
+        </DuplicateClass>
+
+        <InvalidReturnType>
+            <errorLevel type="suppress">
+                <file name="src/Internal/Type/NullOrNonEmptyStringType.php"/>
+            </errorLevel>
+        </InvalidReturnType>
+        
+        <LessSpecificImplementedReturnType>
+            <errorLevel type="suppress">
+                <file name="src/IO.php"/>
+            </errorLevel>
+        </LessSpecificImplementedReturnType>
+
+        <MissingConstructor>
+            <errorLevel type="suppress">
+                <directory name="tests"/>
+            </errorLevel>
+        </MissingConstructor>
+        
+        <MoreSpecificImplementedParamType>
+            <errorLevel type="suppress">
+                <file name="src/IO.php"/>
+            </errorLevel>
+        </MoreSpecificImplementedParamType>
+
+        <PossiblyUnusedMethod errorLevel="suppress"/>
+
+        <PossiblyUnusedProperty>
+            <errorLevel type="suppress">
+                <file name="tests/IO/DummyLogger.php"/>
+            </errorLevel>
+        </PossiblyUnusedProperty>
+
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <file name="tests/Internal/Generator/ClassNameTest.php"/>
+                <referencedClass name="Fidry\Console\Input\IO"/>
+            </errorLevel>
+        </UndefinedClass>
+
+        <UnusedClass errorLevel="suppress"/>
+        <UnusedConstructor errorLevel="suppress"/>
+    </issueHandlers>
+</psalm>

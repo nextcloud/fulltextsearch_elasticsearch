@@ -1,0 +1,13 @@
+/.composer-cache/
+/.idea/
+/.php-cs-fixer.cache
+/.phpunit.result.cache
+/.psalm/
+/composer.lock
+/dist/
+/infection.log
+/lsp/
+/tests/Integration/var/cache/
+/tests/Integration/var/logs/
+/vendor-bin/*/vendor/
+/vendor/
