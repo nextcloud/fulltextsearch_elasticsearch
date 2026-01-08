@@ -5,6 +5,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\Promise;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\Exception;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
+/** @internal */
 final class HttpFulfilledPromise implements Promise
 {
     /**

@@ -18,6 +18,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Traits\Respons
 use Exception;
 /**
  * HTTP client error with 4xx status code
+ * @internal
  */
 class ClientResponseException extends Exception implements ElasticsearchException
 {

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Fidry\Console\Application;
 
-use Fidry\Console\IO;
+use Fidry\Console\Input\IO;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -29,16 +29,18 @@ final class ApplicationRunner
     }
 
     /**
+     * @psalm-suppress PossiblyUnusedReturnValue
+     *
      * Executes the given application command.
      *
-     * @return int 0 if everything went fine, or an exit code
+     * @return int Zero if everything went fine, or an exit code
      *
      * @see ExitCode
      */
     public static function runApplication(
         Application $application,
-        ?InputInterface $input,
-        ?OutputInterface $output
+        ?InputInterface $input = null,
+        ?OutputInterface $output = null
     ): int {
         return (new self($application))->run(
             new IO(

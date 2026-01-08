@@ -14,11 +14,14 @@ declare(strict_types=1);
 
 namespace Humbug\PhpScoper\PhpParser\Node;
 
+use Humbug\PhpScoper\NotInstantiable;
 use InvalidArgumentException;
 use PhpParser\Node\Name;
 
 final class NameFactory
 {
+    use NotInstantiable;
+
     /**
      * @param string|string[]|Name|null $name1
      * @param string|string[]|Name|null $name2
@@ -29,13 +32,6 @@ final class NameFactory
             throw new InvalidArgumentException('Expected one of the names to not be null');
         }
 
-        /** @var Name $fqName */
-        $fqName = Name::concat($name1, $name2, $attributes);
-
-        return $fqName;
-    }
-
-    private function __construct()
-    {
+        return Name::concat($name1, $name2, $attributes);
     }
 }

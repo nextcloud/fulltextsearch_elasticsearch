@@ -119,7 +119,7 @@ class EmptyIterator implements Iterator
     /**
      * Return the key of the current element
      * @link https://php.net/manual/en/iterator.key.php
-     * @return string|float|int|bool|null scalar on success, or null on failure.
+     * @return mixed The key of the current element.
      */
     #[TentativeType]
     public function key(): never {}
@@ -131,7 +131,8 @@ class EmptyIterator implements Iterator
      * Returns true on success or false on failure.
      */
     #[TentativeType]
-    public function valid(): bool {}
+    #[LanguageLevelTypeAware(['8.2' => 'false'], default: 'bool')]
+    public function valid() {}
 
     /**
      * Rewind the Iterator to the first element
@@ -290,7 +291,7 @@ class RecursiveIteratorIterator implements OuterIterator
     /**
      * Access the current key
      * @link https://php.net/manual/en/recursiveiteratoriterator.key.php
-     * @return string|float|int|bool|null The current key.
+     * @return mixed The key of the current element.
      */
     #[TentativeType]
     public function key(): mixed {}
@@ -475,7 +476,7 @@ class IteratorIterator implements OuterIterator
     /**
      * Get the key of the current element
      * @link https://php.net/manual/en/iteratoriterator.key.php
-     * @return string|float|int|bool|null The key of the current element.
+     * @return mixed The key of the current element.
      */
     #[TentativeType]
     public function key(): mixed {}
@@ -533,21 +534,21 @@ abstract class FilterIterator extends IteratorIterator
      * @link https://php.net/manual/en/filteriterator.valid.php
      * @return bool true if the current element is valid, otherwise false
      */
-    public function valid() {}
+    public function valid(): bool {}
 
     /**
      * Get the current key
      * @link https://php.net/manual/en/filteriterator.key.php
-     * @return string|float|int|bool|null The current key.
+     * @return mixed The key of the current element.
      */
-    public function key() {}
+    public function key(): mixed {}
 
     /**
      * Get the current element value
      * @link https://php.net/manual/en/filteriterator.current.php
      * @return mixed The current element value.
      */
-    public function current() {}
+    public function current(): mixed {}
 
     /**
      * Move the iterator forward
@@ -562,7 +563,7 @@ abstract class FilterIterator extends IteratorIterator
      * @link https://php.net/manual/en/filteriterator.getinneriterator.php
      * @return Iterator The inner iterator.
      */
-    public function getInnerIterator() {}
+    public function getInnerIterator(): Iterator {}
 }
 
 /**
@@ -690,16 +691,16 @@ class LimitIterator extends IteratorIterator
     /**
      * Get current key
      * @link https://php.net/manual/en/limititerator.key.php
-     * @return string|float|int|bool|null the key for the current item.
+     * @return mixed The key of the current element.
      */
-    public function key() {}
+    public function key(): mixed {}
 
     /**
      * Get current element
      * @link https://php.net/manual/en/limititerator.current.php
      * @return mixed the current element or null if there is none.
      */
-    public function current() {}
+    public function current(): mixed {}
 
     /**
      * Move the iterator forward
@@ -733,7 +734,7 @@ class LimitIterator extends IteratorIterator
      * @link https://php.net/manual/en/limititerator.getinneriterator.php
      * @return Iterator The inner iterator passed to <b>LimitIterator::__construct</b>.
      */
-    public function getInnerIterator() {}
+    public function getInnerIterator(): Iterator {}
 }
 
 /**
@@ -802,16 +803,16 @@ class CachingIterator extends IteratorIterator implements ArrayAccess, Countable
     /**
      * Return the key for the current element
      * @link https://php.net/manual/en/cachingiterator.key.php
-     * @return string|float|int|bool|null
+     * @return mixed The key of the current element.
      */
-    public function key() {}
+    public function key(): mixed {}
 
     /**
      * Return the current element
      * @link https://php.net/manual/en/cachingiterator.current.php
      * @return mixed
      */
-    public function current() {}
+    public function current(): mixed {}
 
     /**
      * Move the iterator forward
@@ -842,7 +843,7 @@ class CachingIterator extends IteratorIterator implements ArrayAccess, Countable
      * @link https://php.net/manual/en/cachingiterator.getinneriterator.php
      * @return Iterator an object implementing the Iterator interface.
      */
-    public function getInnerIterator() {}
+    public function getInnerIterator(): Iterator {}
 
     /**
      * Get flags used
@@ -985,7 +986,7 @@ class NoRewindIterator extends IteratorIterator
     /**
      * Get the current key
      * @link https://php.net/manual/en/norewinditerator.key.php
-     * @return string|float|int|bool|null The current key.
+     * @return mixed The key of the current element.
      */
     #[TentativeType]
     public function key(): mixed {}
@@ -1011,7 +1012,7 @@ class NoRewindIterator extends IteratorIterator
      * @link https://php.net/manual/en/norewinditerator.getinneriterator.php
      * @return Iterator The inner iterator, as passed to <b>NoRewindIterator::__construct</b>.
      */
-    public function getInnerIterator() {}
+    public function getInnerIterator(): Iterator {}
 }
 
 /**
@@ -1056,9 +1057,9 @@ class AppendIterator extends IteratorIterator
     /**
      * Gets the current key
      * @link https://php.net/manual/en/appenditerator.key.php
-     * @return string|float|int|bool|null The current key if it is valid or null otherwise.
+     * @return mixed The key of the current element.
      */
-    public function key() {}
+    public function key(): mixed {}
 
     /**
      * Gets the current value
@@ -1081,7 +1082,7 @@ class AppendIterator extends IteratorIterator
      * @link https://php.net/manual/en/appenditerator.getinneriterator.php
      * @return Iterator the current inner Iterator.
      */
-    public function getInnerIterator() {}
+    public function getInnerIterator(): Iterator {}
 
     /**
      * Gets an index of iterators
@@ -1159,7 +1160,6 @@ class RegexIterator extends FilterIterator
      * Special flag: Match the entry key instead of the entry value.
      */
     public const USE_KEY = 1;
-
     public const INVERT_MATCH = 2;
 
     #[LanguageLevelTypeAware(['8.1' => 'string|null'], default: '')]
@@ -1366,7 +1366,6 @@ class RecursiveTreeIterator extends RecursiveIteratorIterator
 {
     public const BYPASS_CURRENT = 4;
     public const BYPASS_KEY = 8;
-
     public const PREFIX_LEFT = 0;
     public const PREFIX_MID_HAS_NEXT = 1;
     public const PREFIX_MID_LAST = 2;
@@ -1394,14 +1393,14 @@ class RecursiveTreeIterator extends RecursiveIteratorIterator
      * @link https://php.net/manual/en/recursivetreeiterator.rewind.php
      * @return void
      */
-    public function rewind() {}
+    public function rewind(): void {}
 
     /**
      * Check validity
      * @link https://php.net/manual/en/recursivetreeiterator.valid.php
      * @return bool true if the current position is valid, otherwise false
      */
-    public function valid() {}
+    public function valid(): bool {}
 
     /**
      * Get the key of the current element
@@ -1424,7 +1423,7 @@ class RecursiveTreeIterator extends RecursiveIteratorIterator
      * @link https://php.net/manual/en/recursivetreeiterator.next.php
      * @return void
      */
-    public function next() {}
+    public function next(): void {}
 
     /**
      * Begin iteration
@@ -1548,8 +1547,8 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
      */
     public function __construct(
         #[LanguageLevelTypeAware(['8.0' => 'object|array'], default: '')] $array = [],
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = 0,
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $iteratorClass = "ArrayIterator"
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = 0,
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $iteratorClass = "ArrayIterator"
     ) {}
 
     /**
@@ -1752,7 +1751,7 @@ class ArrayObject implements IteratorAggregate, ArrayAccess, Serializable, Count
      * @param string $data <p>
      * The serialized <b>ArrayObject</b>.
      * </p>
-     * @return void The unserialized <b>ArrayObject</b>.
+     * @return void
      */
     #[TentativeType]
     public function unserialize(#[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $data): void {}
@@ -1844,8 +1843,8 @@ class ArrayIterator implements SeekableIterator, ArrayAccess, Serializable, Coun
      */
     public function __construct(
         #[LanguageLevelTypeAware(['8.0' => 'object|array'], default: '')] $array = [],
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = 0,
-        #[PhpStormStubsElementAvailable(from: '5.3', to: '7.1')] $iterator_class = null
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = 0,
+        #[PhpStormStubsElementAvailable(from: '7.0', to: '7.1')] $iterator_class = null
     ) {}
 
     /**
@@ -1921,7 +1920,7 @@ class ArrayIterator implements SeekableIterator, ArrayAccess, Serializable, Coun
     /**
      * Count elements
      * @link https://php.net/manual/en/arrayiterator.count.php
-     * @return int The number of elements or public properties in the associated
+     * @return int<0,max> The number of elements or public properties in the associated
      * array or object, respectively.
      */
     #[TentativeType]
@@ -2011,7 +2010,7 @@ class ArrayIterator implements SeekableIterator, ArrayAccess, Serializable, Coun
      * @param string $data <p>
      * The serialized ArrayIterator object to be unserialized.
      * </p>
-     * @return string The <b>ArrayIterator</b>.
+     * @return void
      */
     #[TentativeType]
     public function unserialize(#[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $data): void {}
@@ -2043,7 +2042,7 @@ class ArrayIterator implements SeekableIterator, ArrayAccess, Serializable, Coun
     /**
      * Return current array key
      * @link https://php.net/manual/en/arrayiterator.key.php
-     * @return string|int|null The current array key.
+     * @return string|int|null The key of the current element.
      */
     #[TentativeType]
     public function key(): string|int|null {}

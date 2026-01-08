@@ -47,6 +47,7 @@ use function sprintf;
 use function strpos;
 use function str_replace;
 use function strtolower;
+/** @internal */
 final class Transport implements ClientInterface, HttpAsyncClient
 {
     const VERSION = "9.0.1";

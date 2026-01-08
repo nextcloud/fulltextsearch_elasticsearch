@@ -11,6 +11,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise;
  * the reason why the promise cannot be fulfilled.
  *
  * @see https://promisesaplus.com/
+ * @internal
  */
 interface PromiseInterface
 {

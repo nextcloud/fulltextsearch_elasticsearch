@@ -2,6 +2,7 @@
 
 // Start of mbstring v.
 
+use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
@@ -169,6 +170,7 @@ function mb_http_output(?string $encoding): string|bool {}
  * When getting the encoding detection order, an ordered array
  * of the encodings is returned.
  */
+#[LanguageLevelTypeAware(['8.2' => 'array|true'], default: 'array|bool')]
 function mb_detect_order(array|string|null $encoding = null): array|bool {}
 
 /**
@@ -267,11 +269,11 @@ function mb_strlen(string $string, #[LanguageLevelTypeAware(['8.0' => 'string|nu
  * @param string $needle <p>
  * The position counted from the beginning of haystack.
  * </p>
- * @param int $offset [optional] <p>
+ * @param int<0,max> $offset [optional] <p>
  * The search offset. If it is not specified, 0 is used.
  * </p>
  * @param string|null $encoding [optional]
- * @return int|false the numeric position of
+ * @return int<0,max>|false the numeric position of
  * the first occurrence of needle in the
  * haystack string. If
  * needle is not found, it returns false.
@@ -548,7 +550,7 @@ function mb_strwidth(string $string, ?string $encoding): int {}
  * @param int $width <p>
  * The width of the desired trim.
  * </p>
- * @param string $trim_marker [optional] <p>
+ * @param string $trim_marker <p>
  * A string that is added to the end of string
  * when string is truncated.
  * </p>
@@ -557,7 +559,7 @@ function mb_strwidth(string $string, ?string $encoding): int {}
  * trimmarker is appended to the return value.
  */
 #[Pure]
-function mb_strimwidth(string $string, int $start, int $width, string $trim_marker, ?string $encoding): string {}
+function mb_strimwidth(string $string, int $start, int $width, string $trim_marker = '', ?string $encoding): string {}
 
 /**
  * Convert character encoding
@@ -770,14 +772,14 @@ function mb_convert_kana(string $string, string $mode = 'KV', ?string $encoding)
  * lines. The length is currently hard-coded to 74 characters).
  * Falls back to "\r\n" (CRLF) if not given.
  * </p>
- * @param int $indent [optional] <p>
+ * @param int $indent <p>
  * Indentation of the first line (number of characters in the header
  * before str).
  * </p>
  * @return string A converted version of the string represented in ASCII.
  */
 #[Pure]
-function mb_encode_mimeheader(string $string, ?string $charset, ?string $transfer_encoding, string $newline = "\n", int $indent): string {}
+function mb_encode_mimeheader(string $string, ?string $charset, ?string $transfer_encoding, string $newline = "\n", int $indent = 0): string {}
 
 /**
  * Decode string in MIME header field
@@ -872,7 +874,7 @@ function mb_decode_numericentity(string $string, array $map, ?string $encoding =
  * @param string $message <p>
  * The message of the mail.
  * </p>
- * @param string|array $additional_headers [optional] <p>
+ * @param string|array $additional_headers <p>
  * String or array to be inserted at the end of the email header. <br/>
  * Since 7.2.0 accepts an array. Its keys are the header names and its values are the respective header values.<br/>
  * This is typically used to add extra
@@ -886,7 +888,7 @@ function mb_decode_numericentity(string $string, array $map, ?string $encoding =
  * </p>
  * @return bool true on success or false on failure.
  */
-function mb_send_mail(string $to, string $subject, string $message, array|string $additional_headers, ?string $additional_params): bool {}
+function mb_send_mail(string $to, string $subject, string $message, array|string $additional_headers = [], ?string $additional_params): bool {}
 
 /**
  * Get internal settings of mbstring
@@ -906,6 +908,21 @@ function mb_send_mail(string $to, string $subject, string $message, array|string
  * is not specified, otherwise a specific type.
  */
 #[Pure]
+#[ArrayShape([
+    'internal_encoding' => 'string',
+    'http_input' => 'string',
+    'http_output' => 'string',
+    'http_output_conv_mimetypes' => 'string',
+    'mail_charset' => 'string',
+    'mail_header_encoding' => 'string',
+    'mail_body_encoding' => 'string',
+    'illegal_chars' => 'string',
+    'encoding_translation' => 'string',
+    'language' => 'string',
+    'detect_order' => 'string',
+    'substitute_character' => 'string',
+    'strict_detection' => 'string',
+])]
 function mb_get_info(string $type = 'all'): array|string|int|false {}
 
 /**
@@ -994,7 +1011,7 @@ function mb_eregi(string $pattern, string $string, &$matches): bool {}
  * @param string $string <p>
  * The string being checked.
  * </p>
- * @param string|null $options [optional] Matching condition can be set by option
+ * @param string|null $options Matching condition can be set by option
  * parameter. If i is specified for this
  * parameter, the case will be ignored. If x is
  * specified, white space will be ignored. If m
@@ -1008,7 +1025,7 @@ function mb_eregi(string $pattern, string $string, &$matches): bool {}
  * @return string|false|null The resultant string on success, or false on error.
  */
 #[Pure]
-function mb_ereg_replace(string $pattern, string $replacement, string $string, ?string $options = "msr"): string|false|null {}
+function mb_ereg_replace(string $pattern, string $replacement, string $string, ?string $options = null): string|false|null {}
 
 /**
  * Perform a regular expresssion seach and replace with multibyte support using a callback
@@ -1037,7 +1054,7 @@ function mb_ereg_replace(string $pattern, string $replacement, string $string, ?
  * @param string $string <p>
  * The string being checked.
  * </p>
- * @param string $options [optional <p>
+ * @param string $options <p>
  * Matching condition can be set by <em><b>option</b></em>
  * parameter. If <em>i</em> is specified for this
  * parameter, the case will be ignored. If <em>x</em> is
@@ -1053,7 +1070,7 @@ function mb_ereg_replace(string $pattern, string $replacement, string $string, ?
  * </p>
  * @since 5.4.1
  */
-function mb_ereg_replace_callback(string $pattern, callable $callback, string $string, ?string $options = "msr"): string|false|null {}
+function mb_ereg_replace_callback(string $pattern, callable $callback, string $string, ?string $options = null): string|false|null {}
 
 /**
  * Replace regular expression with multibyte support ignoring case
@@ -1067,13 +1084,18 @@ function mb_ereg_replace_callback(string $pattern, callable $callback, string $s
  * @param string $string <p>
  * The searched string.
  * </p>
- * @param string|null $options [optional] option has the same meaning as in
+ * @param string|null $options option has the same meaning as in
  * mb_ereg_replace.
  * <p>PHP 7.1: The <i>e</i> modifier has been deprecated.</p>
  * @return string|false|null The resultant string or false on error.
  */
 #[Pure]
-function mb_eregi_replace(string $pattern, string $replacement, string $string, ?string $options = "msr"): string|false|null {}
+function mb_eregi_replace(
+    string $pattern,
+    string $replacement,
+    string $string,
+    #[PhpStormStubsElementAvailable(from: '7.0')] ?string $options = null
+): string|false|null {}
 
 /**
  * Split multibyte string using regular expression
@@ -1255,7 +1277,12 @@ function mbereg_replace($pattern, $replacement, $string, $option) {}
  * @removed 8.0
  */
 #[Deprecated(replacement: "mb_eregi_replace(%parametersList%)", since: "7.3")]
-function mberegi_replace($pattern, $replacement, $string, string $option = "msri"): string {}
+function mberegi_replace(
+    $pattern,
+    $replacement,
+    $string,
+    #[PhpStormStubsElementAvailable(from: '7.0')] string $option = "msri"
+): string {}
 
 /**
  * @param $pattern
@@ -1428,6 +1455,6 @@ define('MB_CASE_FOLD_SIMPLE', 7);
 /**
  * @since 7.4
  */
-define('MB_ONIGURUMA_VERSION', '6.9.7');
+define('MB_ONIGURUMA_VERSION', '6.9.8');
 
 // End of mbstring v.

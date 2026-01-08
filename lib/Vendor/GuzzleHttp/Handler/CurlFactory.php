@@ -16,6 +16,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
  * Creates curl resources from a request
  *
  * @final
+ * @internal
  */
 class CurlFactory implements CurlFactoryInterface
 {

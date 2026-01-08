@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
  * Provides basic proxies for handlers.
  *
  * @final
+ * @internal
  */
 class Proxy
 {

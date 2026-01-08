@@ -3,6 +3,7 @@
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Handler;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
+/** @internal */
 interface CurlFactoryInterface
 {
     /**

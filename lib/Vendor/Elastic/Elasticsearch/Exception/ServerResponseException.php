@@ -18,6 +18,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Traits\Respons
 use Exception;
 /**
  * HTTP server error with 5xx status code
+ * @internal
  */
 class ServerResponseException extends Exception implements ElasticsearchException
 {

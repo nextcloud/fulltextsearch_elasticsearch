@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace Humbug\PhpScoper\PhpParser\NodeVisitor;
 
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
 use Humbug\PhpScoper\PhpParser\StringNodePrefixer;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Eval_;
@@ -22,11 +23,8 @@ use PhpParser\NodeVisitorAbstract;
 
 final class EvalPrefixer extends NodeVisitorAbstract
 {
-    private StringNodePrefixer $stringPrefixer;
-
-    public function __construct(StringNodePrefixer $stringPrefixer)
+    public function __construct(private readonly StringNodePrefixer $stringPrefixer)
     {
-        $this->stringPrefixer = $stringPrefixer;
     }
 
     public function enterNode(Node $node): Node

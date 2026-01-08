@@ -14,6 +14,7 @@
 declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Serializer;
 
+/** @internal */
 interface SerializerInterface
 {
     /**

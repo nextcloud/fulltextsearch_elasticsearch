@@ -25,15 +25,28 @@
         },
         "CastInt": {
             "ignore": [
-                "Fidry\\Console\\Command\\ConsoleAssert::castThrowException"
+                "Fidry\\Console\\InputAssert::castThrowException"
+            ]
+        },
+        "LessThan": {
+            "ignoreSourceCodeByRegex": [
+                ".*\\$min < \\$max.*"
+            ]
+        },
+        "LogicalOr": {
+            "ignore": [
+                "Fidry\\Console\\Internal\\Generator\\GetterGenerator::isPsalmTypeRedundant"
             ]
         },
         "MethodCallRemoval": {
             "ignore": [
                 "Fidry\\Console\\Command\\SymfonyCommand::setApplication",
-                "Fidry\\Console\\IO::__construct"
+                "Fidry\\Console\\Input\\IO::__construct",
+                "Fidry\\Console\\Internal\\Type\\NaturalType::coerceValue",
+                "Fidry\\Console\\Internal\\Type\\PositiveIntegerType::coerceValue"
             ]
         },
+        "PublicVisibility": false,
         "UnwrapStrReplace": {
             "ignore": [
                 "Fidry\\Console\\DisplayNormalizer::removeTrailingSpaces"

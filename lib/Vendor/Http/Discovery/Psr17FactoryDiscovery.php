@@ -14,6 +14,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriFactoryInterface
  * Finds PSR-17 factories.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @internal
  */
 final class Psr17FactoryDiscovery extends ClassDiscovery
 {

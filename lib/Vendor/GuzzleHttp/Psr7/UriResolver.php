@@ -10,6 +10,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
  * @author Tobias Schultze
  *
  * @see https://datatracker.ietf.org/doc/html/rfc3986#section-5
+ * @internal
  */
 final class UriResolver
 {

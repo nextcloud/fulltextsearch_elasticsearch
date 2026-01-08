@@ -6,6 +6,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise;
  * A rejected promise.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ * @internal
  */
 final class RejectedPromise implements Promise
 {

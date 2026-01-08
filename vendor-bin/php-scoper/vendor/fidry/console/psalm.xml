@@ -10,7 +10,8 @@
         findUnusedCode="true"
         findUnusedPsalmSuppress="true"
         ensureArrayStringOffsetsExist="true"
-        ensureArrayIntOffsetsExist="true">
+        ensureArrayIntOffsetsExist="true"
+        phpVersion="8.1">
 
     <plugins>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin" />
@@ -23,6 +24,8 @@
 
         <ignoreFiles>
             <directory name="vendor"/>
+            <directory name="tests/Integration/var"/>
+            <file name="tests/Internal/Type/ConfigurableType.php"/>
         </ignoreFiles>
     </projectFiles>
 
@@ -32,12 +35,22 @@
                 <file name="src/Application/SymfonyApplication.php"/>
             </errorLevel>
         </DuplicateArrayKey>
+        <InvalidReturnType>
+            <errorLevel type="suppress">
+                <file name="src/Internal/Type/NullOrNonEmptyStringType.php"/>
+            </errorLevel>
+        </InvalidReturnType>
         <MissingConstructor>
             <errorLevel type="suppress">
                 <directory name="tests"/>
             </errorLevel>
         </MissingConstructor>
         <PossiblyUnusedMethod errorLevel="suppress"/>
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <file name="tests/Internal/Generator/ClassNameTest.php"/>
+            </errorLevel>
+        </UndefinedClass>
         <UnusedClass errorLevel="suppress"/>
         <UnusedConstructor errorLevel="suppress"/>
     </issueHandlers>

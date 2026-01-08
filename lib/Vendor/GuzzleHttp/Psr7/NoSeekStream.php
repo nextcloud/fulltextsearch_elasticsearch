@@ -6,6 +6,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * Stream decorator that prevents a stream from being seeked.
+ * @internal
  */
 final class NoSeekStream implements StreamInterface
 {

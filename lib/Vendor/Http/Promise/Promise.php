@@ -12,6 +12,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise;
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @internal
  */
 interface Promise
 {

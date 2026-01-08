@@ -30,28 +30,18 @@ use PhpParser\Parser;
  */
 class ScoperFactory
 {
-    private Parser $parser;
-    private EnrichedReflectorFactory $enrichedReflectorFactory;
-    private Printer $printer;
-    private Lexer $lexer;
-
     public function __construct(
-        Parser $parser,
-        EnrichedReflectorFactory $enrichedReflectorFactory,
-        Printer $printer,
-        Lexer $lexer
+        private readonly Parser $parser,
+        private readonly EnrichedReflectorFactory $enrichedReflectorFactory,
+        private readonly Printer $printer,
+        private readonly Lexer $lexer,
     ) {
-        $this->parser = $parser;
-        $this->enrichedReflectorFactory = $enrichedReflectorFactory;
-        $this->printer = $printer;
-        $this->lexer = $lexer;
     }
 
     public function createScoper(
         Configuration $configuration,
         SymbolsRegistry $symbolsRegistry
-    ): Scoper
-    {
+    ): Scoper {
         $prefix = $configuration->getPrefix();
         $symbolsConfiguration = $configuration->getSymbolsConfiguration();
         $enrichedReflector = $this->enrichedReflectorFactory->create($symbolsConfiguration);
@@ -72,14 +62,15 @@ class ScoperFactory
                             $enrichedReflector,
                             $symbolsRegistry,
                         ),
-                        $autoloadPrefixer
+                        $autoloadPrefixer,
                     ),
-                    $autoloadPrefixer
+                    $autoloadPrefixer,
                 ),
                 new TraverserFactory(
                     $enrichedReflector,
                     $prefix,
                     $symbolsRegistry,
+                    $configuration->shouldTagDeclarationsAsInternal(),
                 ),
                 $this->printer,
                 $this->lexer,

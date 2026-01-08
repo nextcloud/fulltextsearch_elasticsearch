@@ -5,6 +5,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise;
 
 /**
  * Interface used with classes that return a promise.
+ * @internal
  */
 interface PromisorInterface
 {

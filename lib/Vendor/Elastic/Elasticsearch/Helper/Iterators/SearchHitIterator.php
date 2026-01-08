@@ -18,6 +18,7 @@ use Countable;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ServerResponseException;
 use Iterator;
+/** @internal */
 class SearchHitIterator implements Iterator, Countable
 {
     /**

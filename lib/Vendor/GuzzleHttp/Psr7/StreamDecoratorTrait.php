@@ -8,6 +8,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
  * Stream decorator trait
  *
  * @property StreamInterface $stream
+ * @internal
  */
 trait StreamDecoratorTrait
 {

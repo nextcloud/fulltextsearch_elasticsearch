@@ -25,6 +25,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
+/** @internal */
 final class Client implements ClientInterface
 {
     const CLIENT_NAME = 'es';

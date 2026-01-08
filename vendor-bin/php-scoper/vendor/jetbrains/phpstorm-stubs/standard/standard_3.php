@@ -3,6 +3,7 @@
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\ReturnTypeContract as TypeContract;
 use JetBrains\PhpStorm\Pure;
 
@@ -13,7 +14,7 @@ use JetBrains\PhpStorm\Pure;
  * page. The value returned is a Unix timestamp, suitable for
  * feeding to date. Returns false on error.
  */
-#[Pure]
+#[Pure(true)]
 function getlastmod(): int|false {}
 
 /**
@@ -748,7 +749,7 @@ function long2ip(int $ip): string|false {}
 /**
  * Gets the value of an environment variable
  * @link https://php.net/manual/en/function.getenv.php
- * @param string|null $name [optional] <p>
+ * @param string|null $name <p>
  * The variable name.
  * </p>
  * @param bool $local_only [optional] <p>
@@ -758,8 +759,12 @@ function long2ip(int $ip): string|false {}
  * varname or an associative array with all environment variables if no variable name
  * is provided, or false on an error.
  */
-#[Pure]
-function getenv(?string $name, bool $local_only = false): array|string|false {}
+#[Pure(true)]
+function getenv(
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] $varname,
+    #[PhpStormStubsElementAvailable(from: '7.1')] ?string $name = null,
+    #[PhpStormStubsElementAvailable(from: '5.6')] bool $local_only = false
+): array|string|false {}
 
 /**
  * Sets the value of an environment variable
@@ -780,7 +785,7 @@ function putenv(string $assignment): bool {}
  * For example, an option string "x" recognizes an
  * option -x.
  * Only a-z, A-Z and 0-9 are allowed.
- * @param array $long_options [optional] An array of options. Each element in this array will be used as option
+ * @param array $long_options An array of options. Each element in this array will be used as option
  * strings and matched against options passed to the script starting with
  * two hyphens (--).
  * For example, an longopts element "opt" recognizes an
@@ -790,7 +795,11 @@ function putenv(string $assignment): bool {}
  * @return string[]|false[]|false This function will return an array of option / argument pairs or false on
  * failure.
  */
-function getopt(string $short_options, array $long_options, &$rest_index): array|false {}
+function getopt(
+    string $short_options,
+    array $long_options = [],
+    #[PhpStormStubsElementAvailable(from: '7.1')] &$rest_index
+): array|false {}
 
 /**
  * Gets system load average
@@ -799,7 +808,7 @@ function getopt(string $short_options, array $long_options, &$rest_index): array
  * minutes).
  * @since 5.1.3
  */
-#[Pure]
+#[Pure(true)]
 function sys_getloadavg(): array|false {}
 
 /**
@@ -837,22 +846,22 @@ function microtime(#[TypeContract(true: "float", false: "string")] bool $as_floa
  * "minuteswest" - minutes west of Greenwich
  * "dsttime" - type of dst correction
  */
-#[Pure]
+#[Pure(true)]
 #[ArrayShape(["sec" => "int", "usec" => "int", "minuteswest" => "int", "dsttime" => "int"])]
 function gettimeofday(#[TypeContract(true: "float", false: "int[]")] bool $as_float = false): array|float {}
 
 /**
  * Gets the current resource usages
  * @link https://php.net/manual/en/function.getrusage.php
- * @param int $mode [optional] <p>
+ * @param int $mode <p>
  * If who is 1, getrusage will be called with
  * RUSAGE_CHILDREN.
  * </p>
  * @return array|false an associative array containing the data returned from the system
  * call. All entries are accessible by using their documented field names.
  */
-#[Pure]
-function getrusage(int $mode): array|false {}
+#[Pure(true)]
+function getrusage(int $mode = 0): array|false {}
 
 /**
  * Generate a unique ID
@@ -874,7 +883,6 @@ function getrusage(int $mode): array|false {}
  * </p>
  * @return string the unique identifier, as a string.
  */
-#[Pure]
 function uniqid(string $prefix = "", bool $more_entropy = false): string {}
 
 /**
@@ -926,7 +934,7 @@ function convert_cyr_string(string $str, string $from, string $to): string {}
  * @link https://php.net/manual/en/function.get-current-user.php
  * @return string the username as a string.
  */
-#[Pure]
+#[Pure(true)]
 function get_current_user(): string {}
 
 /**
@@ -1033,7 +1041,7 @@ function import_request_variables(string $types, $prefix = null): bool {}
  * @param string $message <p>
  * The error message that should be logged.
  * </p>
- * @param int $message_type [optional] <p>
+ * @param int $message_type <p>
  * Says where the error should go. The possible message types are as
  * follows:
  * </p>
@@ -1093,4 +1101,4 @@ function import_request_variables(string $types, $prefix = null): bool {}
  * </p>
  * @return bool true on success or false on failure.
  */
-function error_log(string $message, int $message_type, ?string $destination, ?string $additional_headers): bool {}
+function error_log(string $message, int $message_type = 0, ?string $destination, ?string $additional_headers): bool {}

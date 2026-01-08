@@ -8,6 +8,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
  * Sends a PSR-7 Request in an asynchronous way by returning a Promise.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ * @internal
  */
 interface HttpAsyncClient
 {

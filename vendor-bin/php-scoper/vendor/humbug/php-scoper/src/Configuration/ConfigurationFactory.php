@@ -17,6 +17,7 @@ namespace Humbug\PhpScoper\Configuration;
 use Humbug\PhpScoper\Patcher\ComposerPatcher;
 use Humbug\PhpScoper\Patcher\Patcher;
 use Humbug\PhpScoper\Patcher\PatcherChain;
+use Humbug\PhpScoper\Patcher\SymfonyParentTraitPatcher;
 use Humbug\PhpScoper\Patcher\SymfonyPatcher;
 use InvalidArgumentException;
 use RuntimeException;
@@ -27,10 +28,8 @@ use function array_filter;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
-use function array_merge;
 use function array_unique;
 use function array_unshift;
-use function array_values;
 use function bin2hex;
 use function dirname;
 use function file_exists;
@@ -48,24 +47,18 @@ use function random_bytes;
 use function readlink as native_readlink;
 use function realpath;
 use function Safe\file_get_contents;
-use function Safe\sprintf;
+use function sprintf;
 use function trim;
 use const DIRECTORY_SEPARATOR;
-use const SORT_STRING;
 
 final class ConfigurationFactory
 {
     public const DEFAULT_FILE_NAME = 'scoper.inc.php';
 
-    private Filesystem $fileSystem;
-    private SymbolsConfigurationFactory $configurationWhitelistFactory;
-
     public function __construct(
-        Filesystem $fileSystem,
-        SymbolsConfigurationFactory $configurationWhitelistFactory
+        private readonly Filesystem $fileSystem,
+        private readonly SymbolsConfigurationFactory $symbolsConfigurationFactory,
     ) {
-        $this->fileSystem = $fileSystem;
-        $this->configurationWhitelistFactory = $configurationWhitelistFactory;
     }
 
     /**
@@ -83,6 +76,7 @@ final class ConfigurationFactory
         self::validateConfigKeys($config);
 
         $prefix = self::retrievePrefix($config);
+        $outputDir = self::retrieveOutputDir($config);
 
         $excludedFiles = null === $path
             ? []
@@ -94,21 +88,25 @@ final class ConfigurationFactory
         $patchers = self::retrievePatchers($config);
 
         array_unshift($patchers, new SymfonyPatcher());
+        array_unshift($patchers, new SymfonyParentTraitPatcher());
         array_unshift($patchers, new ComposerPatcher());
 
-        $symbolsConfiguration = $this->configurationWhitelistFactory->createSymbolsConfiguration($config);
+        $symbolsConfiguration = $this->symbolsConfigurationFactory->createSymbolsConfiguration($config);
 
         $finders = self::retrieveFinders($config);
         $filesFromPaths = self::retrieveFilesFromPaths($paths);
         $filesWithContents = self::retrieveFilesWithContents(chain($filesFromPaths, ...$finders));
+        $tagDeclarationsAsInternal = $config[ConfigurationKeys::TAG_DECLARATIONS_AS_INTERNAL] ?? true;
 
         return new Configuration(
             $path,
+            $outputDir,
             $prefix,
             $filesWithContents,
             self::retrieveFilesWithContents($excludedFiles),
             new PatcherChain($patchers),
             $symbolsConfiguration,
+            $tagDeclarationsAsInternal,
         );
     }
 
@@ -120,36 +118,22 @@ final class ConfigurationFactory
         $filesWithContents = self::retrieveFilesWithContents(
             chain(
                 self::retrieveFilesFromPaths(
-                    array_unique($paths, SORT_STRING),
+                    array_unique($paths),
                 ),
             ),
         );
 
-        return new Configuration(
-            $config->getPath(),
-            $config->getPrefix(),
-            array_merge(
-                $config->getFilesWithContents(),
-                $filesWithContents,
-            ),
-            $config->getExcludedFilesWithContents(),
-            $config->getPatcher(),
-            $config->getSymbolsConfiguration(),
-        );
+        return $config->withFilesWithContents([
+            ...$config->getFilesWithContents(),
+            ...$filesWithContents,
+        ]);
     }
 
     public function createWithPrefix(Configuration $config, string $prefix): Configuration
     {
         $prefix = self::retrievePrefix([ConfigurationKeys::PREFIX_KEYWORD => $prefix]);
 
-        return new Configuration(
-            $config->getPath(),
-            $prefix,
-            $config->getFilesWithContents(),
-            $config->getExcludedFilesWithContents(),
-            $config->getPatcher(),
-            $config->getSymbolsConfiguration(),
-        );
+        return $config->withPrefix($prefix);
     }
 
     private function loadConfigFile(string $path): array
@@ -229,7 +213,16 @@ final class ConfigurationFactory
         $prefix = trim((string) ($config[ConfigurationKeys::PREFIX_KEYWORD] ?? ''));
 
         return '' === $prefix ? self::generateRandomPrefix() : $prefix;
+    }
 
+    /**
+     * @return non-empty-string|null
+     */
+    private static function retrieveOutputDir(array $config): ?string
+    {
+        $outputDir = trim((string) ($config[ConfigurationKeys::OUTPUT_DIR_KEYWORD] ?? ''));
+
+        return '' === $outputDir ? null : $outputDir;
     }
 
     /**

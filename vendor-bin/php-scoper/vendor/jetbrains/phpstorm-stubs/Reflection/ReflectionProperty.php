@@ -30,13 +30,6 @@ class ReflectionProperty implements Reflector
     public $class;
 
     /**
-     * @var bool
-     * @since 8.1
-     */
-    #[Immutable]
-    public bool $isReadonly;
-
-    /**
      * Indicates that the property is static.
      *
      * @link https://www.php.net/manual/en/class.reflectionproperty.php#reflectionproperty.constants.is-static
@@ -180,7 +173,7 @@ class ReflectionProperty implements Reflector
      * Checks if property is static
      *
      * @link https://php.net/manual/en/reflectionproperty.isstatic.php
-     * @return bool Retruns {@see true} if the property is static, {@see false} otherwise.
+     * @return bool Returns {@see true} if the property is static, {@see false} otherwise.
      */
     #[Pure]
     #[TentativeType]
@@ -308,7 +301,17 @@ class ReflectionProperty implements Reflector
      * @link https://php.net/manual/en/reflectionproperty.clone.php
      * @return void
      */
+    #[PhpStormStubsElementAvailable(from: "5.4", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * Clone
+     *
+     * @link https://php.net/manual/en/reflectionproperty.clone.php
+     * @return void
+     */
+    #[PhpStormStubsElementAvailable(from: "8.1")]
+    private function __clone(): void {}
 
     /**
      * @return bool
@@ -325,9 +328,13 @@ class ReflectionProperty implements Reflector
     public function getDefaultValue(): mixed {}
 
     /**
-     * @param null|string $name
-     * @param int $flags
-     * @return ReflectionAttribute[]
+     * @template T
+     *
+     * Returns an array of property attributes.
+     *
+     * @param class-string<T>|null $name Name of an attribute class
+     * @param int $flags Сriteria by which the attribute is searched.
+     * @return ReflectionAttribute<T>[]
      * @since 8.0
      */
     #[Pure]

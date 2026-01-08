@@ -15,6 +15,7 @@ declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Async;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
+/** @internal */
 interface OnSuccessInterface
 {
     /**

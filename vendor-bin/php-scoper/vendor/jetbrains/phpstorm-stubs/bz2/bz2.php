@@ -1,5 +1,8 @@
 <?php
 
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Pure;
 
 /**
@@ -26,7 +29,7 @@ function bzopen($file, string $mode) {}
  * The file pointer. It must be valid and must point to a file
  * successfully opened by <b>bzopen</b>.
  * </p>
- * @param int $length [optional] <p>
+ * @param int<1024, 8192> $length [optional] <p>
  * If not specified, <b>bzread</b> will read 1024
  * (uncompressed) bytes at a time. A maximum of 8192
  * uncompressed bytes will be read at a time.
@@ -86,7 +89,8 @@ function bzclose($bz): bool {}
  * @return int the error number as an integer.
  */
 #[Pure]
-function bzerrno($bz): int {}
+#[LanguageLevelTypeAware(['8.1' => 'int', '8.0' => 'int|false'], default: 'int')]
+function bzerrno($bz) {}
 
 /**
  * Returns a bzip2 error string
@@ -98,7 +102,8 @@ function bzerrno($bz): int {}
  * @return string a string containing the error message.
  */
 #[Pure]
-function bzerrstr($bz): string {}
+#[LanguageLevelTypeAware(['8.1' => 'string', '8.0' => 'string|false'], default: 'string')]
+function bzerrstr($bz) {}
 
 /**
  * Returns the bzip2 error number and error string in an array
@@ -112,7 +117,9 @@ function bzerrstr($bz): string {}
  * errstr entry.
  */
 #[Pure]
-function bzerror($bz): array {}
+#[LanguageLevelTypeAware(['8.1' => 'array', '8.0' => 'array|false'], default: 'array')]
+#[ArrayShape(["errno" => "int", "errstr" => "string"])]
+function bzerror($bz) {}
 
 /**
  * Compress a string into bzip2 encoded data
@@ -120,7 +127,7 @@ function bzerror($bz): array {}
  * @param string $data <p>
  * The string to compress.
  * </p>
- * @param int $block_size [optional] <p>
+ * @param int $block_size <p>
  * Specifies the blocksize used during compression and should be a number
  * from 1 to 9 with 9 giving the best compression, but using more
  * resources to do so.
@@ -137,7 +144,12 @@ function bzerror($bz): array {}
  * @return string|int The compressed string, or an error number if an error occurred.
  */
 #[Pure]
-function bzcompress(string $data, int $block_size = 4, int $work_factor = 0): string|int {}
+function bzcompress(
+    string $data,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] int $blocksize,
+    #[PhpStormStubsElementAvailable(from: '7.1')] int $block_size = 4,
+    int $work_factor = 0
+): string|int {}
 
 /**
  * Decompresses bzip2 encoded data

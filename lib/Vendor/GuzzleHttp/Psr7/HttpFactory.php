@@ -20,6 +20,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
  *
  * Note: in consuming code it is recommended to require the implemented interfaces
  * and inject the instance of this class multiple times.
+ * @internal
  */
 final class HttpFactory implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
 {

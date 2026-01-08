@@ -27,6 +27,7 @@ use function http_build_query;
 use function rawurlencode;
 use function strpos;
 use function sprintf;
+/** @internal */
 trait EndpointTrait
 {
     /**

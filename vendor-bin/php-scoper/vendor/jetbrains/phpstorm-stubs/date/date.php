@@ -15,7 +15,7 @@ use JetBrains\PhpStorm\Pure;
  * the time, since PHP 5.0.0 they are allowed but ignored.
  * </p>
  * @param int|null $baseTimestamp [optional] <p>
- * Default value: now()
+ * Default value: null
  * The timestamp which is used as a base for the calculation of relative
  * dates.
  * </p>
@@ -287,7 +287,7 @@ function strtotime(string $datetime, ?int $baseTimestamp): int|false {}
  * date_format function with user based timestamps
  * created with date_create.
  * </p>
- * @param int|null $timestamp [optional] Default value: now(). The optional timestamp parameter is an integer Unix timestamp
+ * @param int|null $timestamp [optional] Default value: time(). The optional timestamp parameter is an integer Unix timestamp
  * that defaults to the current local time if a timestamp is not given.
  * @return string|false a formatted date string. If a non-numeric value is used for
  * timestamp, false is returned and an
@@ -469,7 +469,7 @@ function mktime(
     ?int $day = null,
     ?int $year = null,
     #[Deprecated('Use the new timezone handling functions instead', since: '5.3')]
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] $is_dst = -1
+    #[PhpStormStubsElementAvailable(from: '5.5', to: '5.6')] $is_dst = -1
 ): int|false {}
 
 /**
@@ -508,7 +508,7 @@ function gmmktime(
     ?int $month = null,
     ?int $day = null,
     ?int $year = null,
-    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] $is_dst = null
+    #[PhpStormStubsElementAvailable(from: '5.5', to: '5.6')] $is_dst = null
 ): int|false {}
 
 /**
@@ -830,6 +830,17 @@ function time(): int {}
  * @return array
  */
 #[Pure(true)]
+#[ArrayShape([
+    'tm_sec' => 'int',
+    'tm_min' => 'int',
+    'tm_hour' => 'int',
+    'tm_mday' => 'int',
+    'tm_mon' => 'int',
+    'tm_year' => 'int',
+    'tm_wday' => 'int',
+    'tm_yday' => 'int',
+    'tm_isdst' => 'int',
+])]
 function localtime(?int $timestamp, bool $associative = false): array {}
 
 /**
@@ -912,6 +923,19 @@ function localtime(?int $timestamp, bool $associative = false): array {}
  * </table>
  */
 #[Pure(true)]
+#[ArrayShape([
+    'seconds' => 'int',
+    'minutes' => 'int',
+    'hours' => 'int',
+    'mday' => 'int',
+    'wday' => 'int',
+    'mon' => 'int',
+    'year' => 'int',
+    'yday' => 'int',
+    'weekday' => 'int',
+    'month' => 'string',
+    0 => 'int',
+])]
 function getdate(?int $timestamp): array {}
 
 /**
@@ -984,6 +1008,26 @@ function date_create_from_format(string $format, string $datetime, ?DateTimeZone
  */
 #[Pure(true)]
 #[LanguageLevelTypeAware(["8.0" => "array"], default: "array|false")]
+#[ArrayShape([
+    "year" => "int",
+    "month" => "int",
+    "day" => "int",
+    "hour" => "int",
+    "minute" => "int",
+    "second" => "int",
+    "fraction" => "double",
+    "is_localtime" => "bool",
+    "zone_type" => "int",
+    "zone" => "int",
+    "is_dst" => "bool",
+    "tz_abbr" => "string",
+    "tz_id" => "string",
+    "relative" => "array",
+    "warning_count" => "int",
+    "warnings" => "array",
+    "error_count" => "int",
+    "errors" => "array"
+])]
 function date_parse(string $datetime): false|array {}
 
 /**
@@ -998,6 +1042,26 @@ function date_parse(string $datetime): false|array {}
  * @return array associative array with detailed info about given date.
  */
 #[Pure(true)]
+#[ArrayShape([
+    'year' => 'int',
+    'month' => 'int',
+    'day' => 'int',
+    'hour' => 'int',
+    'minute' => 'int',
+    'second' => 'int',
+    'fraction' => 'double',
+    'is_localtime' => 'bool',
+    'zone_type' => 'int',
+    'zone' => 'int',
+    'is_dst' => 'bool',
+    'tz_abbr' => 'string',
+    'tz_id' => 'string',
+    'relative' => 'array',
+    'warning_count' => 'int',
+    'warnings' => 'array',
+    'error_count' => 'int',
+    'errors' => 'array'
+])]
 function date_parse_from_format(string $format, string $datetime): array {}
 
 /**
@@ -1138,7 +1202,13 @@ function date_diff(DateTimeInterface $baseObject, DateTimeInterface $targetObjec
  * @return DateTime <p>Returns the
  * {@see DateTime} object for method chaining or <b>FALSE</b> on failure.</p>
  */
-function date_time_set(DateTime $object, int $hour, int $minute, int $second = 0, int $microsecond = 0): DateTime {}
+function date_time_set(
+    DateTime $object,
+    int $hour,
+    int $minute,
+    int $second = 0,
+    #[PhpStormStubsElementAvailable(from: '7.1')] int $microsecond = 0
+): DateTime {}
 
 /**
  * Alias:
@@ -1284,6 +1354,12 @@ function timezone_transitions_get(DateTimeZone $object, int $timestampBegin, int
  * @return array|false <p>Array containing location information about timezone.</p>
  */
 #[Pure(true)]
+#[ArrayShape([
+    'country_code' => 'string',
+    'latitude' => 'double',
+    'longitude' => 'double',
+    'comments' => 'string',
+])]
 function timezone_location_get(DateTimeZone $object): array|false {}
 
 /**
@@ -1293,8 +1369,8 @@ function timezone_location_get(DateTimeZone $object): array|false {}
  * @link https://php.net/manual/en/function.timezone-identifiers-list.php
  * @param int $timezoneGroup [optional] One of DateTimeZone class constants.
  * @param string|null $countryCode [optional] A two-letter ISO 3166-1 compatible country code.
+ * Note: This option is only used when $timezoneGroup is set to DateTimeZone::PER_COUNTRY.
  * @return array|false Returns array on success or FALSE on failure.
- * Note: This option is only used when what is set to DateTimeZone::PER_COUNTRY.
  */
 #[Pure(true)]
 #[LanguageLevelTypeAware(["8.0" => "array"], default: "array|false")]
@@ -1412,10 +1488,10 @@ function date_default_timezone_get(): string {}
  * @param float|null $utcOffset [optional]
  * @return string|int|float|false the sunrise time in a specified format on
  * success or false on failure.
- * @deprecated 8.1
+ * @deprecated in 8.1.  Use {@link date_sun_info} instead
  */
 #[Pure(true)]
-#[Deprecated(since: '8.1')]
+#[Deprecated(reason: 'in 8.1.  Use date_sun_info instead', since: '8.1')]
 function date_sunrise(int $timestamp, int $returnFormat = SUNFUNCS_RET_STRING, ?float $latitude, ?float $longitude, ?float $zenith, ?float $utcOffset): string|int|float|false {}
 
 /**
@@ -1464,10 +1540,10 @@ function date_sunrise(int $timestamp, int $returnFormat = SUNFUNCS_RET_STRING, ?
  * @param float|null $utcOffset [optional]
  * @return string|int|float|false the sunset time in a specified format on
  * success or false on failure.
- * @deprecated 8.1
+ * @deprecated in 8.1.  Use {@link date_sun_info} instead
  */
 #[Pure(true)]
-#[Deprecated(since: '8.1')]
+#[Deprecated(reason: 'in 8.1.  Use date_sun_info instead', since: '8.1')]
 function date_sunset(int $timestamp, int $returnFormat = SUNFUNCS_RET_STRING, ?float $latitude, ?float $longitude, ?float $zenith, ?float $utcOffset): string|int|float|false {}
 
 /**
@@ -1482,11 +1558,47 @@ function date_sunset(int $timestamp, int $returnFormat = SUNFUNCS_RET_STRING, ?f
  * @param float $longitude <p>
  * Longitude in degrees.
  * </p>
- * @return array|false array on success or false on failure.
+ * @return array{
+ *              sunrise: int|bool,
+ *              sunset: int|bool,
+ *              transit: int|bool,
+ *              civil_twilight_begin: int|bool,
+ *              civil_twilight_end: int|bool,
+ *              nautical_twilight_begin: int|bool,
+ *              nautical_twilight_end: int|bool,
+ *              astronomical_twilight_begin: int|bool,
+ *              astronomical_twilight_end: int|bool,
+ *         }|false Returns array on success or <strong><code>false</code></strong> on failure. The structure of the array is detailed in the following list:
+ * <table>
+ * <tr><td>sunrise</td><td>The timestamp of the sunrise (zenith angle = 90°35&#039;).</td></tr>
+ * <tr><td>sunset</td><td>The timestamp of the sunset (zenith angle = 90°35&#039;).</td></tr>
+ * <tr><td>transit</td><td>The timestamp when the sun is at its zenith, i.e. has reached its topmost point.</td></tr>
+ * <tr><td>civil_twilight_begin</td><td>The start of the civil dawn (zenith angle = 96°). It ends at <code>sunrise</code>.</td></tr>
+ * <tr><td>civil_twilight_end</td><td>The end of the civil dusk (zenith angle = 96°). It starts at <code>sunset</code>.</td></tr>
+ * <tr><td>nautical_twilight_begin</td><td>The start of the nautical dawn (zenith angle = 102°). It ends at <code>civil_twilight_begin</code>.</td></tr>
+ * <tr><td>nautical_twilight_end</td><td>The end of the nautical dusk (zenith angle = 102°). It starts at <code>civil_twilight_end</code>.</td></tr>
+ * <tr><td>astronomical_twilight_begin</td><td>The start of the astronomical dawn (zenith angle = 108°). It ends at <code>nautical_twilight_begin</code>.</td></tr>
+ * <tr><td>astronomical_twilight_end</td><td>The end of the astronomical dusk (zenith angle = 108°). It starts at <code>nautical_twilight_end</code>.</td></tr>
+ * </table>
+ * <br>
+ * The values of the array elements are either UNIX timestamps, <strong><code>false</code></strong> if the
+ * sun is below the respective zenith for the whole day, or <strong><code>true</code></strong> if the sun is
+ * above the respective zenith for the whole day.
  * @since 5.1.2
  */
 #[Pure(true)]
 #[LanguageLevelTypeAware(["8.0" => "array"], default: "array|false")]
-function date_sun_info(int $timestamp, float $latitude, float $longitude) {}
+#[ArrayShape([
+    "sunrise" => "int",
+    "sunset" => "int",
+    "transit" => "int",
+    "civil_twilight_begin" => "int",
+    "civil_twilight_end" => "int",
+    "nautical_twilight_begin" => "int",
+    "nautical_twilight_end" => "int",
+    "astronomical_twilight_begin" => "int",
+    "astronomical_twilight_end" => "int"
+])]
+function date_sun_info(int $timestamp, float $latitude, float $longitude): array|false {}
 
 // End of date v.5.3.2-0.dotdeb.1

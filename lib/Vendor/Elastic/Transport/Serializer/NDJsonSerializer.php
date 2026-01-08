@@ -21,6 +21,7 @@ use function explode;
 use function json_decode;
 use function sprintf;
 use function strpos;
+/** @internal */
 class NDJsonSerializer implements SerializerInterface
 {
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use JetBrains\PhpStorm\Deprecated;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
@@ -25,7 +26,7 @@ abstract class ReflectionType implements Stringable
     /**
      * Checks if it is a built-in type
      *
-     * @link https://php.net/manual/en/reflectiontype.isbuiltin.php
+     * @link https://php.net/manual/en/reflectionnamedtype.isbuiltin.php
      * @return bool Returns {@see true} if it's a built-in type, otherwise {@see false}
      * @since 7.0
      * @removed 8.0 this method has been removed from the {@see ReflectionType}
@@ -50,5 +51,14 @@ abstract class ReflectionType implements Stringable
      *
      * @return void
      */
+    #[PhpStormStubsElementAvailable(from: "5.4", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * Cloning of this class is prohibited
+     *
+     * @return void
+     */
+    #[PhpStormStubsElementAvailable(from: "8.1")]
+    private function __clone(): void {}
 }

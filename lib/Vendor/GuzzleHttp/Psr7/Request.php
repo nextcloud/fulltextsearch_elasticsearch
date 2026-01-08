@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
 /**
  * PSR-7 request implementation.
+ * @internal
  */
 class Request implements RequestInterface
 {

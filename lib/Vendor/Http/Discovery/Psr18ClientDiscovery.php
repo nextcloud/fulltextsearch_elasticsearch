@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
  * Finds a PSR-18 HTTP Client.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @internal
  */
 final class Psr18ClientDiscovery extends ClassDiscovery
 {

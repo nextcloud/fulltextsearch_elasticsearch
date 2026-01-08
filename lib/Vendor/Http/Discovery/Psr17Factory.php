@@ -37,6 +37,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
  * Copyright (c) 2016-2018 Tobias Nyholm <tobias.nyholm@gmail.com>
  *
  * @author Nicolas Grekas <p@tchwork.com>
+ * @internal
  */
 class Psr17Factory implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
 {

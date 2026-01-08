@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception;
  * When we have used a strategy but no candidates provided by that strategy could be used.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @internal
  */
 final class NoCandidateFoundException extends \Exception implements Exception
 {

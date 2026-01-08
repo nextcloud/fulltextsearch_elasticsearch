@@ -15,6 +15,7 @@ declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception;
 
 use Exception;
+/** @internal */
 class ConfigException extends Exception implements ElasticsearchException
 {
 }

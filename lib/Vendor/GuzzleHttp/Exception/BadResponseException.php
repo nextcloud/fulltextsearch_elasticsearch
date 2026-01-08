@@ -6,6 +6,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 /**
  * Exception when an HTTP error occurs (4xx or 5xx error)
+ * @internal
  */
 class BadResponseException extends RequestException
 {

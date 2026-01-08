@@ -6,6 +6,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\MessageInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
+/** @internal */
 final class Message
 {
     /**

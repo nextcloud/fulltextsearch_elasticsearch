@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 /**
  * HTTP Request exception
+ * @internal
  */
 class RequestException extends TransferException implements RequestExceptionInterface
 {

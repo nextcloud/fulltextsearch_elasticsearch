@@ -52,12 +52,13 @@ function dl(string $extension_filename): bool {}
 function cli_set_process_title(string $title): bool {}
 
 /**
- * Returns the current process title
+ * Returns the current process title, as set by cli_set_process_title(). Note that this may not exactly match what is shown in ps or top, depending on your operating system.
+ *
  * @link https://php.net/manual/en/function.cli-get-process-title.php
  * @return string|null Return a string with the current process title or <b>NULL</b> on error.
  * @since 5.5
  */
-#[Pure]
+#[Pure(true)]
 function cli_get_process_title(): ?string {}
 
 /**
@@ -77,8 +78,10 @@ function is_iterable(mixed $value): bool {}
  * An ISO-8859-1 string.
  * </p>
  * @return string the UTF-8 translation of <i>data</i>.
+ * @deprecated 8.2 Consider to use {@link mb_convert_encoding}, {@link UConverter::transcode()} or {@link iconv()}
  */
 #[Pure]
+#[Deprecated(replacement: "mb_convert_encoding(%parameter0%, 'UTF-8')", since: "8.2")]
 function utf8_encode(string $string): string {}
 
 /**
@@ -89,8 +92,10 @@ function utf8_encode(string $string): string {}
  * An UTF-8 encoded string.
  * </p>
  * @return string the ISO-8859-1 translation of <i>data</i>.
+ * @deprecated 8.2 Consider to use {@link mb_convert_encoding}, {@link UConverter::transcode()} or {@link iconv()}
  */
 #[Pure]
+#[Deprecated(replacement: "mb_convert_encoding(%parameter0%, 'ISO-8859-1')", since: "8.2")]
 function utf8_decode(string $string): string {}
 
 /**
@@ -103,32 +108,40 @@ function error_clear_last(): void {}
 
 /**
  * Get process codepage
- * @param string $kind
- * @return int
+ * @link https://php.net/manual/en/function.sapi-windows-cp-get
+ * @param string $kind The kind of operating system codepage to get, either 'ansi' or 'oem'. Any other value refers to the current codepage of the process.
+ * @return int <p>
+ * If <i>kind</i> is 'ansi', the current ANSI code page of the operating system is returned.
+ * If <i>kind</i> is 'oem', the current OEM code page of the operating system is returned.
+ * Otherwise, the current codepage of the process is returned.
+ * </p>
  * @since 7.1
  */
-function sapi_windows_cp_get(string $kind): int {}
+function sapi_windows_cp_get(string $kind = ""): int {}
 
 /**
  * Set process codepage
- * @param int $cp
- * @return bool
+ * @link https://php.net/manual/en/function.sapi-windows-cp-set
+ * @param int $codepage A codepage identifier.
+ * @return bool Returns <i>true</i> on success or <i>false</i> on failure.
  * @since 7.1
  */
-function sapi_windows_cp_set(int $cp): bool {}
+function sapi_windows_cp_set(int $codepage): bool {}
 
 /**
  * Convert string from one codepage to another
- * @param int|string $in_codepage
- * @param int|string $out_codepage
- * @param string $subject
- * @return string
+ * @link https://php.net/manual/en/function.sapi-windows-cp-conv.php
+ * @param int|string $in_codepage The codepage of the <i>subject</i> string. Either the codepage name or identifier.
+ * @param int|string $out_codepage The codepage to convert the <i>subject</i> string to. Either the codepage name or identifier.
+ * @param string $subject The string to convert.
+ * @return string|null The <i>subject</i> string converted to <i>out_codepage</i>, or <b>null</b> on failure.
  * @since 7.1
  */
-function sapi_windows_cp_conv(int|string $in_codepage, int|string $out_codepage, string $subject): string {}
+function sapi_windows_cp_conv(int|string $in_codepage, int|string $out_codepage, string $subject): ?string {}
 
 /**
  * Indicates whether the codepage is utf-8 compatible
+ * @link https://www.php.net/manual/en/function.sapi-windows-cp-is-utf8.php
  * @return bool
  * @since 7.1
  */
@@ -142,38 +155,61 @@ function sapi_windows_cp_is_utf8(): bool {}
  *
  * If VT100 support is enabled, it is possible to use control sequences as they are known from the VT100 terminal.
  * They allow the modification of the terminal's output. On Windows these sequences are called Console Virtual Terminal Sequences.
+ *
+ * <b>Warning</b> This function uses the <b>ENABLE_VIRTUAL_TERMINAL_PROCESSING</b> flag implemented in the Windows 10 API, so the VT100 feature may not be available on older Windows versions.
+ *
  * @link https://php.net/manual/en/function.sapi-windows-vt100-support.php
- * @param resource $stream
- * @param bool $enable [optional]<p>
- *
- * If <i>enable</i> is omitted, the function returns TRUE if the stream stream has VT100 control codes enabled, FALSE otherwise.
- *
- * If <i>enable</i> is specified, the function will try to enable or disable the VT100 features of the stream stream.
- * If the feature has been successfully enabled (or disabled), the function will return TRUE, or FALSE otherwise.
+ * @param resource $stream The stream on which the function will operate.
+ * @param bool|null $enable <p>
+ * If bool, the VT100 feature will be enabled (if true) or disabled (if false).
  * </p>
- * @return bool If <i>enable</i> is not specified: returns TRUE if the VT100 feature is enabled, FALSE otherwise.
- * If <i>enable</i> is specified: Returns TRUE on success or FALSE on failure.
+ * <p>
+ * If <i>enable</i> is <b>null</b>, the function returns <b>true</b> if the stream <i>stream</i> has VT100 control codes enabled, <b>false</b> otherwise.
+ * </p>
+ * <p>
+ * If <i>enable</i> is a bool, the function will try to enable or disable the VT100 features of the stream <i>stream</i>.
+ * If the feature has been successfully enabled (or disabled), the function will return <b>true</b>, or <b>false</b> otherwise.
+ * </p>
+ * @return bool <p>
+ * If <i>enable</i> is <b>null</b>: returns <b>true</b> if the VT100 feature is enabled, <b>false</b> otherwise.
+ * </p>
+ * <p>
+ * If <i>enable</i> is a bool: Returns <b>true</b> on success or <b>false</b> on failure.
+ * </p>
  * @since 7.2
  */
-function sapi_windows_vt100_support($stream, bool $enable): bool {}
+function sapi_windows_vt100_support($stream, ?bool $enable = null): bool {}
 
 /**
- * Set or remove a CTRL event handler.
+ * Set or remove a CTRL event handler, which allows Windows CLI processes to intercept or ignore CTRL+C and CTRL+BREAK events.
+ * Note that in multithreaded environments, this is only possible when called from the main thread.
  *
  * @link https://www.php.net/manual/en/function.sapi-windows-set-ctrl-handler.php
- * @param callable $callable
- * @param bool $add [optional]
+ * @param callable|null $handler <p>
+ * A callback function to set or remove. If set, this function will be called whenever a CTRL+C or CTRL+BREAK event occurs.
+ * </p>
+ * <p>
+ * The function is supposed to have the following signature:
+ * <code>
+ * handler(int $event): void
+ * </code>
+ * <code>event</code> The CTRL event which has been received; either <b>PHP_WINDOWS_EVENT_CTRL_C</b> or <b>PHP_WINDOWS_EVENT_CTRL_BREAK</b>.
+ * </p>
+ * <p>
+ * Setting a <b>null</b> handler causes the process to ignore CTRL+C events, but not CTRL+BREAK events.
+ * </p>
+ * @param bool $add If <b>true</b>, the handler is set. If <b>false</b>, the handler is removed.
  * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
  * @since 7.4
  */
-function sapi_windows_set_ctrl_handler(callable $callable, bool $add = true): bool {}
+function sapi_windows_set_ctrl_handler(?callable $handler, bool $add = true): bool {}
 
 /**
  * Send a CTRL event to another process.
  *
  * @link https://www.php.net/manual/en/function.sapi-windows-generate-ctrl-event.php
- * @param int $event
- * @param int $pid [optional]
+ * @param int $event The CTRL even to send; <b>either PHP_WINDOWS_EVENT_CTRL_C</b> or <b>PHP_WINDOWS_EVENT_CTRL_BREAK</b>.
+ * @param int $pid [optional] The ID of the process to which to send the event to. If 0 is given, the event is sent to all processes of the process group.
  * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
  * @since 7.4
  */

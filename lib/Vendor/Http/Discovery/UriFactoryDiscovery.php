@@ -10,6 +10,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Message\UriFactory;
  * @author David de Boer <david@ddeboer.nl>
  *
  * @deprecated This will be removed in 2.0. Consider using Psr17FactoryDiscovery.
+ * @internal
  */
 final class UriFactoryDiscovery extends ClassDiscovery
 {

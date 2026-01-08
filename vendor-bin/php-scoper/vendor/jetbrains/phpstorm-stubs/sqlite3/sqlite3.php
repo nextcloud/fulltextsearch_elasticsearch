@@ -56,7 +56,7 @@ class SQLite3
      * @param string $filename <p>
      * Path to the SQLite database, or :memory: to use in-memory database.
      * </p>
-     * @param int $flags [optional] <p>
+     * @param int $flags <p>
      * Optional flags used to determine how to open the SQLite database. By
      * default, open uses SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE.
      * </p>
@@ -64,7 +64,7 @@ class SQLite3
      * SQLITE3_OPEN_READONLY: Open the database for
      * reading only.
      * </p>
-     * @param string $encryptionKey [optional] <p>
+     * @param string $encryptionKey <p>
      * An optional encryption key used when encrypting and decrypting an
      * SQLite database.
      * </p>
@@ -73,8 +73,10 @@ class SQLite3
     #[TentativeType]
     public function open(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $filename,
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = SQLITE3_OPEN_READWRITE|SQLITE3_OPEN_CREATE,
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $encryptionKey = null
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $flags,
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $encryptionKey,
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = SQLITE3_OPEN_READWRITE|SQLITE3_OPEN_CREATE,
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $encryptionKey = null
     ): void {}
 
     /**
@@ -240,12 +242,12 @@ class SQLite3
      * The name of a PHP function or user-defined function to apply as a
      * callback, defining the behavior of the SQL function.
      * </p>
-     * @param int $argCount [optional] <p>
+     * @param int $argCount <p>
      * The number of arguments that the SQL function takes. If
      * this parameter is negative, then the SQL function may take
      * any number of arguments.
      * </p>
-     * @param int $flags [optional]
+     * @param int $flags
      * <p>A bitwise conjunction of flags.
      * Currently, only <b>SQLITE3_DETERMINISTIC</b> is supported, which specifies that the function always returns
      * the same result given the same inputs within a single SQL statement.</p>
@@ -256,7 +258,7 @@ class SQLite3
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $name,
         #[LanguageLevelTypeAware(['8.0' => 'callable'], default: '')] $callback,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $argCount = -1,
-        int $flags = 0
+        #[PhpStormStubsElementAvailable(from: '7.1')] int $flags = 0
     ): bool {}
 
     /**
@@ -334,7 +336,10 @@ class SQLite3
      * @return bool Returns the old value; true if exceptions were enabled, false otherwise.
      */
     #[TentativeType]
-    public function enableExceptions(#[LanguageLevelTypeAware(['8.0' => 'bool'], default: '')] $enable = false): bool {}
+    public function enableExceptions(
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $enable,
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'bool'], default: '')] $enable = false
+    ): bool {}
 
     /**
      * Instantiates an SQLite3 object and opens an SQLite 3 database
@@ -342,7 +347,7 @@ class SQLite3
      * @param string $filename <p>
      * Path to the SQLite database, or :memory: to use in-memory database.
      * </p>
-     * @param int $flags [optional] <p>
+     * @param int $flags <p>
      * Optional flags used to determine how to open the SQLite database. By
      * default, open uses SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE.
      * </p>
@@ -350,15 +355,17 @@ class SQLite3
      * SQLITE3_OPEN_READONLY: Open the database for
      * reading only.
      * </p>
-     * @param string $encryptionKey [optional] <p>
+     * @param string $encryptionKey <p>
      * An optional encryption key used when encrypting and decrypting an
      * SQLite database.
      * </p>
      */
     public function __construct(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $filename,
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = SQLITE3_OPEN_READWRITE|SQLITE3_OPEN_CREATE,
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $encryptionKey = null
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $flags,
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $encryptionKey,
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = SQLITE3_OPEN_READWRITE|SQLITE3_OPEN_CREATE,
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $encryptionKey = null
     ) {}
 
     /**
@@ -373,7 +380,10 @@ class SQLite3
      * @since 7.4
      */
     #[TentativeType]
-    public function enableExtendedResultCodes(bool $enable = true): bool {}
+    public function enableExtendedResultCodes(
+        #[PhpStormStubsElementAvailable(from: '7.4', to: '7.4')] bool $enable,
+        #[PhpStormStubsElementAvailable(from: '8.0')] bool $enable = true
+    ): bool {}
 
     /**
      * @param SQLite3 $destination

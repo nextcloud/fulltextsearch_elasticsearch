@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * Stream decorator that can cache previously read bytes from a sequentially
  * read stream.
+ * @internal
  */
 final class CachingStream implements StreamInterface
 {

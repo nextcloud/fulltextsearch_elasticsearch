@@ -21,6 +21,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
  * Requests are considered immutable; all methods that might change state are
  * implemented such that they retain the internal state of the current
  * message and return a new instance that contains the changed state.
+ * @internal
  */
 class ServerRequest extends Request implements ServerRequestInterface
 {

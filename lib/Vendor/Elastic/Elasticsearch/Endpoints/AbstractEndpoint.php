@@ -16,6 +16,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoint
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Traits\EndpointTrait;
+/** @internal */
 abstract class AbstractEndpoint
 {
     use EndpointTrait;

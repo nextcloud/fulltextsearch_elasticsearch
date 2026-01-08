@@ -16,6 +16,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Serializer;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\SerializeException;
 use function serialize;
+/** @internal */
 class TextSerializer implements SerializerInterface
 {
     /**

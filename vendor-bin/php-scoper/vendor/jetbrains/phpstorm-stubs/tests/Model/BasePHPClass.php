@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -18,10 +17,9 @@ abstract class BasePHPClass extends BasePHPElement
      * @var PHPConst[]
      */
     public $constants = [];
-
     public $isFinal = false;
 
-    public function addConstant(PHPConst $parsedConstant): void
+    public function addConstant(PHPConst $parsedConstant)
     {
         if (isset($parsedConstant->name)) {
             if (array_key_exists($parsedConstant->name, $this->constants)) {
@@ -39,11 +37,12 @@ abstract class BasePHPClass extends BasePHPElement
     }
 
     /**
+     * @return PHPConst|null
      * @throws RuntimeException
      */
-    public function getConstant($constantName): ?PHPConst
+    public function getConstant($constantName)
     {
-        $constants = array_filter($this->constants, function (PHPConst $constant) use ($constantName): bool {
+        $constants = array_filter($this->constants, function (PHPConst $constant) use ($constantName) {
             return $constant->name === $constantName && $constant->duplicateOtherElement === false
                 && BasePHPElement::entitySuitsCurrentPhpVersion($constant);
         });
@@ -53,7 +52,7 @@ abstract class BasePHPClass extends BasePHPElement
         return array_pop($constants);
     }
 
-    public function addMethod(PHPMethod $parsedMethod): void
+    public function addMethod(PHPMethod $parsedMethod)
     {
         if (isset($parsedMethod->name)) {
             if (array_key_exists($parsedMethod->name, $this->methods)) {
@@ -71,11 +70,13 @@ abstract class BasePHPClass extends BasePHPElement
     }
 
     /**
+     * @param string $methodName
+     * @return PHPMethod|null
      * @throws RuntimeException
      */
-    public function getMethod(string $methodName): ?PHPMethod
+    public function getMethod($methodName)
     {
-        $methods = array_filter($this->methods, function (PHPMethod $method) use ($methodName): bool {
+        $methods = array_filter($this->methods, function (PHPMethod $method) use ($methodName) {
             return $method->name === $methodName && $method->duplicateOtherElement === false
                 && BasePHPElement::entitySuitsCurrentPhpVersion($method);
         });

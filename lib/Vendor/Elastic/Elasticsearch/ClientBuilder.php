@@ -29,6 +29,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\HttpAsyncClient;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
+/** @internal */
 class ClientBuilder
 {
     const DEFAULT_HOST = 'localhost:9200';

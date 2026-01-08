@@ -4,6 +4,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Cookie;
 
 /**
  * Persists cookies in the client session
+ * @internal
  */
 class SessionCookieJar extends CookieJar
 {

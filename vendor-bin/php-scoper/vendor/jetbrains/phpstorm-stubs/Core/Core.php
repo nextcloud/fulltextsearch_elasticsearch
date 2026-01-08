@@ -4,6 +4,7 @@
 use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Pure;
 
 /**
@@ -50,7 +51,7 @@ function func_get_args(): array {}
  * @param string $string <p>
  * The string being measured for length.
  * </p>
- * @return int The length of the <i>string</i> on success,
+ * @return int<0,max> The length of the <i>string</i> on success,
  * and 0 if the <i>string</i> is empty.
  */
 #[Pure]
@@ -325,7 +326,7 @@ function error_reporting(?int $error_level): int {}
  * It is possible to define resource constants,
  * however it is not recommended and may cause unpredictable behavior.
  * </p>
- * @param bool $case_insensitive [optional] <p>
+ * @param bool $case_insensitive <p>
  * If set to true, the constant will be defined case-insensitive.
  * The default behavior is case-sensitive; i.e.
  * CONSTANT and Constant represent
@@ -340,7 +341,8 @@ function error_reporting(?int $error_level): int {}
 function define(
     string $constant_name,
     #[LanguageLevelTypeAware(['8.1' => 'mixed'], default: 'null|array|bool|int|float|string')] $value,
-    #[Deprecated()] bool $case_insensitive = false
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] bool $case_insensitive,
+    #[PhpStormStubsElementAvailable(from: '7.0')] #[Deprecated(since: 7.3)] bool $case_insensitive = false
 ): bool {}
 
 /**
@@ -677,6 +679,7 @@ function set_error_handler(?callable $callback, int $error_levels = E_ALL|E_STRI
  * @link https://php.net/manual/en/function.restore-error-handler.php
  * @return bool This function always returns true.
  */
+#[LanguageLevelTypeAware(['8.2' => 'true'], default: 'bool')]
 function restore_error_handler(): bool {}
 
 /**
@@ -700,6 +703,7 @@ function set_exception_handler(?callable $callback) {}
  * @link https://php.net/manual/en/function.restore-exception-handler.php
  * @return bool This function always returns true.
  */
+#[LanguageLevelTypeAware(['8.2' => 'true'], default: 'bool')]
 function restore_exception_handler(): bool {}
 
 /**
@@ -723,7 +727,7 @@ function get_declared_classes(): array {}
  * @return string[] an array of the names of the declared interfaces in the current
  * script.
  */
-#[Pure]
+#[Pure(true)]
 function get_declared_interfaces(): array {}
 
 /**
@@ -733,7 +737,7 @@ function get_declared_interfaces(): array {}
  * @see class_uses()
  * @since 5.4
  */
-#[Pure]
+#[Pure(true)]
 function get_declared_traits(): array {}
 
 /**
@@ -746,15 +750,15 @@ function get_declared_traits(): array {}
  * the user defined ones using $arr["user"] (see example
  * below).
  */
-#[Pure]
-function get_defined_functions(bool $exclude_disabled = true): array {}
+#[Pure(true)]
+function get_defined_functions(#[PhpStormStubsElementAvailable(from: '7.1')] bool $exclude_disabled = true): array {}
 
 /**
  * Returns an array of all defined variables
  * @link https://php.net/manual/en/function.get-defined-vars.php
  * @return array A multidimensional array with all the variables.
  */
-#[Pure]
+#[Pure(true)]
 function get_defined_vars(): array {}
 
 /**
@@ -1026,7 +1030,10 @@ function debug_backtrace(int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT, int $lim
  * </p>
  * @return void
  */
-function debug_print_backtrace(int $options = 0, int $limit = 0): void {}
+function debug_print_backtrace(
+    int $options = 0,
+    #[PhpStormStubsElementAvailable(from: '7.0')] int $limit = 0
+): void {}
 
 /**
  * Forces collection of any existing garbage cycles
@@ -1040,7 +1047,7 @@ function gc_collect_cycles(): int {}
  * @link https://php.net/manual/en/function.gc-enabled.php
  * @return bool true if the garbage collector is enabled, false otherwise.
  */
-#[Pure]
+#[Pure(true)]
 function gc_enabled(): bool {}
 
 /**
@@ -1070,7 +1077,7 @@ function gc_disable(): void {}
  * @since 7.3
  */
 #[ArrayShape(["runs" => "int", "collected" => "int", "threshold" => "int", "roots" => "int"])]
-#[Pure]
+#[Pure(true)]
 function gc_status(): array {}
 
 /**
@@ -1095,5 +1102,5 @@ function gc_mem_caches(): int {}
  * @return resource[] Returns an array of currently active resources, indexed by resource number.
  * @since 7.0
  */
-#[Pure]
+#[Pure(true)]
 function get_resources(?string $type): array {}

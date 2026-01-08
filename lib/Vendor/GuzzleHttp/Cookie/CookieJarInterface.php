@@ -15,6 +15,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
  * @see https://docs.python.org/2/library/cookielib.html Inspiration
  *
  * @extends \IteratorAggregate<SetCookie>
+ * @internal
  */
 interface CookieJarInterface extends \Countable, \IteratorAggregate
 {

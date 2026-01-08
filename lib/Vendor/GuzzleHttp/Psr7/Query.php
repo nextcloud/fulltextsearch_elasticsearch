@@ -3,6 +3,7 @@
 declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
 
+/** @internal */
 final class Query
 {
     /**

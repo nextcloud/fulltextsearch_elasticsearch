@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -22,7 +21,8 @@ class PHPFunction extends BasePHPElement
     /**
      * @var bool
      */
-    public $is_deprecated;
+    public $isDeprecated;
+
     /**
      * @var PHPParameter[]
      */
@@ -44,11 +44,13 @@ class PHPFunction extends BasePHPElement
     public function readObjectFromReflection($reflectionObject)
     {
         $this->name = $reflectionObject->name;
-        $this->is_deprecated = $reflectionObject->isDeprecated();
+        $this->isDeprecated = $reflectionObject->isDeprecated();
         foreach ($reflectionObject->getParameters() as $parameter) {
             $this->parameters[] = (new PHPParameter())->readObjectFromReflection($parameter);
         }
-        $returnTypes = self::getReflectionTypeAsArray($reflectionObject->getReturnType());
+        if (method_exists($reflectionObject, 'getReturnType')) {
+            $returnTypes = self::getReflectionTypeAsArray($reflectionObject->getReturnType());
+        }
         if (!empty($returnTypes)) {
             array_push($this->returnTypesFromSignature, ...$returnTypes);
         }
@@ -73,7 +75,17 @@ class PHPFunction extends BasePHPElement
             $parsedParameter = (new PHPParameter())->readObjectFromStubNode($parameter);
             if (self::entitySuitsCurrentPhpVersion($parsedParameter)) {
                 $parsedParameter->indexInSignature = $index;
-                $this->parameters[] = $parsedParameter;
+                $addedParameters = array_filter($this->parameters, function (PHPParameter $addedParameter) use ($parsedParameter) {
+                    return $addedParameter->name === $parsedParameter->name;
+                });
+                if (!empty($addedParameters)) {
+                    if ($parsedParameter->is_vararg) {
+                        $parsedParameter->isOptional = false;
+                        $index--;
+                        $parsedParameter->indexInSignature = $index;
+                    }
+                }
+                $this->parameters[$parsedParameter->name] = $parsedParameter;
                 $index++;
             }
         }
@@ -91,37 +103,25 @@ class PHPFunction extends BasePHPElement
         }
 
         $this->checkDeprecationTag($node);
-        $this->checkReturnTag($node);
+        $this->checkReturnTag();
         return $this;
     }
 
-    protected function checkDeprecationTag(FunctionLike $node): void
+    protected function checkDeprecationTag(FunctionLike $node)
     {
-        try {
-            $this->is_deprecated = self::hasDeprecatedAttribute($node) || self::hasDeprecatedDocTag($node->getDocComment());
-        } catch (Exception $e) {
-            $this->parseError = $e;
-        }
+        $this->isDeprecated = self::hasDeprecatedAttribute($node) || !empty($this->deprecatedTags);
     }
 
-    protected function checkReturnTag(FunctionLike $node): void
+    protected function checkReturnTag()
     {
-        if ($node->getDocComment() !== null) {
-            try {
-                $phpDoc = DocFactoryProvider::getDocFactory()->create($node->getDocComment()->getText());
-                $parsedReturnTag = $phpDoc->getTagsByName('return');
-                if (!empty($parsedReturnTag) && $parsedReturnTag[0] instanceof Return_) {
-                    $returnType = $parsedReturnTag[0]->getType();
-                    if ($returnType instanceof Compound) {
-                        foreach ($returnType as $nextType) {
-                            $this->returnTypesFromPhpDoc[] = (string)$nextType;
-                        }
-                    } else {
-                        $this->returnTypesFromPhpDoc[] = (string)$returnType;
-                    }
+        if (!empty($this->returnTags) && $this->returnTags[0] instanceof Return_) {
+            $returnType = $this->returnTags[0]->getType();
+            if ($returnType instanceof Compound) {
+                foreach ($returnType as $nextType) {
+                    $this->returnTypesFromPhpDoc[] = (string)$nextType;
                 }
-            } catch (Exception $e) {
-                $this->parseError = $e;
+            } else {
+                $this->returnTypesFromPhpDoc[] = (string)$returnType;
             }
         }
     }
@@ -130,7 +130,7 @@ class PHPFunction extends BasePHPElement
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $function) {
             if ($function->name === $this->name) {
@@ -175,7 +175,11 @@ class PHPFunction extends BasePHPElement
         }
     }
 
-    private static function hasDeprecatedAttribute(FunctionLike $node): bool
+    /**
+     * @param FunctionLike $node
+     * @return bool
+     */
+    private static function hasDeprecatedAttribute(FunctionLike $node)
     {
         foreach ($node->getAttrGroups() as $group) {
             foreach ($group->attrs as $attr) {
@@ -187,7 +191,11 @@ class PHPFunction extends BasePHPElement
         return false;
     }
 
-    private static function hasDeprecatedDocTag(?Doc $docComment): bool
+    /**
+     * @param Doc|null $docComment
+     * @return bool
+     */
+    private static function hasDeprecatedDocTag($docComment)
     {
         $phpDoc = $docComment !== null ? DocFactoryProvider::getDocFactory()->create($docComment->getText()) : null;
         return $phpDoc !== null && !empty($phpDoc->getTagsByName('deprecated'));

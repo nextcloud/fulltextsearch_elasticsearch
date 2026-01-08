@@ -10,6 +10,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception\DiscoveryFa
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
  *
  * @deprecated This will be removed in 2.0. Consider using Psr18ClientDiscovery.
+ * @internal
  */
 final class HttpClientDiscovery extends ClassDiscovery
 {

@@ -12,7 +12,7 @@ use StubTests\Model\PHPProperty;
 use StubTests\Model\PhpVersions;
 use StubTests\TestData\Providers\PhpStormStubsSingleton;
 
-class BaseClassesTest extends BaseStubsTest
+class BaseClassesTest extends AbstractBaseStubsTestCase
 {
     /**
      * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionClassesTestDataProviders::classWithParentProvider
@@ -139,7 +139,7 @@ class BaseClassesTest extends BaseStubsTest
         static::assertSameSize(
             $method->parameters,
             $filteredStubParameters,
-            "Parameter number mismatch for method $className::$method->name. 
+            "Parameter number mismatch for method $className::$method->name.
                          Expected: " . self::getParameterRepresentation($method)
         );
     }
@@ -268,5 +268,20 @@ class BaseClassesTest extends BaseStubsTest
             $stubClass = PhpStormStubsSingleton::getPhpStormStubs()->getInterface($className);
         }
         static::assertEquals($class->isFinal, $stubClass->isFinal, "Final modifier of class $className is incorrect");
+    }
+
+    /**
+     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionClassesTestDataProviders::readonlyClassesProvider
+     * @throws RuntimeException
+     */
+    public function testClassesReadonly(PHPClass $class): void
+    {
+        $className = $class->name;
+        $stubClass = PhpStormStubsSingleton::getPhpStormStubs()->getClass($className);
+        static::assertEquals(
+            $class->isReadonly,
+            $stubClass->isReadonly,
+            "Readonly modifier for class $className is incorrect"
+        );
     }
 }

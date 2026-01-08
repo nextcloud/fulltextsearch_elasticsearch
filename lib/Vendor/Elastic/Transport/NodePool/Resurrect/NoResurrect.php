@@ -16,6 +16,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Res
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
+/** @internal */
 class NoResurrect implements ResurrectInterface
 {
     protected ClientInterface $client;

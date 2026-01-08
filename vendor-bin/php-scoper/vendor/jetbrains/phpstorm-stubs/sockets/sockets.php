@@ -1,6 +1,7 @@
 <?php
 
 // Start of sockets v.
+use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 
 /**
@@ -13,13 +14,13 @@ use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
  * @param string $service [optional] <p>
  * The service to connect to. If service is a name, it is translated to the corresponding port number.
  * </p>
- * @param array $hints [optional] <p>
+ * @param array $hints <p>
  * Hints provide criteria for selecting addresses returned. You may specify the hints as defined by getadrinfo.
  * </p>
  * @return AddressInfo[]|false of AddrInfo resource handles that can be used with the other socket_addrinfo functions.
  * @since 7.2
  */
-function socket_addrinfo_lookup(string $host, ?string $service, array $hints): array|false {}
+function socket_addrinfo_lookup(string $host, ?string $service, array $hints = []): array|false {}
 
 /**
  * Create a Socket resource, and connect it to the provided AddrInfo resource.<br/>
@@ -56,6 +57,19 @@ function socket_addrinfo_bind(AddressInfo $address): Socket|false {}
  * @return array containing the fields in the addrinfo structure.
  * @since 7.2
  */
+#[ArrayShape([
+    'ai_flags' => 'int',
+    'ai_family' => 'int',
+    'ai_socktype' => 'int',
+    'ai_protocol' => 'int',
+    'ai_canonname' => 'string',
+    'ai_addr' => [
+        'sin_port' => 'int',
+        'sin_addr' => 'string',
+        'sin6_port' => 'int',
+        'sin6_addr' => 'string',
+    ]
+])]
 function socket_addrinfo_explain(AddressInfo $address): array {}
 
 /**
@@ -389,7 +403,7 @@ function socket_close(Socket $socket): void {}
  * @param string $data <p>
  * The buffer to be written.
  * </p>
- * @param int|null $length [optional] <p>
+ * @param int|null $length <p>
  * The optional parameter <i>length</i> can specify an
  * alternate length of bytes written to the socket. If this length is
  * greater than the buffer length, it is silently truncated to the length
@@ -407,7 +421,7 @@ function socket_close(Socket $socket): void {}
  * === operator to check for <b>FALSE</b> in case of an
  * error.
  */
-function socket_write(Socket $socket, string $data, ?int $length = 0): int|false {}
+function socket_write(Socket $socket, string $data, ?int $length = null): int|false {}
 
 /**
  * Reads a maximum of length bytes from a socket
@@ -517,7 +531,7 @@ function socket_getpeername(Socket $socket, &$address, &$port = null): bool {}
  * or the pathname of a Unix domain socket, if the socket family is
  * <b>AF_UNIX</b>.
  * </p>
- * @param int|null $port [optional] <p>
+ * @param int|null $port <p>
  * The <i>port</i> parameter is only used and is mandatory
  * when connecting to an <b>AF_INET</b> or an
  * <b>AF_INET6</b> socket, and designates
@@ -532,7 +546,7 @@ function socket_getpeername(Socket $socket, &$address, &$port = null): bool {}
  * If the socket is non-blocking then this function returns <b>FALSE</b> with an
  * error Operation now in progress.
  */
-function socket_connect(Socket $socket, string $address, ?int $port = 0): bool {}
+function socket_connect(Socket $socket, string $address, ?int $port = null): bool {}
 
 /**
  * Return a string describing a socket error
@@ -849,14 +863,14 @@ function socket_recvmsg(
  * @param string $address <p>
  * IP address of the remote host.
  * </p>
- * @param int|null $port [optional] <p>
+ * @param int|null $port <p>
  * <i>port</i> is the remote port number at which the data
  * will be sent.
  * </p>
  * @return int|false <b>socket_sendto</b> returns the number of bytes sent to the
  * remote host, or <b>FALSE</b> if an error occurred.
  */
-function socket_sendto(Socket $socket, string $data, int $length, int $flags, string $address, ?int $port = 0): int|false {}
+function socket_sendto(Socket $socket, string $data, int $length, int $flags, string $address, ?int $port = null): int|false {}
 
 /**
  * Gets socket options for the socket
@@ -1665,7 +1679,7 @@ define('SOCKET_EINVAL', 22);
  * File table overflow.
  * @link https://php.net/manual/en/sockets.constants.php
  */
-define('SOCKET_ENFILE', 23);
+define('SOCKET_ENFILE', 24);
 
 /**
  * Too many open files.
@@ -2045,7 +2059,7 @@ define('SOCKET_ECONNABORTED', 103);
  * Connection reset by peer.
  * @link https://php.net/manual/en/sockets.constants.php
  */
-define('SOCKET_ECONNRESET', 104);
+define('SOCKET_ECONNRESET', 103);
 
 /**
  * No buffer space available.
@@ -2181,6 +2195,151 @@ define('AI_ALL', 16);
  * @since 8.1
  */
 define('TCP_DEFER_ACCEPT', 9);
+
+/**
+ * @since 8.2
+ */
+define('SO_INCOMING_CPU', 49);
+
+/**
+ * @since 8.2
+ */
+define('SO_MEMINFO', 55);
+
+/**
+ * @since 8.2
+ */
+define('SO_BPF_EXTENSIONS', 48);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_OFF', -4096);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_PROTOCOL', 0);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_PKTTYPE', 4);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_IFINDEX', 8);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_NLATTR', 12);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_NLATTR_NEST', 16);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_MARK', 20);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_QUEUE', 24);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_HATYPE', 28);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_RXHASH', 32);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_CPU', 36);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_ALU_XOR_X', 40);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_VLAN_TAG', 44);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_VLAN_TAG_PRESENT', 48);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_PAY_OFFSET', 52);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_RANDOM', 56);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_VLAN_TPID', 60);
+
+/**
+ * @since 8.2
+ */
+define('SKF_AD_MAX', 64);
+
+/**
+ * @since 8.2
+ */
+define('TCP_CONGESTION', 13);
+
+/**
+ * @since 8.2
+ */
+define('TCP_NOTSENT_LOWAT', 25);
+
+/**
+ * @since 8.2
+ */
+define('TCP_KEEPIDLE', 4);
+
+/**
+ * @since 8.2
+ */
+define('TCP_KEEPINTVL', 5);
+
+/**
+ * @since 8.2
+ */
+define('TCP_KEEPCNT', 6);
+
+/**
+ * Socket_set_option for the socket_send* functions.
+ * It avoids copy b/w userland and kernel for both TCP and UDP protocols.
+ * @since 8.2
+ */
+define('SO_ZEROCOPY', 60);
+
+/**
+ * Socket_set_option for the socket_send* functions.
+ * It avoids copy b/w userland and kernel for both TCP and UDP protocols.
+ * @since 8.2
+ */
+define('MSG_ZEROCOPY', 67108864);
+
 /**
  * @since 8.0
  */

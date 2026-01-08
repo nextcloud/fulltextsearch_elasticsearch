@@ -58,7 +58,8 @@ class Phar extends RecursiveDirectoryIterator implements RecursiveIterator, Seek
     public function __construct(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $filename,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $flags = FilesystemIterator::KEY_AS_PATHNAME|FilesystemIterator::CURRENT_AS_FILEINFO,
-        #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $alias = null
+        #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $alias = null,
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $fileformat = null
     ) {}
 
     public function __destruct() {}
@@ -73,7 +74,10 @@ class Phar extends RecursiveDirectoryIterator implements RecursiveIterator, Seek
      * @return void no return value, exception is thrown on failure.
      */
     #[TentativeType]
-    public function addEmptyDir(#[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $directory): void {}
+    public function addEmptyDir(
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '7.4')] $directory = '',
+        #[PhpStormStubsElementAvailable(from: '8.0')] string $directory
+    ): void {}
 
     /**
      * (Unknown)<br/>
@@ -109,7 +113,8 @@ class Phar extends RecursiveDirectoryIterator implements RecursiveIterator, Seek
     #[TentativeType]
     public function addFromString(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $localName,
-        #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $contents
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '7.4')] $contents = '',
+        #[PhpStormStubsElementAvailable(from: '8.0')] string $contents
     ): void {}
 
     /**
@@ -312,7 +317,7 @@ class Phar extends RecursiveDirectoryIterator implements RecursiveIterator, Seek
      * Returns the number of entries (files) in the Phar archive
      * @link https://php.net/manual/en/phar.count.php
      * @param int $mode [optional]
-     * @return int The number of files contained within this phar, or 0 (the number zero)
+     * @return int<0,max> The number of files contained within this phar, or 0 (the number zero)
      * if none.
      */
     #[TentativeType]
@@ -758,13 +763,16 @@ class Phar extends RecursiveDirectoryIterator implements RecursiveIterator, Seek
      * (PHP &gt;= 5.3.0, PECL phar &gt;= 2.0.0)<br/>
      * Returns the full path on disk or full phar URL to the currently executing Phar archive
      * @link https://php.net/manual/en/phar.running.php
-     * @param bool $returnPhar [optional] <p>
+     * @param bool $returnPhar <p>
      * If <b>FALSE</b>, the full path on disk to the phar
      * archive is returned. If <b>TRUE</b>, a full phar URL is returned.
      * </p>
      * @return string the filename if valid, empty string otherwise.
      */
-    final public static function running(bool $returnPhar = true): string {}
+    final public static function running(
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] $returnPhar,
+        #[PhpStormStubsElementAvailable(from: '7.0')] bool $returnPhar = true
+    ): string {}
 
     /**
      * (PHP &gt;= 5.3.0, PECL phar &gt;= 2.0.0)<br/>
@@ -1174,7 +1182,7 @@ class PharFileInfo extends SplFileInfo
      * (PHP &gt;= 5.3.0, PECL phar &gt;= 1.0.0)<br/>
      * Returns the actual size of the file (with compression) inside the Phar archive
      * @link https://php.net/manual/en/pharfileinfo.getcompressedsize.php
-     * @return int The size in bytes of the file within the Phar archive on disk.
+     * @return int<0, max> The size in bytes of the file within the Phar archive on disk.
      */
     #[TentativeType]
     public function getCompressedSize(): int {}

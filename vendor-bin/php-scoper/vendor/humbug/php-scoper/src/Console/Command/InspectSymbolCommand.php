@@ -18,7 +18,7 @@ use Fidry\Console\Command\Command;
 use Fidry\Console\Command\CommandRegistry;
 use Fidry\Console\Command\Configuration as CommandConfiguration;
 use Fidry\Console\ExitCode;
-use Fidry\Console\IO;
+use Fidry\Console\Input\IO;
 use Humbug\PhpScoper\Configuration\Configuration;
 use Humbug\PhpScoper\Configuration\ConfigurationFactory;
 use Humbug\PhpScoper\Console\ConfigLoader;
@@ -34,10 +34,8 @@ use Symfony\Component\Filesystem\Path;
 use function assert;
 use function file_exists;
 use function implode;
-use function in_array;
 use function Safe\getcwd;
-use function Safe\sprintf;
-use function trim;
+use function sprintf;
 use const DIRECTORY_SEPARATOR;
 
 /**
@@ -50,18 +48,11 @@ final class InspectSymbolCommand implements Command
     private const CONFIG_FILE_OPT = 'config';
     private const NO_CONFIG_OPT = 'no-config';
 
-    private Filesystem $fileSystem;
-    private ConfigurationFactory $configFactory;
-    private EnrichedReflectorFactory $enrichedReflectorFactory;
-
     public function __construct(
-        Filesystem $fileSystem,
-        ConfigurationFactory $configFactory,
-        EnrichedReflectorFactory $enrichedReflectorFactory
+        private readonly Filesystem $fileSystem,
+        private readonly ConfigurationFactory $configFactory,
+        private readonly EnrichedReflectorFactory $enrichedReflectorFactory,
     ) {
-        $this->fileSystem = $fileSystem;
-        $this->configFactory = $configFactory;
-        $this->enrichedReflectorFactory = $enrichedReflectorFactory;
     }
 
     public function getConfiguration(): CommandConfiguration
@@ -74,16 +65,16 @@ final class InspectSymbolCommand implements Command
                 new InputArgument(
                     self::SYMBOL_ARG,
                     InputArgument::REQUIRED,
-                    'The symbol to inspect.'
+                    'The symbol to inspect.',
                 ),
                 new InputArgument(
                     self::SYMBOL_TYPE_ARG,
                     InputArgument::OPTIONAL,
                     sprintf(
                         'The symbol type inspect ("%s").',
-                        implode('", "', SymbolType::ALL),
+                        implode('", "', SymbolType::values()),
                     ),
-                    SymbolType::ANY_TYPE,
+                    SymbolType::ANY_TYPE->value,
                 ),
             ],
             [
@@ -94,14 +85,14 @@ final class InspectSymbolCommand implements Command
                     InputOption::VALUE_REQUIRED,
                     sprintf(
                         'Configuration file. Will use "%s" if found by default.',
-                        ConfigurationFactory::DEFAULT_FILE_NAME
-                    )
+                        ConfigurationFactory::DEFAULT_FILE_NAME,
+                    ),
                 ),
                 new InputOption(
                     self::NO_CONFIG_OPT,
                     null,
                     InputOption::VALUE_NONE,
-                    'Do not look for a configuration file.'
+                    'Do not look for a configuration file.',
                 ),
             ],
         );
@@ -117,7 +108,7 @@ final class InspectSymbolCommand implements Command
         // working directory
         $cwd = getcwd();
 
-        $symbol = $io->getStringArgument(self::SYMBOL_ARG);
+        $symbol = $io->getArgument(self::SYMBOL_ARG)->asString();
         $symbolType = self::getSymbolType($io);
         $config = $this->retrieveConfig($io, $cwd);
 
@@ -136,25 +127,12 @@ final class InspectSymbolCommand implements Command
         return ExitCode::SUCCESS;
     }
 
-    /**
-     * @return SymbolType::*_TYPE
-     */
-    private static function getSymbolType(IO $io): string
+    // TODO: https://github.com/theofidry/console/issues/99
+    private static function getSymbolType(IO $io): SymbolType
     {
-        // TODO: use options when available https://github.com/theofidry/console/issues/18
-        $type = $io->getStringArgument(self::SYMBOL_TYPE_ARG);
+        $symbolType = $io->getArgument(self::SYMBOL_TYPE_ARG)->asString();
 
-        if (!in_array($type, SymbolType::ALL, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Expected symbol type to be one of "%s". Got "%s"',
-                    implode('", "', SymbolType::ALL),
-                    $type,
-                ),
-            );
-        }
-
-        return $type;
+        return SymbolType::from($symbolType);
     }
 
     private function retrieveConfig(IO $io, string $cwd): Configuration
@@ -166,7 +144,7 @@ final class InspectSymbolCommand implements Command
         );
 
         $configFilePath = $this->getConfigFilePath($io, $cwd);
-        $noConfig = $io->getBooleanOption(self::NO_CONFIG_OPT);
+        $noConfig = $io->getOption(self::NO_CONFIG_OPT)->asBoolean();
 
         if (null === $configFilePath) {
             // Unlike when scoping, we do not want a config file to be created
@@ -187,7 +165,7 @@ final class InspectSymbolCommand implements Command
             // We do not want the init command to be triggered if there is no
             // config file.
             true,
-            [],
+            [__FILE__],
             getcwd(),
         );
     }
@@ -197,7 +175,7 @@ final class InspectSymbolCommand implements Command
      */
     private function getConfigFilePath(IO $io, string $cwd): ?string
     {
-        $configPath = trim($io->getStringOption(self::CONFIG_FILE_OPT));
+        $configPath = (string) $io->getOption(self::CONFIG_FILE_OPT)->asNullableString();
 
         if ('' === $configPath) {
             $configPath = ConfigurationFactory::DEFAULT_FILE_NAME;
@@ -208,17 +186,13 @@ final class InspectSymbolCommand implements Command
         return file_exists($configPath) ? $configPath : null;
     }
 
-    /**
-     * @param SymbolType::*_TYPE $type
-     */
     private static function printSymbol(
         IO $io,
         string $symbol,
-        string $type,
+        SymbolType $type,
         ?string $configPath,
         EnrichedReflector $reflector
-    ): void
-    {
+    ): void {
         self::printDocBlock($io);
         self::printConfigLoaded($io, $configPath);
         self::printInspectionHeadline($io, $symbol, $type);
@@ -239,7 +213,7 @@ final class InspectSymbolCommand implements Command
             'Exposed symbols (configured via the `expose-*` settings) will be prefixed but aliased to its original symbol.',
             'If a symbol is neither internal or exposed, it will be prefixed and not aliased',
             '',
-            'For more information, see:'
+            'For more information, see:',
         ]);
         $io->listing([
             '<href=https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols>Doc link for excluded symbols</>',
@@ -253,45 +227,39 @@ final class InspectSymbolCommand implements Command
             null === $configPath
                 ? 'No configuration loaded.'
                 : sprintf(
-                'Loaded the configuration <comment>%s</comment>',
-                $configPath,
-            ),
+                    'Loaded the configuration <comment>%s</comment>',
+                    $configPath,
+                ),
         );
         $io->newLine();
     }
 
-    /**
-     * @param SymbolType::*_TYPE $type
-     */
     private static function printInspectionHeadline(
         IO $io,
         string $symbol,
-        string $type
-    ): void
-    {
+        SymbolType $type
+    ): void {
         $io->writeln(
             sprintf(
                 'Inspecting the symbol <comment>%s</comment> %s',
                 $symbol,
                 SymbolType::ANY_TYPE === $type
                     ? 'for all types.'
-                    : sprintf('for type <comment>%s</comment>:', $type),
+                    : sprintf('for type <comment>%s</comment>:', $type->value),
             ),
         );
-
     }
 
     private static function printAnyTypeSymbol(
         IO $io,
         string $symbol,
         EnrichedReflector $reflector
-    ): void
-    {
+    ): void {
         foreach (SymbolType::getAllSpecificTypes() as $specificType) {
             $io->writeln(
                 sprintf(
                     'As a <comment>%s</comment>:',
-                    $specificType,
+                    $specificType->value,
                 ),
             );
 
@@ -299,16 +267,12 @@ final class InspectSymbolCommand implements Command
         }
     }
 
-    /**
-     * @param SymbolType::*_TYPE $type
-     */
     private static function printTypedSymbol(
         IO $io,
         string $symbol,
-        string $type,
+        SymbolType $type,
         EnrichedReflector $reflector
-    ): void
-    {
+    ): void {
         [$internal, $exposed] = self::determineSymbolStatus(
             $symbol,
             $type,
@@ -327,40 +291,31 @@ final class InspectSymbolCommand implements Command
         ]);
     }
 
-    /**
-     * @param SymbolType::*_TYPE $type
-     */
     private static function determineSymbolStatus(
         string $symbol,
-        string $type,
+        SymbolType $type,
         EnrichedReflector $reflector
     ): array {
-        switch ($type) {
-            case SymbolType::CLASS_TYPE:
-                return [
-                    $reflector->isClassInternal($symbol),
-                    $reflector->isExposedClass($symbol),
-                ];
-
-            case SymbolType::FUNCTION_TYPE:
-                return [
-                    $reflector->isClassInternal($symbol),
-                    $reflector->isExposedFunction($symbol),
-                ];
-
-            case SymbolType::CONSTANT_TYPE:
-                return [
-                    $reflector->isConstantInternal($symbol),
-                    $reflector->isExposedConstant($symbol),
-                ];
-        }
-
-        throw new InvalidArgumentException(
-            sprintf(
-                'Invalid type "%s"',
-                $type,
+        return match ($type) {
+            SymbolType::CLASS_TYPE => [
+                $reflector->isClassInternal($symbol),
+                $reflector->isExposedClass($symbol),
+            ],
+            SymbolType::FUNCTION_TYPE => [
+                $reflector->isFunctionInternal($symbol),
+                $reflector->isExposedFunction($symbol),
+            ],
+            SymbolType::CONSTANT_TYPE => [
+                $reflector->isConstantInternal($symbol),
+                $reflector->isExposedConstant($symbol),
+            ],
+            default => throw new InvalidArgumentException(
+                sprintf(
+                    'Invalid type "%s"',
+                    $type->value,
+                ),
             ),
-        );
+        };
     }
 
     private static function convertBoolToString(bool $bool): string

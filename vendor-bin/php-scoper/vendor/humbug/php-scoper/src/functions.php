@@ -14,71 +14,24 @@ declare(strict_types=1);
 
 namespace Humbug\PhpScoper;
 
+use Composer\InstalledVersions;
 use Iterator;
-use PackageVersions\Versions;
-use function array_pop;
-use function count;
-use function Safe\substr;
-use function str_split;
-use function strrpos;
+use function str_starts_with;
+use function substr;
 
 function get_php_scoper_version(): string
 {
     // Since PHP-Scoper relies on COMPOSER_ROOT_VERSION the version parsed by PackageVersions, we rely on Box
     // placeholders in order to get the right version for the PHAR.
-    if (0 === strpos(__FILE__, 'phar:')) {
+    if (str_starts_with(__FILE__, 'phar:')) {
         return '@git_version_placeholder@';
     }
 
-    $rawVersion = Versions::getVersion('humbug/php-scoper');
+    $prettyVersion = InstalledVersions::getPrettyVersion('humbug/php-scoper');
+    $commitHash = InstalledVersions::getReference('humbug/php-scoper');
+    $shortCommitHash = null === $commitHash ? 'local' : substr($commitHash, 0, 7);
 
-    [$prettyVersion, $commitHash] = explode('@', $rawVersion);
-
-    return $prettyVersion.'@'.substr($commitHash, 0, 7);
-}
-
-/**
- * @param string[] $paths Absolute paths
- *
- * @return string
- */
-function get_common_path(array $paths): string
-{
-    $nbPaths = count($paths);
-
-    if (0 === $nbPaths) {
-        return '';
-    }
-
-    $pathRef = (string) array_pop($paths);
-
-    if (1 === $nbPaths) {
-        $commonPath = $pathRef;
-    } else {
-        $commonPath = '';
-
-        foreach (str_split($pathRef) as $pos => $char) {
-            foreach ($paths as $path) {
-                if (!isset($path[$pos]) || $path[$pos] !== $char) {
-                    break 2;
-                }
-            }
-
-            $commonPath .= $char;
-        }
-    }
-
-    foreach (['/', '\\'] as $separator) {
-        $lastSeparatorPos = strrpos($commonPath, $separator);
-
-        if (false !== $lastSeparatorPos) {
-            $commonPath = rtrim(substr($commonPath, 0, $lastSeparatorPos), $separator);
-
-            break;
-        }
-    }
-
-    return $commonPath;
+    return $prettyVersion.'@'.$shortCommitHash;
 }
 
 function chain(iterable ...$iterables): Iterator

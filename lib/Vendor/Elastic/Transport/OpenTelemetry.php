@@ -18,6 +18,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\InvalidA
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Serializer\JsonSerializer;
 use OCA\FullTextSearch_Elasticsearch\Vendor\OpenTelemetry\API\Trace\TracerInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\OpenTelemetry\API\Trace\TracerProviderInterface;
+/** @internal */
 class OpenTelemetry
 {
     const OTEL_TRACER_NAME = 'elasticsearch-api';

@@ -1,6 +1,7 @@
 <?php
 
 // Start of tokenizer v.0.1
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Pure;
 
 /**
@@ -28,7 +29,7 @@ use JetBrains\PhpStorm\Pure;
  * content of the original token in element 1 and the line number in element 2.
  */
 #[Pure]
-function token_get_all(string $code, int $flags = 0): array {}
+function token_get_all(string $code, #[PhpStormStubsElementAvailable(from: '7.0')] int $flags = 0): array {}
 
 /**
  * Get the symbolic name of a given PHP token
@@ -189,6 +190,9 @@ define('T_DOUBLE_COLON', 397);
  * @since 7.4
  */
 define('T_FN', 311);
+/**
+ * @removed 7.0
+ */
 define('T_BAD_CHARACTER', 405);
 
 /**
@@ -226,3 +230,8 @@ define('T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG', 404);
  * @since 8.1
  */
 define('T_READONLY', 327);
+
+/**
+ * @removed 7.0
+ */
+define('T_CHARACTER', 315);

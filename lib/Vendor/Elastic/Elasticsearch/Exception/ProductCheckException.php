@@ -15,6 +15,7 @@ declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception;
 
 use RuntimeException;
+/** @internal */
 class ProductCheckException extends RuntimeException implements ElasticsearchException
 {
 }

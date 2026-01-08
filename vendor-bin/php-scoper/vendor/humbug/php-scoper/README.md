@@ -2,8 +2,8 @@
 
 [![Package version](https://img.shields.io/packagist/v/humbug/php-scoper.svg?style=flat-square)](https://packagist.org/packages/humbug/php-scoper)
 [![Build Status](https://github.com/humbug/php-scoper/workflows/Build/badge.svg)](https://github.com/humbug/php-scoper/actions)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/humbug/php-scoper.svg?branch=master&style=flat-square)](https://scrutinizer-ci.com/g/humbug/php-scoper/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/humbug/php-scoper/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/humbug/php-scoper/?branch=master)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/humbug/php-scoper.svg?branch=main&style=flat-square)](https://scrutinizer-ci.com/g/humbug/php-scoper/?branch=main)
+[![Code Coverage](https://scrutinizer-ci.com/g/humbug/php-scoper/badges/coverage.png?b=main)](https://scrutinizer-ci.com/g/humbug/php-scoper/?branch=main)
 [![Slack](https://img.shields.io/badge/slack-%23humbug-red.svg?style=flat-square)](https://symfony.com/slack-invite)
 [![License](https://img.shields.io/badge/license-MIT-red.svg?style=flat-square)](LICENSE)
 
@@ -16,7 +16,7 @@ dependencies such as vendor directories, to a new and distinct namespace.
 PHP-Scoper's goal is to make sure that all code for a project lies in a 
 distinct PHP namespace. This is necessary, for example, when building PHARs that:
 
--Bundle their own vendor dependencies; and 
+- Bundle their own vendor dependencies; and 
 - Load/execute code from arbitrary PHP projects with similar dependencies
 
 When a package (of possibly different versions) exists, and is found in both a PHAR
@@ -30,16 +30,20 @@ potentially very difficult to debug due to dissimilar or unsupported package ver
 
 - [Installation](docs/installation.md#installation)
     - [Phive](docs/installation.md#phive)
-    - [PHAR](docs/installation.md#phar)
     - [Composer](docs/installation.md#composer)
+    - [Docker](docs/installation.md#docker)
+    - [GitHub](docs/installation.md#github)
 - [Usage](#usage)
 - [Configuration](docs/configuration.md#configuration)
     - [Prefix](docs/configuration.md#prefix)
+    - [Output directory](docs/configuration.md#output-directory)
     - [Finders and paths](docs/configuration.md#finders-and-paths)
     - [Patchers](docs/configuration.md#patchers)
     - [Excluded files](docs/configuration.md#excluded-files)
     - [Excluded Symbols](docs/configuration.md#excluded-symbols)
+    - [Excluding namespaces](docs/configuration.md#excluding-namespaces)
     - [Exposed Symbols](docs/configuration.md#exposed-symbols)
+        - [Exposing namespaces](docs/configuration.md#exposing-namespaces)
         - [Exposing classes](docs/configuration.md#exposing-classes)
         - [Exposing functions](docs/configuration.md#exposing-functions)
         - [Exposing constants](docs/configuration.md#exposing-constants)
@@ -50,7 +54,11 @@ potentially very difficult to debug due to dissimilar or unsupported package ver
         - [Step 2: Run PHP-Scoper](#step-2-run-php-scoper)
 - [Recommendations](#recommendations)
 - [Further Reading](docs/further-reading.md#further-reading)
-    - [Polyfills](docs/further-reading.md#polyfills)
+    - [How to deal with unknown third-party symbols](docs/further-reading.md#how-to-deal-with-unknown-third-party-symbols)
+    - [Autoload aliases](docs/further-reading.md#autoload-aliases)
+        - [Class aliases](docs/further-reading.md#class-aliases)
+        - [Function aliases](docs/further-reading.md#function-aliases)
+    - [Symfony support](docs/further-reading.md#symfony-support)
 - [Limitations](docs/limitations.md#limitations)
     - [Dynamic symbols](docs/limitations.md#dynamic-symbols)
     - [Date symbols](docs/limitations.md#date-symbols)
@@ -61,6 +69,9 @@ potentially very difficult to debug due to dissimilar or unsupported package ver
     - [Composer Autoloader](docs/limitations.md#composer-autoloader)
     - [Composer Plugins](docs/limitations.md#composer-plugins)
     - [PSR-0 Partial support](docs/limitations.md#psr-0-partial-support)
+    - [Files autoloading](docs/limitations.md#files-autoloading)
+    - [Exposing/Excluding traits](docs/limitations.md#exposingexcluding-traits)
+    - [Exposing/Excluding enums](docs/limitations.md#exposingexcluding-enums)
 - [Contributing](#contributing)
 - [Credits](#credits)
 
@@ -200,8 +211,8 @@ now been moved under the
 
 [@webmozart]: https://twitter.com/webmozart
 [Bernhard Schussek]: https://webmozart.io/
-[box]: https://github.com/humbug/box
+[box]: https://github.com/box-project/box
 [humbug]: https://github.com/humbug
 [patchers]: docs/configuration.md#patchers
-[php-scoper-integration]: https://github.com/humbug/box#isolating-the-phar
+[php-scoper-integration]: https://github.com/box-project/box/blob/main/doc/code-isolation.md#phar-code-isolation
 [phar-extract-to]: https://secure.php.net/manual/en/phar.extractto.php

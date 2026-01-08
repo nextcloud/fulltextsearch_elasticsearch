@@ -27,6 +27,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
+/** @internal */
 class TransportBuilder
 {
     protected ClientInterface $client;

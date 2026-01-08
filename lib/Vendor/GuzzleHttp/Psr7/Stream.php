@@ -6,6 +6,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * PHP stream implementation.
+ * @internal
  */
 class Stream implements StreamInterface
 {

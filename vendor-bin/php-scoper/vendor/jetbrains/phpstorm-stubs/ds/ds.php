@@ -11,6 +11,7 @@
 namespace Ds;
 
     use Countable;
+    use IteratorAggregate;
     use JsonSerializable;
     use OutOfBoundsException;
     use OutOfRangeException;
@@ -24,7 +25,7 @@ namespace Ds;
      * json_encode().
      * @package Ds
      */
-    interface Collection extends Traversable, Countable, JsonSerializable
+    interface Collection extends Countable, IteratorAggregate, JsonSerializable
     {
         /**
          * Removes all values from the collection.
@@ -550,6 +551,8 @@ namespace Ds;
          */
         public function get(int $index) {}
 
+        public function getIterator(): Traversable {}
+
         /**
          * Inserts values into the sequence at a given index.
          *
@@ -825,6 +828,8 @@ namespace Ds;
          * @return Collection
          */
         public function copy(): Collection {}
+
+        public function getIterator(): Traversable {}
 
         /**
          * Returns whether the deque is empty.
@@ -1261,6 +1266,8 @@ namespace Ds;
          * @link https://www.php.net/manual/en/ds-map.get.php
          */
         public function get($key, $default = null) {}
+
+        public function getIterator(): Traversable {}
 
         /**
          * Determines whether the map contains a given key
@@ -1897,6 +1904,8 @@ namespace Ds;
          */
         public function get(int $index) {}
 
+        public function getIterator(): Traversable {}
+
         /**
          * Creates a new set using values common to both the current instance
          * and another set. In other words, returns a copy of the current
@@ -1931,6 +1940,20 @@ namespace Ds;
          * @return string
          */
         public function join(?string $glue = null): string {}
+
+        /**
+         * Returns the result of applying a callback function to each value in
+         * the set.
+         * @param callable $callback A callable to apply to each value in the
+         * set.
+         * The callable should return what the new value will be in the new
+         * set.
+         * <code>callback ( mixed $value ) : mixed</code>
+         * @return Set The result of applying a callback to each value in
+         * the set.
+         * <p><b>Note:</b> The values of the current instance won't be affected.</p>
+         */
+        public function map(callable $callback): Set {}
 
         /**
          * Returns the result of adding all given values to the set.
@@ -2196,6 +2219,8 @@ namespace Ds;
          */
         public function copy(): Stack {}
 
+        public function getIterator(): Traversable {}
+
         /**
          * Returns whether the collection is empty.
          * @link https://www.php.net/manual/en/ds-stack.isempty.php
@@ -2322,6 +2347,8 @@ namespace Ds;
          */
         public function copy(): Stack {}
 
+        public function getIterator(): Traversable {}
+
         /**
          * Returns whether the collection is empty.
          * @link https://www.php.net/manual/en/ds-queue.isempty.php
@@ -2406,6 +2433,22 @@ namespace Ds;
         public function count(): int {}
 
         /**
+         * Allocates enough memory for a required capacity
+         * @link https://www.php.net/manual/en/ds-priorityqueue.allocate.php
+         *
+         * @param int   $capacity
+         */
+        public function allocate(int $capacity): void {}
+
+        /**
+         * Returns the current capacity
+         * @link https://www.php.net/manual/en/ds-priorityqueue.capacity.php
+         *
+         * @return int
+         */
+        public function capacity(): int {}
+
+        /**
          * Removes all values from the collection.
          * @link https://www.php.net/manual/en/ds-collection.clear.php
          */
@@ -2418,12 +2461,32 @@ namespace Ds;
          */
         public function copy() {}
 
+        public function getIterator(): Traversable {}
+
         /**
          * Returns whether the collection is empty.
          * @link https://www.php.net/manual/en/ds-collection.isempty.php
          * @return bool
          */
         public function isEmpty(): bool {}
+
+        /**
+         * Returns the value at the front of the queue, but does not remove it.
+         * @link https://www.php.net/manual/en/ds-priorityqueue.peek.php
+         *
+         * @return mixed The value at the front of the queue.
+         * @throws UnderflowException if empty.
+         */
+        public function peek() {}
+
+        /**
+         * Removes and returns the value with the highest priority
+         * @link https://www.php.net/manual/en/ds-priorityqueue.pop.php
+         *
+         * @return mixed The removed value which was at the front of the queue.
+         * @throws UnderflowException if empty.
+         */
+        public function pop() {}
 
         /**
          * Pushes a value with a given priority into the queue.

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -13,14 +12,17 @@ class StubsContainer
      * @var PHPConst[]
      */
     private $constants = [];
+
     /**
      * @var PHPFunction[]
      */
     private $functions = [];
+
     /**
      * @var PHPClass[]
      */
     private $classes = [];
+
     /**
      * @var PHPInterface[]
      */
@@ -29,14 +31,20 @@ class StubsContainer
     /**
      * @return PHPConst[]
      */
-    public function getConstants(): array
+    public function getConstants()
     {
         return $this->constants;
     }
 
-    public function getConstant(string $constantName, ?string $sourceFilePath = null): ?PHPConst
+    /**
+     * @param string $constantName
+     * @param string|null $sourceFilePath
+     * @return PHPConst|null
+     * @throws RuntimeException
+     */
+    public function getConstant($constantName, $sourceFilePath = null)
     {
-        $constants = array_filter($this->constants, function (PHPConst $const) use ($constantName): bool {
+        $constants = array_filter($this->constants, function (PHPConst $const) use ($constantName) {
             return $const->name === $constantName && $const->duplicateOtherElement === false
                 && BasePHPElement::entitySuitsCurrentPhpVersion($const);
         });
@@ -59,7 +67,7 @@ class StubsContainer
         return null;
     }
 
-    public function addConstant(PHPConst $constant): void
+    public function addConstant(PHPConst $constant)
     {
         if (isset($constant->name)) {
             if (array_key_exists($constant->name, $this->constants)) {
@@ -69,6 +77,7 @@ class StubsContainer
                         return $nextConstant->name === $constant->name;
                     }
                 ));
+                $constant->duplicateOtherElement = true;
                 $this->constants[$constant->name . '_duplicated_' . $amount] = $constant;
             } else {
                 $this->constants[$constant->name] = $constant;
@@ -79,7 +88,7 @@ class StubsContainer
     /**
      * @return PHPFunction[]
      */
-    public function getFunctions(): array
+    public function getFunctions()
     {
         return $this->functions;
     }
@@ -88,16 +97,16 @@ class StubsContainer
      * @param string $name
      * @param string|null $sourceFilePath
      * @param bool $shouldSuitCurrentPhpVersion
-     * @return PHPFunction|null
+     * @return PHPFunction
      * @throws RuntimeException
      */
-    public function getFunction(string $name, ?string $sourceFilePath = null, bool $shouldSuitCurrentPhpVersion = true): ?PHPFunction
+    public function getFunction($name, $sourceFilePath = null, $shouldSuitCurrentPhpVersion = true)
     {
-        $functions = array_filter($this->functions, function (PHPFunction $function) use ($shouldSuitCurrentPhpVersion, $name): bool {
+        $functions = array_filter($this->functions, function (PHPFunction $function) use ($shouldSuitCurrentPhpVersion, $name) {
             return $function->name === $name && (!$shouldSuitCurrentPhpVersion || BasePHPElement::entitySuitsCurrentPhpVersion($function));
         });
         if (count($functions) > 1) {
-            $functions = array_filter($functions, function (PHPFunction $function): bool {
+            $functions = array_filter($functions, function (PHPFunction $function) {
                 return $function->duplicateOtherElement === false;
             });
         }
@@ -116,11 +125,12 @@ class StubsContainer
         }
         if (!empty($functions)) {
             return array_pop($functions);
+        } else {
+            throw new RuntimeException("Could not get function {$name} from reflection");
         }
-        return null;
     }
 
-    public function addFunction(PHPFunction $function): void
+    public function addFunction(PHPFunction $function)
     {
         if (isset($function->name)) {
             if (array_key_exists($function->name, $this->functions)) {
@@ -141,7 +151,7 @@ class StubsContainer
     /**
      * @return PHPClass[]
      */
-    public function getClasses(): array
+    public function getClasses()
     {
         return $this->classes;
     }
@@ -153,9 +163,9 @@ class StubsContainer
      * @return PHPClass|null
      * @throws RuntimeException
      */
-    public function getClass(string $name, ?string $sourceFilePath = null, bool $shouldSuitCurrentPhpVersion = true): ?PHPClass
+    public function getClass($name, $sourceFilePath = null, $shouldSuitCurrentPhpVersion = true)
     {
-        $classes = array_filter($this->classes, function (PHPClass $class) use ($shouldSuitCurrentPhpVersion, $name): bool {
+        $classes = array_filter($this->classes, function (PHPClass $class) use ($shouldSuitCurrentPhpVersion, $name) {
             return $class->name === $name &&
                 (!$shouldSuitCurrentPhpVersion || BasePHPElement::entitySuitsCurrentPhpVersion($class));
         });
@@ -181,14 +191,14 @@ class StubsContainer
     /**
      * @return PHPClass[]
      */
-    public function getCoreClasses(): array
+    public function getCoreClasses()
     {
-        return array_filter($this->classes, function (PHPClass $class): bool {
+        return array_filter($this->classes, function (PHPClass $class) {
             return $class->stubBelongsToCore === true;
         });
     }
 
-    public function addClass(PHPClass $class): void
+    public function addClass(PHPClass $class)
     {
         if (isset($class->name)) {
             if (array_key_exists($class->name, $this->classes)) {
@@ -212,9 +222,9 @@ class StubsContainer
      * @return PHPInterface|null
      * @throws RuntimeException
      */
-    public function getInterface(string $name, ?string $sourceFilePath = null, bool $shouldSuitCurrentPhpVersion = true): ?PHPInterface
+    public function getInterface($name, $sourceFilePath = null, $shouldSuitCurrentPhpVersion = true)
     {
-        $interfaces = array_filter($this->interfaces, function (PHPInterface $interface) use ($shouldSuitCurrentPhpVersion, $name): bool {
+        $interfaces = array_filter($this->interfaces, function (PHPInterface $interface) use ($shouldSuitCurrentPhpVersion, $name) {
             return $interface->name === $name &&
                 (!$shouldSuitCurrentPhpVersion || BasePHPElement::entitySuitsCurrentPhpVersion($interface));
         });
@@ -240,7 +250,7 @@ class StubsContainer
     /**
      * @return PHPInterface[]
      */
-    public function getInterfaces(): array
+    public function getInterfaces()
     {
         return $this->interfaces;
     }
@@ -248,14 +258,14 @@ class StubsContainer
     /**
      * @return PHPInterface[]
      */
-    public function getCoreInterfaces(): array
+    public function getCoreInterfaces()
     {
-        return array_filter($this->interfaces, function (PHPInterface $interface): bool {
+        return array_filter($this->interfaces, function (PHPInterface $interface) {
             return $interface->stubBelongsToCore === true;
         });
     }
 
-    public function addInterface(PHPInterface $interface): void
+    public function addInterface(PHPInterface $interface)
     {
         if (isset($interface->name)) {
             if (array_key_exists($interface->name, $this->interfaces)) {

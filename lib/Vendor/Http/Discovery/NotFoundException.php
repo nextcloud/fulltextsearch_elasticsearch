@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception\NotFoundExc
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
  *
  * @deprecated since since version 1.0, and will be removed in 2.0. Use {@link \Http\Discovery\Exception\NotFoundException} instead.
+ * @internal
  */
 final class NotFoundException extends RealNotFoundException
 {

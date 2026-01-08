@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -21,8 +20,10 @@ class PHPClass extends BasePHPClass
      */
     public $parentClass;
     public $interfaces = [];
+
     /** @var PHPProperty[] */
     public $properties = [];
+    public $isReadonly = false;
 
     /**
      * @param ReflectionClass $reflectionObject
@@ -37,6 +38,9 @@ class PHPClass extends BasePHPClass
         }
         $this->interfaces = $reflectionObject->getInterfaceNames();
         $this->isFinal = $reflectionObject->isFinal();
+        if (method_exists($reflectionObject, 'isReadOnly')) {
+            $this->isReadonly = $reflectionObject->isReadOnly();
+        }
         foreach ($reflectionObject->getMethods() as $method) {
             if ($method->getDeclaringClass()->getName() !== $this->name) {
                 continue;
@@ -45,12 +49,14 @@ class PHPClass extends BasePHPClass
             $this->addMethod($parsedMethod);
         }
 
-        foreach ($reflectionObject->getReflectionConstants() as $constant) {
-            if ($constant->getDeclaringClass()->getName() !== $this->name) {
-                continue;
+        if (method_exists($reflectionObject, 'getReflectionConstants')) {
+            foreach ($reflectionObject->getReflectionConstants() as $constant) {
+                if ($constant->getDeclaringClass()->getName() !== $this->name) {
+                    continue;
+                }
+                $parsedConstant = (new PHPConst())->readObjectFromReflection($constant);
+                $this->addConstant($parsedConstant);
             }
-            $parsedConstant = (new PHPConst())->readObjectFromReflection($constant);
-            $this->addConstant($parsedConstant);
         }
 
         foreach ($reflectionObject->getProperties() as $property) {
@@ -124,7 +130,7 @@ class PHPClass extends BasePHPClass
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $class) {
             if ($class->name === $this->name) {
@@ -158,12 +164,17 @@ class PHPClass extends BasePHPClass
                         $constant->readMutedProblems($class->constants);
                     }
                 }
+                if (!empty($class->properties)) {
+                    foreach ($this->properties as $property) {
+                        $property->readMutedProblems($class->properties);
+                    }
+                }
                 return;
             }
         }
     }
 
-    public function addProperty(PHPProperty $parsedProperty): void
+    public function addProperty(PHPProperty $parsedProperty)
     {
         if (isset($parsedProperty->name)) {
             if (array_key_exists($parsedProperty->name, $this->properties)) {
@@ -181,11 +192,12 @@ class PHPClass extends BasePHPClass
     }
 
     /**
+     * @return PHPProperty|null
      * @throws RuntimeException
      */
-    public function getProperty($propertyName): ?PHPProperty
+    public function getProperty($propertyName)
     {
-        $properties = array_filter($this->properties, function (PHPProperty $property) use ($propertyName): bool {
+        $properties = array_filter($this->properties, function (PHPProperty $property) use ($propertyName) {
             return $property->name === $propertyName && $property->duplicateOtherElement === false
                 && BasePHPElement::entitySuitsCurrentPhpVersion($property);
         });

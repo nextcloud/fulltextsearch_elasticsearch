@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
  * Content-Type, and Expect headers.
  *
  * @final
+ * @internal
  */
 class PrepareBodyMiddleware
 {

@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
 /**
  * Client interface for sending HTTP requests.
+ * @internal
  */
 interface ClientInterface
 {

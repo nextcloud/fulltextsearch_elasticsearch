@@ -4,6 +4,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
+/** @internal */
 interface ClientInterface
 {
     /**

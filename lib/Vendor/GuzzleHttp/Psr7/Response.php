@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * PSR-7 response implementation.
+ * @internal
  */
 class Response implements ResponseInterface
 {

@@ -8,6 +8,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception;
  * the discovery fails to find a class.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @internal
  */
 class StrategyUnavailableException extends \RuntimeException implements Exception
 {

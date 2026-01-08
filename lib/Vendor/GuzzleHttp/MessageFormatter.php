@@ -33,6 +33,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
  * - {res_body}:       Response body
  *
  * @final
+ * @internal
  */
 class MessageFormatter implements MessageFormatterInterface
 {

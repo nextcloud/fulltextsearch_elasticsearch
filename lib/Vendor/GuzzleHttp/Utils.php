@@ -8,6 +8,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Handler\CurlMultiHandler;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Handler\Proxy;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Handler\StreamHandler;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
+/** @internal */
 final class Utils
 {
     /**

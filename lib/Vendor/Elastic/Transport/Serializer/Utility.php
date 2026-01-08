@@ -19,6 +19,7 @@ use function is_array;
 use function is_object;
 use function var_export;
 use function sprintf;
+/** @internal */
 class Utility
 {
     /**

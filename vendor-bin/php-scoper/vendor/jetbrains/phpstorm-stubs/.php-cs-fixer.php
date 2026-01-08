@@ -40,8 +40,11 @@ return (new PhpCsFixer\Config())
         'no_empty_phpdoc' => true,
         'no_extra_blank_lines' => ['tokens' => [
             'case', 'continue', 'curly_brace_block', 'default', 'extra', 'parenthesis_brace_block',
-            'square_brace_block', 'switch', 'throw', 'use', 'use_trait'
+            'square_brace_block', 'switch', 'throw', 'use'
         ]
+        ],
+        'class_attributes_separation' => [
+          'elements' => ['const' => 'only_if_meta', 'method' => 'one', 'property' => 'only_if_meta', 'trait_import' => 'none']
         ],
         'no_leading_namespace_whitespace' => true,
         'no_multiline_whitespace_around_double_arrow' => true,
@@ -78,7 +81,7 @@ return (new PhpCsFixer\Config())
         'switch_continue_to_break' => true,
         'trim_array_spaces' => true,
         'unary_operator_spaces' => true,
-        'visibility_required' => ['elements' => ['const', 'method', 'property']],
+        'visibility_required' => ['elements' => ['method', 'property']],
         'whitespace_after_comma_in_array' => true,
         'encoding' => true,
         'full_opening_tag' => true,

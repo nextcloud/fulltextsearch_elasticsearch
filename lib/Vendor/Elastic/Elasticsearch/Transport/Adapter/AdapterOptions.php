@@ -16,6 +16,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transpor
 
 /**
  * The HTTP client adapters supported
+ * @internal
  */
 final class AdapterOptions
 {

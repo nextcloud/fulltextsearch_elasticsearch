@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Fidry\Console\Command;
 
-use Fidry\Console\IO;
+use Fidry\Console\Input\IO;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseSymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;

@@ -10,6 +10,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise;
  * immediately and ignore other callbacks.
  *
  * @final
+ * @internal
  */
 class FulfilledPromise implements PromiseInterface
 {

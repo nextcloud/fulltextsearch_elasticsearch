@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -17,14 +16,17 @@ class PHPMethod extends PHPFunction
      * @var string
      */
     public $access;
+
     /**
      * @var bool
      */
     public $isStatic;
+
     /**
      * @var bool
      */
     public $isFinal;
+
     /**
      * @var string
      */
@@ -83,7 +85,7 @@ class PHPMethod extends PHPFunction
         array_push($this->returnTypesFromSignature, ...self::convertParsedTypeToArray($node->getReturnType()));
         $this->collectTags($node);
         $this->checkDeprecationTag($node);
-        $this->checkReturnTag($node);
+        $this->checkReturnTag();
 
         if (strncmp($this->name, 'PS_UNRESERVE_PREFIX_', 20) === 0) {
             $this->name = substr($this->name, strlen('PS_UNRESERVE_PREFIX_'));
@@ -93,7 +95,17 @@ class PHPMethod extends PHPFunction
             $parsedParameter = (new PHPParameter())->readObjectFromStubNode($parameter);
             if (self::entitySuitsCurrentPhpVersion($parsedParameter)) {
                 $parsedParameter->indexInSignature = $index;
-                $this->parameters[] = $parsedParameter;
+                $addedParameters = array_filter($this->parameters, function (PHPParameter $addedParameter) use ($parsedParameter) {
+                    return $addedParameter->name === $parsedParameter->name;
+                });
+                if (!empty($addedParameters)) {
+                    if ($parsedParameter->is_vararg) {
+                        $parsedParameter->isOptional = false;
+                        $index--;
+                        $parsedParameter->indexInSignature = $index;
+                    }
+                }
+                $this->parameters[$parsedParameter->name] = $parsedParameter;
                 $index++;
             }
         }
@@ -125,7 +137,7 @@ class PHPMethod extends PHPFunction
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $method) {
             if ($method->name === $this->name) {

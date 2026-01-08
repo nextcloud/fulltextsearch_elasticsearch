@@ -1,6 +1,7 @@
 <?php
 
 // Start of gmp v.
+use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Deprecated;
 use JetBrains\PhpStorm\Pure;
 
@@ -313,7 +314,7 @@ function gmp_sqrtrem(GMP|string|int $num): array {}
  * </p>
  * <p>It can be either a GMP number resource, or a
  * numeric string given that it is possible to convert the latter to a number.</p>
- * @param int $exponent <p>
+ * @param positive-int $exponent <p>
  * The positive power to raise the <i>base</i>.
  * </p>
  * @return resource|GMP The new (raised) number, as a GMP number. The case of
@@ -425,6 +426,7 @@ function gmp_gcd(GMP|string|int $num1, GMP|string|int $num2): GMP {}
  * @return array An array of GMP numbers.
  */
 #[Pure]
+#[ArrayShape(["g" => "mixed", "s" => "mixed", "t" => "mixed"])]
 function gmp_gcdext(GMP|string|int $num1, GMP|string|int $num2): array {}
 
 /**
@@ -693,7 +695,7 @@ function gmp_export(GMP|string|int $num, int $word_size = 1, int $flags = GMP_MS
  * @link https://php.net/manual/en/function.gmp-root.php
  * @param GMP|string|int $num <p>Either a GMP number resource in PHP 5.5 and earlier, a GMP object in PHP 5.6
  * and later, or a numeric string provided that it is possible to convert the latter to a number.</p>
- * @param int $nth The positive root to take of a.
+ * @param positive-int $nth The positive root to take of a <b>num</b>.
  * @return GMP The integer component of the resultant root, as a GMP number.
  * @since 5.6
  */
@@ -705,7 +707,7 @@ function gmp_root(GMP|string|int $num, int $nth): GMP {}
  * @link https://php.net/manual/en/function.gmp-rootrem.php
  * @param GMP|string|int $num <p>Either a GMP number resource in PHP 5.5 and earlier, a GMP object in PHP 5.6
  * and later, or a numeric string provided that it is possible to convert the latter to a number.</p>
- * @param int $nth The positive root to take of a.
+ * @param positive-int $nth The positive root to take of a <b>num</b>.
  * @return array|GMP[] <p>A two element array, where the first element is the integer component of
  * the root, and the second element is the remainder, both represented as GMP numbers.</p>
  * @since 5.6
@@ -805,6 +807,8 @@ class GMP implements Serializable
      */
     public function serialize() {}
 
+    public function __serialize(): array {}
+
     /**
      * Constructs the object
      * @link https://php.net/manual/en/serializable.unserialize.php
@@ -814,5 +818,7 @@ class GMP implements Serializable
      * @return void
      */
     public function unserialize($serialized) {}
+
+    public function __unserialize(array $data): void {}
 }
 // End of gmp v.

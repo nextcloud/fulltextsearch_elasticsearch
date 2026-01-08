@@ -59,6 +59,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Watc
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Endpoints\Xpack;
 /**
  * @generated This file is generated, please do not edit
+ * @internal
  */
 trait NamespaceTrait
 {

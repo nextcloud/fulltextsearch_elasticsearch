@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception;
  * Thrown when all discovery strategies fails to find a resource.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @internal
  */
 final class DiscoveryFailedException extends \Exception implements Exception
 {

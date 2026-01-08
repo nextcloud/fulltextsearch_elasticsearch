@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
+/** @internal */
 class UploadedFile implements UploadedFileInterface
 {
     private const ERROR_MAP = [\UPLOAD_ERR_OK => 'UPLOAD_ERR_OK', \UPLOAD_ERR_INI_SIZE => 'UPLOAD_ERR_INI_SIZE', \UPLOAD_ERR_FORM_SIZE => 'UPLOAD_ERR_FORM_SIZE', \UPLOAD_ERR_PARTIAL => 'UPLOAD_ERR_PARTIAL', \UPLOAD_ERR_NO_FILE => 'UPLOAD_ERR_NO_FILE', \UPLOAD_ERR_NO_TMP_DIR => 'UPLOAD_ERR_NO_TMP_DIR', \UPLOAD_ERR_CANT_WRITE => 'UPLOAD_ERR_CANT_WRITE', \UPLOAD_ERR_EXTENSION => 'UPLOAD_ERR_EXTENSION'];

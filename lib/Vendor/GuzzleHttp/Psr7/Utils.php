@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ServerRequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
+/** @internal */
 final class Utils
 {
     /**

@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * Stream decorator that begins dropping data once the size of the underlying
  * stream becomes too full.
+ * @internal
  */
 final class DroppingStream implements StreamInterface
 {

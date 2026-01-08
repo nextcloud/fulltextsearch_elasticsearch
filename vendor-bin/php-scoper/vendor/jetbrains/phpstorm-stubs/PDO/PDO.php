@@ -18,6 +18,7 @@ class PDOException extends RuntimeException
 {
     #[LanguageLevelTypeAware(['8.1' => 'array|null'], default: '')]
     public $errorInfo;
+    protected $code;
 }
 
 /**
@@ -26,12 +27,6 @@ class PDOException extends RuntimeException
  */
 class PDO
 {
-    /**
-     * Represents a boolean data type.
-     * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-bool
-     */
-    public const PARAM_BOOL = 1;
-
     /**
      * Represents the SQL NULL data type.
      * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-null
@@ -42,13 +37,31 @@ class PDO
      * Represents the SQL INTEGER data type.
      * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-int
      */
-    public const PARAM_INT = 2;
+    public const PARAM_INT = 1;
 
     /**
      * Represents the SQL CHAR, VARCHAR, or other string data type.
      * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-str
      */
-    public const PARAM_STR = 3;
+    public const PARAM_STR = 2;
+
+    /**
+     * Represents the SQL large object data type.
+     * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-lob
+     */
+    public const PARAM_LOB = 3;
+
+    /**
+     * Represents a recordset type. Not currently supported by any drivers.
+     * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-stmt
+     */
+    public const PARAM_STMT = 4;
+
+    /**
+     * Represents a boolean data type.
+     * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-bool
+     */
+    public const PARAM_BOOL = 5;
 
     /**
      * Flag to denote a string uses the national character set.
@@ -97,18 +110,6 @@ class PDO
      * @since 7.3
      */
     public const SQLITE_ATTR_OPEN_FLAGS = 1000;
-
-    /**
-     * Represents the SQL large object data type.
-     * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-lob
-     */
-    public const PARAM_LOB = 4;
-
-    /**
-     * Represents a recordset type. Not currently supported by any drivers.
-     * @link https://php.net/manual/en/pdo.constants.php#pdo.constants.param-stmt
-     */
-    public const PARAM_STMT = 5;
 
     /**
      * Specifies that the parameter is an INOUT parameter for a stored
@@ -683,7 +684,6 @@ class PDO
      * @link https://php.net/manual/en/ref.pdo-mysql.php#pdo.constants.mysql-attr-ignore-space
      */
     public const MYSQL_ATTR_IGNORE_SPACE = 1006;
-
     public const MYSQL_ATTR_SERVER_PUBLIC_KEY = 1012;
 
     /**
@@ -763,6 +763,10 @@ class PDO
 
     #[Deprecated("Use PDO::ATTR_EMULATE_PREPARES instead")]
     public const PGSQL_ASSOC = 1;
+
+    /**
+     * @removed 7.1
+     */
     public const PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT = 1000;
 
     /**
@@ -776,7 +780,6 @@ class PDO
     public const PGSQL_TRANSACTION_INTRANS = 2;
     public const PGSQL_TRANSACTION_INERROR = 3;
     public const PGSQL_TRANSACTION_UNKNOWN = 4;
-
     public const PGSQL_CONNECT_ASYNC = 4;
     public const PGSQL_CONNECT_FORCE_NEW = 2;
     public const PGSQL_CONNECTION_AUTH_OK = 5;
@@ -860,6 +863,7 @@ class PDO
      * @since 7.4
      */
     public const SQLITE_ATTR_READONLY_STATEMENT = 1001;
+
     /**
      * @since 7.4
      */
@@ -898,6 +902,21 @@ class PDO
      * @since 8.0
      */
     public const OCI_ATTR_CALL_TIMEOUT = 1004;
+
+    /**
+     * Sets the date format.
+     */
+    public const FB_ATTR_DATE_FORMAT = 1000;
+
+    /**
+     * Sets the time format.
+     */
+    public const FB_ATTR_TIME_FORMAT = 1001;
+
+    /**
+     * Sets the timestamp format.
+     */
+    public const FB_ATTR_TIMESTAMP_FORMAT = 1002;
 
     /**
      * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.1.0)<br/>
@@ -1239,7 +1258,7 @@ class PDO
     #[TentativeType]
     public function quote(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $string,
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_INT
+        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_STR
     ): string|false {}
 
     final public function __wakeup() {}
@@ -1278,6 +1297,152 @@ class PDO
      * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
     public function sqliteCreateFunction($function_name, $callback, $num_args = -1, $flags = 0) {}
+
+    /**
+     * (PHP 5 &gt;= 5.3.3, PHP 7, PHP 8)<br/>
+     * Copy data from PHP array into table
+     * @link https://www.php.net/manual/en/pdo.pgsqlcopyfromarray.php
+     * @param string $tableName <p>
+     * String containing table name
+     * </p>
+     * @param array $rows <p>
+     * Array of strings with fields separated by <i>separator</i>
+     * </p>
+     * @param string $separator <p>
+     * Separator used in <i>rows</i> array
+     * </p>
+     * @param string $nullAs <p>
+     * How to interpret null values
+     * </p>
+     * @param ?string $fields <p>
+     * List of fields to insert
+     * </p>
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     */
+    public function pgsqlCopyFromArray(string $tableName, array $rows, string $separator = "\t", string $nullAs = "\\\\N", ?string $fields = null): bool {}
+
+    /**
+     * (PHP 5 &gt;= 5.3.3, PHP 7, PHP 8)<br/>
+     * Copy data from file into table
+     * @link https://www.php.net/manual/en/pdo.pgsqlcopyfromfile.php
+     * @param string $tableName <p>
+     * String containing table name
+     * </p>
+     * @param string $filename <p>
+     * Filename containing data to import
+     * </p>
+     * @param string $separator <p>
+     * Separator used in file specified by <i>filename</i>
+     * </p>
+     * @param string $nullAs <p>
+     * How to interpret null values
+     * </p>
+     * @param ?string $fields <p>
+     * List of fields to insert
+     * </p>
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     */
+    public function pgsqlCopyFromFile(string $tableName, string $filename, string $separator = "\t", string $nullAs = "\\\\N", ?string $fields = null): bool {}
+
+    /**
+     * (PHP 5 &gt;= 5.3.3, PHP 7, PHP 8)<br/>
+     * Copy data from database table into PHP array
+     * @link https://www.php.net/manual/en/pdo.pgsqlcopytoarray.php
+     * @param string $tableName <p>
+     * String containing table name
+     * </p>
+     * @param string $separator <p>
+     * Separator used in rows
+     * </p>
+     * @param string $nullAs <p>
+     * How to interpret null values
+     * </p>
+     * @param ?string $fields <p>
+     * List of fields to insert
+     * </p>
+     * @return array|false returns an array of rows, or <b>FALSE</b> on failure.
+     */
+    public function pgsqlCopyToArray(string $tableName, string $separator = "\t", string $nullAs = "\\\\N", ?string $fields = null): array|false {}
+
+    /**
+     * (PHP 5 &gt;= 5.3.3, PHP 7, PHP 8)<br/>
+     * Copy data from table into file
+     * @link https://www.php.net/manual/en/pdo.pgsqlcopytofile.php
+     * @param string $tableName <p>
+     * String containing table name
+     * </p>
+     * @param string $filename <p>
+     * Filename to export data
+     * </p>
+     * @param string $separator <p>
+     * Separator used in file specified by <i>filename</i>
+     * </p>
+     * @param string $nullAs <p>
+     * How to interpret null values
+     * </p>
+     * @param ?string $fields <p>
+     * List of fields to insert
+     * </p>
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     */
+    public function pgsqlCopyToFile(string $tableName, string $filename, string $separator = "\t", string $nullAs = "\\\\N", ?string $fields = null): bool {}
+
+    /**
+     * (PHP 5 &gt;= 5.1.2, PHP 7, PHP 8, PECL pdo_pgsql &gt;= 1.0.2)<br/>
+     * Creates a new large object
+     * @link https://www.php.net/manual/en/pdo.pgsqllobcreate.php
+     * @return string|false returns the OID of the newly created large object on success,
+     * or <b>FALSE</b> on failure.
+     */
+    public function pgsqlLOBCreate(): string|false {}
+
+    /**
+     * (PHP 5 &gt;= 5.1.2, PHP 7, PHP 8, PECL pdo_pgsql &gt;= 1.0.2)<br/>
+     * Opens an existing large object stream
+     * @link https://www.php.net/manual/en/pdo.pgsqllobopen.php
+     * @param string $oid <p>
+     * A large object identifier.
+     * </p>
+     * @param string $mode <p>
+     * If mode is r, open the stream for reading. If mode is w, open the stream for writing.
+     * </p>
+     * @return resource|false returns a stream resource on success or <b>FALSE</b> on failure.
+     */
+    public function pgsqlLOBOpen(string $oid, string $mode = "rb") {}
+
+    /**
+     * (PHP 5 &gt;= 5.1.2, PHP 7, PHP 8, PECL pdo_pgsql &gt;= 1.0.2)<br/>
+     * Deletes the large object
+     * @link https://www.php.net/manual/en/pdo.pgsqllobunlink.php
+     * @param string $oid <p>
+     * A large object identifier.
+     * </p>
+     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
+     */
+    public function pgsqlLOBUnlink(string $oid): bool {}
+
+    /**
+     * (PHP 5 &gt;= 5.6.0, PHP 7, PHP 8)<br/>
+     * Get asynchronous notification
+     * @link https://www.php.net/manual/en/pdo.pgsqlgetnotify.php
+     * @param int $fetchMode <p>
+     * The format the result set should be returned as, represented as a <b>PDO::FETCH_*</b> constant.
+     * </p>
+     * @param int $timeoutMilliseconds <p>
+     * The length of time to wait for a response, in milliseconds.
+     * </p>
+     * @return array|false if one or more notifications is pending, returns a single row,
+     * with fields message and pid, otherwise <b>FALSE</b>.
+     */
+    public function pgsqlGetNotify(int $fetchMode = PDO::FETCH_DEFAULT, int $timeoutMilliseconds = 0): array|false {}
+
+    /**
+     * (PHP 5 &gt;= 5.6.0, PHP 7, PHP 8)<br/>
+     * Get the server PID
+     * @link https://www.php.net/manual/en/pdo.pgsqlgetpid.php
+     * @return int The server's PID.
+     */
+    public function pgsqlGetPid(): int {}
 }
 
 /**
@@ -1389,7 +1554,7 @@ class PDOStatement implements IteratorAggregate
     public function bindParam(
         #[LanguageLevelTypeAware(['8.0' => 'int|string'], default: '')] $param,
         #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] &$var,
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_INT,
+        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_STR,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $maxLength = null,
         #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $driverOptions = null
     ): bool {}
@@ -1421,7 +1586,7 @@ class PDOStatement implements IteratorAggregate
     public function bindColumn(
         #[LanguageLevelTypeAware(['8.0' => 'int|string'], default: '')] $column,
         #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] &$var,
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_INT,
+        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_STR,
         #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $maxLength = null,
         #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $driverOptions = null
     ): bool {}
@@ -1450,7 +1615,7 @@ class PDOStatement implements IteratorAggregate
     public function bindValue(
         #[LanguageLevelTypeAware(['8.0' => 'int|string'], default: '')] $param,
         #[LanguageLevelTypeAware(['8.0' => 'mixed'], default: '')] $value,
-        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_INT
+        #[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $type = PDO::PARAM_STR
     ): bool {}
 
     /**
@@ -1533,16 +1698,18 @@ class PDOStatement implements IteratorAggregate
     ): array {}
 
     /**
+     * @template T
+     *
      * (PHP 5 &gt;= 5.1.0, PHP 7, PECL pdo &gt;= 0.2.4)<br/>
      * Fetches the next row and returns it as an object.
      * @link https://php.net/manual/en/pdostatement.fetchobject.php
-     * @param string $class [optional] <p>
+     * @param class-string<T> $class [optional] <p>
      * Name of the created class.
      * </p>
      * @param array $constructorArgs [optional] <p>
      * Elements of this array are passed to the constructor.
      * </p>
-     * @return mixed an instance of the required class with property names that
+     * @return T|stdClass|null an instance of the required class with property names that
      * correspond to the column names or <b>FALSE</b> on failure.
      */
     #[TentativeType]
@@ -1684,6 +1851,16 @@ class PDOStatement implements IteratorAggregate
      * or if no result set exists.
      */
     #[TentativeType]
+    #[ArrayShape([
+        "name" => "string",
+        "len" => "int",
+        "precision" => "int",
+        "oci:decl_type" => "int|string",
+        "native_type" => "string",
+        "scale" => "int",
+        "flags" => "array",
+        "pdo_type" => "int"
+    ])]
     public function getColumnMeta(#[LanguageLevelTypeAware(['8.0' => 'int'], default: '')] $column): array|false {}
 
     /**

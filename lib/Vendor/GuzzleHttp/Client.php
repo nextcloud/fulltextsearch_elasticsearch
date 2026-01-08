@@ -12,6 +12,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
 /**
  * @final
+ * @internal
  */
 class Client implements ClientInterface, \OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface
 {

@@ -5,6 +5,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Strategy;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception\StrategyUnavailableException;
 /**
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @internal
  */
 interface DiscoveryStrategy
 {

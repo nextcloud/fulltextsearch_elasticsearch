@@ -8,6 +8,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Exception\DiscoveryFa
  * Finds an HTTP Asynchronous Client.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ * @internal
  */
 final class HttpAsyncClientDiscovery extends ClassDiscovery
 {

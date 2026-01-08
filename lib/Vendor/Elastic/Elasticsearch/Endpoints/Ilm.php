@@ -22,6 +22,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAv
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise\Promise;
 /**
  * @generated This file is generated, please do not edit
+ * @internal
  */
 class Ilm extends AbstractEndpoint
 {

@@ -17,53 +17,42 @@ namespace Humbug\PhpScoper\Configuration;
 use Humbug\PhpScoper\Patcher\Patcher;
 use InvalidArgumentException;
 use function Safe\preg_match;
-use function Safe\sprintf;
+use function sprintf;
 
 final class Configuration
 {
     private const PREFIX_PATTERN = '/^[\p{L}\d_\\\\]+$/u';
 
     /**
-     * @var non-empty-string|null
-     */
-    private ?string $path;
-
-    /**
      * @var non-empty-string
      */
-    private string $prefix;
-
-    private array $filesWithContents;
-    private array $excludedFilesWithContents;
-    private Patcher $patcher;
-    private SymbolsConfiguration $symbolsConfiguration;
+    private readonly string $prefix;
 
     /**
-     * @param non-empty-string|null                $path                      Absolute path to the configuration file loaded.
+     * @param non-empty-string|null                $path                      Absolute canonical path to the configuration file loaded.
+     * @param non-empty-string|null                $outputDir                 Absolute canonical path to the output directory.
      * @param non-empty-string                     $prefix                    The prefix applied.
      * @param array<string, array{string, string}> $filesWithContents         Array of tuple with the
-     *                                            first argument being the file path and the second
-     *                                            its contents
+     *                                                                        first argument being the file path and the second
+     *                                                                        its contents
      * @param array<string, array{string, string}> $excludedFilesWithContents Array of tuple
-     *                                            with the first argument being the file path and
-     *                                            the second its contents
+     *                                                                        with the first argument being the file path and
+     *                                                                        the second its contents
+     * @param bool                                 $tagDeclarationsAsInternal Whether a @internal tag should be added to the symbols declarations.
      */
     public function __construct(
-        ?string $path,
+        private ?string $path,
+        private ?string $outputDir,
         string $prefix,
-        array $filesWithContents,
-        array $excludedFilesWithContents,
-        Patcher $patcher,
-        SymbolsConfiguration $symbolsConfiguration
+        private array $filesWithContents,
+        private array $excludedFilesWithContents,
+        private Patcher $patcher,
+        private SymbolsConfiguration $symbolsConfiguration,
+        private bool $tagDeclarationsAsInternal,
     ) {
         self::validatePrefix($prefix);
 
-        $this->path = $path;
         $this->prefix = $prefix;
-        $this->filesWithContents = $filesWithContents;
-        $this->excludedFilesWithContents = $excludedFilesWithContents;
-        $this->patcher = $patcher;
-        $this->symbolsConfiguration = $symbolsConfiguration;
     }
 
     /**
@@ -75,17 +64,27 @@ final class Configuration
     }
 
     /**
+     * @return non-empty-string|null Absolute canonical path
+     */
+    public function getOutputDir(): ?string
+    {
+        return $this->outputDir;
+    }
+
+    /**
      * @param non-empty-string $prefix
      */
     public function withPrefix(string $prefix): self
     {
         return new self(
             $this->path,
+            $this->outputDir,
             $prefix,
             $this->filesWithContents,
             $this->excludedFilesWithContents,
             $this->patcher,
             $this->symbolsConfiguration,
+            $this->tagDeclarationsAsInternal,
         );
     }
 
@@ -95,6 +94,23 @@ final class Configuration
     public function getPrefix(): string
     {
         return $this->prefix;
+    }
+
+    /**
+     * @param array<string, array{string, string}> $filesWithContents
+     */
+    public function withFilesWithContents(array $filesWithContents): self
+    {
+        return new self(
+            $this->path,
+            $this->outputDir,
+            $this->prefix,
+            $filesWithContents,
+            $this->excludedFilesWithContents,
+            $this->patcher,
+            $this->symbolsConfiguration,
+            $this->tagDeclarationsAsInternal,
+        );
     }
 
     /**
@@ -113,6 +129,20 @@ final class Configuration
         return $this->excludedFilesWithContents;
     }
 
+    public function withPatcher(Patcher $patcher): self
+    {
+        return new self(
+            $this->path,
+            $this->outputDir,
+            $this->prefix,
+            $this->filesWithContents,
+            $this->excludedFilesWithContents,
+            $patcher,
+            $this->symbolsConfiguration,
+            $this->tagDeclarationsAsInternal,
+        );
+    }
+
     public function getPatcher(): Patcher
     {
         return $this->patcher;
@@ -121,6 +151,11 @@ final class Configuration
     public function getSymbolsConfiguration(): SymbolsConfiguration
     {
         return $this->symbolsConfiguration;
+    }
+
+    public function shouldTagDeclarationsAsInternal(): bool
+    {
+        return $this->tagDeclarationsAsInternal;
     }
 
     private static function validatePrefix(string $prefix): void

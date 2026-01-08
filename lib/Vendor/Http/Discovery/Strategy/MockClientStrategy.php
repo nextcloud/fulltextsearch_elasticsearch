@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Mock\Client as Mock;
  * Find the Mock client.
  *
  * @author Sam Rapaport <me@samrapdev.com>
+ * @internal
  */
 final class MockClientStrategy implements DiscoveryStrategy
 {

@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientExceptionInter
  * Every HTTP Client related Exception must implement this interface.
  *
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @internal
  */
 interface Exception extends PsrClientException
 {

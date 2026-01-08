@@ -1,10 +1,11 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
 use Exception;
 use PhpParser\Node\Const_;
+use PhpParser\Node\Expr\Cast;
+use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\UnaryMinus;
 use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\Namespace_;
@@ -19,10 +20,12 @@ class PHPConst extends BasePHPElement
      * @var string|null
      */
     public $parentName;
+
     /**
      * @var bool|int|string|float|null
      */
     public $value;
+
     /**
      * @var string|null
      */
@@ -84,17 +87,24 @@ class PHPConst extends BasePHPElement
         if (in_array('expr', $node->value->getSubNodeNames(), true)) {
             if ($node->value instanceof UnaryMinus) {
                 return -$node->value->expr->value;
+            } elseif ($node->value instanceof Cast && $node->value->expr instanceof ConstFetch) {
+                return $node->value->expr->name->parts[0];
             }
             return $node->value->expr->value;
         }
         if (in_array('name', $node->value->getSubNodeNames(), true)) {
-            $value = $node->value->name->parts[0] ?? $node->value->name->name;
+            $value = isset($node->value->name->parts[0]) ? $node->value->name->parts[0] : $node->value->name->name;
             return $value === 'null' ? null : $value;
         }
         return null;
     }
 
-    protected function getConstantFQN(NodeAbstract $node, string $nodeName): string
+    /**
+     * @param NodeAbstract $node
+     * @param string $nodeName
+     * @return string
+     */
+    protected function getConstantFQN(NodeAbstract $node, $nodeName)
     {
         $namespace = '';
         $parentParentNode = $node->getAttribute('parent')->getAttribute('parent');
@@ -109,7 +119,7 @@ class PHPConst extends BasePHPElement
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $constant) {
             if ($constant->name === $this->name && !empty($constant->problems)) {

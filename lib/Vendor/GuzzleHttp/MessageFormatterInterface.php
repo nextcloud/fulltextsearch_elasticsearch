@@ -4,6 +4,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
+/** @internal */
 interface MessageFormatterInterface
 {
     /**

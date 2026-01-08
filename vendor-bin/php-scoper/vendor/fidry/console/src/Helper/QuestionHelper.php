@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Fidry\Console\Helper;
 
-use Fidry\Console\IO;
+use Fidry\Console\Input\IO;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Helper\QuestionHelper as SymfonyQuestionHelper;
 use Symfony\Component\Console\Question\Question;

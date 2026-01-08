@@ -10,6 +10,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
  * In addition to the request, this exception always provides access to the response object.
  *
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @internal
  */
 class HttpException extends RequestException
 {

@@ -8,6 +8,7 @@ use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
 /**
+ * @template T of object
  * The <b>ReflectionClass</b> class reports information about a class.
  *
  * @link https://php.net/manual/en/class.reflectionclass.php
@@ -15,7 +16,7 @@ use JetBrains\PhpStorm\Pure;
 class ReflectionClass implements Reflector
 {
     /**
-     * @var string Name of the class, same as calling the {@see ReflectionClass::getName()} method
+     * @var class-string<T> Name of the class, same as calling the {@see ReflectionClass::getName()} method
      */
     #[Immutable]
     #[LanguageLevelTypeAware(['8.1' => 'string'], default: '')]
@@ -43,10 +44,15 @@ class ReflectionClass implements Reflector
     public const IS_FINAL = 32;
 
     /**
+     * @since 8.2
+     */
+    public const IS_READONLY = 65536;
+
+    /**
      * Constructs a ReflectionClass
      *
      * @link https://php.net/manual/en/reflectionclass.construct.php
-     * @param string|object $objectOrClass Either a string containing the name of
+     * @param class-string<T>|T $objectOrClass Either a string containing the name of
      * the class to reflect, or an object.
      * @throws ReflectionException if the class does not exist.
      */
@@ -420,6 +426,13 @@ class ReflectionClass implements Reflector
     public function isFinal(): bool {}
 
     /**
+     * @return bool
+     */
+    #[Pure]
+    #[PhpStormStubsElementAvailable(from: '8.2')]
+    public function isReadOnly(): bool {}
+
+    /**
      * Gets modifiers
      *
      * @link https://php.net/manual/en/reflectionclass.getmodifiers.php
@@ -446,7 +459,7 @@ class ReflectionClass implements Reflector
      * @link https://php.net/manual/en/reflectionclass.newinstance.php
      * @param mixed ...$args Accepts a variable number of arguments which are
      * passed to the class constructor, much like {@see call_user_func}
-     * @return object a new instance of the class.
+     * @return T a new instance of the class.
      * @throws ReflectionException if the class constructor is not public or if
      * the class does not have a constructor and the $args parameter contains
      * one or more parameters.
@@ -457,7 +470,7 @@ class ReflectionClass implements Reflector
      * Creates a new class instance without invoking the constructor.
      *
      * @link https://php.net/manual/en/reflectionclass.newinstancewithoutconstructor.php
-     * @return object a new instance of the class.
+     * @return T a new instance of the class.
      * @throws ReflectionException if the class is an internal class that
      * cannot be instantiated without invoking the constructor. In PHP 5.6.0
      * onwards, this exception is limited only to internal classes that are final.
@@ -471,7 +484,7 @@ class ReflectionClass implements Reflector
      *
      * @link https://php.net/manual/en/reflectionclass.newinstanceargs.php
      * @param array $args The parameters to be passed to the class constructor as an array.
-     * @return object|null a new instance of the class.
+     * @return T|null a new instance of the class.
      * @throws ReflectionException if the class constructor is not public or if
      * the class does not have a constructor and the $args parameter contains
      * one or more parameters.
@@ -642,11 +655,13 @@ class ReflectionClass implements Reflector
     public function getShortName(): string {}
 
     /**
-     * Returns an array of function attributes.
+     * @template T
      *
-     * @param string|null $name Name of an attribute class
+     * Returns an array of class attributes.
+     *
+     * @param class-string<T>|null $name Name of an attribute class
      * @param int $flags Сriteria by which the attribute is searched.
-     * @return ReflectionAttribute[]
+     * @return ReflectionAttribute<T>[]
      * @since 8.0
      */
     #[Pure]
@@ -658,7 +673,17 @@ class ReflectionClass implements Reflector
      * @link https://php.net/manual/en/reflectionclass.clone.php
      * @return void
      */
+    #[PhpStormStubsElementAvailable(from: "5.4", to: "8.0")]
     final private function __clone(): void {}
+
+    /**
+     * Clones object
+     *
+     * @link https://php.net/manual/en/reflectionclass.clone.php
+     * @return void
+     */
+    #[PhpStormStubsElementAvailable(from: "8.1")]
+    private function __clone(): void {}
 
     #[PhpStormStubsElementAvailable('8.1')]
     public function isEnum(): bool {}

@@ -16,6 +16,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Res
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
+/** @internal */
 interface ResurrectInterface
 {
     public function ping(Node $node) : bool;

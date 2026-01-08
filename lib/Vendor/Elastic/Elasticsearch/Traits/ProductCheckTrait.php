@@ -17,6 +17,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Traits;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ProductCheckException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Response\Elasticsearch;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
+/** @internal */
 trait ProductCheckTrait
 {
     /**

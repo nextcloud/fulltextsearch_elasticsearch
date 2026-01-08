@@ -20,12 +20,12 @@ use JetBrains\PhpStorm\Pure;
  * When set to <b>TRUE</b>, outputs raw binary data.
  * <b>FALSE</b> outputs lowercase hexits.
  * </p>
- * @return string|false a string containing the calculated message digest as lowercase hexits
+ * @return string a string containing the calculated message digest as lowercase hexits
  * unless <i>raw_output</i> is set to true in which case the raw
  * binary representation of the message digest is returned.
  */
 #[Pure]
-function hash(string $algo, string $data, bool $binary = false, #[PhpStormStubsElementAvailable('8.1')] array $options = null): string|false {}
+function hash(string $algo, string $data, bool $binary = false, #[PhpStormStubsElementAvailable('8.1')] array $options = []): string {}
 
 /**
  * Timing attack safe string comparison
@@ -57,7 +57,7 @@ function hash_equals(string $known_string, string $user_string): bool {}
  * binary representation of the message digest is returned.
  */
 #[Pure]
-function hash_file(string $algo, string $filename, bool $binary = false, #[PhpStormStubsElementAvailable('8.1')] array $options = null): string|false {}
+function hash_file(string $algo, string $filename, bool $binary = false, #[PhpStormStubsElementAvailable('8.1')] array $options = []): string|false {}
 
 /**
  * (PHP 5 &gt;= 5.1.2, PECL hash &gt;= 1.1)<br/>
@@ -77,12 +77,12 @@ function hash_file(string $algo, string $filename, bool $binary = false, #[PhpSt
  * When set to <b>TRUE</b>, outputs raw binary data.
  * <b>FALSE</b> outputs lowercase hexits.
  * </p>
- * @return string|false a string containing the calculated message digest as lowercase hexits
+ * @return string a string containing the calculated message digest as lowercase hexits
  * unless <i>raw_output</i> is set to true in which case the raw
  * binary representation of the message digest is returned.
  */
 #[Pure]
-function hash_hmac(string $algo, string $data, string $key, bool $binary = false): string|false {}
+function hash_hmac(string $algo, string $data, string $key, bool $binary = false): string {}
 
 /**
  * (PHP 5 &gt;= 5.1.2, PECL hash &gt;= 1.1)<br/>
@@ -92,7 +92,7 @@ function hash_hmac(string $algo, string $data, string $key, bool $binary = false
  * Name of selected hashing algorithm (i.e. "md5", "sha256", "haval160,4", etc..) See <b>hash_algos</b> for a list of supported algorithms.<br/>
  * Since 7.2.0 usage of non-cryptographic hash functions (adler32, crc32, crc32b, fnv132, fnv1a32, fnv164, fnv1a64, joaat) was disabled.
  * </p>
- * @param string $data <p>
+ * @param string $filename <p>
  * URL describing location of file to be hashed; Supports fopen wrappers.
  * </p>
  * @param string $key <p>
@@ -107,7 +107,7 @@ function hash_hmac(string $algo, string $data, string $key, bool $binary = false
  * binary representation of the message digest is returned.
  */
 #[Pure]
-function hash_hmac_file(string $algo, string $data, string $key, bool $binary = false): string|false {}
+function hash_hmac_file(string $algo, string $filename, string $key, bool $binary = false): string|false {}
 
 /**
  * (PHP 5 &gt;= 5.1.2, PECL hash &gt;= 1.1)<br/>
@@ -122,7 +122,7 @@ function hash_hmac_file(string $algo, string $data, string $key, bool $binary = 
  * <b>HASH_HMAC</b>. When specified, the <i>key</i>
  * must be specified.
  * </p>
- * @param string $key [optional] <p>
+ * @param string $key <p>
  * When <b>HASH_HMAC</b> is specified for <i>options</i>,
  * a shared secret key to be used with the HMAC hashing method must be supplied in this
  * parameter.
@@ -133,7 +133,7 @@ function hash_hmac_file(string $algo, string $data, string $key, bool $binary = 
  */
 #[Pure]
 #[LanguageLevelTypeAware(["7.2" => "HashContext"], default: "resource")]
-function hash_init(string $algo, int $flags = 0, string $key, #[PhpStormStubsElementAvailable('8.1')] array $options = null) {}
+function hash_init(string $algo, int $flags = 0, string $key = "", #[PhpStormStubsElementAvailable('8.1')] array $options = []) {}
 
 /**
  * (PHP 5 &gt;= 5.1.2, PECL hash &gt;= 1.1)<br/>
@@ -345,7 +345,7 @@ function mhash_get_hash_name(int $algo): string|false {}
 /**
  * Gets the highest available hash ID
  * @link https://php.net/manual/en/function.mhash-count.php
- * @return int the highest available hash ID. Hashes are numbered from 0 to this
+ * @return int<0, max> the highest available hash ID. Hashes are numbered from 0 to this
  * hash ID.
  * @deprecated 8.1
  */

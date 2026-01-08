@@ -10,6 +10,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
  * an HTTP handler function.
  *
  * @final
+ * @internal
  */
 class HandlerStack
 {

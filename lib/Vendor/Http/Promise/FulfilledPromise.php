@@ -6,6 +6,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Http\Promise;
  * A promise already fulfilled.
  *
  * @author Joel Wurtz <joel.wurtz@gmail.com>
+ * @internal
  */
 final class FulfilledPromise implements Promise
 {

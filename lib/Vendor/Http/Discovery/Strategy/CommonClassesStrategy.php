@@ -90,7 +90,7 @@ final class CommonClassesStrategy implements DiscoveryStrategy
     }
     public static function isGuzzleImplementingPsr18()
     {
-        return \defined('GuzzleHttp\\ClientInterface::MAJOR_VERSION');
+        return \defined('OCA\\FullTextSearch_Elasticsearch\\Vendor\\GuzzleHttp\\ClientInterface::MAJOR_VERSION');
     }
     public static function isSymfonyImplementingHttpClient()
     {

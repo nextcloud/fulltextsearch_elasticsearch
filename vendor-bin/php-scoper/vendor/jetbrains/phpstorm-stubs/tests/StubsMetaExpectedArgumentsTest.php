@@ -28,24 +28,30 @@ use function property_exists;
 use function str_starts_with;
 use function substr;
 
-class StubsMetaExpectedArgumentsTest extends BaseStubsTest
+class StubsMetaExpectedArgumentsTest extends AbstractBaseStubsTestCase
 {
+    private const PSR_LOG_LOGGER_NAMESPACE_PREFIX = "Psr\\Log\\";
+
     /**
      * @var ExpectedFunctionArgumentsInfo[]
      */
     private static array $expectedArguments;
+
     /**
      * @var string[]
      */
     private static array $registeredArgumentsSet;
+
     /**
      * @var string[]
      */
     private static array $functionsFqns;
+
     /**
      * @var string[]
      */
     private static array $methodsFqns;
+
     /**
      * @var string[]
      */
@@ -100,11 +106,15 @@ class StubsMetaExpectedArgumentsTest extends BaseStubsTest
             $expr = $argument->getFunctionReference();
             if ($expr instanceof FuncCall) {
                 $fqn = self::toPresentableFqn($expr->name->toCodeString());
-                self::assertArrayHasKey($fqn, self::$functionsFqns, "Can't resolve function " . $fqn);
+                if (!str_starts_with($fqn, self::PSR_LOG_LOGGER_NAMESPACE_PREFIX)) {
+                    self::assertArrayHasKey($fqn, self::$functionsFqns, "Can't resolve function " . $fqn);
+                }
             } elseif ($expr instanceof StaticCall) {
                 if ((string)$expr->name !== '__construct') {
                     $fqn = self::getClassMemberFqn($expr->class->toCodeString(), (string)$expr->name);
-                    self::assertArrayHasKey($fqn, self::$methodsFqns, "Can't resolve method " . $fqn);
+                    if (!str_starts_with($fqn, self::PSR_LOG_LOGGER_NAMESPACE_PREFIX)) {
+                        self::assertArrayHasKey($fqn, self::$methodsFqns, "Can't resolve method " . $fqn);
+                    }
                 }
             } elseif ($expr !== null) {
                 self::fail('First argument should be function reference or method reference, got: ' . $expr::class);
@@ -123,7 +133,9 @@ class StubsMetaExpectedArgumentsTest extends BaseStubsTest
             foreach ($expectedArguments as $constantReference) {
                 if ($constantReference instanceof ClassConstFetch) {
                     $fqn = self::getClassMemberFqn($constantReference->class->toCodeString(), (string)$constantReference->name);
-                    self::assertArrayHasKey($fqn, self::$constantsFqns, "Can't resolve class constant " . $fqn);
+                    if (!str_starts_with($fqn, self::PSR_LOG_LOGGER_NAMESPACE_PREFIX)) {
+                        self::assertArrayHasKey($fqn, self::$constantsFqns, "Can't resolve class constant " . $fqn);
+                    }
                 } elseif ($constantReference instanceof ConstFetch) {
                     $fqn = self::toPresentableFqn($constantReference->name->toCodeString());
                     self::assertArrayHasKey($fqn, self::$constantsFqns, "Can't resolve constant " . $fqn);
@@ -188,9 +200,8 @@ class StubsMetaExpectedArgumentsTest extends BaseStubsTest
             $functionReferenceFqn = self::getFqn($argument->getFunctionReference());
             $index = $argument->getIndex();
             if (array_key_exists($functionReferenceFqn, $functionsFqnsWithIndeces)) {
-                $indices = $functionsFqnsWithIndeces[$functionReferenceFqn];
-                self::assertNotContains($index, $indices, 'Expected arguments for ' . $functionReferenceFqn . ' with index ' . $index . ' already registered');
-                $indices[] = $index;
+                self::assertNotContains($index, $functionsFqnsWithIndeces[$functionReferenceFqn], 'Expected arguments for ' . $functionReferenceFqn . ' with index ' . $index . ' already registered');
+                $functionsFqnsWithIndeces[$functionReferenceFqn][] = $index;
             } else {
                 $functionsFqnsWithIndeces[$functionReferenceFqn] = [$index];
             }

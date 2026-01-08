@@ -16,6 +16,8 @@ Note that the stubs for “non-standard” extensions are provided as is. (Non-S
 
 The support for such “non-standard” stubs is community-driven, and we only validate their PHPDoc. We do not check whether a stub matches the actual extension or whether the provided descriptions are correct.
 
+Please note that currently there are no tests for the thrown exceptions so @throws tags should be checked manually according to official docs or PHP source code
+
 [Relevant open issues]
 
 ### Contribution process
@@ -28,11 +30,11 @@ Have a full copy of the .git repo within an IDE and provide its path in `Setting
 The set of extensions enabled by default in PhpStorm can change anytime without prior notice. To learn how to view the enabled extensions, look [here](https://blog.jetbrains.com/phpstorm/2017/03/per-project-php-extension-settings-in-phpstorm-2017-1/).
 
 ### How to run tests
-1. Execute `docker-compose -f docker-compose.yml run test_runner composer install -d /opt/project/phpstorm-stubs --ignore-platform-reqs`
-2. Execute `docker-compose -f docker-compose.yml run -e PHP_VERSION=8.0 test_runner /opt/project/phpstorm-stubs/vendor/bin/phpunit --configuration /opt/project/phpstorm-stubs/phpunit.xml --testsuite PHP_8.0`
+1. Execute `docker-compose -f docker-compose.yml run test_runner composer install --ignore-platform-reqs`
+2. Execute `docker-compose -f docker-compose.yml run -e PHP_VERSION=8.0 test_runner vendor/bin/phpunit --testsuite PHP_8.0`
 
 ### How to update stub map
-Execute `docker-compose -f docker-compose.yml run test_runner /usr/local/bin/php /opt/project/phpstorm-stubs/tests/Tools/generate-stub-map` and commit the resulting `PhpStormStubsMap.php`
+Execute `docker-compose -f docker-compose.yml run test_runner /usr/local/bin/php tests/Tools/generate-stub-map` and commit the resulting `PhpStormStubsMap.php`
 
 ### License
 [Apache 2]

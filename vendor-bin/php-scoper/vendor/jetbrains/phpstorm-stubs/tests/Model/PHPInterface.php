@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -26,11 +25,13 @@ class PHPInterface extends BasePHPClass
             $this->methods[$method->name] = (new PHPMethod())->readObjectFromReflection($method);
         }
         $this->parentInterfaces = $reflectionObject->getInterfaceNames();
-        foreach ($reflectionObject->getReflectionConstants() as $constant) {
-            if ($constant->getDeclaringClass()->getName() !== $this->name) {
-                continue;
+        if (method_exists($reflectionObject, 'getReflectionConstants')) {
+            foreach ($reflectionObject->getReflectionConstants() as $constant) {
+                if ($constant->getDeclaringClass()->getName() !== $this->name) {
+                    continue;
+                }
+                $this->constants[$constant->name] = (new PHPConst())->readObjectFromReflection($constant);
             }
-            $this->constants[$constant->name] = (new PHPConst())->readObjectFromReflection($constant);
         }
         return $this;
     }
@@ -56,7 +57,7 @@ class PHPInterface extends BasePHPClass
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $interface) {
             if ($interface->name === $this->name) {

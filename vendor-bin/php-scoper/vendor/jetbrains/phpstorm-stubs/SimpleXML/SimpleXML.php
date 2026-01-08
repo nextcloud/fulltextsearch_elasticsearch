@@ -2,6 +2,7 @@
 
 // Start of SimpleXML v.0.1
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 use JetBrains\PhpStorm\Pure;
 
@@ -227,7 +228,7 @@ class SimpleXMLElement implements Traversable, ArrayAccess, Countable, Iterator,
      * @param string $qualifiedName <p>
      * The name of the attribute to add.
      * </p>
-     * @param string $value [optional] <p>
+     * @param string $value <p>
      * The value of the attribute.
      * </p>
      * @param string $namespace [optional] <p>
@@ -239,15 +240,16 @@ class SimpleXMLElement implements Traversable, ArrayAccess, Countable, Iterator,
     #[TentativeType]
     public function addAttribute(
         #[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $qualifiedName,
-        #[LanguageLevelTypeAware(['8.0' => 'string', '8.1' => 'string|null'], default: '')] $value = null,
+        #[PhpStormStubsElementAvailable(from: '5.3', to: '7.4')] $value = null,
+        #[PhpStormStubsElementAvailable(from: '8.0')] string $value,
         #[LanguageLevelTypeAware(['8.0' => 'string|null'], default: '')] $namespace = null
     ): void {}
 
     /**
-     * (No version information available, might only be in SVN)<br/>
      * Returns the string content
      * @link https://php.net/manual/en/simplexmlelement.tostring.php
      * @return string the string content on success or an empty string on failure.
+     * @since 5.3
      */
     #[TentativeType]
     public function __toString(): string {}
@@ -255,7 +257,7 @@ class SimpleXMLElement implements Traversable, ArrayAccess, Countable, Iterator,
     /**
      * Counts the children of an element
      * @link https://php.net/manual/en/simplexmlelement.count.php
-     * @return int the number of elements of an element.
+     * @return int<0,max> the number of elements of an element.
      */
     #[Pure]
     #[TentativeType]
@@ -416,10 +418,10 @@ class SimpleXMLIterator extends SimpleXMLElement implements RecursiveIterator, C
     public function getChildren() {}
 
     /**
-     * (No version information available, might only be in SVN)<br/>
      * Returns the string content
      * @link https://php.net/manual/en/simplexmlelement.tostring.php
      * @return string the string content on success or an empty string on failure.
+     * @since 5.3
      */
     public function __toString() {}
 

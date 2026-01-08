@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 namespace StubTests\Model;
 
@@ -12,8 +11,10 @@ class PHPProperty extends BasePHPElement
 {
     /** @var string[] */
     public $typesFromSignature = [];
+
     /** @var string[][] */
     public $typesFromAttribute = [];
+
     /** @var string[] */
     public $typesFromPhpDoc = [];
     public $access = '';
@@ -21,7 +22,10 @@ class PHPProperty extends BasePHPElement
     public $parentName;
     public $isReadonly = false;
 
-    public function __construct(?string $parentName = null)
+    /**
+     * @param string|null $parentName
+     */
+    public function __construct($parentName = null)
     {
         $this->parentName = $parentName;
     }
@@ -45,8 +49,8 @@ class PHPProperty extends BasePHPElement
         if (method_exists($reflectionObject, 'getType')) {
             $this->typesFromSignature = self::getReflectionTypeAsArray($reflectionObject->getType());
         }
-        if (property_exists($reflectionObject, 'isReadonly')) {
-            $this->isReadonly = $reflectionObject->isReadonly;
+        if (method_exists($reflectionObject, 'isReadonly')) {
+            $this->isReadonly = $reflectionObject->isReadOnly();
         }
         return $this;
     }
@@ -86,7 +90,7 @@ class PHPProperty extends BasePHPElement
      * @param stdClass|array $jsonData
      * @throws Exception
      */
-    public function readMutedProblems($jsonData): void
+    public function readMutedProblems($jsonData)
     {
         foreach ($jsonData as $property) {
             if ($property->name === $this->name && !empty($property->problems)) {
@@ -96,7 +100,7 @@ class PHPProperty extends BasePHPElement
                             $this->mutedProblems[StubProblemType::STUB_IS_MISSED] = $problem->versions;
                             break;
                         case 'wrong readonly':
-                            $this->mutedProblems[StubProblemType::PROPERTY_READONLY] = $problem->versions;
+                            $this->mutedProblems[StubProblemType::WRONG_READONLY] = $problem->versions;
                             break;
                         default:
                             throw new Exception("Unexpected value $problem->description");

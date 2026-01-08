@@ -1,6 +1,7 @@
 <?php
 
 // Start of pcre v.
+use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Pure;
 
@@ -170,7 +171,7 @@ function preg_match(string $pattern, string $subject, &$matches, int $flags = 0,
  * @param string[][] &$matches [optional] <p>
  * Array of all matches in multi-dimensional array ordered according to flags.
  * </p>
- * @param int $flags [optional] <p>
+ * @param int $flags <p>
  * Can be a combination of the following flags (note that it doesn't make
  * sense to use <b>PREG_PATTERN_ORDER</b> together with
  * <b>PREG_SET_ORDER</b>):
@@ -214,7 +215,8 @@ function preg_match(string $pattern, string $subject, &$matches, int $flags = 0,
  * @return int|false|null the number of full pattern matches (which might be zero),
  * or <b>FALSE</b> if an error occurred.
  */
-function preg_match_all(string $pattern, string $subject, &$matches, int $flags = PREG_PATTERN_ORDER, int $offset = 0): int|false|null {}
+#[LanguageLevelTypeAware(['8.0' => 'int|false'], default: 'int|false|null')]
+function preg_match_all(string $pattern, string $subject, &$matches, int $flags = 0, int $offset = 0) {}
 
 /**
  * Perform a regular expression search and replace
@@ -385,7 +387,7 @@ function preg_replace_callback(
 /**
  * Perform a regular expression search and replace using callbacks
  * @link https://php.net/manual/en/function.preg-replace-callback-array.php
- * @param array|callable[] $pattern An associative array mapping patterns (keys) to callbacks (values)
+ * @param callable[] $pattern An associative array mapping patterns (keys) to callbacks (values)
  * @param string|string[] $subject
  * @param int $limit [optional]
  * @param int &$count [optional]
@@ -464,7 +466,7 @@ function preg_split(string $pattern, string $subject, int $limit = -1, int $flag
  * @return string the quoted (escaped) string.
  */
 #[Pure]
-function preg_quote(string $str, ?string $delimiter): string {}
+function preg_quote(string $str, ?string $delimiter = null): string {}
 
 /**
  * Return array entries that match the pattern
@@ -627,7 +629,7 @@ define('PCRE_VERSION_MAJOR', 10);
 /**
  * @since 7.3
  */
-define('PCRE_VERSION_MINOR', 37);
+define('PCRE_VERSION_MINOR', 40);
 
 /**
  * @since 7.3

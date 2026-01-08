@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\MessageInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * Trait implementing functionality common to requests and responses.
+ * @internal
  */
 trait MessageTrait
 {

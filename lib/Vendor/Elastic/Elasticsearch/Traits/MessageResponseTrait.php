@@ -20,6 +20,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * Proxy class for Psr\Http\Message\ResponseInterface using
  * $this->response as source object
+ * @internal
  */
 trait MessageResponseTrait
 {

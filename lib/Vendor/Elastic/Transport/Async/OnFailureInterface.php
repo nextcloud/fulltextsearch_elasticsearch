@@ -17,6 +17,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Async;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 use Exception;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
+/** @internal */
 interface OnFailureInterface
 {
     public function failure(Exception $e, RequestInterface $request, int $count, ?Node $node = null) : void;

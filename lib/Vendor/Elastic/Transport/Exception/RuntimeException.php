@@ -15,6 +15,7 @@ declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception;
 
 use RuntimeException as RootRuntimeException;
+/** @internal */
 class RuntimeException extends RootRuntimeException implements TransportException
 {
 }

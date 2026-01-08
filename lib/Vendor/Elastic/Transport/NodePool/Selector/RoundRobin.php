@@ -16,6 +16,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Sel
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
+/** @internal */
 class RoundRobin implements SelectorInterface
 {
     use SelectorTrait;

@@ -8,6 +8,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise;
  * side-effect functions in the process.
  *
  * @final
+ * @internal
  */
 class EachPromise implements PromisorInterface
 {

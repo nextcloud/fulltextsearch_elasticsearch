@@ -2,6 +2,7 @@
 
 // Start of xmlreader v.0.2
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 use JetBrains\PhpStorm\Internal\TentativeType;
 
 /**
@@ -31,86 +32,107 @@ class XMLReader
      * No node type
      */
     public const NONE = 0;
+
     /**
      * Start element
      */
     public const ELEMENT = 1;
+
     /**
      * Attribute node
      */
     public const ATTRIBUTE = 2;
+
     /**
      * Text node
      */
     public const TEXT = 3;
+
     /**
      * CDATA node
      */
     public const CDATA = 4;
+
     /**
      * Entity Reference node
      */
     public const ENTITY_REF = 5;
+
     /**
      * Entity Declaration node
      */
     public const ENTITY = 6;
+
     /**
      * Processing Instruction node
      */
     public const PI = 7;
+
     /**
      * Comment node
      */
     public const COMMENT = 8;
+
     /**
      * Document node
      */
     public const DOC = 9;
+
     /**
      * Document Type node
      */
     public const DOC_TYPE = 10;
+
     /**
      * Document Fragment node
      */
     public const DOC_FRAGMENT = 11;
+
     /**
      * Notation node
      */
     public const NOTATION = 12;
+
     /**
      * Whitespace node
      */
     public const WHITESPACE = 13;
+
     /**
      * Significant Whitespace node
      */
     public const SIGNIFICANT_WHITESPACE = 14;
+
     /**
      * End Element
      */
     public const END_ELEMENT = 15;
+
     /**
      * End Entity
      */
     public const END_ENTITY = 16;
+
     /**
      * XML Declaration node
      */
     public const XML_DECLARATION = 17;
+
     /**
      * Load DTD but do not validate
      */
     public const LOADDTD = 1;
+
     /**
      * Load DTD and default attributes but do not validate
      */
     public const DEFAULTATTRS = 2;
+
     /**
      * Load DTD and validate while parsing
      */
     public const VALIDATE = 3;
+
     /**
      * Substitute entities and expand references
      */
@@ -410,7 +432,7 @@ class XMLReader
      * A bitmask of the LIBXML_*
      * constants.
      * </p>
-     * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure. If called statically, returns an
+     * @return XMLReader|bool <b>TRUE</b> on success or <b>FALSE</b> on failure. If called statically, returns an
      * <b>XMLReader</b> or <b>FALSE</b> on failure.
      * @since 5.1.2
      */
@@ -428,6 +450,8 @@ class XMLReader
      * @since 5.1.2
      */
     #[TentativeType]
-    public function expand(#[LanguageLevelTypeAware(['8.0' => 'DOMNode|null'], default: '')] $baseNode = null): DOMNode|false {}
+    public function expand(
+        #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['8.0' => 'DOMNode|null'], default: '')] $baseNode = null
+    ): DOMNode|false {}
 }
 // End of xmlreader v.0.2

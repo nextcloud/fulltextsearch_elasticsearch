@@ -1,6 +1,7 @@
 <?php
 
 // Start of imap v.
+use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
 
@@ -42,14 +43,14 @@ use JetBrains\PhpStorm\Internal\PhpStormStubsElementAvailable;
  * @param int $retries [optional] <p>
  * Number of maximum connect attempts
  * </p>
- * @param null|array $options [optional] <p>
+ * @param null|array $options <p>
  * Connection parameters, the following (string) keys maybe used
  * to set one or more connection parameters:
  * DISABLE_AUTHENTICATOR - Disable authentication properties</p>
  * @return resource|false an IMAP stream on success or <b>FALSE</b> on error.
  */
 #[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection|false'], default: 'resource|false')]
-function imap_open(string $mailbox, string $user, string $password, int $flags = 0, int $retries = 0, array $options = null) {}
+function imap_open(string $mailbox, string $user, string $password, int $flags = 0, int $retries = 0, array $options = []) {}
 
 /**
  * Reopen IMAP stream to new mailbox
@@ -510,7 +511,7 @@ function imap_expunge(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], def
  * Mark a message for deletion from current mailbox
  * @link https://php.net/manual/en/function.imap-delete.php
  * @param resource $imap
- * @param string $message_num <p>
+ * @param string $message_nums <p>
  * The message number
  * </p>
  * @param int $flags [optional] <p>
@@ -520,19 +521,19 @@ function imap_expunge(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], def
  * </p>
  * @return bool <b>TRUE</b>.
  */
-function imap_delete(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap, string $message_num, int $flags = 0): bool {}
+function imap_delete(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap, string $message_nums, int $flags = 0): bool {}
 
 /**
  * Unmark the message which is marked deleted
  * @link https://php.net/manual/en/function.imap-undelete.php
  * @param resource $imap
- * @param string $message_num <p>
+ * @param string $message_nums <p>
  * The message number
  * </p>
  * @param int $flags [optional]
  * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
  */
-function imap_undelete(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap, string $message_num, int $flags = 0): bool {}
+function imap_undelete(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap, string $message_nums, int $flags = 0): bool {}
 
 /**
  * Check current mailbox
@@ -918,19 +919,26 @@ function imap_clearflag_full(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection
  * @param int $criteria <p>
  * Criteria can be one (and only one) of the following:
  * <b>SORTDATE</b> - message Date</p>
- * @param int $reverse <p>
+ * @param bool $reverse <p>
  * Set this to 1 for reverse sorting
  * </p>
  * @param int $flags [optional] <p>
  * The <i>options</i> are a bitmask of one or more of the
  * following:
  * <b>SE_UID</b> - Return UIDs instead of sequence numbers</p>
- * @param string $search_criteria [optional]
- * @param string $charset [optional]
+ * @param string|null $search_criteria [optional]
+ * @param string|null $charset [optional]
  * @return array|false an array of message numbers sorted by the given
  * parameters.
  */
-function imap_sort(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap, int $criteria, bool $reverse, int $flags = 0, ?string $search_criteria = null, ?string $charset = 'NIL'): array|false {}
+function imap_sort(
+    #[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap,
+    int $criteria,
+    #[LanguageLevelTypeAware(['8.0' => 'bool'], default: 'int')] $reverse,
+    int $flags = 0,
+    ?string $search_criteria = null,
+    ?string $charset = null
+): array|false {}
 
 /**
  * This function returns the UID for the given message sequence number
@@ -1080,14 +1088,19 @@ function imap_last_error(): string|false {}
  * <b>SE_UID</b>, which causes the returned array to
  * contain UIDs instead of messages sequence numbers.
  * </p>
- * @param string $charset [optional]
+ * @param string $charset
  * @return array|false an array of message numbers or UIDs.
  * <p>
  * Return <b>FALSE</b> if it does not understand the search
  * <i>criteria</i> or no messages have been found.
  * </p>
  */
-function imap_search(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap, string $criteria, int $flags = SE_FREE, string $charset = NIL): array|false {}
+function imap_search(
+    #[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap,
+    string $criteria,
+    int $flags = SE_FREE,
+    string $charset = ""
+): array|false {}
 
 /**
  * Decodes a modified UTF-7 encoded string
@@ -1206,6 +1219,7 @@ function imap_timeout(int $timeout_type, int $timeout = -1): int|bool {}
  * For backwards compatibility reasons, the original access methods are
  * still available for use, although it is suggested to update.
  */
+#[ArrayShape(["usage" => "int", "limit" => "int"])]
 function imap_get_quota(#[LanguageLevelTypeAware(['8.1' => 'IMAP\Connection'], default: 'resource')] $imap, string $quota_root): array|false {}
 
 /**
@@ -1372,6 +1386,7 @@ function imap_mail(string $to, string $subject, string $message, ?string $additi
  * <dt>fetchsubject</dt><dd>subject line formatted to fit subjectlength characters</dd>
  * </dl>
  */
+#[PhpStormStubsElementAvailable(to: '7.4')]
 function imap_header($stream_id, $msg_no, $from_length = 0, $subject_length = 0, $default_host = null) {}
 
 /**
@@ -1647,7 +1662,7 @@ define('SE_FREE', 2);
  */
 define('SE_NOPREFETCH', 4);
 define('SO_FREE', 8);
-define('SO_NOSERVER', 16);
+define('SO_NOSERVER', 8);
 define('SA_MESSAGES', 1);
 define('SA_RECENT', 2);
 define('SA_UNSEEN', 4);

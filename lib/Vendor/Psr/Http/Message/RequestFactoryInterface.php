@@ -2,6 +2,7 @@
 
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message;
 
+/** @internal */
 interface RequestFactoryInterface
 {
     /**

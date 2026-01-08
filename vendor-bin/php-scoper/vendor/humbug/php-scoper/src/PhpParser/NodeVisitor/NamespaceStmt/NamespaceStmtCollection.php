@@ -16,14 +16,13 @@ namespace Humbug\PhpScoper\PhpParser\NodeVisitor\NamespaceStmt;
 
 use ArrayIterator;
 use Countable;
-use Humbug\PhpScoper\PhpParser\NodeVisitor\ParentNodeAppender;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
 use Humbug\PhpScoper\PhpParser\UnexpectedParsingScenario;
 use IteratorAggregate;
 use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Namespace_;
 use Traversable;
-
 use function count;
 use function end;
 

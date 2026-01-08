@@ -13,20 +13,22 @@ declare(strict_types=1);
 
 namespace Fidry\Console\Application;
 
-use function array_map;
-use function array_values;
 use Fidry\Console\Command\Command as FidryCommand;
+use Fidry\Console\Command\LazyCommand as FidryLazyCommand;
 use Fidry\Console\Command\SymfonyCommand;
-use Fidry\Console\IO;
+use Fidry\Console\Input\IO;
 use LogicException;
 use Symfony\Component\Console\Application as BaseSymfonyApplication;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\Command as BaseSymfonyCommand;
+use Symfony\Component\Console\Command\LazyCommand as SymfonyLazyCommand;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\Service\ResetInterface;
+use function array_map;
+use function array_values;
 
 /**
  * Bridge to create a traditional Symfony application from the new Application
@@ -117,15 +119,31 @@ final class SymfonyApplication extends BaseSymfonyApplication
     }
 
     /**
-     * @return list<Command>
+     * @return list<BaseSymfonyCommand>
      */
     private function getSymfonyCommands(): array
     {
         return array_values(
             array_map(
-                static fn (FidryCommand $command) => new SymfonyCommand($command),
+                static fn (FidryCommand $command) => self::crateSymfonyCommand($command),
                 $this->application->getCommands(),
             ),
         );
+    }
+
+    private static function crateSymfonyCommand(FidryCommand $command): BaseSymfonyCommand
+    {
+        if ($command instanceof FidryLazyCommand) {
+            return new SymfonyLazyCommand(
+                $command::getName(),
+                [],
+                $command::getDescription(),
+                false,
+                static fn () => new SymfonyCommand($command),
+                true,
+            );
+        }
+
+        return new SymfonyCommand($command);
     }
 }

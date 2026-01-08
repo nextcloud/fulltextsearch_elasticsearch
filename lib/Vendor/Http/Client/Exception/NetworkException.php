@@ -10,6 +10,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
  * There is no response object as this exception is thrown when no response has been received.
  *
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @internal
  */
 class NetworkException extends TransferException implements PsrNetworkException
 {

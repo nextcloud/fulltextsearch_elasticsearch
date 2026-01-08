@@ -32,6 +32,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 use stdClass;
 /**
  * Wraps a PSR-7 ResponseInterface offering helpers to deserialize the body response
+ * @internal
  */
 class Elasticsearch implements ElasticsearchInterface, ResponseInterface, ArrayAccess
 {

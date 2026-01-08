@@ -1,5 +1,5 @@
 {
     "require": {
-        "humbug/php-scoper": "0.17.0"
+        "humbug/php-scoper": "0.18.7"
     }
 }

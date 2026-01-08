@@ -17,6 +17,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transpor
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transport\RequestOptions;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Symfony\Component\HttpClient\HttpClient;
+/** @internal */
 class Symfony implements AdapterInterface
 {
     public function setConfig(ClientInterface $client, array $config, array $clientOptions) : ClientInterface

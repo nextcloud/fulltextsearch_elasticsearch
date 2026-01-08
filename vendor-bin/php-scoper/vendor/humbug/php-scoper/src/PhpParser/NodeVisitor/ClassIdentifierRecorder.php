@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Humbug\PhpScoper\PhpParser\NodeVisitor;
 
 use Humbug\PhpScoper\PhpParser\Node\FullyQualifiedFactory;
+use Humbug\PhpScoper\PhpParser\NodeVisitor\AttributeAppender\ParentNodeAppender;
 use Humbug\PhpScoper\PhpParser\NodeVisitor\Resolver\IdentifierResolver;
 use Humbug\PhpScoper\PhpParser\UnexpectedParsingScenario;
 use Humbug\PhpScoper\Symbol\EnrichedReflector;
@@ -27,32 +28,23 @@ use PhpParser\Node\Stmt\Interface_;
 use PhpParser\NodeVisitorAbstract;
 
 /**
- * Records the user classes which are exposed.
+ * Records the classes that need to be aliased.
  *
  * @private
  */
 final class ClassIdentifierRecorder extends NodeVisitorAbstract
 {
-    private string $prefix;
-    private IdentifierResolver $identifierResolver;
-    private SymbolsRegistry $symbolsRegistry;
-    private EnrichedReflector $enrichedReflector;
-
     public function __construct(
-        string $prefix,
-        IdentifierResolver $identifierResolver,
-        SymbolsRegistry $symbolsRegistry,
-        EnrichedReflector $enrichedReflector
+        private readonly string $prefix,
+        private readonly IdentifierResolver $identifierResolver,
+        private readonly SymbolsRegistry $symbolsRegistry,
+        private readonly EnrichedReflector $enrichedReflector,
     ) {
-        $this->prefix = $prefix;
-        $this->identifierResolver = $identifierResolver;
-        $this->symbolsRegistry = $symbolsRegistry;
-        $this->enrichedReflector = $enrichedReflector;
     }
 
     public function enterNode(Node $node): Node
     {
-        if (!($node instanceof Identifier) ||!ParentNodeAppender::hasParent($node)) {
+        if (!($node instanceof Identifier) || !ParentNodeAppender::hasParent($node)) {
             return $node;
         }
 
@@ -74,7 +66,7 @@ final class ClassIdentifierRecorder extends NodeVisitorAbstract
             throw UnexpectedParsingScenario::create();
         }
 
-        if ($this->enrichedReflector->isExposedClass((string) $resolvedName)) {
+        if ($this->shouldBeAliased($resolvedName->toString())) {
             $this->symbolsRegistry->recordClass(
                 $resolvedName,
                 FullyQualifiedFactory::concat($this->prefix, $resolvedName),
@@ -82,5 +74,19 @@ final class ClassIdentifierRecorder extends NodeVisitorAbstract
         }
 
         return $node;
+    }
+
+    private function shouldBeAliased(string $resolvedName): bool
+    {
+        if ($this->enrichedReflector->isExposedClass($resolvedName)) {
+            return true;
+        }
+
+        // Excluded global classes (for which we found a declaration) need to be
+        // aliased since otherwise any usage will not point to the prefixed
+        // version (since it's an alias) but the declaration will now declare
+        // a prefixed version (due to the namespace).
+        return $this->enrichedReflector->belongsToGlobalNamespace($resolvedName)
+            && $this->enrichedReflector->isClassExcluded($resolvedName);
     }
 }

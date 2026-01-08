@@ -34,7 +34,7 @@ class PuliBetaStrategy implements DiscoveryStrategy
     private static function getPuliFactory()
     {
         if (null === self::$puliFactory) {
-            if (!\defined('OCA\\FullTextSearch_Elasticsearch\\Vendor\\PULI_FACTORY_CLASS')) {
+            if (!\defined('PULI_FACTORY_CLASS')) {
                 throw new PuliUnavailableException('Puli Factory is not available');
             }
             $puliFactoryClass = PULI_FACTORY_CLASS;

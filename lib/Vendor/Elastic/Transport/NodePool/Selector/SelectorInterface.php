@@ -15,6 +15,7 @@ declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Selector;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\Node;
+/** @internal */
 interface SelectorInterface
 {
     public function nextNode() : Node;

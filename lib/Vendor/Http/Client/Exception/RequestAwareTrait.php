@@ -3,6 +3,7 @@
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\Exception;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
+/** @internal */
 trait RequestAwareTrait
 {
     /**

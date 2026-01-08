@@ -21,6 +21,7 @@ use function libxml_get_errors;
 use function serialize;
 use function simplexml_load_string;
 use function sprintf;
+/** @internal */
 class XmlSerializer implements SerializerInterface
 {
     public static function serialize($data, array $options = []) : string

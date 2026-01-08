@@ -20,6 +20,7 @@ use function is_iterable;
 use function sprintf;
 use function str_getcsv;
 use function substr;
+/** @internal */
 class CsvSerializer implements SerializerInterface
 {
     /**

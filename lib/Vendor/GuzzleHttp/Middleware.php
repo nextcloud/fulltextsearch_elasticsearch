@@ -11,6 +11,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 /**
  * Functions used to create and wrap handlers with handler middleware.
+ * @internal
  */
 final class Middleware
 {
@@ -29,7 +30,7 @@ final class Middleware
                 if (empty($options['cookies'])) {
                     return $handler($request, $options);
                 } elseif (!$options['cookies'] instanceof CookieJarInterface) {
-                    throw new \InvalidArgumentException('OCA\\FullTextSearch_Elasticsearch\\Vendor\\cookies must be an instance of GuzzleHttp\\Cookie\\CookieJarInterface');
+                    throw new \InvalidArgumentException('cookies must be an instance of GuzzleHttp\\Cookie\\CookieJarInterface');
                 }
                 $cookieJar = $options['cookies'];
                 $request = $cookieJar->withCookieHeader($request);

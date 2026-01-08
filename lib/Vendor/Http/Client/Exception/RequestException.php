@@ -11,6 +11,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
  * for network errors or HTTP error responses.
  *
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @internal
  */
 class RequestException extends TransferException implements PsrRequestException
 {

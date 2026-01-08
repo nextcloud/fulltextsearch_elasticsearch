@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * Stream that when read returns bytes for a streaming multipart or
  * multipart/form-data stream.
+ * @internal
  */
 final class MultipartStream implements StreamInterface
 {

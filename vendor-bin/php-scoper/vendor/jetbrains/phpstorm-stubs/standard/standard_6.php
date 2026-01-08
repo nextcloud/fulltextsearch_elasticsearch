@@ -133,6 +133,7 @@ function stream_context_set_params($context, array $params): bool {}
  * </p>
  * @return array an associate array containing all context options and parameters.
  */
+#[ArrayShape(["notification" => "string", "options" => "array"])]
 function stream_context_get_params($context): array {}
 
 /**
@@ -205,7 +206,7 @@ function stream_context_set_default(array $options) {}
  * @param string $filter_name <p>
  * The filter name.
  * </p>
- * @param int $mode [optional] <p>
+ * @param int $mode <p>
  * By default, stream_filter_prepend will
  * attach the filter to the read filter chain
  * if the file was opened for reading (i.e. File Mode:
@@ -229,7 +230,7 @@ function stream_context_set_default(array $options) {}
  * @return resource|false a resource which can be used to refer to this filter
  * instance during a call to stream_filter_remove.
  */
-function stream_filter_prepend($stream, string $filter_name, int $mode, mixed $params) {}
+function stream_filter_prepend($stream, string $filter_name, int $mode = 0, mixed $params) {}
 
 /**
  * Attach a filter to a stream
@@ -240,7 +241,7 @@ function stream_filter_prepend($stream, string $filter_name, int $mode, mixed $p
  * @param string $filter_name <p>
  * The filter name.
  * </p>
- * @param int $mode [optional] <p>
+ * @param int $mode <p>
  * By default, stream_filter_append will
  * attach the filter to the read filter chain
  * if the file was opened for reading (i.e. File Mode:
@@ -263,7 +264,7 @@ function stream_filter_prepend($stream, string $filter_name, int $mode, mixed $p
  * @return resource|false a resource which can be used to refer to this filter
  * instance during a call to stream_filter_remove.
  */
-function stream_filter_append($stream, string $filter_name, int $mode, mixed $params) {}
+function stream_filter_append($stream, string $filter_name, int $mode = 0, mixed $params) {}
 
 /**
  * Remove a filter from a stream
@@ -410,7 +411,7 @@ function stream_socket_get_name($socket, bool $remote): string|false {}
  * @param int $length <p>
  * The number of bytes to receive from the socket.
  * </p>
- * @param int $flags [optional] <p>
+ * @param int $flags <p>
  * The value of flags can be any combination
  * of the following:
  * <table>
@@ -438,7 +439,7 @@ function stream_socket_get_name($socket, bool $remote): string|false {}
  * </p>
  * @return string|false the read data, as a string, or false on error
  */
-function stream_socket_recvfrom($socket, int $length, int $flags, &$address): string|false {}
+function stream_socket_recvfrom($socket, int $length, int $flags = 0, &$address): string|false {}
 
 /**
  * Sends a message to a socket, whether it is connected or not
@@ -449,7 +450,7 @@ function stream_socket_recvfrom($socket, int $length, int $flags, &$address): st
  * @param string $data <p>
  * The data to be sent.
  * </p>
- * @param int $flags [optional] <p>
+ * @param int $flags <p>
  * The value of flags can be any combination
  * of the following:
  * <table>
@@ -462,7 +463,7 @@ function stream_socket_recvfrom($socket, int $length, int $flags, &$address): st
  * </tr>
  * </table>
  * </p>
- * @param string $address [optional] <p>
+ * @param string $address <p>
  * The address specified when the socket stream was created will be used
  * unless an alternate address is specified in address.
  * </p>
@@ -471,7 +472,7 @@ function stream_socket_recvfrom($socket, int $length, int $flags, &$address): st
  * </p>
  * @return int|false a result code, as an integer.
  */
-function stream_socket_sendto($socket, string $data, int $flags, string $address): int|false {}
+function stream_socket_sendto($socket, string $data, int $flags = 0, string $address = ''): int|false {}
 
 /**
  * Turns encryption on/off on an already connected socket
@@ -554,12 +555,12 @@ function stream_socket_pair(int $domain, int $type, int $protocol): array|false 
  * @param int|null $length [optional] <p>
  * Maximum bytes to copy
  * </p>
- * @param int $offset [optional] <p>
+ * @param int $offset <p>
  * The offset where to start to copy data
  * </p>
  * @return int|false the total count of bytes copied, or false on failure.
  */
-function stream_copy_to_stream($from, $to, ?int $length, int $offset): int|false {}
+function stream_copy_to_stream($from, $to, ?int $length, int $offset = 0): int|false {}
 
 /**
  * Reads remainder of a stream into a string
@@ -567,7 +568,7 @@ function stream_copy_to_stream($from, $to, ?int $length, int $offset): int|false
  * @param resource $stream <p>
  * A stream resource (e.g. returned from fopen)
  * </p>
- * @param int|null $length [optional] <p>
+ * @param int|null $length <p>
  * The maximum bytes to read. Defaults to -1 (read all the remaining
  * buffer).
  * </p>
@@ -576,7 +577,7 @@ function stream_copy_to_stream($from, $to, ?int $length, int $offset): int|false
  * </p>
  * @return string|false a string or false on failure.
  */
-function stream_get_contents($stream, ?int $length = -1, int $offset = -1): string|false {}
+function stream_get_contents($stream, ?int $length = null, int $offset = -1): string|false {}
 
 /**
  * Tells whether the stream supports locking.
@@ -596,7 +597,7 @@ function stream_supports_lock($stream): bool {}
  * fopen, popen, or
  * fsockopen.
  * </p>
- * @param int|null $length [optional] <p>
+ * @param int|null $length <p>
  * Must be greater than the longest line (in characters) to be found in
  * the CSV file (allowing for trailing line-end characters). It became
  * optional in PHP 5. Omitting this parameter (or setting it to 0 in PHP
@@ -612,7 +613,7 @@ function stream_supports_lock($stream): bool {}
  * @param string $escape [optional] <p>
  * Set the escape character (one character only). Defaults as a backslash.
  * </p>
- * @return array|false an indexed array containing the fields read.
+ * @return array|false|null an indexed array containing the fields read.
  * <p>
  * A blank line in a CSV file will be returned as an array
  * comprising a single null field, and will not be treated
@@ -624,7 +625,8 @@ function stream_supports_lock($stream): bool {}
  * including end of file.
  * </p>
  */
-function fgetcsv($stream, ?int $length = 0, string $separator = ',', string $enclosure = '"', string $escape = '\\'): array|false {}
+#[LanguageLevelTypeAware(['8.0' => 'array|false'], default: 'array|false|null')]
+function fgetcsv($stream, ?int $length = null, string $separator = ',', string $enclosure = '"', string $escape = '\\') {}
 
 /**
  * Format line as CSV and write to file pointer
@@ -651,7 +653,7 @@ function fputcsv(
     array $fields,
     string $separator = ",",
     string $enclosure = '"',
-    string $escape = "\\",
+    #[PhpStormStubsElementAvailable(from: '7.0')] string $escape = "\\",
     #[PhpStormStubsElementAvailable('8.1')] string $eol = PHP_EOL
 ): int|false {}
 
@@ -709,7 +711,7 @@ function flock($stream, int $operation, &$would_block): bool {}
  * name, only the last one is returned.
  * </p>
  */
-#[Pure]
+#[Pure(true)]
 function get_meta_tags(string $filename, bool $use_include_path = false): array|false {}
 
 /**
@@ -895,7 +897,7 @@ function stream_get_meta_data($stream): array {}
  * @param int $length <p>
  * The number of bytes to read from the handle.
  * </p>
- * @param string $ending [optional] <p>
+ * @param string $ending <p>
  * An optional string delimiter.
  * </p>
  * @return string|false a string of up to length bytes read from the file
@@ -904,7 +906,7 @@ function stream_get_meta_data($stream): array {}
  * If an error occurs, returns false.
  * </p>
  */
-function stream_get_line($stream, int $length, string $ending): string|false {}
+function stream_get_line($stream, int $length, string $ending = ''): string|false {}
 
 /**
  * Register a URL wrapper implemented as a PHP class
@@ -915,7 +917,7 @@ function stream_get_line($stream, int $length, string $ending): string|false {}
  * @param string $class <p>
  * The classname which implements the protocol.
  * </p>
- * @param int $flags [optional] <p>
+ * @param int $flags <p>
  * Should be set to STREAM_IS_URL if
  * protocol is a URL protocol. Default is 0, local
  * stream.
@@ -926,7 +928,7 @@ function stream_get_line($stream, int $length, string $ending): string|false {}
  * protocol already has a handler.
  * </p>
  */
-function stream_wrapper_register(string $protocol, string $class, int $flags): bool {}
+function stream_wrapper_register(string $protocol, string $class, int $flags = 0): bool {}
 
 /**
  * Alias:
@@ -982,18 +984,18 @@ function stream_wrapper_restore(string $protocol): bool {}
 /**
  * Retrieve list of registered streams
  * @link https://php.net/manual/en/function.stream-get-wrappers.php
- * @return array an indexed array containing the name of all stream wrappers
+ * @return list<string> an indexed array containing the name of all stream wrappers
  * available on the running system.
  */
-#[Pure]
+#[Pure(true)]
 function stream_get_wrappers(): array {}
 
 /**
  * Retrieve list of registered socket transports
  * @link https://php.net/manual/en/function.stream-get-transports.php
- * @return array an indexed array of socket transports names.
+ * @return list<string> an indexed array of socket transports names.
  */
-#[Pure]
+#[Pure(true)]
 function stream_get_transports(): array {}
 
 /**
@@ -1023,8 +1025,12 @@ function stream_is_local($stream): bool {}
  * @return array|false an indexed or associative array with the headers, or false on
  * failure.
  */
-#[Pure]
-function get_headers(string $url, #[LanguageLevelTypeAware(['8.0' => 'bool'], default: 'int')] $associative = false, $context = null): array|false {}
+#[Pure(true)]
+function get_headers(
+    string $url,
+    #[LanguageLevelTypeAware(['8.0' => 'bool'], default: 'int')] $associative = false,
+    #[PhpStormStubsElementAvailable(from: '7.1')] $context = null
+): array|false {}
 
 /**
  * Set timeout period on a stream
@@ -1035,12 +1041,17 @@ function get_headers(string $url, #[LanguageLevelTypeAware(['8.0' => 'bool'], de
  * @param int $seconds <p>
  * The seconds part of the timeout to be set.
  * </p>
- * @param int $microseconds [optional] <p>
+ * @param int $microseconds <p>
  * The microseconds part of the timeout to be set.
  * </p>
  * @return bool true on success or false on failure.
  */
-function stream_set_timeout($stream, int $seconds, int $microseconds): bool {}
+function stream_set_timeout(
+    $stream,
+    int $seconds,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] int $microseconds,
+    #[PhpStormStubsElementAvailable(from: '7.0')] int $microseconds = 0
+): bool {}
 
 /**
  * Alias:
@@ -1053,12 +1064,17 @@ function stream_set_timeout($stream, int $seconds, int $microseconds): bool {}
  * @param int $seconds <p>
  * The seconds part of the timeout to be set.
  * </p>
- * @param int $microseconds [optional] <p>
+ * @param int $microseconds <p>
  * The microseconds part of the timeout to be set.
  * </p>
  * @return bool true on success or false on failure.
  */
-function socket_set_timeout($stream, int $seconds, int $microseconds = 0): bool {}
+function socket_set_timeout(
+    $stream,
+    int $seconds,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '5.6')] int $microseconds,
+    #[PhpStormStubsElementAvailable(from: '7.0')] int $microseconds = 0
+): bool {}
 
 /**
  * Alias:
@@ -1160,7 +1176,7 @@ function realpath(string $path): string|false {}
  * frontend search expression input may be way more convenient for
  * non-programming users.
  * </p>
- * @param int $flags [optional] <p>
+ * @param int $flags <p>
  * The value of flags can be any combination of
  * the following flags, joined with the
  * binary OR (|) operator.
@@ -1198,5 +1214,5 @@ function realpath(string $path): string|false {}
  * </p>
  * @return bool true if there is a match, false otherwise.
  */
-#[Pure]
-function fnmatch(string $pattern, string $filename, int $flags): bool {}
+#[Pure(true)]
+function fnmatch(string $pattern, string $filename, int $flags = 0): bool {}

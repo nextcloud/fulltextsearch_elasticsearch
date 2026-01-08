@@ -16,10 +16,10 @@ namespace Fidry\Console\DependencyInjection\Compiler;
 use Fidry\Console\Command\LazyCommand;
 use Fidry\Console\Command\SymfonyCommand;
 use InvalidArgumentException;
-use function Safe\sprintf;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use function sprintf;
 
 /**
  * Looks for all the console commands registered and registers them as regular
@@ -57,9 +57,10 @@ final class AddConsoleCommandPass implements CompilerPassInterface
     ): Definition {
         $decoratedCommandDefinition = $containerBuilder->getDefinition($id);
 
-        $commandName = self::getCommandName(
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $commandTagAttributes = self::createCommandTagAttributes(
             $id,
-            $decoratedCommandDefinition,
+            $decoratedCommandDefinition->getClass(),
             $containerBuilder,
         );
 
@@ -67,46 +68,57 @@ final class AddConsoleCommandPass implements CompilerPassInterface
             SymfonyCommand::class,
             [$decoratedCommandDefinition],
         );
-
-        $definition->setTags(
-            [
-                'console.command' => null !== $commandName
-                    ? [['command' => $commandName]]
-                    : [],
-            ]
-        );
+        $definition->addTag('console.command', $commandTagAttributes);
 
         return $definition;
     }
 
-    private static function getCommandName(
+    /**
+     * @param class-string|null $definitionClassName
+     *
+     * @return array<string, string>
+     */
+    private static function createCommandTagAttributes(
         string $id,
-        Definition $definition,
+        ?string $definitionClassName,
         ContainerBuilder $containerBuilder
-    ): ?string {
-        $className = $definition->getClass();
-
-        if (null === $className) {
-            return null;
+    ): array {
+        if (!self::isLazyCommand($id, $definitionClassName, $containerBuilder)) {
+            return [];
         }
 
-        $classReflection = $containerBuilder->getReflectionClass($className);
+        return [
+            'command' => $definitionClassName::getName(),
+            'description' => $definitionClassName::getDescription(),
+        ];
+    }
+
+    /**
+     * @param class-string|null $definitionClassName
+     *
+     * @psalm-assert-if-true class-string<LazyCommand> $definitionClassName
+     */
+    private static function isLazyCommand(
+        string $id,
+        ?string $definitionClassName,
+        ContainerBuilder $containerBuilder
+    ): bool {
+        if (null === $definitionClassName) {
+            return false;
+        }
+
+        $classReflection = $containerBuilder->getReflectionClass($definitionClassName);
 
         if (null === $classReflection) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Class "%s" used for service "%s" cannot be found.',
-                    $className,
+                    $definitionClassName,
                     $id,
                 ),
             );
         }
 
-        if ($classReflection->isSubclassOf(LazyCommand::class)) {
-            /** @var class-string<LazyCommand> $className */
-            return $className::getName();
-        }
-
-        return null;
+        return $classReflection->isSubclassOf(LazyCommand::class);
     }
 }

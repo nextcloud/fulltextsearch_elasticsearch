@@ -6,7 +6,7 @@ use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 use StubTests\TestData\Providers\Stubs\PhpCoreStubsProvider;
 
-class StubsStructureTest extends BaseStubsTest
+class StubsStructureTest extends AbstractBaseStubsTestCase
 {
     /**
      * @dataProvider \StubTests\TestData\Providers\Stubs\StubsTestDataProviders::stubsDirectoriesProvider
@@ -18,7 +18,7 @@ class StubsStructureTest extends BaseStubsTest
             iterator_to_array(new RecursiveIteratorIterator(
                 new RecursiveArrayIterator(PhpCoreStubsProvider::$StubDirectoryMap)
             ), false),
-            "Stubs directories provider doesn't contain '$directory'. Please add '$directory' to 'PhpCoreStubsProvider::\%StubDirectoryMap'"
+            "Stubs directories provider doesn't contain '$directory'. Please add '$directory' to 'PhpCoreStubsProvider::StubDirectoryMap'"
         );
     }
 }

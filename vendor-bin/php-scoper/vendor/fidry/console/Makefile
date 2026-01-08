@@ -11,7 +11,7 @@ COVERAGE_DIR = dist/coverage
 COVERS_VALIDATOR_BIN = vendor-bin/covers-validator/vendor/ockcyp/covers-validator/covers-validator
 COVERS_VALIDATOR = $(COVERS_VALIDATOR_BIN)
 INFECTION_BIN = vendor/bin/infection
-INFECTION = php -d zend.enable_gc=0 $(INFECTION_BIN) --skip-initial-tests --coverage=$(COVERAGE_DIR) --only-covered --threads=4 --min-msi=100 --min-covered-msi=100 --ansi
+INFECTION = php -d zend.enable_gc=0 $(INFECTION_BIN) --skip-initial-tests --coverage=$(COVERAGE_DIR) --only-covered --show-mutations --min-msi=100 --min-covered-msi=100 --ansi --threads=$(shell nproc || sysctl -n hw.ncpu || 1)
 PHPUNIT_BIN = vendor/bin/phpunit
 PHPUNIT = php -d zend.enable_gc=0 $(PHPUNIT_BIN)
 PHPUNIT_COVERAGE = XDEBUG_MODE=coverage $(PHPUNIT) --coverage-xml=$(COVERAGE_DIR)/coverage-xml --log-junit=$(COVERAGE_DIR)/phpunit.junit.xml
@@ -38,26 +38,37 @@ help:
 
 .PHONY: default
 default: ## Runs the default task: CS fix and all the tests
-default: cs test
+default: src/Input/TypedInput.php cs test
+
+
+.PHONY: dump
+dump:	## Dumps the getter
+dump:
+	$(MAKE) --always-make src/Input/TypedInput.php
 
 
 .PHONY: cs
 cs: ## Runs PHP-CS-Fixer
 cs: $(PHP_CS_FIXER_BIN)
+ifndef SKIP_CS
 	$(PHP_CS_FIXER)
+endif
 
 
 .PHONY: psalm
 psalm: ## Runs Psalm
 psalm: $(PSALM_BIN) vendor
+ifndef SKIP_PSALM
 	$(PSALM)
+endif
 
 
 .PHONY: infection
 infection: ## Runs infection
 infection: $(INFECTION_BIN) $(COVERAGE_DIR) vendor
+ifndef SKIP_INFECTION
 	if [ -d $(COVERAGE_DIR)/coverage-xml ]; then $(INFECTION); fi
-
+endif
 
 .PHONY: test
 test: ## Runs all the tests
@@ -73,7 +84,9 @@ validate-package: vendor
 .PHONY: covers-validator
 covers-validator: ## Validates the PHPUnit @covers annotations
 covers-validator: $(COVERS_VALIDATOR_BIN) vendor
+ifndef SKIP_COVERS_VALIDATOR
 	$(COVERS_VALIDATOR)
+endif
 
 
 .PHONY: phpunit
@@ -102,23 +115,38 @@ clear-cache:
 # or committed.
 vendor: composer.json
 	$(COMPOSER) update --no-scripts
-	$(TOUCH) "$@"
+	touch -c $@
+	touch -c $(PHPUNIT_BIN)
+	touch -c $(INFECTION_BIN)
 
 $(PHPUNIT_BIN): vendor
-	$(TOUCH) "$@"
+	touch -c $@
 
 $(INFECTION_BIN): vendor
-	$(TOUCH) "$@"
+	touch -c $@
 
 $(COVERAGE_DIR): $(PHPUNIT_BIN) src tests phpunit.xml.dist
 	$(PHPUNIT_COVERAGE)
-	$(TOUCH) "$@"
+	touch -c $@
 
-$(PHP_CS_FIXER_BIN):
-	$(MAKE) --directory ../.. vendor-bin/php-cs-fixer/vendor
+$(PHP_CS_FIXER_BIN): vendor
+ifndef SKIP_CS
+	composer bin php-cs-fixer install
+	touch -c $@
+endif
 
-$(PSALM_BIN):
-	$(MAKE) --directory ../.. vendor-bin/psalm/vendor/bin/psalm
+$(PSALM_BIN): vendor
+ifndef SKIP_PSALM
+	composer bin psalm install
+	touch -c $@
+endif
 
-$(COVERS_VALIDATOR_BIN):
-	$(MAKE) --directory ../.. vendor-bin/covers-validator/vendor/bin/covers-validator
+$(COVERS_VALIDATOR_BIN): vendor
+ifndef SKIP_COVERS_VALIDATOR
+	composer bin covers-validator install
+	touch -c $@
+endif
+
+src/Input/TypedInput.php: src vendor
+	./bin/dump-getters
+	touch -c $@

@@ -20,6 +20,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAv
 use function count;
 use function shuffle;
 use function sprintf;
+/** @internal */
 class SimpleNodePool implements NodePoolInterface
 {
     /**

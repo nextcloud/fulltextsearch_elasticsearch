@@ -5,6 +5,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Cookie;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Utils;
 /**
  * Persists non-session cookies using a JSON formatted file
+ * @internal
  */
 class FileCookieJar extends CookieJar
 {

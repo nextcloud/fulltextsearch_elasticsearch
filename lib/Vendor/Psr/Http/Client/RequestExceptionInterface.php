@@ -9,6 +9,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
  * Examples:
  *      - Request is invalid (e.g. method is missing)
  *      - Runtime request errors (e.g. the body stream is not seekable)
+ * @internal
  */
 interface RequestExceptionInterface extends ClientExceptionInterface
 {

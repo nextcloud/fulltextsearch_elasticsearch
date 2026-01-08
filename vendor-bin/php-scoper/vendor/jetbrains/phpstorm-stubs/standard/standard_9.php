@@ -19,11 +19,15 @@ define("ARRAY_FILTER_USE_KEY", 2);
 /**
  * Merge two or more arrays recursively
  * @link https://php.net/manual/en/function.array-merge-recursive.php
- * @param array ...$arrays [optional] Variable list of arrays to recursively merge.
+ * @param array ...$arrays Variable list of arrays to recursively merge.
  * @return array An array of values resulted from merging the arguments together.
  */
 #[Pure]
-function array_merge_recursive(#[PhpStormStubsElementAvailable(from: '5.3', to: '7.3')] array $arr1, array ...$arrays): array {}
+function array_merge_recursive(
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.3')] array $arr1,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] array $arrays,
+    array ...$arrays
+): array {}
 
 /**
  * array_replace() replaces the values of the first array with the same values from all the following arrays.
@@ -36,13 +40,17 @@ function array_merge_recursive(#[PhpStormStubsElementAvailable(from: '5.3', to: 
  * @param array $array <p>
  * The array in which elements are replaced.
  * </p>
- * @param array ...$replacements [optional] <p>
+ * @param array ...$replacements <p>
  * The array from which elements will be extracted.
  * </p>
  * @return array or null if an error occurs.
  */
 #[Pure]
-function array_replace(array $array, array ...$replacements): array {}
+function array_replace(
+    array $array,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] $replacements,
+    array ...$replacements
+): array {}
 
 /**
  * Replaces elements from passed arrays into the first array recursively
@@ -50,13 +58,17 @@ function array_replace(array $array, array ...$replacements): array {}
  * @param array $array <p>
  * The array in which elements are replaced.
  * </p>
- * @param array ...$replacements [optional] <p>
+ * @param array ...$replacements <p>
  * The array from which elements will be extracted.
  * </p>
  * @return array an array, or null if an error occurs.
  */
 #[Pure]
-function array_replace_recursive(array $array, array ...$replacements): array {}
+function array_replace_recursive(
+    array $array,
+    #[PhpStormStubsElementAvailable(from: '5.3', to: '7.0')] $replacements,
+    array ...$replacements
+): array {}
 
 /**
  * Return all the keys or a subset of the keys of an array
@@ -157,7 +169,7 @@ function array_reverse(array $array, bool $preserve_keys = false): array {}
  * </p>
  * @meta
  */
-function array_reduce(array $array, callable $callback, mixed $initial): mixed {}
+function array_reduce(array $array, callable $callback, mixed $initial = null): mixed {}
 
 /**
  * Pad array to the specified length with a value
@@ -199,7 +211,7 @@ function array_flip(array $array): array {}
  * @param array $array <p>
  * The array to work on
  * </p>
- * @param int $case [optional] <p>
+ * @param int $case <p>
  * Either CASE_UPPER or
  * CASE_LOWER (default)
  * </p>
@@ -207,7 +219,7 @@ function array_flip(array $array): array {}
  * @meta
  */
 #[Pure]
-function array_change_key_case(array $array, int $case): array {}
+function array_change_key_case(array $array, int $case = CASE_LOWER): array {}
 
 /**
  * Pick one or more random keys out of an array
@@ -280,7 +292,7 @@ function array_intersect(array $array, #[PhpStormStubsElementAvailable(from: '5.
  * The array with main keys to check.
  * </p>
  * @param array ...$arrays
- * @return array an associative array containing all the entries of
+ * @return array an associative array containing all the values and keys of
  * array1 which have keys that are present in all
  * arguments.
  * @meta
@@ -331,7 +343,7 @@ function array_intersect_ukey(
  * the first argument is considered to be respectively less than, equal
  * to, or greater than the second.
  * </p>
- * @return array an array containing all the values of array1
+ * @return array an array containing all the values and keys of array1
  * that are present in all the arguments.
  * @meta
  */
@@ -349,7 +361,7 @@ function array_uintersect(
  * The array with main values to check.
  * </p>
  * @param array $arrays
- * @return array an associative array containing all the values in
+ * @return array an associative array containing all the values and keys in
  * array1 that are present in all of the arguments.
  * @meta
  */
@@ -373,7 +385,7 @@ function array_intersect_assoc(array $array, #[PhpStormStubsElementAvailable(fro
  * second.
  * </p>
  * @param array ...$rest
- * @return array an array containing all the values of
+ * @return array an array containing all the values and keys of
  * array1 that are present in all the arguments.
  * @meta
  */
@@ -428,7 +440,7 @@ function array_intersect_uassoc(
  * Key comparison callback function.
  * </p>
  * @param array ...$rest
- * @return array an array containing all the values of
+ * @return array an array containing all the values and keys of
  * array1 that are present in all the arguments.
  * @meta
  */
@@ -464,7 +476,7 @@ function array_diff(array $array, #[PhpStormStubsElementAvailable(from: '5.3', t
  * @param array $arrays <p>
  * An array to compare against
  * </p>
- * @return array an array containing all the entries from
+ * @return array an array containing all the values and keys from
  * array1 whose keys are not present in any of the
  * other arrays.
  * @meta
@@ -488,7 +500,7 @@ function array_diff_key(array $array, #[PhpStormStubsElementAvailable(from: '5.3
  * be respectively less than, equal to, or greater than the second.
  * </p>
  * @param array ...$rest [optional]
- * @return array an array containing all the entries from
+ * @return array an array containing all the values and keys from
  * array1 that are not present in any of the other arrays.
  * @meta
  */
@@ -518,7 +530,7 @@ function array_diff_ukey(
  * to, or greater than the second.
  * </p>
  * @param array ...$rest [optional]
- * @return array an array containing all the values of array1
+ * @return array an array containing all the values and keys of array1
  * that are not present in any of the other arguments.
  * @meta
  */
@@ -569,7 +581,7 @@ function array_diff_assoc(
  * </p>
  * @param array ...$rest [optional]
  * @return array array_udiff_assoc returns an array
- * containing all the values from array1
+ * containing all the values and keys from array1
  * that are not present in any of the other arguments.
  * Note that the keys are used in the comparison unlike
  * array_diff and array_udiff.
@@ -602,7 +614,7 @@ function array_udiff_assoc(
  * be respectively less than, equal to, or greater than the second.
  * </p>
  * @param array ...$rest [optional]
- * @return array an array containing all the entries from
+ * @return array an array containing all the values and keys from
  * array1 that are not present in any of the other arrays.
  * @meta
  */
@@ -645,7 +657,7 @@ function array_diff_uassoc(
  * the indices by using an internal function.
  * </p>
  * @param array ...$rest [optional]
- * @return array an array containing all the values from
+ * @return array an array containing all the values and keys from
  * array1 that are not present in any of the other
  * arguments.
  * @meta
@@ -840,7 +852,7 @@ function pos(object|array $array): mixed {}
  * @link https://php.net/manual/en/function.sizeof.php
  * @param array|Countable $value
  * @param int $mode [optional]
- * @return int
+ * @return int<0, max>
  */
 #[Pure]
 function sizeof(Countable|array $value, int $mode = COUNT_NORMAL): int {}
@@ -875,7 +887,7 @@ function key_exists($key, array $array): bool {}
  */
 function assert(
     mixed $assertion,
-    #[LanguageLevelTypeAware(['8.0' => 'Throwable|string|null'], default: 'string')] $description = ''
+    #[PhpStormStubsElementAvailable(from: '7.0')] #[LanguageLevelTypeAware(['7.0' => 'Throwable|string|null'], default: 'string')] $description = null
 ): bool {}
 
 /**
@@ -973,6 +985,7 @@ function assert_options(int $option, mixed $value): mixed {}
  * function will return true if the relationship is the one specified
  * by the operator, false otherwise.
  */
+#[ExpectedValues([-1, 0, 1, false, true])]
 function version_compare(
     string $version1,
     string $version2,
@@ -1006,7 +1019,7 @@ function version_compare(
  * @return int On success the return value will be the created key value, otherwise
  * -1 is returned.
  */
-#[Pure]
+#[Pure(true)]
 function ftok(string $filename, string $project_id): int {}
 
 /**
@@ -1023,10 +1036,10 @@ function str_rot13(string $string): string {}
 /**
  * Retrieve list of registered filters
  * @link https://php.net/manual/en/function.stream-get-filters.php
- * @return array an indexed array containing the name of all stream filters
+ * @return list<string> an indexed array containing the name of all stream filters
  * available.
  */
-#[Pure]
+#[Pure(true)]
 function stream_get_filters(): array {}
 
 /**

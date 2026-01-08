@@ -7,6 +7,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\Exception;
  * Base exception for transfer related exceptions.
  *
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @internal
  */
 class TransferException extends \RuntimeException implements Exception
 {

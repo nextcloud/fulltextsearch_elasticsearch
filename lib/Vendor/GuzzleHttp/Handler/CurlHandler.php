@@ -12,6 +12,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
  * **curl** key of the "client" key of the request.
  *
  * @final
+ * @internal
  */
 class CurlHandler
 {

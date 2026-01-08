@@ -15,6 +15,7 @@ declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transport\Adapter;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
+/** @internal */
 interface AdapterInterface
 {
     public function setConfig(ClientInterface $client, array $config, array $clientOptions) : ClientInterface;

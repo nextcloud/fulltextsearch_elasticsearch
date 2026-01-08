@@ -17,6 +17,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transpor
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transport\RequestOptions;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\RequestOptions as GuzzleOptions;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
+/** @internal */
 class Guzzle implements AdapterInterface
 {
     public function setConfig(ClientInterface $client, array $config, array $clientOptions) : ClientInterface

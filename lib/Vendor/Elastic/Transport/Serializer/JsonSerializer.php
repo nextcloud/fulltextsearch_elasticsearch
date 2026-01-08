@@ -21,6 +21,7 @@ use function in_array;
 use function json_decode;
 use function json_encode;
 use function sprintf;
+/** @internal */
 class JsonSerializer implements SerializerInterface
 {
     /**

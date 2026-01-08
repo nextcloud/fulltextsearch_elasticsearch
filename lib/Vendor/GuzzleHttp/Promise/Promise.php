@@ -9,6 +9,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise;
  * @see https://promisesaplus.com/
  *
  * @final
+ * @internal
  */
 class Promise implements PromiseInterface
 {

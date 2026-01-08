@@ -13,6 +13,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Discovery\Strategy\DiscoveryStr
  * @author David de Boer <david@ddeboer.nl>
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
+ * @internal
  */
 abstract class ClassDiscovery
 {

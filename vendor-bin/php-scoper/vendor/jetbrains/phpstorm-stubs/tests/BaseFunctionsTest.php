@@ -15,7 +15,7 @@ use StubTests\Model\StubProblemType;
 use StubTests\TestData\Providers\EntitiesFilter;
 use StubTests\TestData\Providers\PhpStormStubsSingleton;
 
-class BaseFunctionsTest extends BaseStubsTest
+class BaseFunctionsTest extends AbstractBaseStubsTestCase
 {
     /**
      * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionFunctionsProvider::allFunctionsProvider
@@ -25,7 +25,7 @@ class BaseFunctionsTest extends BaseStubsTest
     {
         $functionName = $function->name;
         $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionName);
-        $params = BaseStubsTest::getParameterRepresentation($function);
+        $params = AbstractBaseStubsTestCase::getParameterRepresentation($function);
         static::assertNotEmpty($stubFunction, "Missing function: function $functionName($params){}");
     }
 
@@ -38,7 +38,7 @@ class BaseFunctionsTest extends BaseStubsTest
         $functionName = $function->name;
         $stubFunction = PhpStormStubsSingleton::getPhpStormStubs()->getFunction($functionName);
         static::assertFalse(
-            $function->is_deprecated && $stubFunction->is_deprecated !== true,
+            $function->isDeprecated && $stubFunction->isDeprecated !== true,
             "Function $functionName is not deprecated in stubs"
         );
     }
@@ -61,8 +61,8 @@ class BaseFunctionsTest extends BaseStubsTest
             $function->parameters,
             $uniqueParameterNames,
             "Parameter number mismatch for function $functionName. 
-                Expected: " . BaseStubsTest::getParameterRepresentation($function) . "\n" .
-            'Actual: ' . BaseStubsTest::getParameterRepresentation($stubFunction)
+                Expected: " . AbstractBaseStubsTestCase::getParameterRepresentation($function) . "\n" .
+            'Actual: ' . AbstractBaseStubsTestCase::getParameterRepresentation($stubFunction)
         );
     }
 
@@ -85,7 +85,7 @@ class BaseFunctionsTest extends BaseStubsTest
     }
 
     /**
-     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionParametersProvider::functionParametersProvider
+     * @dataProvider \StubTests\TestData\Providers\Reflection\ReflectionParametersProvider::functionOptionalParametersProvider
      * @throws RuntimeException
      */
     public function testFunctionsOptionalParameters(PHPFunction $function, PHPParameter $parameter)
@@ -109,6 +109,21 @@ class BaseFunctionsTest extends BaseStubsTest
                 $stubOptionalParameter->isOptional ? 'is optional' : 'is not optional'
             )
         );
+        self::assertEquals(
+            $parameter->is_vararg,
+            $stubOptionalParameter->is_vararg,
+            sprintf(
+                'Reflection function %s %s vararg parameter %s with index %d 
+            but stubs parameter %s with index %d %s',
+                $function->name,
+                $parameter->is_vararg ? 'has' : 'has no',
+                $parameter->name,
+                $parameter->indexInSignature,
+                $stubOptionalParameter->name,
+                $stubOptionalParameter->indexInSignature,
+                $stubOptionalParameter->is_vararg ? 'is vararg' : 'is not vararg'
+            )
+        );
     }
 
     /**
@@ -129,13 +144,15 @@ class BaseFunctionsTest extends BaseStubsTest
             $parameter->isOptional,
             $stubOptionalParameter->isOptional,
             sprintf(
-                'Reflection method %s::%s has optional parameter %s with index %d but stub parameter %s with index %d is not optional',
+                'Reflection method %s::%s has %s optional parameter %s with index %d but stub parameter %s with index %d is %s optional',
                 $class->name,
                 $method->name,
+                $parameter->isOptional ? "" : "not",
                 $parameter->name,
                 $parameter->indexInSignature,
                 $stubOptionalParameter->name,
-                $stubOptionalParameter->indexInSignature
+                $stubOptionalParameter->indexInSignature,
+                $stubOptionalParameter->isOptional ? "" : "not"
             )
         );
     }

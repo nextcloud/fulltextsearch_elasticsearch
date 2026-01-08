@@ -4,6 +4,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Cookie;
 
 /**
  * Set-Cookie object
+ * @internal
  */
 class SetCookie
 {

@@ -18,6 +18,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriFactoryInterface
  * or let it use discovery to find suitable implementations as needed.
  *
  * @author Nicolas Grekas <p@tchwork.com>
+ * @internal
  */
 class Psr18Client extends Psr17Factory implements ClientInterface
 {
