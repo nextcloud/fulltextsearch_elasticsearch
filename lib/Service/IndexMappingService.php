@@ -13,6 +13,10 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\MissingParameterException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ServerResponseException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Client8;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ClientResponseException as ClientResponseException8;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\MissingParameterException as MissingParameterException8;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ServerResponseException as ServerResponseException8;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCP\FullTextSearch\Model\IIndexDocument;
@@ -32,17 +36,17 @@ class IndexMappingService {
 
 
 	/**
-	 * @param Client $client
+	 * @param Client|Client8 $client
 	 * @param IIndexDocument $document
 	 *
 	 * @return array
 	 * @throws AccessIsEmptyException
 	 * @throws ConfigurationException
-	 * @throws ClientResponseException
-	 * @throws MissingParameterException
-	 * @throws ServerResponseException
+	 * @throws ClientResponseException|ClientResponseException8
+	 * @throws MissingParameterException|MissingParameterException8
+	 * @throws ServerResponseException|ServerResponseException8
 	 */
-	public function indexDocumentNew(Client $client, IIndexDocument $document): array {
+	public function indexDocumentNew(Client|Client8 $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
@@ -60,17 +64,17 @@ class IndexMappingService {
 
 
 	/**
-	 * @param Client $client
+	 * @param Client|Client8 $client
 	 * @param IIndexDocument $document
 	 *
 	 * @return array
 	 * @throws AccessIsEmptyException
-	 * @throws ClientResponseException
+	 * @throws ClientResponseException|ClientResponseException8
 	 * @throws ConfigurationException
-	 * @throws MissingParameterException
-	 * @throws ServerResponseException
+	 * @throws MissingParameterException|MissingParameterException8
+	 * @throws ServerResponseException|ServerResponseException8
 	 */
-	public function indexDocumentUpdate(Client $client, IIndexDocument $document): array {
+	public function indexDocumentUpdate(Client|Client8 $client, IIndexDocument $document): array {
 		$index = [
 			'index' =>
 				[
@@ -85,22 +89,22 @@ class IndexMappingService {
 			$result = $client->update($index['index']);
 
 			return $result->asArray();
-		} catch (ClientResponseException $e) {
+		} catch (ClientResponseException|ClientResponseException8 $e) {
 			return $this->indexDocumentNew($client, $document);
 		}
 	}
 
 
 	/**
-	 * @param Client $client
+	 * @param Client|Client8 $client
 	 * @param string $providerId
 	 * @param string $documentId
 	 *
 	 * @throws ConfigurationException
-	 * @throws MissingParameterException
-	 * @throws ServerResponseException
+	 * @throws MissingParameterException|MissingParameterException8
+	 * @throws ServerResponseException|ServerResponseException8
 	 */
-	public function indexDocumentRemove(Client $client, string $providerId, string $documentId): void {
+	public function indexDocumentRemove(Client|Client8 $client, string $providerId, string $documentId): void {
 		$index = [
 			'index' =>
 				[
@@ -111,7 +115,7 @@ class IndexMappingService {
 
 		try {
 			$client->delete($index['index']);
-		} catch (ClientResponseException $e) {
+		} catch (ClientResponseException|ClientResponseException8 $e) {
 		}
 	}
 

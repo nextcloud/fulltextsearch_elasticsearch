@@ -25,7 +25,6 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoAsyncC
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\NodePool\NodePoolInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Transport;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\TransportBuilder;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Client as GuzzleHttpClient;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Http\Client\HttpAsyncClient;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
@@ -340,16 +339,52 @@ class ClientBuilder
             $transport->setHeader('Authorization', \sprintf("ApiKey %s", $this->apiKey));
         }
         /**
-         * Elastic cloud optimized with gzip
+         * Elastic cloud or serverless optimized with gzip
          * @see https://github.com/elastic/elasticsearch-php/issues/1241 omit for Symfony HTTP Client    
          */
-        if (!empty($this->cloudId) && !$this->isSymfonyHttpClient($transport)) {
+        if ((!empty($this->cloudId) || $this->isCloud($this->hosts) || $this->isServerless($this->hosts)) && !$this->isSymfonyHttpClient($transport)) {
             $transport->setHeader('Accept-Encoding', 'gzip');
         }
         $client = new Client($transport, $transport->getLogger());
         // Enable or disable the x-elastic-client-meta header
         $client->setElasticMetaHeader($this->elasticMetaHeader);
+        if ($this->isServerless($this->hosts)) {
+            $client->setServerless(\true);
+        }
         return $client;
+    }
+    /**
+     * Check if the hosts contains an Elastic Cloud url
+     */
+    protected function isCloud(array $hosts) : bool
+    {
+        if (empty($hosts) || \count($hosts) > 1) {
+            return \false;
+        }
+        $url = $hosts[0];
+        // Elastic Cloud gcp
+        if (\preg_match('/\\.cloud\\.es\\.io/i', $url)) {
+            return \true;
+        }
+        // Elastic Cloud aws or azure
+        if (\preg_match('/\\.elastic-cloud\\.com/i', $url)) {
+            return \true;
+        }
+        return \false;
+    }
+    /**
+     * Check if the hosts contains an Elastic Serverless url 
+     */
+    protected function isServerless(array $hosts) : bool
+    {
+        if (empty($hosts) || \count($hosts) > 1) {
+            return \false;
+        }
+        $url = $hosts[0];
+        if (\preg_match('/\\.elastic\\.cloud/i', $url)) {
+            return \true;
+        }
+        return \false;
     }
     /**
      * Returns true if the transport HTTP client is Symfony

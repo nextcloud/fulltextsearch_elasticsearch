@@ -22,6 +22,9 @@ class Node
 {
     protected UriInterface $uri;
     protected bool $alive = \true;
+    protected int $failedPings = 0;
+    protected ?int $lastPing = null;
+    // timestamp
     public function __construct(string $host)
     {
         if (substr($host, 0, 5) !== 'http:' && substr($host, 0, 6) !== 'https:') {
@@ -32,6 +35,8 @@ class Node
     public function markAlive(bool $alive) : void
     {
         $this->alive = $alive;
+        $this->failedPings = $alive ? 0 : $this->failedPings + 1;
+        $this->lastPing = \time();
     }
     public function isAlive() : bool
     {
@@ -40,5 +45,13 @@ class Node
     public function getUri() : UriInterface
     {
         return $this->uri;
+    }
+    public function getLastPing() : ?int
+    {
+        return $this->lastPing;
+    }
+    public function getFailedPings() : int
+    {
+        return $this->failedPings;
     }
 }

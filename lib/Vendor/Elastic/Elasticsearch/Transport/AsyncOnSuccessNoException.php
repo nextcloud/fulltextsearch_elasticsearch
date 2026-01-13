@@ -14,15 +14,22 @@
 declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Transport;
 
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Response\Elasticsearch;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Async\OnSuccessInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 class AsyncOnSuccessNoException implements OnSuccessInterface
 {
+    public function __construct(protected ?ClientInterface $client = null)
+    {
+    }
     public function success(ResponseInterface $response, int $count) : Elasticsearch
     {
         $result = new Elasticsearch();
         $result->setResponse($response, \false);
+        if (isset($this->client)) {
+            $this->client->setServerless($result->isServerless());
+        }
         return $result;
     }
 }
