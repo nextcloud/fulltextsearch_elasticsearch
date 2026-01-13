@@ -4,6 +4,10 @@
 -->
 # Changelog
 
+### 31.0.2
+
+- keep compatibility with ES pre 8.19.x
+
 ### 31.0.1
 
 - upgrade elasticsearch-php to 9.2
