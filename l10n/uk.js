@@ -6,7 +6,7 @@ OC.L10N.register(
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Розширення застосунку контекстного пошуку для роботи зі службою Elasticsearch. ",
     "Elastic Search" : "Elastic Search",
     "Address of the Servlet" : "Адреса Servlet",
-    "Include your credential in case authentication is required." : "Зазначте ваші облікові дані на випадок, якщо буде потрібна авторизація.",
+    "Include your credential in case authentication is required." : "Зазначте ваші облікові дані на випадок, якщо буде потрібно пройти автентифікацію.",
     "Index" : "Індекс",
     "Name of your index." : "Назва вашого індексу. ",
     "[Advanced] Analyzer tokenizer" : "[Розширені] Аналізатор-токенизатор",
