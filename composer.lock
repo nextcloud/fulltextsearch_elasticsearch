@@ -123,16 +123,16 @@
         },
         {
             "name": "elasticsearch/elasticsearch",
-            "version": "v9.2.0",
+            "version": "v9.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/elastic/elasticsearch-php.git",
-                "reference": "b9f6f3a05e568458ca21e2b5d43ad3140a919dfe"
+                "reference": "c79031c427260c8b5a583e4fe76fad330a5177cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/b9f6f3a05e568458ca21e2b5d43ad3140a919dfe",
-                "reference": "b9f6f3a05e568458ca21e2b5d43ad3140a919dfe",
+                "url": "https://api.github.com/repos/elastic/elasticsearch-php/zipball/c79031c427260c8b5a583e4fe76fad330a5177cc",
+                "reference": "c79031c427260c8b5a583e4fe76fad330a5177cc",
                 "shasum": ""
             },
             "require": {
@@ -175,9 +175,9 @@
             ],
             "support": {
                 "issues": "https://github.com/elastic/elasticsearch-php/issues",
-                "source": "https://github.com/elastic/elasticsearch-php/tree/v9.2.0"
+                "source": "https://github.com/elastic/elasticsearch-php/tree/v9.3.0"
             },
-            "time": "2025-11-14T10:26:20+00:00"
+            "time": "2026-02-04T09:49:19+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -584,16 +584,16 @@
         },
         {
             "name": "open-telemetry/api",
-            "version": "1.7.1",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opentelemetry-php/api.git",
-                "reference": "45bda7efa8fcdd9bdb0daa2f26c8e31f062f49d4"
+                "reference": "df5197c6fd0ddd8e9883b87de042d9341300e2ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opentelemetry-php/api/zipball/45bda7efa8fcdd9bdb0daa2f26c8e31f062f49d4",
-                "reference": "45bda7efa8fcdd9bdb0daa2f26c8e31f062f49d4",
+                "url": "https://api.github.com/repos/opentelemetry-php/api/zipball/df5197c6fd0ddd8e9883b87de042d9341300e2ad",
+                "reference": "df5197c6fd0ddd8e9883b87de042d9341300e2ad",
                 "shasum": ""
             },
             "require": {
@@ -603,7 +603,7 @@
                 "symfony/polyfill-php82": "^1.26"
             },
             "conflict": {
-                "open-telemetry/sdk": "<=1.0.8"
+                "open-telemetry/sdk": "<=1.11"
             },
             "type": "library",
             "extra": {
@@ -650,7 +650,7 @@
                 "issues": "https://github.com/open-telemetry/opentelemetry-php/issues",
                 "source": "https://github.com/open-telemetry/opentelemetry-php"
             },
-            "time": "2025-10-19T10:49:48+00:00"
+            "time": "2026-01-21T04:14:03+00:00"
         },
         {
             "name": "open-telemetry/context",
@@ -1515,5 +1515,5 @@
     "platform-overrides": {
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
