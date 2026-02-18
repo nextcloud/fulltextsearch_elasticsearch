@@ -4,6 +4,14 @@
 -->
 # Changelog
 
+### 33.0.0
+
+- compat nc33
+- keep compatibility with ES pre 8.19.x
+
+### 32.0.0
+
+- compat nc32
 
 ### 31.0.0
 
