@@ -9,11 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Als authenticatie nodig is, inloggegevens toevoegen.",
     "Index" : "Index",
     "Name of your index." : "Naam van jouw index.",
-    "[Advanced] Analyzer tokenizer" : "[Geavanceerd] Analyzer tokenizer",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "object",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Geavanceerd] Analyzer tokenizer"
 },
 "nplurals=2; plural=(n != 1);");

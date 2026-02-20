@@ -10,11 +10,6 @@ OC.L10N.register(
     "Index" : "Innéacs",
     "Name of your index." : "Ainm do innéacs.",
     "[Advanced] Analyzer tokenizer" : "[Casta] Anailíseoir tokenizer",
-    "Some language might need a specific tokenizer." : "D’fhéadfadh go mbeadh gá le comharthaí ar leith i gcás roinnt teangacha.",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "réad",
-    "_" : "_"
+    "Some language might need a specific tokenizer." : "D’fhéadfadh go mbeadh gá le comharthaí ar leith i gcás roinnt teangacha."
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);");

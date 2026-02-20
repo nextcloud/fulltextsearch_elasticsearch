@@ -8,11 +8,6 @@
     "Index" : "Indeks",
     "Name of your index." : "Naziv vašeg indeksa.",
     "[Advanced] Analyzer tokenizer" : "[Napredno] Tokenizator analizator",
-    "Some language might need a specific tokenizer." : "Neki jezici će možda trebati specijalni tokenizator.",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "objekt",
-    "_" : "_"
+    "Some language might need a specific tokenizer." : "Neki jezici će možda trebati specijalni tokenizator."
 },"pluralForm" :"nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;"
 }

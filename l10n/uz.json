@@ -7,11 +7,6 @@
     "Include your credential in case authentication is required." : "Agar autentifikatsiya zarur bo'lsa, hisob ma'lumotlaringizni kiriting.",
     "Index" : "indeks",
     "Name of your index." : "Indeksingiz nomi.",
-    "[Advanced] Analyzer tokenizer" : "[Kengaytirilgan] Analizator tokeni",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "ob'ekt",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Kengaytirilgan] Analizator tokeni"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

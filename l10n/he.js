@@ -9,7 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "נא לכלול את פרטי הגישה שלך למקרה שנדרש אימות",
     "Index" : "אינדקס",
     "Name of your index." : "שם האינדקס שלך.",
-    "[Advanced] Analyzer tokenizer" : "[מתקדם] ניתוח השמת אסימונים",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[מתקדם] ניתוח השמת אסימונים"
 },
 "nplurals=3; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: 2;");

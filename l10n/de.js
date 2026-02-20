@@ -10,11 +10,6 @@ OC.L10N.register(
     "Index" : "Index",
     "Name of your index." : "Name deines Indexes",
     "[Advanced] Analyzer tokenizer" : "[Advanced] Analyzer tokenizer",
-    "Some language might need a specific tokenizer." : "Einige Sprachen benötigen möglicherweise ein bestimmtes Analyse-Modul (Tokenizer).",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "object",
-    "_" : "_"
+    "Some language might need a specific tokenizer." : "Einige Sprachen benötigen möglicherweise ein bestimmtes Analyse-Modul (Tokenizer)."
 },
 "nplurals=2; plural=(n != 1);");

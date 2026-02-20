@@ -9,11 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Pokiaľ sa vyžaduje overenie, zadaj svoje prihlásenie.",
     "Index" : "Index",
     "Name of your index." : "Názov vášho indexu.",
-    "[Advanced] Analyzer tokenizer" : "[Pokročilé] Analyzátor tokenizátor",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "objekt",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Pokročilé] Analyzátor tokenizátor"
 },
 "nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);");

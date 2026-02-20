@@ -9,7 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Enmeti viajn akreditilojn, okaze se oni bezonas aŭtentigon.",
     "Index" : "Indekso",
     "Name of your index." : "Nomo de via indekso.",
-    "[Advanced] Analyzer tokenizer" : "[Altnivela] Vorta disigilo kaj analizilo",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Altnivela] Vorta disigilo kaj analizilo"
 },
 "nplurals=2; plural=(n != 1);");
