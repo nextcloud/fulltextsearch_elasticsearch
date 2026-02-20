@@ -9,7 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "A bejelentkezési adatai használata, ha hitelesítés szükséges.",
     "Index" : "Index",
     "Name of your index." : "Az indexe neve.",
-    "[Advanced] Analyzer tokenizer" : "[Speciális] Lexikális szövegbontásos elemzés",
-    "object" : "objektum"
+    "[Advanced] Analyzer tokenizer" : "[Speciális] Lexikális szövegbontásos elemzés"
 },
 "nplurals=2; plural=(n != 1);");

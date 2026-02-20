@@ -9,11 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Inkluder legitimasjonen din i tilfelle autentisering er nødvendig.",
     "Index" : "Indeks",
     "Name of your index." : "Navnet på indeksen din.",
-    "[Advanced] Analyzer tokenizer" : "[Avansert] Analyzer tokenizer",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "objekt",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Avansert] Analyzer tokenizer"
 },
 "nplurals=2; plural=(n != 1);");

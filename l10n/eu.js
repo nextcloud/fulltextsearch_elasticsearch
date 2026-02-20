@@ -9,11 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Gehitu zure egiaztagiria autentikazioa beharrezkoa diren kasuetan.",
     "Index" : "Aurkibidea",
     "Name of your index." : "Zure aurkibidearen izena.",
-    "[Advanced] Analyzer tokenizer" : "[Aurreratua] Analizatzailearen tokenizatzailea",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "objektua",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Aurreratua] Analizatzailearen tokenizatzailea"
 },
 "nplurals=2; plural=(n != 1);");

@@ -10,11 +10,6 @@ OC.L10N.register(
     "Index" : "Индекс",
     "Name of your index." : "Назив вашег индекса.",
     "[Advanced] Analyzer tokenizer" : "[Напредно] Анализатор токенизатора",
-    "Some language might need a specific tokenizer." : "За неки језик је можда потребан посебан растављач на жетоне.",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "објекат",
-    "_" : "_"
+    "Some language might need a specific tokenizer." : "За неки језик је можда потребан посебан растављач на жетоне."
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");
