@@ -10,11 +10,6 @@ OC.L10N.register(
     "Index" : "كۆرسەتكۈچ",
     "Name of your index." : "كۆرسەتكۈچنىڭ ئىسمى.",
     "[Advanced] Analyzer tokenizer" : "[Advanced] ئانالىزچى بەلگە",
-    "Some language might need a specific tokenizer." : "بەزى تىللار بەلگىلىك بىر سۆزنى بوغۇمغا ئايرىغۇچقا ئېھتىياجلىق.",
-    ">tbody" : "> tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "ئوبيېكت",
-    "_" : "_"
+    "Some language might need a specific tokenizer." : "بەزى تىللار بەلگىلىك بىر سۆزنى بوغۇمغا ئايرىغۇچقا ئېھتىياجلىق."
 },
 "nplurals=2; plural=(n != 1);");

@@ -9,11 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Συμπεριλάβετε τα διαπιστευτήριά σας σε περίπτωση που απαιτείται πιστοποίηση.",
     "Index" : "Ευρετήριο",
     "Name of your index." : "Όνομα του ευρετηρίου σας.",
-    "[Advanced] Analyzer tokenizer" : "[Advanced]  Αναλυτής Λεξικής ανάλυσης",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "object",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Advanced]  Αναλυτής Λεξικής ανάλυσης"
 },
 "nplurals=2; plural=(n != 1);");

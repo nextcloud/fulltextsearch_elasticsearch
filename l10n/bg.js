@@ -9,7 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Включете вашите идентификационни данни, в случай че е нужно удостоверяване.",
     "Index" : "Индекс",
     "Name of your index." : "Име на вашия индекс.",
-    "[Advanced] Analyzer tokenizer" : "[Разширен] Анализатор токенизатор",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Разширен] Анализатор токенизатор"
 },
 "nplurals=2; plural=(n != 1);");

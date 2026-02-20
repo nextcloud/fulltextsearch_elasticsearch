@@ -9,7 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Hafðu með auðkennin þín ef auðkenningar verður krafist.",
     "Index" : "Atriðaskrá",
     "Name of your index." : "Nafn á atriðaskránni þinni.",
-    "[Advanced] Analyzer tokenizer" : "[Meira] Greining teikna (Analyzer tokenizer)",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[Meira] Greining teikna (Analyzer tokenizer)"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

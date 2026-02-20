@@ -10,11 +10,6 @@ OC.L10N.register(
     "Index" : "Rejstřík",
     "Name of your index." : "Nazvěte svůj rejstřík.",
     "[Advanced] Analyzer tokenizer" : "[Pokročilé] Analyzátor a nástroj pro dělení na tokeny",
-    "Some language might need a specific tokenizer." : "Některé jazyky mohou vyžadovat specifický nástroj pro dělení na tokeny.",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "objekt",
-    "_" : "_"
+    "Some language might need a specific tokenizer." : "Některé jazyky mohou vyžadovat specifický nástroj pro dělení na tokeny."
 },
 "nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;");

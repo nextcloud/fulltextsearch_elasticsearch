@@ -9,7 +9,6 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Incloeu les credencials si cal autenticació.",
     "Index" : "Índex",
     "Name of your index." : "Nom de l'índex.",
-    "[Advanced] Analyzer tokenizer" : "(Avançat) Lematitzador de l'analitzador",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "(Avançat) Lematitzador de l'analitzador"
 },
 "nplurals=2; plural=(n != 1);");

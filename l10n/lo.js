@@ -10,11 +10,6 @@ OC.L10N.register(
     "Index" : "ດັດຊະນີ",
     "Name of your index." : "ຊື່ຂອງດັດຊະນີຂອງທ່ານ.",
     "[Advanced] Analyzer tokenizer" : "[ຂັ້ນສູງ] ຕົວຕັດຄຳສຳລັບການວິເຄາະ",
-    "Some language might need a specific tokenizer." : "ບາງພາສາອາດຈະຕ້ອງການຕົວຕັດຄຳສະເພາະ.",
-    ">tbody" : ">tbody",
-    "<script>" : "<script>",
-    "<div>" : "<div>",
-    "object" : "ວັດຖຸ",
-    "_" : "_"
+    "Some language might need a specific tokenizer." : "ບາງພາສາອາດຈະຕ້ອງການຕົວຕັດຄຳສະເພາະ."
 },
 "nplurals=1; plural=0;");

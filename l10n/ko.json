@@ -7,7 +7,6 @@
     "Include your credential in case authentication is required." : "인증해야 할 경우에는 인증 정보를 입력하십시오.",
     "Index" : "색인",
     "Name of your index." : "색인 이름입니다.",
-    "[Advanced] Analyzer tokenizer" : "[고급] 분석기 토큰화 도구",
-    "_" : "_"
+    "[Advanced] Analyzer tokenizer" : "[고급] 분석기 토큰화 도구"
 },"pluralForm" :"nplurals=1; plural=0;"
 }
