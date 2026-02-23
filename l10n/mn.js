@@ -9,6 +9,7 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Баталгаажуулалт шаардлагатай тохиолдолд мэдээллээ оруулна уу.",
     "Index" : "Индекс",
     "Name of your index." : "Таны индексийн нэр",
-    "[Advanced] Analyzer tokenizer" : "[Мэргэжлийн] Анализаторын токенжуулагч"
+    "[Advanced] Analyzer tokenizer" : "[Мэргэжлийн] Анализаторын токенжуулагч",
+    "Some language might need a specific tokenizer." : "Зарим хэл нь тусгай токенизатор шаардаж болно."
 },
 "nplurals=2; plural=(n != 1);");
