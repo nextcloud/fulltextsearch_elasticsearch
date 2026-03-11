@@ -27,7 +27,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Cli
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\ClientBuilder as ClientBuilder8;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException as NoNodeAvailableException8;
 use OCP\AppFramework\Services\IAppConfig;
-use OCP\FullTextSearch\Exceptions\PlatformTemporaryException;
+use OCA\FullTextSearch\Exceptions\PlatformTemporaryException as LegacyPlatformTemporaryException;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -199,7 +199,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 			return $index;
 		} catch (NoNodeAvailableException|NoNodeAvailableException8) {
-			throw new PlatformTemporaryException();
+			if (class_exists(\OCP\FullTextSearch\Exceptions\PlatformTemporaryException::class)) {
+				throw new \OCP\FullTextSearch\Exceptions\PlatformTemporaryException();
+			}
+
+			throw new LegacyPlatformTemporaryException();
 		} catch (Exception $e) {
 			$this->manageIndexErrorException($document, $e);
 		}
