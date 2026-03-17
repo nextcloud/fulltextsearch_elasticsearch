@@ -49,6 +49,7 @@ use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\IRunner;
 use OCP\FullTextSearch\Model\ISearchResult;
+use OCP\ICertificateManager;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -68,6 +69,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		private ConfigService $configService,
 		private IndexService $indexService,
 		private SearchService $searchService,
+        private ICertificateManager $certificateManager,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -396,6 +398,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		}
 
 		$cb->setSSLVerification(!$this->configService->getAppValueBool(ConfigService::ALLOW_SELF_SIGNED_CERT));
+        $cb->setCABundle($this->certificateManager->getAbsoluteBundlePath());
 		$this->configureAuthentication($cb, $hosts);
 
 		$this->client = $cb->build();
