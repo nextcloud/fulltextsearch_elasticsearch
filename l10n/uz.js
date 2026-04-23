@@ -9,6 +9,7 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "Agar autentifikatsiya zarur bo'lsa, hisob ma'lumotlaringizni kiriting.",
     "Index" : "indeks",
     "Name of your index." : "Indeksingiz nomi.",
-    "[Advanced] Analyzer tokenizer" : "[Kengaytirilgan] Analizator tokeni"
+    "[Advanced] Analyzer tokenizer" : "[Kengaytirilgan] Analizator tokeni",
+    "Some language might need a specific tokenizer." : "Ba'zi tillar uchun maxsus tokenizator kerak bo'lishi mumkin."
 },
 "nplurals=1; plural=0;");
