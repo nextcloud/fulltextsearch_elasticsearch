@@ -9,6 +9,7 @@ OC.L10N.register(
     "Include your credential in case authentication is required." : "在需要认证时提供您的凭证",
     "Index" : "索引",
     "Name of your index." : "您索引的名称。",
-    "[Advanced] Analyzer tokenizer" : "[高级] 分析器tokenizer"
+    "[Advanced] Analyzer tokenizer" : "[高级] 分析器tokenizer",
+    "Some language might need a specific tokenizer." : "部分语言可能需要特定的tokenizer。"
 },
 "nplurals=1; plural=0;");
