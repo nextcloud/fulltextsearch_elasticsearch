@@ -72,14 +72,14 @@ class IndexService {
 				return;
 			}
 		} catch (ClientResponseException|ClientResponseException8 $e) {
-			$this->logger->warning($e->getMessage(), ['exception' => $e]);
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
 		}
 
 		try {
 			$client->indices()
 				   ->create($this->indexMappingService->generateGlobalMap());
 		} catch (ClientResponseException|ClientResponseException8 $e) {
-			$this->logger->notice('reset index all', ['exception' => $e]);
+			$this->logger->error('reset index all', ['exception' => $e]);
 			$this->resetIndexAll($client);
 		}
 
@@ -87,7 +87,7 @@ class IndexService {
 			$client->ingest()
 				   ->putPipeline($this->indexMappingService->generateGlobalIngest());
 		} catch (ClientResponseException|ClientResponseException8 $e) {
-			$this->logger->notice('reset index all', ['exception' => $e]);
+			$this->logger->error('reset index all', ['exception' => $e]);
 			$this->resetIndexAll($client);
 		}
 	}
@@ -103,7 +103,7 @@ class IndexService {
 		try {
 			$client->deleteByQuery($this->indexMappingService->generateDeleteQuery($providerId));
 		} catch (ClientResponseException|ClientResponseException8 $e) {
-			$this->logger->notice('reset index all', ['exception' => $e]);
+			$this->logger->error('reset index all', ['exception' => $e]);
 		}
 	}
 
