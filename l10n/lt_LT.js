@@ -1,0 +1,15 @@
+OC.L10N.register(
+    "fulltextsearch_elasticsearch",
+    {
+    "Full text search - Elasticsearch Platform" : "Pilno teksto paieška – „Elasticsearch“ platforma",
+    "Index using ElasticSearch" : "Indeksavimas naudojant „ElasticSearch“",
+    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "„_Full text search_“ programėlės plėtinys, skirtas sąveikai su „ElasticSearch“.",
+    "Elastic Search" : "„Elastic Search“",
+    "Address of the Servlet" : "„Servlet“ adresas",
+    "Include your credential in case authentication is required." : "Įtraukite savo prisijungimo duomenis, jei reikės autentifikavimo.",
+    "Index" : "Indeksas",
+    "Name of your index." : "Jūsų indekso pavadinimas.",
+    "[Advanced] Analyzer tokenizer" : "[Išplėstinis] Analizatoriaus žodžių skaidytuvas",
+    "Some language might need a specific tokenizer." : "Kai kurioms kalboms gali reikėti specialaus skaidytuvo."
+},
+"nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? 1 : n % 1 != 0 ? 2: 3);");
