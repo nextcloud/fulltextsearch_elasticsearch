@@ -2,6 +2,7 @@ OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
     "Full text search - Elasticsearch Platform" : "Pesquisa em texto completo - Plataforma Elasticsearch",
+    "Index using ElasticSearch" : "Indexar usando o ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extensão para o aplicativo _Full text search_ se comunicar com o ElasticSearch.",
     "Index" : "Índice",
     "[Advanced] Analyzer tokenizer" : "[Advanced] Tokenizer analisador"
