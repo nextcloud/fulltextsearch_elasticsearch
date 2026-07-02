@@ -7,22 +7,31 @@
 /** global: elasticsearch_elements */
 /** global: elasticsearch_settings */
 
+function ready(callback) {
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', callback);
+	} else {
+		callback();
+	}
+}
 
-$(document).ready(function () {
+
+ready(function () {
 
 
 	/**
 	 * @constructs ElasticSearchAdmin
 	 */
 	var ElasticSearchAdmin = function () {
-		$.extend(ElasticSearchAdmin.prototype, elasticsearch_elements);
-		$.extend(ElasticSearchAdmin.prototype, elasticsearch_settings);
+		Object.assign(ElasticSearchAdmin.prototype, elasticsearch_elements, elasticsearch_settings);
 
 		elasticsearch_elements.init();
 		elasticsearch_settings.refreshSettingPage();
 	};
 
-	OCA.FullTextSearchAdmin.elasticSearch = ElasticSearchAdmin;
-	OCA.FullTextSearchAdmin.elasticSearch.settings = new ElasticSearchAdmin();
+	window.OCA = window.OCA || {};
+	window.OCA.FullTextSearchAdmin = window.OCA.FullTextSearchAdmin || {};
+	window.OCA.FullTextSearchAdmin.elasticSearch = ElasticSearchAdmin;
+	window.OCA.FullTextSearchAdmin.elasticSearch.settings = new ElasticSearchAdmin();
 
 });
