@@ -3,7 +3,7 @@ OC.L10N.register(
     {
     "Full text search - Elasticsearch Platform" : "Täistekstiotsing - Elasticsearch Platform",
     "Index using ElasticSearch" : "Indeks, mis kasutab ElasticSearchi",
-    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Lisamoodul _Täistekstiotsingu_ rakendusele, mis võimaldab aseda liidestada ElasticSearch teenusega.",
+    "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Lisamoodul _Täistekstiotsingu_ rakendusele, mis võimaldab seda liidestada ElasticSearch teenusega.",
     "Elastic Search" : "Elastic Search",
     "Address of the Servlet" : "Servleti aadress",
     "Include your credential in case authentication is required." : "Juhuks, kui autentimine on vajalik, sisesta oma kasutajanimi/salasõna/tunnusluba.",
