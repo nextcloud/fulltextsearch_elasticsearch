@@ -3,6 +3,10 @@
 \.idea/
 /build/
 /vendor/
+
+node_modules/
+js
+css
 /lib/VendorPsr/
 /es8/vendor/
 /es8/lib/Vendor8/
