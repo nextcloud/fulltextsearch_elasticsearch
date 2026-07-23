@@ -60,7 +60,7 @@
   },
   "require": {
     "bamarni/composer-bin-plugin": "^1.8",
-    "guzzlehttp/guzzle": "^7.0.0",
+    "guzzlehttp/guzzle": "^8.0.0",
     "elasticsearch/elasticsearch": "^9.2"
   },
   "require-dev": {
