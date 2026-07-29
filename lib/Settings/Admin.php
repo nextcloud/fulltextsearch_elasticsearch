@@ -11,12 +11,18 @@ namespace OCA\FullTextSearch_Elasticsearch\Settings;
 
 use Exception;
 use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
+use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Services\IInitialState;
 use OCP\Settings\ISettings;
+use OCP\Util;
 
 class Admin implements ISettings {
 
-	public function __construct() {
+	public function __construct(
+		private ConfigService $configService,
+		private IInitialState $initialStateService,
+	) {
 	}
 
 	/**
@@ -24,6 +30,11 @@ class Admin implements ISettings {
 	 * @throws Exception
 	 */
 	public function getForm(): TemplateResponse {
+		$this->initialStateService->provideInitialState('adminConfig', $this->configService->getConfig());
+
+		Util::addScript(Application::APP_NAME, 'fulltextsearch_elasticsearch-settings-admin');
+		Util::addStyle(Application::APP_NAME, 'fulltextsearch_elasticsearch-settings-admin');
+
 		return new TemplateResponse(Application::APP_NAME, 'settings.admin', []);
 	}
 
