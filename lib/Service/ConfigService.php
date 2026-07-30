@@ -34,7 +34,7 @@ class ConfigService {
 		self::ELASTIC_INDEX => '',
 		self::FIELDS_LIMIT => '10000',
 		self::ELASTIC_VER_BELOW66 => '0',
-		self::ELASTIC_LOGGER_ENABLED => 'true',
+		self::ELASTIC_LOGGER_ENABLED => '0',
 		self::ANALYZER_TOKENIZER => 'standard',
 		self::ALLOW_SELF_SIGNED_CERT => 'false'
 	];
