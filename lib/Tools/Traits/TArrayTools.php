@@ -24,7 +24,6 @@ trait TArrayTools {
 	public static $TYPE_INTEGER = 'Integer';
 	public static $TYPE_SERIALIZABLE = 'Serializable';
 
-
 	/**
 	 * @param string $k
 	 * @param array $arr
@@ -57,7 +56,6 @@ trait TArrayTools {
 
 		return (string)$arr[$k];
 	}
-
 
 	/**
 	 * @param string $k
@@ -92,7 +90,6 @@ trait TArrayTools {
 		return intval($arr[$k]);
 	}
 
-
 	/**
 	 * @param string $k
 	 * @param array $arr
@@ -125,7 +122,6 @@ trait TArrayTools {
 
 		return intval($arr[$k]);
 	}
-
 
 	/**
 	 * @param string $k
@@ -168,7 +164,6 @@ trait TArrayTools {
 		return $default;
 	}
 
-
 	/**
 	 * @param string $k
 	 * @param array $arr
@@ -190,7 +185,6 @@ trait TArrayTools {
 
 		return $arr[$k];
 	}
-
 
 	/**
 	 * @param string $k
@@ -234,7 +228,6 @@ trait TArrayTools {
 		return $r;
 	}
 
-
 	/**
 	 * @param string $k
 	 * @param array $arr
@@ -263,7 +256,6 @@ trait TArrayTools {
 		return false;
 	}
 
-
 	/**
 	 * @param string $k
 	 * @param array $arr
@@ -290,7 +282,6 @@ trait TArrayTools {
 		return $r;
 	}
 
-
 	/**
 	 * @param string $k
 	 * @param string $value
@@ -312,7 +303,6 @@ trait TArrayTools {
 
 		throw new ArrayNotFoundException();
 	}
-
 
 	/**
 	 * @param string $key
@@ -369,7 +359,6 @@ trait TArrayTools {
 		throw new ItemNotFoundException();
 	}
 
-
 	/**
 	 * @param array $keys
 	 * @param array $arr
@@ -385,7 +374,6 @@ trait TArrayTools {
 			}
 		}
 	}
-
 
 	/**
 	 * @param array $arr

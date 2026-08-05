@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
+use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\MissingParameterException;
@@ -17,9 +20,6 @@ use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Cli
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ClientResponseException as ClientResponseException8;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\MissingParameterException as MissingParameterException8;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ServerResponseException as ServerResponseException8;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
-use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\Model\IIndex;
 use OCP\FullTextSearch\Model\IIndexDocument;
 use Psr\Log\LoggerInterface;
@@ -30,10 +30,9 @@ class IndexService {
 
 	public function __construct(
 		private IndexMappingService $indexMappingService,
-		private LoggerInterface $logger
+		private LoggerInterface $logger,
 	) {
 	}
-
 
 	/**
 	 * @param Client|Client8 $client
@@ -51,11 +50,10 @@ class IndexService {
 		];
 
 		$result = $client->indices()
-						 ->exists($map);
+			->exists($map);
 
 		return $result->asBool();
 	}
-
 
 	/**
 	 * @param Client|Client8 $client
@@ -67,8 +65,8 @@ class IndexService {
 	public function initializeIndex(Client|Client8 $client): void {
 		try {
 			if ($client->indices()
-					   ->exists($this->indexMappingService->generateGlobalMap(false))
-					   ->asBool()) {
+				->exists($this->indexMappingService->generateGlobalMap(false))
+				->asBool()) {
 				return;
 			}
 		} catch (ClientResponseException|ClientResponseException8 $e) {
@@ -77,7 +75,7 @@ class IndexService {
 
 		try {
 			$client->indices()
-				   ->create($this->indexMappingService->generateGlobalMap());
+				->create($this->indexMappingService->generateGlobalMap());
 		} catch (ClientResponseException|ClientResponseException8 $e) {
 			$this->logger->error('reset index all', ['exception' => $e]);
 			$this->resetIndexAll($client);
@@ -85,13 +83,12 @@ class IndexService {
 
 		try {
 			$client->ingest()
-				   ->putPipeline($this->indexMappingService->generateGlobalIngest());
+				->putPipeline($this->indexMappingService->generateGlobalIngest());
 		} catch (ClientResponseException|ClientResponseException8 $e) {
 			$this->logger->error('reset index all', ['exception' => $e]);
 			$this->resetIndexAll($client);
 		}
 	}
-
 
 	/**
 	 * @param Client|Client8 $client
@@ -107,7 +104,6 @@ class IndexService {
 		}
 	}
 
-
 	/**
 	 * @param Client|Client8 $client
 	 *
@@ -118,19 +114,18 @@ class IndexService {
 	public function resetIndexAll(Client|Client8 $client): void {
 		try {
 			$client->ingest()
-				   ->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
+				->deletePipeline($this->indexMappingService->generateGlobalIngest(false));
 		} catch (ClientResponseException|ClientResponseException8 $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 		}
 
 		try {
 			$client->indices()
-				   ->delete($this->indexMappingService->generateGlobalMap(false));
+				->delete($this->indexMappingService->generateGlobalMap(false));
 		} catch (ClientResponseException|ClientResponseException8 $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 		}
 	}
-
 
 	/**
 	 * @param Client|Client8 $client
@@ -145,7 +140,6 @@ class IndexService {
 			$index->getDocumentId()
 		);
 	}
-
 
 	/**
 	 * @param Client|Client8 $client
@@ -162,7 +156,7 @@ class IndexService {
 			$this->indexMappingService->indexDocumentRemove(
 				$client, $document->getProviderId(), $document->getId()
 			);
-		} else if ($index->isStatus(IIndex::INDEX_OK) && !$index->isStatus(IIndex::INDEX_CONTENT)
+		} elseif ($index->isStatus(IIndex::INDEX_OK) && !$index->isStatus(IIndex::INDEX_CONTENT)
 				   && !$index->isStatus(IIndex::INDEX_META)) {
 			$result = $this->indexMappingService->indexDocumentUpdate($client, $document);
 		} else {
@@ -171,7 +165,6 @@ class IndexService {
 
 		return $result;
 	}
-
 
 	/**
 	 * @param IIndex $index

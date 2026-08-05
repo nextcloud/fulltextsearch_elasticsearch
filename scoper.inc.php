@@ -17,19 +17,19 @@ return [
 	'exclude-namespaces' => ['Composer', 'Psr\Log'],
 	'finders' => [
 		Finder::create()->files()
-			  ->exclude([
-							'test',
-							'composer',
-							'bin',
-						])
-			  ->notName('autoload.php')
-			  ->in('vendor/elasticsearch')
-			  ->in('vendor/elastic')
-			  ->in('vendor/guzzlehttp')
-			  ->in('vendor/php-http')
-			  ->in('vendor/psr'),
-//		Finder::create()->files()
-//			  ->name('InstalledVersions.php')
-//			  ->in('vendor/composer')
+			->exclude([
+				'test',
+				'composer',
+				'bin',
+			])
+			->notName('autoload.php')
+			->in('vendor/elasticsearch')
+			->in('vendor/elastic')
+			->in('vendor/guzzlehttp')
+			->in('vendor/php-http')
+			->in('vendor/psr'),
+		//		Finder::create()->files()
+		//			  ->name('InstalledVersions.php')
+		//			  ->in('vendor/composer')
 	],
 ];

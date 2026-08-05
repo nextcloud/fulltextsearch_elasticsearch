@@ -10,6 +10,6 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Exceptions;
 
 use Exception;
+
 class ClientException extends Exception {
 }
-

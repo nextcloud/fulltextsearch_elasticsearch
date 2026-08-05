@@ -17,7 +17,6 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IRequest;
 
-
 /**
  * Class SettingsController
  *
@@ -27,7 +26,7 @@ class SettingsController extends Controller {
 
 	public function __construct(
 		IRequest $request,
-		private ConfigService $configService
+		private ConfigService $configService,
 	) {
 		parent::__construct(Application::APP_NAME, $request);
 	}
@@ -54,4 +53,3 @@ class SettingsController extends Controller {
 		return $this->getSettingsAdmin();
 	}
 }
-

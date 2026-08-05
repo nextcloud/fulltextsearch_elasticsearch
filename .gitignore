@@ -14,3 +14,4 @@ css
 /es8/build/
 vendor-bin/*/vendor/
 es8/vendor-bin/php-scoper/vendor
+.php-cs-fixer.cache
