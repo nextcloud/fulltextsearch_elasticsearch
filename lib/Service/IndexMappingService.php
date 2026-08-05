@@ -23,7 +23,6 @@ use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\Ser
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\FullTextSearch\Model\IIndexDocument;
 
-
 /**
  * Class IndexMappingService
  *
@@ -36,7 +35,6 @@ class IndexMappingService {
 		private readonly IAppConfig $appConfig,
 	) {
 	}
-
 
 	/**
 	 * @param Client|Client8 $client
@@ -51,8 +49,8 @@ class IndexMappingService {
 	 */
 	public function indexDocumentNew(Client|Client8 $client, IIndexDocument $document): array {
 		$index = [
-			'index' =>
-				[
+			'index'
+				=> [
 					'index' => $this->configService->getElasticIndex(),
 					'id' => $document->getProviderId() . ':' . $document->getId(),
 					'body' => $this->generateIndexBody($document)
@@ -64,7 +62,6 @@ class IndexMappingService {
 
 		return $result->asArray();
 	}
-
 
 	/**
 	 * @param Client|Client8 $client
@@ -79,8 +76,8 @@ class IndexMappingService {
 	 */
 	public function indexDocumentUpdate(Client|Client8 $client, IIndexDocument $document): array {
 		$index = [
-			'index' =>
-				[
+			'index'
+				=> [
 					'index' => $this->configService->getElasticIndex(),
 					'id' => $document->getProviderId() . ':' . $document->getId(),
 					'body' => ['doc' => $this->generateIndexBody($document)]
@@ -97,7 +94,6 @@ class IndexMappingService {
 		}
 	}
 
-
 	/**
 	 * @param Client|Client8 $client
 	 * @param string $providerId
@@ -109,8 +105,8 @@ class IndexMappingService {
 	 */
 	public function indexDocumentRemove(Client|Client8 $client, string $providerId, string $documentId): void {
 		$index = [
-			'index' =>
-				[
+			'index'
+				=> [
 					'index' => $this->configService->getElasticIndex(),
 					'id' => $providerId . ':' . $documentId,
 				]
@@ -121,7 +117,6 @@ class IndexMappingService {
 		} catch (ClientResponseException|ClientResponseException8 $e) {
 		}
 	}
-
 
 	/**
 	 * @param IIndexDocument $document
@@ -134,7 +129,6 @@ class IndexMappingService {
 		}
 	}
 
-
 	/**
 	 * @param IIndexDocument $document
 	 *
@@ -145,11 +139,11 @@ class IndexMappingService {
 		$access = $document->getAccess();
 
 		// TODO: check if we can just update META or just update CONTENT.
-//		$index = $document->getIndex();
-//		$body = [];
+		//		$index = $document->getIndex();
+		//		$body = [];
 
 		// TODO: isStatus ALL or META (uncomment condition)
-//		if ($index->isStatus(IIndex::INDEX_META)) {
+		//		if ($index->isStatus(IIndex::INDEX_META)) {
 		$body = [
 			'owner' => $access->getOwnerId(),
 			'users' => $access->getUsers(),
@@ -167,15 +161,14 @@ class IndexMappingService {
 			'parts' => $document->getParts(),
 			'combined' => ''
 		];
-//		}
+		//		}
 
 		// TODO: isStatus ALL or CONTENT (uncomment condition)
-//		if ($index->isStatus(IIndex::INDEX_CONTENT)) {
-			$body['content'] = $document->getContent();
-//		}
+		//		if ($index->isStatus(IIndex::INDEX_CONTENT)) {
+		$body['content'] = $document->getContent();
+		//		}
 		return array_merge($document->getInfoAll(), $body);
 	}
-
 
 	/**
 	 * @param bool $complete
@@ -223,88 +216,87 @@ class IndexMappingService {
 				]
 			],
 			'mappings' => [
-                'dynamic' => true,
-                'properties' => [
-                    'source' => [
-                        'type' => 'keyword'
-                    ],
-                    'title' => [
-                        'type' => 'text',
-                        'analyzer' => 'keyword',
-                        'term_vector' => 'with_positions_offsets',
-                        'copy_to' => 'combined'
-                    ],
-                    'provider' => [
-                        'type' => 'keyword'
-                    ],
-                    'lastModified' => [
-                        'type' => 'integer',
-                    ],
-                    'tags' => [
-                        'type' => 'keyword'
-                    ],
-                    'metatags' => [
-                        'type' => 'keyword'
-                    ],
-                    'subtags' => [
-                        'type' => 'keyword'
-                    ],
-                    'content' => [
-                        'type' => 'text',
-                        'analyzer' => 'analyzer',
-                        'term_vector' => 'with_positions_offsets',
-                        'copy_to' => 'combined'
-                    ],
-                    'owner' => [
-                        'fields' => [
-                            'keyword' => [
-                                'type' => 'keyword'
-                            ]
-                        ],
-                        'type' => 'keyword'
-                    ],
-                    'users' => [
-                        'fields' => [
-                            'keyword' => [
-                                'type' => 'keyword'
-                            ]
-                        ],
-                        'type' => 'keyword'
-                    ],
-                    'groups' => [
-                        'fields' => [
-                            'keyword' => [
-                                'type' => 'keyword'
-                            ]
-                        ],
-                        'type' => 'keyword'
-                    ],
-                    'circles' => [
-                        'fields' => [
-                            'keyword' => [
-                                'type' => 'keyword'
-                            ]
-                        ],
-                        'type' => 'keyword'
-                    ],
-                    'links' => [
-                        'type' => 'keyword'
-                    ],
-                    'hash' => [
-                        'type' => 'keyword'
-                    ],
-                    'combined' => [
-                        'type' => 'text',
-                        'analyzer' => 'analyzer',
-                        'term_vector' => 'with_positions_offsets'
-                    ]
-                ]
+				'dynamic' => true,
+				'properties' => [
+					'source' => [
+						'type' => 'keyword'
+					],
+					'title' => [
+						'type' => 'text',
+						'analyzer' => 'keyword',
+						'term_vector' => 'with_positions_offsets',
+						'copy_to' => 'combined'
+					],
+					'provider' => [
+						'type' => 'keyword'
+					],
+					'lastModified' => [
+						'type' => 'integer',
+					],
+					'tags' => [
+						'type' => 'keyword'
+					],
+					'metatags' => [
+						'type' => 'keyword'
+					],
+					'subtags' => [
+						'type' => 'keyword'
+					],
+					'content' => [
+						'type' => 'text',
+						'analyzer' => 'analyzer',
+						'term_vector' => 'with_positions_offsets',
+						'copy_to' => 'combined'
+					],
+					'owner' => [
+						'fields' => [
+							'keyword' => [
+								'type' => 'keyword'
+							]
+						],
+						'type' => 'keyword'
+					],
+					'users' => [
+						'fields' => [
+							'keyword' => [
+								'type' => 'keyword'
+							]
+						],
+						'type' => 'keyword'
+					],
+					'groups' => [
+						'fields' => [
+							'keyword' => [
+								'type' => 'keyword'
+							]
+						],
+						'type' => 'keyword'
+					],
+					'circles' => [
+						'fields' => [
+							'keyword' => [
+								'type' => 'keyword'
+							]
+						],
+						'type' => 'keyword'
+					],
+					'links' => [
+						'type' => 'keyword'
+					],
+					'hash' => [
+						'type' => 'keyword'
+					],
+					'combined' => [
+						'type' => 'text',
+						'analyzer' => 'analyzer',
+						'term_vector' => 'with_positions_offsets'
+					]
+				]
 			]
 		];
 
 		return $params;
 	}
-
 
 	/**
 	 * @param bool $complete
@@ -320,33 +312,32 @@ class IndexMappingService {
 
 		$params['body'] = [
 			'description' => 'attachment',
-            'processors' => [
-                [
-                    'attachment' => [
-                        'remove_binary' => true,
-                        'field' => 'content',
-                        'indexed_chars' => -1
-                    ]
-                ],
-                [
-                    'convert' => [
-                        'field' => 'attachment.content',
-                        'type' => 'string',
-                        'target_field' => 'content',
-                        'ignore_failure' => true
-                    ]
-                ], [
-                    'remove' => [
-                        'field' => 'attachment.content',
-                        'ignore_failure' => true
-                    ]
-                ]
+			'processors' => [
+				[
+					'attachment' => [
+						'remove_binary' => true,
+						'field' => 'content',
+						'indexed_chars' => -1
+					]
+				],
+				[
+					'convert' => [
+						'field' => 'attachment.content',
+						'type' => 'string',
+						'target_field' => 'content',
+						'ignore_failure' => true
+					]
+				], [
+					'remove' => [
+						'field' => 'attachment.content',
+						'ignore_failure' => true
+					]
+				]
 			]
 		];
 
 		return $params;
 	}
-
 
 	/**
 	 * @param string $providerId
@@ -364,4 +355,3 @@ class IndexMappingService {
 		return $params;
 	}
 }
-

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -7,7 +8,6 @@ declare(strict_types=1);
  */
 
 namespace OCA\FullTextSearch_Elasticsearch\Platform;
-
 
 use Exception;
 use InvalidArgumentException;
@@ -24,9 +24,9 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\ClientBuilder;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException;
+use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException as NoNodeAvailableException8;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Client8;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\ClientBuilder as ClientBuilder8;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException as NoNodeAvailableException8;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
@@ -44,23 +44,21 @@ use Psr\Log\LoggerInterface;
  */
 class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
-
 	use TArrayTools;
 
 	private null|Client|Client8 $client = null;
 	private ?IRunner $runner = null;
-    private bool $downgradingES = false;
+	private bool $downgradingES = false;
 
 	public function __construct(
 		private readonly IAppConfig $appConfig,
 		private ConfigService $configService,
 		private IndexService $indexService,
 		private SearchService $searchService,
-        private ICertificateManager $certificateManager,
+		private ICertificateManager $certificateManager,
 		private LoggerInterface $logger,
 	) {
 	}
-
 
 	/**
 	 * return a unique Id of the platform.
@@ -69,14 +67,12 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return 'elastic_search';
 	}
 
-
 	/**
 	 * return a unique Id of the platform.
 	 */
 	public function getName(): string {
 		return 'Elasticsearch';
 	}
-
 
 	/**
 	 * @return array
@@ -104,7 +100,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return $result;
 	}
 
-
 	/**
 	 * @return array
 	 * @throws ConfigurationException
@@ -118,14 +113,12 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return array_map('trim', explode(',', $strHost));
 	}
 
-
 	/**
 	 * @param IRunner $runner
 	 */
 	public function setRunner(IRunner $runner) {
 		$this->runner = $runner;
 	}
-
 
 	/**
 	 * Called when loading the platform.
@@ -139,7 +132,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->connectToElastic($this->getElasticHost());
 	}
 
-
 	/**
 	 * not used yet.
 	 *
@@ -149,7 +141,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$ping = $this->getClient()->ping();
 		return $ping->asBool();
 	}
-
 
 	/**
 	 * called before any index
@@ -161,7 +152,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	public function initializeIndex() {
 		$this->indexService->initializeIndex($this->getClient());
 	}
-
 
 	/**
 	 * resetIndex();
@@ -180,7 +170,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 			$this->indexService->resetIndex($this->getClient(), $providerId);
 		}
 	}
-
 
 	/**
 	 * @param IIndexDocument $document
@@ -226,7 +215,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return $document->getIndex();
 	}
 
-
 	/**
 	 * @param IIndexDocument $document
 	 * @param Exception $e
@@ -241,12 +229,11 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->updateRunnerAction('indexDocumentWithoutContent', true);
 
 		$document->setContent('');
-//		$index = $document->getIndex();
-//		$index->unsetStatus(Index::INDEX_CONTENT);
+		//		$index = $document->getIndex();
+		//		$index->unsetStatus(Index::INDEX_CONTENT);
 
 		return $this->indexService->indexDocument($this->getClient(), $document);
 	}
-
 
 	/**
 	 * @param IIndexDocument $document
@@ -257,7 +244,7 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		switch ($level) {
 			case 'error':
 				$document->getIndex()
-						 ->addError($message, get_class($e), IIndex::ERROR_SEV_3);
+					->addError($message, get_class($e), IIndex::ERROR_SEV_3);
 				$this->updateNewIndexError(
 					$document->getIndex(), $message, get_class($e), IIndex::ERROR_SEV_3
 				);
@@ -274,7 +261,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		}
 
 	}
-
 
 	/**
 	 * @param Exception $e
@@ -334,7 +320,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		return [$level, $this->get('reason', $causedBy), $this->get('type', $causedBy)];
 	}
 
-
 	/**
 	 * {@inheritdoc}
 	 */
@@ -351,7 +336,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		}
 	}
 
-
 	/**
 	 * {@inheritdoc}
 	 * @throws Exception
@@ -359,7 +343,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	public function searchRequest(ISearchResult $result, IDocumentAccess $access) {
 		$this->searchService->searchRequest($this->getClient(), $result, $access);
 	}
-
 
 	/**
 	 * @param string $providerId
@@ -371,7 +354,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	public function getDocument(string $providerId, string $documentId): IIndexDocument {
 		return $this->searchService->getDocument($this->getClient(), $providerId, $documentId);
 	}
-
 
 	private function cleanHost(string $host): string {
 		if ($host === '/') {
@@ -388,43 +370,42 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	private function connectToElastic(array $hosts): void {
 		$hosts = array_map([$this, 'cleanHost'], $hosts);
-        if ($this->downgradingES) {
-            $cb = ClientBuilder8::create();
-        } else {
-            $cb = ClientBuilder::create();
-        }
+		if ($this->downgradingES) {
+			$cb = ClientBuilder8::create();
+		} else {
+			$cb = ClientBuilder::create();
+		}
 
-        $cb->setHosts($hosts)
-            ->setRetries(3);
+		$cb->setHosts($hosts)
+			->setRetries(3);
 
-        if ($this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED)) {
+		if ($this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED)) {
 			$cb->setLogger($this->logger);
 		}
 
 		$cb->setSSLVerification(!$this->appConfig->getAppValueBool(ConfigLexicon::ALLOW_SELF_SIGNED_CERT));
-        $cb->setCABundle($this->certificateManager->getAbsoluteBundlePath());
+		$cb->setCABundle($this->certificateManager->getAbsoluteBundlePath());
 		$this->configureAuthentication($cb, $hosts);
 
 		$this->client = $cb->build();
-        $this->confirmESVersion();
+		$this->confirmESVersion();
 	}
 
-    /**
-     * if we cannot connect to ES, we try using old lib
-     */
-    private function confirmESVersion(): void {
-        if ($this->downgradingES === true) {
-            return;
-        }
+	/**
+	 * if we cannot connect to ES, we try using old lib
+	 */
+	private function confirmESVersion(): void {
+		if ($this->downgradingES === true) {
+			return;
+		}
 
-        try {
-            $this->getClient()->info();
-        } catch (ClientResponseException) {
-            $this->downgradingES = true;
-            $this->loadPlatform();
-        }
-    }
-
+		try {
+			$this->getClient()->info();
+		} catch (ClientResponseException) {
+			$this->downgradingES = true;
+			$this->loadPlatform();
+		}
+	}
 
 	/**
 	 * setBasicAuthentication() on ClientBuilder if available, using list of hosts
@@ -441,7 +422,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		}
 	}
 
-
 	/**
 	 * @param string $action
 	 * @param bool $force
@@ -456,14 +436,13 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 		$this->runner->updateAction($action, $force);
 	}
 
-
 	/**
 	 * @param IIndex $index
 	 * @param string $message
 	 * @param string $exception
 	 * @param int $sev
 	 */
-	private function updateNewIndexError(IIndex $index, string $message, string $exception, int $sev
+	private function updateNewIndexError(IIndex $index, string $message, string $exception, int $sev,
 	) {
 		if ($this->runner === null) {
 			return;
@@ -471,7 +450,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$this->runner->newIndexError($index, $message, $exception, $sev);
 	}
-
 
 	/**
 	 * @param IIndex $index
@@ -486,7 +464,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 
 		$this->runner->newIndexResult($index, $message, $status, $type);
 	}
-
 
 	/**
 	 * @return Client|Client8
