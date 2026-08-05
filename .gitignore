@@ -12,5 +12,5 @@ css
 /es8/lib/Vendor8/
 /es8/lib/Vendor8Psr/
 /es8/build/
-vendor-bin/php-scoper/vendor/
+vendor-bin/*/vendor/
 es8/vendor-bin/php-scoper/vendor

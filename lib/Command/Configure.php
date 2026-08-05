@@ -41,7 +41,7 @@ class Configure extends Base {
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		if ($input->getArgument('json')) {
-			$this->configService->setConfig(json_decode($input->getArgument('json') ?? '', true) ?? []);
+			$this->configService->setConfig(json_decode($input->getArgument('json'), true));
 		}
 
 		$output->writeln(json_encode($this->configService->getConfig(), JSON_PRETTY_PRINT));

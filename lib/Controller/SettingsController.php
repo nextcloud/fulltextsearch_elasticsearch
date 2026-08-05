@@ -33,7 +33,6 @@ class SettingsController extends Controller {
 	}
 
 	/**
-	 * @return DataResponse
 	 * @throws Exception
 	 */
 	public function getSettingsAdmin(): DataResponse {
@@ -45,7 +44,6 @@ class SettingsController extends Controller {
 	/**
 	 * @param array $data
 	 *
-	 * @return DataResponse
 	 * @throws Exception
 	 */
 	public function setSettingsAdmin(array $data): DataResponse {
