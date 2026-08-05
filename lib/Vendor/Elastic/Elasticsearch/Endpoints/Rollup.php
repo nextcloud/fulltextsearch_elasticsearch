@@ -140,7 +140,7 @@ class Rollup extends AbstractEndpoint
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     index: string, // (REQUIRED) The rollup index or index pattern to obtain rollup capabilities from.
+     *     index: string|array<string>, // (REQUIRED) Comma-separated list of data streams or indices to check for rollup capabilities. Wildcard (`*`) expressions are supported.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -159,7 +159,7 @@ class Rollup extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_rollup/data';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_rollup/data';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -281,8 +281,8 @@ class Rollup extends AbstractEndpoint
      *
      * @param array{
      *     id: string, // (REQUIRED) The ID of the job to stop
-     *     wait_for_completion?: bool, // True if the API should block until the job has fully stopped, false if should be executed async. Defaults to false.
-     *     timeout?: int|string, // Block for (at maximum) the specified duration while waiting for the job to stop.  Defaults to 30s.
+     *     wait_for_completion?: bool, // If set to `true`, causes the API to block until the indexer state completely stops. If set to `false`, the API returns immediately and the indexer is stopped asynchronously in the background.
+     *     timeout?: int|string, // If `wait_for_completion` is `true`, the API blocks for (at maximum) the specified duration while waiting for the job to stop. If more than `timeout` time has passed, the API throws a timeout exception. NOTE: Even if a timeout occurs, the stop request is still processing and eventually moves the job to STOPPED. The timeout simply means the API call itself timed out while waiting for the status change. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
