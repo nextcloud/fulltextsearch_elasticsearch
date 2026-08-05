@@ -1,9 +1,10 @@
 <?php
 
+declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception;
 
 /**
- * Exception when a client error is encountered (4xx codes)
+ * Exception thrown for HTTP responses with 4xx status codes.
  */
 class ClientException extends BadResponseException
 {

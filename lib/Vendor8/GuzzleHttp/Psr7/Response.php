@@ -27,16 +27,19 @@ class Response implements ResponseInterface
     public function __construct(int $status = 200, array $headers = [], $body = null, string $version = '1.1', ?string $reason = null)
     {
         $this->assertStatusCodeRange($status);
+        $this->assertProtocolVersion($version);
         $this->statusCode = $status;
         if ($body !== '' && $body !== null) {
             $this->stream = Utils::streamFor($body);
         }
         $this->setHeaders($headers);
         if ($reason == '' && isset(self::PHRASES[$this->statusCode])) {
-            $this->reasonPhrase = self::PHRASES[$this->statusCode];
+            $reasonPhrase = self::PHRASES[$this->statusCode];
         } else {
-            $this->reasonPhrase = (string) $reason;
+            $reasonPhrase = (string) $reason;
         }
+        $this->assertNoLineSeparators($reasonPhrase, 'Reason phrase');
+        $this->reasonPhrase = $reasonPhrase;
         $this->protocol = $version;
     }
     public function getStatusCode(): int
@@ -49,6 +52,12 @@ class Response implements ResponseInterface
     }
     public function withStatus($code, $reasonPhrase = ''): ResponseInterface
     {
+        if (!\is_int($code) && \filter_var($code, \FILTER_VALIDATE_INT) !== \false) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to ResponseInterface::withStatus() is deprecated; guzzlehttp/psr7 3.0 requires int for $code.', \get_debug_type($code));
+        }
+        if (!\is_string($reasonPhrase)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to ResponseInterface::withStatus() is deprecated; guzzlehttp/psr7 3.0 requires string for $reasonPhrase.', \get_debug_type($reasonPhrase));
+        }
         $this->assertStatusCodeIsInteger($code);
         $code = (int) $code;
         $this->assertStatusCodeRange($code);
@@ -57,7 +66,9 @@ class Response implements ResponseInterface
         if ($reasonPhrase == '' && isset(self::PHRASES[$new->statusCode])) {
             $reasonPhrase = self::PHRASES[$new->statusCode];
         }
-        $new->reasonPhrase = (string) $reasonPhrase;
+        $reasonPhrase = (string) $reasonPhrase;
+        $this->assertNoLineSeparators($reasonPhrase, 'Reason phrase');
+        $new->reasonPhrase = $reasonPhrase;
         return $new;
     }
     /**

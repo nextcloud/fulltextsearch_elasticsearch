@@ -33,7 +33,7 @@ class Inference extends AbstractEndpoint
      *
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -69,7 +69,7 @@ class Inference extends AbstractEndpoint
      *
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -106,8 +106,8 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
      *     task_type?: string, // The task type
-     *     dry_run?: bool, // If true the endpoint will not be deleted and a list of ingest processors which reference this endpoint will be returned.
-     *     force?: bool, // If true the endpoint will be forcefully stopped (regardless of whether or not it is referenced by any ingest processors or semantic text fields).
+     *     dry_run?: bool, // When true, checks the semantic_text fields and inference processors that reference the endpoint and returns them in a list, but does not delete the endpoint.
+     *     force?: bool, // When true, the inference endpoint is forcefully deleted even if it is still being used by ingest processors or semantic text fields.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -137,6 +137,43 @@ class Inference extends AbstractEndpoint
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['inference_id', 'task_type'], $request, 'inference.delete');
+        return $this->client->sendRequest($request);
+    }
+    /**
+     * Perform embedding inference on the service
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-embedding
+     * @group serverless
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     inference_id: string, // (REQUIRED) The inference Id
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete. (DEFAULT: 30s)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The inference payload. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function embedding(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['inference_id', 'body'], $params);
+        $url = '/_inference/embedding/' . $this->encode($params['inference_id']);
+        $method = 'POST';
+        $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['inference_id'], $request, 'inference.embedding');
         return $this->client->sendRequest($request);
     }
     /**
@@ -189,7 +226,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
      *     task_type?: string, // The task type
-     *     timeout?: int|string, // The amount of time to wait for the inference request to complete.
+     *     timeout?: int|string, // The amount of time to wait for the inference request to complete. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -231,7 +268,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
      *     task_type?: string, // The task type
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -273,7 +310,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     ai21_inference_id: string, // (REQUIRED) The inference ID
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -310,7 +347,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     alibabacloud_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -347,7 +384,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     amazonbedrock_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -384,7 +421,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     amazonsagemaker_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -421,7 +458,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     anthropic_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -458,7 +495,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     azureaistudio_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -495,7 +532,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     azureopenai_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -532,7 +569,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     cohere_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -569,7 +606,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     contextualai_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -642,7 +679,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     deepseek_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -679,7 +716,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     elasticsearch_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -716,7 +753,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     elser_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -745,6 +782,43 @@ class Inference extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
+     * Create a Fireworks AI inference endpoint
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-fireworksai
+     * @group serverless
+     *
+     * @param array{
+     *     task_type: string, // (REQUIRED) The task type
+     *     fireworksai_inference_id: string, // (REQUIRED) The inference ID
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The inference endpoint's task and service settings. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putFireworksai(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['task_type', 'fireworksai_inference_id', 'body'], $params);
+        $url = '/_inference/' . $this->encode($params['task_type']) . '/' . $this->encode($params['fireworksai_inference_id']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_type', 'fireworksai_inference_id'], $request, 'inference.put_fireworksai');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Create an Google AI Studio inference endpoint
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-googleaistudio
@@ -753,7 +827,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     googleaistudio_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -790,7 +864,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     googlevertexai_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -819,6 +893,43 @@ class Inference extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
+     * Create a Groq inference endpoint
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-groq
+     * @group serverless
+     *
+     * @param array{
+     *     task_type: string, // (REQUIRED) The task type
+     *     groq_inference_id: string, // (REQUIRED) The inference ID
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The inference endpoint's task and service settings. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putGroq(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['task_type', 'groq_inference_id', 'body'], $params);
+        $url = '/_inference/' . $this->encode($params['task_type']) . '/' . $this->encode($params['groq_inference_id']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_type', 'groq_inference_id'], $request, 'inference.put_groq');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Create a Hugging Face inference endpoint
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-hugging-face
@@ -827,7 +938,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     huggingface_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -864,7 +975,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     jinaai_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -901,7 +1012,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     llama_inference_id: string, // (REQUIRED) The inference ID
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -938,7 +1049,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     mistral_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -967,6 +1078,43 @@ class Inference extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
+     * Create an NVIDIA inference endpoint
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-nvidia
+     * @group serverless
+     *
+     * @param array{
+     *     task_type: string, // (REQUIRED) The task type
+     *     nvidia_inference_id: string, // (REQUIRED) The inference ID
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The inference endpoint's task and service settings. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putNvidia(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['task_type', 'nvidia_inference_id', 'body'], $params);
+        $url = '/_inference/' . $this->encode($params['task_type']) . '/' . $this->encode($params['nvidia_inference_id']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_type', 'nvidia_inference_id'], $request, 'inference.put_nvidia');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Create an OpenAI inference endpoint
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-openai
@@ -975,7 +1123,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     openai_inference_id: string, // (REQUIRED) The inference ID
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1004,6 +1152,43 @@ class Inference extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
+     * Create an OpenShift AI inference endpoint
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-openshift-ai
+     * @group serverless
+     *
+     * @param array{
+     *     task_type: string, // (REQUIRED) The task type
+     *     openshiftai_inference_id: string, // (REQUIRED) The inference ID
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) The inference endpoint's task and service settings. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putOpenshiftAi(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['task_type', 'openshiftai_inference_id', 'body'], $params);
+        $url = '/_inference/' . $this->encode($params['task_type']) . '/' . $this->encode($params['openshiftai_inference_id']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['task_type', 'openshiftai_inference_id'], $request, 'inference.put_openshift_ai');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Create a VoyageAI inference endpoint
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-inference-put-voyageai
@@ -1012,7 +1197,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     voyageai_inference_id: string, // (REQUIRED) The inference ID
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1049,7 +1234,7 @@ class Inference extends AbstractEndpoint
      * @param array{
      *     task_type: string, // (REQUIRED) The task type
      *     watsonx_inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference endpoint to be created. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1085,7 +1270,7 @@ class Inference extends AbstractEndpoint
      *
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // The amount of time to wait for the inference request to complete.
+     *     timeout?: int|string, // The amount of time to wait for the inference request to complete. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1121,7 +1306,7 @@ class Inference extends AbstractEndpoint
      *
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1156,7 +1341,7 @@ class Inference extends AbstractEndpoint
      *
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // The amount of time to wait for the inference request to complete.
+     *     timeout?: int|string, // The amount of time to wait for the inference request to complete. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1192,7 +1377,7 @@ class Inference extends AbstractEndpoint
      *
      * @param array{
      *     inference_id: string, // (REQUIRED) The inference Id
-     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete.
+     *     timeout?: int|string, // Specifies the amount of time to wait for the inference request to complete. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
