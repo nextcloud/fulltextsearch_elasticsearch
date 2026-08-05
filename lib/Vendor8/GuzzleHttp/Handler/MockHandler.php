@@ -7,7 +7,6 @@ use OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\HandlerStack;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\Promise as P;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\Promise\PromiseInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\TransferStats;
-use OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\Utils;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Psr\Http\Message\ResponseInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Psr\Http\Message\StreamInterface;
@@ -131,7 +130,7 @@ class MockHandler implements \Countable
             if ($value instanceof ResponseInterface || $value instanceof \Throwable || $value instanceof PromiseInterface || \is_callable($value)) {
                 $this->queue[] = $value;
             } else {
-                throw new \TypeError('Expected a Response, Promise, Throwable or callable. Found ' . Utils::describeType($value));
+                throw new \TypeError('Expected a Response, Promise, Throwable or callable. Found ' . \get_debug_type($value));
             }
         }
     }

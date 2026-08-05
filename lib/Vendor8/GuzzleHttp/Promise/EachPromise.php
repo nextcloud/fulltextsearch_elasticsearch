@@ -48,6 +48,10 @@ class EachPromise implements PromisorInterface
      */
     public function __construct($iterable, array $config = [])
     {
+        if (!is_iterable($iterable)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/promises', '2.5', 'Passing a non-iterable to %s::%s() is deprecated; guzzlehttp/promises 3.0 will require an iterable.', __CLASS__, __FUNCTION__);
+            $iterable = [$iterable];
+        }
         $this->iterable = Create::iterFor($iterable);
         if (isset($config['concurrency'])) {
             $this->concurrency = $config['concurrency'];
@@ -70,6 +74,18 @@ class EachPromise implements PromisorInterface
             /** @psalm-assert Promise $this->aggregate */
             $this->iterable->rewind();
             $this->refillPending();
+            if (!$this->pending) {
+                Utils::queue()->add(function (): void {
+                    if (!$this->aggregate || Is::settled($this->aggregate)) {
+                        return;
+                    }
+                    try {
+                        $this->checkIfFinished();
+                    } catch (\Throwable $e) {
+                        $this->aggregate->reject($e);
+                    }
+                });
+            }
         } catch (\Throwable $e) {
             $this->aggregate->reject($e);
         }

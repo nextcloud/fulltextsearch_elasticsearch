@@ -34,11 +34,11 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to add a block to
      *     block: string, // (REQUIRED) The block to add (one of read, write, read_only or metadata)
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     timeout?: int|string, // The period to wait for a response from all relevant nodes in the cluster after updating the cluster metadata. If no response is received before the timeout expires, the cluster metadata update still applies but the response will indicate that it was not completely acknowledged. It can also be set to `-1` to indicate that the request should never timeout. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // The period to wait for the master node. If the master node is not available before the timeout expires, the request fails and returns an error. It can also be set to `-1` to indicate that the request should never timeout. (DEFAULT: 30s)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // The type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. It supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -111,7 +111,7 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     index: string, // (REQUIRED) The index or data stream name
+     *     index: string|array<string>, // (REQUIRED) Comma-separated list of index or data stream names
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -130,7 +130,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/_migration/reindex/' . $this->encode($params['index']) . '/_cancel';
+        $url = '/_migration/reindex/' . $this->encode($this->convertValue($params['index'])) . '/_cancel';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -145,13 +145,13 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index name to limit the operation
-     *     fielddata?: bool, // Clear field data
-     *     fields?: string|array<string>, // A comma-separated list of fields to clear when using the `fielddata` parameter (default: all)
-     *     query?: bool, // Clear query caches
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     request?: bool, // Clear request cache
+     *     fielddata?: bool, // If `true`, clears the fields cache. Use the `fields` parameter to clear the cache of specific fields only.
+     *     fields?: string|array<string>, // Comma-separated list of field names used to limit the `fielddata` parameter.
+     *     query?: bool, // If `true`, clears the query cache.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     request?: bool, // If `true`, clears the request cache.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -189,9 +189,9 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index: string, // (REQUIRED) The name of the source index to clone
      *     target: string, // (REQUIRED) The name of the target index to clone into
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the cloned index before the operation returns.
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     wait_for_active_shards?: string, // The number of shard copies that must be active before proceeding with the operation. Set to `all` or any positive integer up to the total number of shards in the index (`number_of_replicas+1`). (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -226,12 +226,12 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to close
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     wait_for_active_shards?: string, // Sets the number of active shards to wait for before the operation returns.
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     wait_for_active_shards?: string, // The number of shard copies that must be active before proceeding with the operation. Set to `all` or any positive integer up to the total number of shards in the index (`number_of_replicas+1`). (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -266,9 +266,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string, // (REQUIRED) The name of the index
-     *     wait_for_active_shards?: string, // Set the number of active shards to wait for before the operation returns.
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     wait_for_active_shards?: string, // The number of shard copies that must be active before proceeding with the operation. Set to `all` or any positive integer up to the total number of shards in the index (`number_of_replicas+1`). (DEFAULT: 1)
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -304,8 +304,8 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the data stream
-     *     timeout?: int|string, // Specify timeout for acknowledging the cluster state update
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -375,7 +375,7 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name?: string|array<string>, // A comma-separated list of data stream names; use `_all` or empty string to perform the operation on all data streams
-     *     expand_wildcards?: string|array<string>, // Whether to expand wildcard expressions to concrete data stream names that are open, closed or both.
+     *     expand_wildcards?: string|array<string>, // Type of data stream that wildcard patterns can match. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open,closed)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -413,11 +413,11 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma-separated list of indices to delete; use `_all` or `*` string to delete all indices
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     ignore_unavailable?: bool, // Ignore unavailable indexes (default: false)
-     *     allow_no_indices?: bool, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open, closed, or hidden indices
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open,closed)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -453,8 +453,8 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names (supports wildcards); use `_all` for all indices
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of aliases to delete (supports wildcards); use `_all` to delete all aliases for the specified indices.
-     *     timeout?: int|string, // Explicit timestamp for the document
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -488,9 +488,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams of which the data stream lifecycle will be deleted; use `*` to get all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     timeout?: int|string, // Explicit timestamp for the document
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     expand_wildcards?: string|array<string>, // Whether wildcard expressions should get expanded to open or closed indices (default: open) (DEFAULT: open)
+     *     timeout?: int|string, // The period to wait for a response. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // The period to wait for a connection to the master node. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -525,8 +525,8 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams to delete; use `*` to delete all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     expand_wildcards?: string|array<string>, // Type of data stream that wildcard patterns can match. Supports comma-separated values,such as `open,hidden`. (DEFAULT: open)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -560,9 +560,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams of which the data stream options will be deleted; use `*` to get all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     timeout?: int|string, // Explicit timestamp for the document
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     expand_wildcards?: string|array<string>, // Whether wildcard expressions should get expanded to open or closed indices (DEFAULT: open)
+     *     timeout?: int|string, // The period to wait for a response. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // The period to wait for a connection to the master node. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -596,9 +596,9 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     name: string, // (REQUIRED) The name of the template
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     name: string|array<string>, // (REQUIRED) Comma-separated list of index template names used to limit the request. Wildcard (*) expressions are supported.
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -617,7 +617,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_index_template/' . $this->encode($params['name']);
+        $url = '/_index_template/' . $this->encode($this->convertValue($params['name']));
         $method = 'DELETE';
         $url = $this->addQueryString($url, $params, ['timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -632,8 +632,8 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the template
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -667,12 +667,12 @@ class Indices extends AbstractEndpoint
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     index: string, // (REQUIRED) Comma-separated list of indices or data streams to analyze the disk usage
-     *     run_expensive_tasks?: bool, // Must be set to [true] in order for the task to be performed. Defaults to false.
-     *     flush?: bool, // Whether flush or not before analyzing the index disk usage. Defaults to true
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     index: string|array<string>, // (REQUIRED) Comma-separated list of data streams, indices, and aliases used to limit the request. It’s recommended to execute this API with a single index (or the latest backing index of a data stream) as the API consumes resources significantly.
+     *     run_expensive_tasks?: bool, // Analyzing field disk usage is resource-intensive. To use the API, this parameter must be set to `true`.
+     *     flush?: bool, // If `true`, the API performs a flush before analysis. If `false`, the response may not include uncommitted data. (DEFAULT: 1)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -691,7 +691,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_disk_usage';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_disk_usage';
         $method = 'POST';
         $url = $this->addQueryString($url, $params, ['run_expensive_tasks', 'flush', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -743,12 +743,12 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
-     *     ignore_unavailable?: bool, // Ignore unavailable indexes (default: false)
-     *     allow_no_indices?: bool, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
-     *     include_defaults?: bool, // Whether to return all default setting for each of the indices.
+     *     local?: bool, // If `true`, the request retrieves information from the local node only.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     flat_settings?: bool, // If `true`, returns settings in flat format.
+     *     include_defaults?: bool, // If `true`, return all default settings in the response.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -784,10 +784,10 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of alias names to return
      *     index?: string|array<string>, // A comma-separated list of index names to filter aliases
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: all)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -827,9 +827,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the template
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
-     *     master_timeout?: int|string, // Explicit operation timeout for connection to master node
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     flat_settings?: bool, // If true, returns settings in flat format.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     local?: bool, // If true, the request retrieves information from the local node only. Defaults to false, which means information is retrieved from the master node.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -863,9 +863,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) The comma separated names of the index templates
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
-     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     flat_settings?: bool, // Indicates whether to use a flat format for the response.
+     *     master_timeout?: int|string, // The period to wait for the master node. If the master node is not available before the timeout expires, the request fails and returns an error. To indicate that the request should never timeout, set it to `-1`. (DEFAULT: 30s)
+     *     local?: bool, // Indicates whether to get information from the local node only.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -899,9 +899,9 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     index: string, // (REQUIRED) The name of the index to explain
-     *     include_defaults?: bool, // indicates if the API should return the default values the system uses for the index's lifecycle
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     index: string|array<string>, // (REQUIRED) Comma-separated list of index names to explain
+     *     include_defaults?: bool, // Indicates if the API should return the default values the system uses for the index's lifecycle
+     *     master_timeout?: int|string, // The period to wait for a connection to the master node. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -920,7 +920,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_lifecycle/explain';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_lifecycle/explain';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['include_defaults', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -935,11 +935,11 @@ class Indices extends AbstractEndpoint
      * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
      *
      * @param array{
-     *     index: string, // (REQUIRED) A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     fields?: string|array<string>, // A comma-separated list of fields to include in the stats if only a subset of fields should be returned (supports wildcards)
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     index: string|array<string>, // (REQUIRED) Comma-separated list or wildcard expression of index names used to limit the request.
+     *     fields?: string|array<string>, // Comma-separated list or wildcard expressions of fields to include in the statistics.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result.
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -958,7 +958,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/' . $this->encode($params['index']) . '/_field_usage_stats';
+        $url = '/' . $this->encode($this->convertValue($params['index'])) . '/_field_usage_stats';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['fields', 'ignore_unavailable', 'allow_no_indices', 'expand_wildcards', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -973,11 +973,11 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string for all indices
-     *     force?: bool, // Whether a flush should be forced even if it is not necessarily needed ie. if no changes will be committed to the index. This is useful if transaction log IDs should be incremented even if no uncommitted changes are present. (This setting can be considered as internal)
-     *     wait_if_ongoing?: bool, // If set to true the flush operation will block until the flush can be executed if another flush operation is already executing. The default is true. If set to false the flush will be skipped iff if another flush operation is already running.
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     force?: bool, // If `true`, the request forces a flush even if there are no changes to commit to the index. (DEFAULT: 1)
+     *     wait_if_ongoing?: bool, // If `true`, the flush operation blocks until execution when another flush operation is running. If `false`, Elasticsearch returns an error if you request a flush when another flush operation is running. (DEFAULT: 1)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1014,13 +1014,13 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     flush?: bool, // Specify whether the index should be flushed after performing the operation (default: true)
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     flush?: bool, // Specify whether the index should be flushed after performing the operation (DEFAULT: 1)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result.
+     *     expand_wildcards?: string|array<string>, // Whether to expand wildcard expression to concrete indices that are open, closed or both. (DEFAULT: open)
      *     max_num_segments?: int, // The number of segments the index should be merged into (default: dynamic)
      *     only_expunge_deletes?: bool, // Specify whether the operation should only expunge deleted documents
-     *     wait_for_completion?: bool, // Should the request wait until the force merge is completed.
+     *     wait_for_completion?: bool, // Should the request wait until the force merge is completed (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1058,14 +1058,14 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
-     *     ignore_unavailable?: bool, // Ignore unavailable indexes (default: false)
-     *     allow_no_indices?: bool, // Ignore if a wildcard expression resolves to no concrete indices (default: false)
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     features?: string, // Return only information on specified index features
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
-     *     include_defaults?: bool, // Whether to return all default setting for each of the indices.
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     local?: bool, // If true, the request retrieves information from the local node only. Defaults to false, which means information is retrieved from the master node.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard expressions can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as open,hidden. (DEFAULT: open)
+     *     features?: string|array<string>, // Return only information on specified index features (DEFAULT: ['aliases', 'mappings', 'settings'])
+     *     flat_settings?: bool, // If true, returns settings in flat format.
+     *     include_defaults?: bool, // If true, return all default settings in the response.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1101,10 +1101,10 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     name?: string|array<string>, // A comma-separated list of alias names to return
      *     index?: string|array<string>, // A comma-separated list of index names to filter aliases
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: all)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1148,9 +1148,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams to get; use `*` to get all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     include_defaults?: bool, // Return all relevant default configurations for the data stream (default: false)
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     expand_wildcards?: string|array<string>, // Type of data stream that wildcard patterns can match. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     include_defaults?: bool, // If `true`, return all default settings in the response.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1215,10 +1215,10 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name?: string|array<string>, // A comma-separated list of data streams to get; use `*` to get all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     include_defaults?: bool, // Return all relevant default configurations for the data stream (default: false)
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     verbose?: bool, // Whether the maximum timestamp for each data stream should be calculated and returned (default: false)
+     *     expand_wildcards?: string|array<string>, // Type of data stream that wildcard patterns can match. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     include_defaults?: bool, // If true, returns all relevant default configurations for the index template.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     verbose?: bool, // Whether the maximum timestamp for each data stream should be calculated and returned.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1255,8 +1255,8 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
-     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams or data stream patterns. Supports wildcards (`*`).
+     *     master_timeout?: int|string, // The period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1275,7 +1275,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']) . '/_mappings';
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_mappings';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -1291,8 +1291,8 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams to get; use `*` to get all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     expand_wildcards?: string|array<string>, // Type of data stream that wildcard patterns can match. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1326,8 +1326,8 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
-     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams or data stream patterns. Supports wildcards (`*`).
+     *     master_timeout?: int|string, // The period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1346,7 +1346,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['name'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']) . '/_settings';
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_settings';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
@@ -1362,10 +1362,10 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     fields: string|array<string>, // (REQUIRED) A comma-separated list of fields
      *     index?: string|array<string>, // A comma-separated list of index names
-     *     include_defaults?: bool, // Whether the default mapping values should be returned as well
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     include_defaults?: bool, // If `true`, return all default settings in the response.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1405,10 +1405,10 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name?: string, // A pattern that returned template names must match
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
-     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
-     *     include_defaults?: bool, // Return all relevant default configurations for the index template (default: false)
+     *     flat_settings?: bool, // If true, returns settings in flat format.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     local?: bool, // If true, the request retrieves information from the local node only. Defaults to false, which means information is retrieved from the master node.
+     *     include_defaults?: bool, // If true, returns all relevant default configurations for the index template.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1446,11 +1446,11 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     local?: bool, // If `true`, the request retrieves information from the local node only.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1487,7 +1487,7 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     index: string, // (REQUIRED) The index or data stream name
+     *     index: string|array<string>, // (REQUIRED) Comma-separated list of index or data stream names.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1506,7 +1506,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['index'], $params);
-        $url = '/_migration/reindex/' . $this->encode($params['index']) . '/_status';
+        $url = '/_migration/reindex/' . $this->encode($this->convertValue($params['index'])) . '/_status';
         $method = 'GET';
         $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -1523,13 +1523,13 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
      *     name?: string|array<string>, // The name of the settings that should be included
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
-     *     include_defaults?: bool, // Whether to return all default setting for each of the indices.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     flat_settings?: bool, // If `true`, returns settings in flat format.
+     *     local?: bool, // If `true`, the request retrieves information from the local node only. If `false`, information is retrieved from the master node.
+     *     include_defaults?: bool, // If `true`, return all default settings in the response.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1572,9 +1572,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name?: string|array<string>, // The comma separated names of the index templates
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
-     *     master_timeout?: int|string, // Timeout for waiting for new cluster state in case it is blocked
-     *     local?: bool, // Return local information, do not retrieve the state from master node (default: false)
+     *     flat_settings?: bool, // If `true`, returns settings in flat format.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     local?: bool, // If `true`, the request retrieves information from the local node only.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1644,8 +1644,8 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the alias to migrate
-     *     timeout?: int|string, // Specify timeout for acknowledging the cluster state update
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1712,12 +1712,12 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to open
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     wait_for_active_shards?: string, // Sets the number of active shards to wait for before the operation returns.
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: closed)
+     *     wait_for_active_shards?: string, // The number of shard copies that must be active before proceeding with the operation. Set to `all` or any positive integer up to the total number of shards in the index (`number_of_replicas+1`). (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1751,7 +1751,7 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the data stream
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1787,8 +1787,8 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names the alias should point to (supports wildcards); use `_all` to perform the operation on all indices.
      *     name: string, // (REQUIRED) The name of the alias to be created or updated
-     *     timeout?: int|string, // Explicit timestamp for the document
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1824,9 +1824,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams whose lifecycle will be updated; use `*` to set the lifecycle to all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     timeout?: int|string, // Explicit timestamp for the document
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     expand_wildcards?: string|array<string>, // Type of data stream that wildcard patterns can match. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1861,10 +1861,10 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
-     *     dry_run?: bool, // Whether this request should only be a dry run rather than actually applying mappings
-     *     timeout?: int|string, // Period to wait for a response
-     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams or data stream patterns.
+     *     dry_run?: bool, // If `true`, the request does not actually change the mappings on any data streams. Instead, it simulates changing the settings and reports back to the user what would have happened had these settings actually been applied.
+     *     timeout?: int|string, // The period to wait for a response. If no response is received before the  timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // The period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1884,7 +1884,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['name', 'body'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']) . '/_mappings';
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_mappings';
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['dry_run', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -1900,9 +1900,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams whose options will be updated; use `*` to set the options to all data streams
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     timeout?: int|string, // Explicit timestamp for the document
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     expand_wildcards?: string|array<string>, // Type of data stream that wildcard patterns can match. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1937,10 +1937,10 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     name: string, // (REQUIRED) Comma-separated list of data streams or data stream patterns
-     *     dry_run?: bool, // Whether this request should only be a dry run rather than actually applying settings
-     *     timeout?: int|string, // Period to wait for a response
-     *     master_timeout?: int|string, // Period to wait for a connection to the master node
+     *     name: string|array<string>, // (REQUIRED) A comma-separated list of data streams or data stream patterns.
+     *     dry_run?: bool, // If `true`, the request does not actually change the settings on any data streams or indices. Instead, it simulates changing the settings and reports back to the user what would have happened had these settings actually been applied.
+     *     timeout?: int|string, // The period to wait for a response. If no response is received before the  timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // The period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1960,7 +1960,7 @@ class Indices extends AbstractEndpoint
     {
         $params = $params ?? [];
         $this->checkRequiredParameters(['name', 'body'], $params);
-        $url = '/_data_stream/' . $this->encode($params['name']) . '/_settings';
+        $url = '/_data_stream/' . $this->encode($this->convertValue($params['name'])) . '/_settings';
         $method = 'PUT';
         $url = $this->addQueryString($url, $params, ['dry_run', 'timeout', 'master_timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -1976,9 +1976,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the template
-     *     create?: bool, // Whether the index template should only be added if new or can also replace an existing one
-     *     cause?: string, // User defined reason for creating/updating the index template
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     create?: bool, // If `true`, this request cannot replace or update existing index templates.
+     *     cause?: string, // User defined reason for creating or updating the index template (DEFAULT: api)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2014,12 +2014,12 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names the mapping should be added to (supports wildcards); use `_all` or omit to add the mapping on all indices.
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     write_index_only?: bool, // When true, applies mappings only to the write index of an alias or data stream
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     write_index_only?: bool, // If `true`, the mappings are applied only to the current write index for the target.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2055,14 +2055,14 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     timeout?: int|string, // Explicit operation timeout
-     *     preserve_existing?: bool, // Whether to update existing settings. If set to `true` existing settings on an index remain unchanged, the default is `false`
-     *     reopen?: bool, // Whether to close and reopen the index to apply non-dynamic settings. If set to `true` the indices to which the settings are being applied will be closed temporarily and then reopened in order to apply the changes. The default is `false`
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     flat_settings?: bool, // Return settings in flat format (default: false)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the  timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     preserve_existing?: bool, // If `true`, existing index settings remain unchanged.
+     *     reopen?: bool, // Whether to close and reopen the index to apply non-dynamic settings. If set to `true` the indices to which the settings are being applied will be closed temporarily and then reopened in order to apply the changes.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result.
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     flat_settings?: bool, // If `true`, returns settings in flat format.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2101,10 +2101,10 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string, // (REQUIRED) The name of the template
-     *     order?: int, // The order for this template when merging multiple matching ones (higher numbers are merged later, overriding the lower numbers)
-     *     create?: bool, // Whether the index template should only be added if new or can also replace an existing one
-     *     cause?: string, // User defined reason for creating/updating the index template
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     order?: int, // Order in which Elasticsearch applies this template if index matches multiple templates.  Templates with lower 'order' values are merged first. Templates with higher 'order' values are merged later, overriding templates with lower values.
+     *     create?: bool, // If true, this request cannot replace or update existing index templates.
+     *     cause?: string, // User defined reason for creating or updating the index template
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2139,11 +2139,11 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     detailed?: bool, // Whether to display detailed information about shard recovery
-     *     active_only?: bool, // Display only those recoveries that are currently on-going
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     detailed?: bool, // If `true`, the response includes detailed information about shard recoveries.
+     *     active_only?: bool, // If `true`, the response only includes ongoing shard recoveries.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2181,9 +2181,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2220,10 +2220,10 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma-separated list of index names to reload analyzers for
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     resource?: string, // changed resource to reload analyzers from if applicable
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result.
+     *     expand_wildcards?: string|array<string>, // Whether to expand wildcard expression to concrete indices that are open, closed or both. (DEFAULT: open)
+     *     resource?: string, // Changed resource to reload analyzers from if applicable
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2259,11 +2259,11 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index: string|array<string>, // (REQUIRED) A comma separated list of indices to remove a block from
      *     block: string, // (REQUIRED) The block to remove (one of read, write, read_only or metadata)
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     timeout?: int|string, // The period to wait for a response from all relevant nodes in the cluster after updating the cluster metadata. If no response is received before the timeout expires, the cluster metadata update still applies but the response will indicate that it was not completely acknowledged. It can also be set to `-1` to indicate that the request should never timeout. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // The period to wait for the master node. If the master node is not available before the timeout expires, the request fails and returns an error. It can also be set to `-1` to indicate that the request should never timeout. (DEFAULT: 30s)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // The type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. It supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2297,11 +2297,11 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name?: string|array<string>, // A comma-separated list of cluster:index names or wildcard expressions
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed). Only allowed when providing an index expression.
-     *     ignore_throttled?: bool, // Whether specified concrete, expanded or aliased indices should be ignored when throttled. Only allowed when providing an index expression.
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified). Only allowed when providing an index expression.
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open). Only allowed when providing an index expression.
-     *     timeout?: int|string, // The maximum time to wait for remote clusters to respond
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored. NOTE: This option is only supported when specifying an index expression. You will get an error if you specify index options to the `_resolve/cluster` API endpoint that takes no index expression.
+     *     ignore_throttled?: bool, // If true, concrete, expanded, or aliased indices are ignored when frozen. NOTE: This option is only supported when specifying an index expression. You will get an error if you specify index options to the `_resolve/cluster` API endpoint that takes no index expression.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. NOTE: This option is only supported when specifying an index expression. You will get an error if you specify index options to the `_resolve/cluster` API endpoint that takes no index expression. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. NOTE: This option is only supported when specifying an index expression. You will get an error if you specify index options to the `_resolve/cluster` API endpoint that takes no index expression. (DEFAULT: open)
+     *     timeout?: int|string, // The maximum time to wait for remote clusters to respond. If a remote cluster does not respond within this timeout period, the API response will show the cluster as not connected and include an error message that the request timed out.  The default timeout is unset and the query can take as long as the networking layer is configured to wait for remote clusters that are not responding (typically 30 seconds).
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2339,11 +2339,10 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name: string|array<string>, // (REQUIRED) A comma-separated list of names or wildcard expressions
-     *     expand_wildcards?: string, // Whether wildcard expressions should get expanded to open or closed indices (default: open)
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     mode?: string, // Filter indices by index mode. Comma-separated list of IndexMode. Empty means no filter.
-     *     project_routing?: string, // A Lucene query using project metadata tags to limit which projects to search, such as _alias:_origin or _alias:*pr*. Only supported in serverless.
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     mode?: string|array<string>, // Filter indices by index mode - standard, lookup, time_series, etc. Comma-separated list of IndexMode. Empty means no filter.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2364,7 +2363,7 @@ class Indices extends AbstractEndpoint
         $this->checkRequiredParameters(['name'], $params);
         $url = '/_resolve/index/' . $this->encode($this->convertValue($params['name']));
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'ignore_unavailable', 'allow_no_indices', 'mode', 'project_routing', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['expand_wildcards', 'ignore_unavailable', 'allow_no_indices', 'mode', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['name'], $request, 'indices.resolve_index');
@@ -2379,10 +2378,10 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     alias: string, // (REQUIRED) The name of the alias to rollover
      *     new_index?: string, // The name of the rollover index
-     *     timeout?: int|string, // Explicit operation timeout
-     *     dry_run?: bool, // If set to true the rollover action will only be validated but not actually performed even if a condition matches. The default is false
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the newly created rollover index before the operation returns.
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     dry_run?: bool, // If `true`, checks whether the current index satisfies the specified conditions but does not perform a rollover.
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     wait_for_active_shards?: string, // The number of shard copies that must be active before proceeding with the operation. Set to all or any positive integer up to the total number of shards in the index (`number_of_replicas+1`). (DEFAULT: 1)
      *     lazy?: bool, // If set to true, the rollover action will only mark a data stream to signal that it needs to be rolled over at the next write. Only allowed on data streams.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
@@ -2423,9 +2422,9 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2462,10 +2461,10 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     status?: string|array<string>, // A comma-separated list of statuses used to filter on shards to get store information for
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
+     *     status?: string|array<string>, // List of shard health statuses used to limit the request.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result.
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. (DEFAULT: open)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2503,9 +2502,9 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index: string, // (REQUIRED) The name of the source index to shrink
      *     target: string, // (REQUIRED) The name of the target index to shrink into
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the shrunken index before the operation returns.
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     wait_for_active_shards?: string, // The number of shard copies that must be active before proceeding with the operation. Set to `all` or any positive integer up to the total number of shards in the index (`number_of_replicas+1`). (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2542,9 +2541,9 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     name: string, // (REQUIRED) The name of the index (it must be a concrete index name)
      *     create?: bool, // Whether the index template we optionally defined in the body should only be dry-run added if new or can also replace an existing one
-     *     cause?: string, // User defined reason for dry-run creating the new template for simulation purposes
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     include_defaults?: bool, // Return all relevant default configurations for this index template simulation (default: false)
+     *     cause?: string, // User defined reason for dry-run creating the new template for simulation purposes (DEFAULT: false)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     include_defaults?: bool, // If true, returns all relevant default configurations for the index template.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2580,10 +2579,10 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     name?: string, // The name of the index template
-     *     create?: bool, // Whether the index template we optionally defined in the body should only be dry-run added if new or can also replace an existing one
-     *     cause?: string, // User defined reason for dry-run creating the new template for simulation purposes
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     include_defaults?: bool, // Return all relevant default configurations for this template simulation (default: false)
+     *     create?: bool, // If true, the template passed in the body is only used if no existing templates match the same index patterns. If false, the simulation uses the template with the highest priority. Note that the template is not permanently added or updated in either case; it is only used for the simulation.
+     *     cause?: string, // User defined reason for dry-run creating the new template for simulation purposes (DEFAULT: false)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     include_defaults?: bool, // If true, returns all relevant default configurations for the index template.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2622,9 +2621,9 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     index: string, // (REQUIRED) The name of the source index to split
      *     target: string, // (REQUIRED) The name of the target index to split into
-     *     timeout?: int|string, // Explicit operation timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
-     *     wait_for_active_shards?: string, // Set the number of active shards to wait for on the shrunken index before the operation returns.
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     wait_for_active_shards?: string, // The number of shard copies that must be active before proceeding with the operation. Set to `all` or any positive integer up to the total number of shards in the index (`number_of_replicas+1`). (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2660,15 +2659,15 @@ class Indices extends AbstractEndpoint
      * @param array{
      *     metric?: string|array<string>, // Limit the information returned the specific metrics.
      *     index?: string|array<string>, // A comma-separated list of index names; use `_all` or empty string to perform the operation on all indices
-     *     completion_fields?: string|array<string>, // A comma-separated list of fields for the `completion` index metric (supports wildcards)
-     *     fielddata_fields?: string|array<string>, // A comma-separated list of fields for the `fielddata` index metric (supports wildcards)
-     *     fields?: string|array<string>, // A comma-separated list of fields for `fielddata` and `completion` index metric (supports wildcards)
-     *     groups?: string|array<string>, // A comma-separated list of search groups for `search` index metric
-     *     level?: string, // Return stats aggregated at cluster, index or shard level
-     *     include_segment_file_sizes?: bool, // Whether to report the aggregated disk usage of each one of the Lucene index files (only applies if segment stats are requested)
-     *     include_unloaded_segments?: bool, // If set to true segment stats will include stats for segments that are not currently loaded into memory
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     forbid_closed_indices?: bool, // If set to false stats will also collected from closed indices if explicitly specified or if expand_wildcards expands to closed indices
+     *     completion_fields?: string|array<string>, // Comma-separated list or wildcard expressions of fields to include in fielddata and suggest statistics.
+     *     fielddata_fields?: string|array<string>, // Comma-separated list or wildcard expressions of fields to include in fielddata statistics.
+     *     fields?: string|array<string>, // Comma-separated list or wildcard expressions of fields to include in the statistics.
+     *     groups?: string|array<string>, // Comma-separated list of search groups to include in the search statistics.
+     *     level?: string, // Indicates whether statistics are aggregated at the cluster, indices, or shards level. (DEFAULT: indices)
+     *     include_segment_file_sizes?: bool, // If true, the call reports the aggregated disk usage of each one of the Lucene index files (only applies if segment stats are requested).
+     *     include_unloaded_segments?: bool, // If true, the response includes information from segments that are not loaded into memory.
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     forbid_closed_indices?: bool, // If true, statistics are not collected from closed indices. (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2711,8 +2710,8 @@ class Indices extends AbstractEndpoint
      * @group serverless
      *
      * @param array{
-     *     timeout?: int|string, // Request timeout
-     *     master_timeout?: int|string, // Specify timeout for connection to master
+     *     timeout?: int|string, // Period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     master_timeout?: int|string, // Period to wait for a connection to the master node. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -2747,18 +2746,18 @@ class Indices extends AbstractEndpoint
      *
      * @param array{
      *     index?: string|array<string>, // A comma-separated list of index names to restrict the operation; use `_all` or empty string to perform the operation on all indices
-     *     explain?: bool, // Return detailed information about the error
-     *     ignore_unavailable?: bool, // Whether specified concrete indices should be ignored when unavailable (missing or closed)
-     *     allow_no_indices?: bool, // Whether to ignore if a wildcard indices expression resolves into no concrete indices. (This includes `_all` string or when no indices have been specified)
-     *     expand_wildcards?: string, // Whether to expand wildcard expression to concrete indices that are open, closed or both.
-     *     q?: string, // Query in the Lucene query string syntax
-     *     analyzer?: string, // The analyzer to use for the query string
-     *     analyze_wildcard?: bool, // Specify whether wildcard and prefix queries should be analyzed (default: false)
-     *     default_operator?: string, // The default operator for query string query (AND or OR)
-     *     df?: string, // The field to use as default where no field prefix is given in the query string
-     *     lenient?: bool, // Specify whether format-based query failures (such as providing text to a numeric field) should be ignored
-     *     rewrite?: bool, // Provide a more detailed explanation showing the actual Lucene query that will be executed.
-     *     all_shards?: bool, // Execute validation on all shards instead of one random shard per index
+     *     explain?: bool, // If `true`, the response returns detailed information if an error has occurred.
+     *     ignore_unavailable?: bool, // If `false`, the request returns an error if it targets a concrete (non-wildcarded) index, alias, or data stream that is missing, closed, or otherwise unavailable. If `true`, unavailable concrete targets are silently ignored.
+     *     allow_no_indices?: bool, // A setting that does two separate checks on the index expression. If `false`, the request returns an error (1) if any wildcard expression (including `_all` and `*`) resolves to zero matching indices or (2) if the complete set of resolved indices, aliases or data streams is empty after all expressions are evaluated. If `true`, index expressions that resolve to no indices are allowed and the request returns an empty result. (DEFAULT: 1)
+     *     expand_wildcards?: string|array<string>, // Type of index that wildcard patterns can match. If the request can target data streams, this argument determines whether wildcard expressions match hidden data streams. Supports comma-separated values, such as `open,hidden`. (DEFAULT: open)
+     *     q?: string, // Query in the Lucene query string syntax.
+     *     analyzer?: string, // Analyzer to use for the query string. This parameter can only be used when the `q` query string parameter is specified.
+     *     analyze_wildcard?: bool, // If `true`, wildcard and prefix queries are analyzed.
+     *     default_operator?: string, // The default operator for query string query: `and` or `or`. (DEFAULT: or)
+     *     df?: string, // Field to use as default where no field prefix is given in the query string. This parameter can only be used when the `q` query string parameter is specified.
+     *     lenient?: bool, // If `true`, format-based query failures (such as providing text to a numeric field) in the query string will be ignored.
+     *     rewrite?: bool, // If `true`, returns a more detailed explanation showing the actual Lucene query that will be executed.
+     *     all_shards?: bool, // If `true`, the validation is executed on all shards instead of one random shard per index.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
