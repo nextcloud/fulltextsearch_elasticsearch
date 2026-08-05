@@ -11,6 +11,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Platform;
 
 use Exception;
 use InvalidArgumentException;
+use OCA\FullTextSearch\Exceptions\PlatformTemporaryException;
 use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ClientException;
@@ -27,7 +28,6 @@ use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Cli
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\ClientBuilder as ClientBuilder8;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Transport\Exception\NoNodeAvailableException as NoNodeAvailableException8;
 use OCP\AppFramework\Services\IAppConfig;
-use OCP\FullTextSearch\Exceptions\PlatformTemporaryException;
 use OCP\FullTextSearch\IFullTextSearchPlatform;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndex;
@@ -157,7 +157,6 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 * We create a general index.
 	 *
 	 * @throws ConfigurationException
-	 * @throws BadRequest400Exception
 	 */
 	public function initializeIndex() {
 		$this->indexService->initializeIndex($this->getClient());

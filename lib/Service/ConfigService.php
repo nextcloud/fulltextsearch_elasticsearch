@@ -23,11 +23,13 @@ use OCP\IConfig;
  */
 class ConfigService {
 	public function __construct(
-		private readonly IConfig $config,
 		private readonly IAppConfig $appConfig,
 	) {
 	}
 
+	/**
+	 * @return array<string, bool|int|string>
+	 */
 	public function getConfig(): array {
 		return [
 			ConfigLexicon::FIELDS_LIMIT => $this->appConfig->getAppValueInt(ConfigLexicon::FIELDS_LIMIT),
