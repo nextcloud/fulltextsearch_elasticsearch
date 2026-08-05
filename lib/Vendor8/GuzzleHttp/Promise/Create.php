@@ -63,6 +63,9 @@ final class Create
         if (is_array($value)) {
             return new \ArrayIterator($value);
         }
+        if (!is_iterable($value)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/promises', '2.5', 'Passing a non-iterable to %s::%s() is deprecated; guzzlehttp/promises 3.0 will require an iterable.', __CLASS__, __FUNCTION__);
+        }
         return new \ArrayIterator([$value]);
     }
 }

@@ -1,7 +1,11 @@
 <?php
 
+declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception;
 
-class TooManyRedirectsException extends RequestException
+/**
+ * Exception thrown when redirect middleware reaches the redirect limit.
+ */
+class TooManyRedirectsException extends ResponseException
 {
 }
