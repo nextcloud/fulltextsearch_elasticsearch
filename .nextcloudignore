@@ -42,3 +42,11 @@
 /tsconfig.json
 /rector.php
 /CHANGELOG.md
+
+/lib/VendorPsr/
+/es8/vendor/
+/es8/lib/Vendor8/
+/es8/lib/Vendor8Psr/
+/es8/build/
+vendor-bin/php-scoper/vendor/
+es8/vendor-bin/php-scoper/vendor
