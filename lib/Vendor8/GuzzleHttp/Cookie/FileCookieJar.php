@@ -2,7 +2,7 @@
 
 namespace OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\Cookie;
 
-use OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\Exception\InvalidArgumentException;
+use OCA\FullTextSearch_Elasticsearch\Vendor8\GuzzleHttp\Utils;
 /**
  * Persists non-session cookies using a JSON formatted file
  */
@@ -54,16 +54,10 @@ class FileCookieJar extends CookieJar
         /** @var SetCookie $cookie */
         foreach ($this as $cookie) {
             if (CookieJar::shouldPersist($cookie, $this->storeSessionCookies)) {
-                $data = $cookie->toArray();
-                $data['HostOnly'] = $cookie->getHostOnly();
-                $json[] = $data;
+                $json[] = $cookie->toArray();
             }
         }
-        $jsonStr = \json_encode($json);
-        if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException('json_encode error: ' . \json_last_error_msg());
-        }
-        /** @var non-empty-string $jsonStr */
+        $jsonStr = Utils::jsonEncode($json);
         if (\false === \file_put_contents($filename, $jsonStr, \LOCK_EX)) {
             throw new \RuntimeException("Unable to save file {$filename}");
         }
@@ -86,20 +80,10 @@ class FileCookieJar extends CookieJar
         if ($json === '') {
             return;
         }
-        $data = \json_decode($json, \true);
-        if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException('json_decode error: ' . \json_last_error_msg());
-        }
+        $data = Utils::jsonDecode($json, \true);
         if (\is_array($data)) {
-            $cookies = [];
             foreach ($data as $cookie) {
-                if (!\is_array($cookie) || !\array_key_exists('HostOnly', $cookie) || !\is_bool($cookie['HostOnly'])) {
-                    throw new \RuntimeException("Invalid cookie file: {$filename}");
-                }
-                $cookies[] = new SetCookie($cookie);
-            }
-            foreach ($cookies as $cookie) {
-                $this->setCookie($cookie);
+                $this->setCookie(new SetCookie($cookie));
             }
         } elseif (\is_scalar($data) && !empty($data)) {
             throw new \RuntimeException("Invalid cookie file: {$filename}");

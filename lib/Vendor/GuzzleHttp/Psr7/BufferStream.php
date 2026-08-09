@@ -14,19 +14,20 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
  */
 final class BufferStream implements StreamInterface
 {
-    use NonSerializableStreamTrait;
-    private int $hwm;
-    private string $buffer = '';
+    /** @var int */
+    private $hwm;
+    /** @var string */
+    private $buffer = '';
     /**
      * @param int $hwm High water mark, representing the preferred maximum
-     *                 buffer size. If the size of the buffer reaches or exceeds
-     *                 the high water mark, then calls to write will continue to
-     *                 succeed but will return 0 to inform writers to slow down
+     *                 buffer size. If the size of the buffer exceeds the high
+     *                 water mark, then calls to write will continue to succeed
+     *                 but will return 0 to inform writers to slow down
      *                 until the buffer has been drained by reading from it.
      */
     public function __construct(int $hwm = 16384)
     {
-        $this->hwm = Integers::assertNonNegativeInteger($hwm, 'High water mark');
+        $this->hwm = $hwm;
     }
     public function __toString(): string
     {
@@ -67,8 +68,14 @@ final class BufferStream implements StreamInterface
     {
         $this->seek(0);
     }
-    public function seek(int $offset, int $whence = \SEEK_SET): void
+    public function seek($offset, $whence = \SEEK_SET): void
     {
+        if (!\is_int($offset)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $offset.', \get_debug_type($offset));
+        }
+        if (!\is_int($whence)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $whence.', \get_debug_type($whence));
+        }
         throw new \RuntimeException('Cannot seek a BufferStream');
     }
     public function eof(): bool
@@ -82,10 +89,10 @@ final class BufferStream implements StreamInterface
     /**
      * Reads data from the buffer.
      */
-    public function read(int $length): string
+    public function read($length): string
     {
-        if ($length < 0) {
-            throw new \RuntimeException('Length parameter cannot be negative');
+        if (!\is_int($length)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::read() is deprecated; guzzlehttp/psr7 3.0 requires int for $length.', \get_debug_type($length));
         }
         $currentLength = strlen($this->buffer);
         if ($length >= $currentLength) {
@@ -102,8 +109,11 @@ final class BufferStream implements StreamInterface
     /**
      * Writes data to the buffer.
      */
-    public function write(string $string): int
+    public function write($string): int
     {
+        if (!\is_string($string)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::write() is deprecated; guzzlehttp/psr7 3.0 requires string for $string.', \get_debug_type($string));
+        }
         $this->buffer .= $string;
         if (strlen($this->buffer) >= $this->hwm) {
             return 0;
@@ -113,11 +123,14 @@ final class BufferStream implements StreamInterface
     /**
      * @return mixed
      */
-    public function getMetadata(?string $key = null)
+    public function getMetadata($key = null)
     {
+        if ($key !== null && !\is_string($key)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::getMetadata() is deprecated; guzzlehttp/psr7 3.0 requires string|null for $key.', \get_debug_type($key));
+        }
         if ($key === 'hwm') {
             return $this->hwm;
         }
-        return $key === null ? [] : null;
+        return $key ? null : [];
     }
 }

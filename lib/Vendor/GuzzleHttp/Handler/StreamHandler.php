@@ -1,56 +1,60 @@
 <?php
 
-declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Handler;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\ConnectException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\ConnectTimeoutException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\InvalidArgumentException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\NetworkException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\NetworkTimeoutException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\RequestException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\ResponseException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\ResponseTimeoutException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\ResponseTransferException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\TransferException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Multiplexing;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\NonSerializableTrait;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise as P;
+use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise\FulfilledPromise;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise\PromiseInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\ProxyOptions;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7\Exception\TimeoutException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\RequestOptions;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\TransferStats;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\TransportSharing;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Utils;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseFactoryInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamFactoryInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
 /**
  * HTTP handler that uses PHP's HTTP stream wrapper.
+ *
+ * @final
  */
-final class StreamHandler
+class StreamHandler
 {
-    use NonSerializableTrait;
     private const KNOWN_CONSTRUCTOR_OPTIONS = ['max_host_connections' => \true, 'max_total_connections' => \true, 'transport_sharing' => \true];
-    private const CONNECTION_ERRORS = ['php_network_getaddresses:', 'getaddrinfo', 'gethostbyname failed', 'Unable to connect to', 'Connection refused', 'No connection could be made because the target machine actively refused it', 'connection attempt failed', 'connect() failed', 'Network is unreachable', 'No route to host', 'Host is unreachable', 'Host is down', 'Cannot connect to HTTPS server through proxy', 'Failed to enable crypto'];
-    private const CONNECT_TIMEOUT_ERRORS = ['Connection timed out', 'Operation timed out', 'SSL: Handshake timed out', 'did not properly respond after a period of time'];
-    private const NETWORK_ERRORS = ['SSL: Connection reset by peer', 'SSL: Broken pipe', 'unexpected eof while reading'];
+    private const CONNECTION_ERRORS = [
+        'php_network_getaddresses:',
+        'getaddrinfo',
+        'gethostbyname failed',
+        'Connection refused',
+        'No connection could be made because the target machine actively refused it',
+        "couldn't connect to host",
+        // error on HHVM
+        'connection attempt failed',
+        'connect() failed',
+        'Connection timed out',
+        'Operation timed out',
+        'Network is unreachable',
+        'No route to host',
+        'Host is unreachable',
+        'Host is down',
+        'Cannot connect to HTTPS server through proxy',
+    ];
     /**
-     * Default idle timeout in milliseconds when the "read_timeout" option is
-     * not set. Matches PHP's default_socket_timeout default, which the
-     * handler never consults.
+     * @var array
      */
-    private const DEFAULT_IDLE_TIMEOUT_MS = 60000;
-    private array $lastHeaders = [];
-    private ?float $lastDeadline = null;
-    private ?\Throwable $onStatsException = null;
-    private string $transportSharingMode;
-    private bool $connectionCapsConfigured = \false;
+    private $lastHeaders = [];
+    /**
+     * @var string
+     */
+    private $transportSharingMode;
+    /**
+     * @var bool
+     */
+    private $connectionCapsConfigured = \false;
     /**
      * Accepts an associative array of options:
      *
@@ -73,7 +77,7 @@ final class StreamHandler
     {
         foreach ($options as $name => $_) {
             if (!isset(self::KNOWN_CONSTRUCTOR_OPTIONS[$name])) {
-                throw new InvalidArgumentException(\sprintf('Invalid StreamHandler constructor option "%s".', Psr7\DiagnosticValue::escape((string) $name)));
+                \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/guzzle', '7.14', \sprintf('The "%s" StreamHandler constructor option is unknown; guzzlehttp/guzzle 8.0 will reject unknown constructor options.', (string) $name));
             }
         }
         $this->transportSharingMode = CurlShareHandleState::normalizeMode($options['transport_sharing'] ?? null, 'transport_sharing');
@@ -83,7 +87,7 @@ final class StreamHandler
                 continue;
             }
             if (!\is_int($value) || $value < 1) {
-                throw new InvalidArgumentException(\sprintf('%s must be a positive integer.', $capOption));
+                throw new \InvalidArgumentException(\sprintf('%s must be a positive integer.', $capOption));
             }
             $this->connectionCapsConfigured = \true;
         }
@@ -93,548 +97,186 @@ final class StreamHandler
      *
      * @param RequestInterface $request Request to send.
      * @param array            $options Request transfer options.
-     *
-     * @return PromiseInterface<ResponseInterface, mixed>
      */
-    public function __invoke(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array $options
-    ): PromiseInterface
+    public function __invoke(RequestInterface $request, array $options): PromiseInterface
     {
-        $this->onStatsException = null;
         // Sleep if there is a delay specified.
         if (isset($options['delay'])) {
-            \usleep((int) ($options['delay'] * 1000));
+            \usleep($options['delay'] * 1000);
         }
         $multiplex = $options['multiplex'] ?? null;
         // Multiplexing::NONE is trivially satisfied: the stream handler sends
         // one HTTP/1.x request per connection and never multiplexes.
         if (null !== $multiplex && !\in_array($multiplex, [Multiplexing::NONE, Multiplexing::EAGER, Multiplexing::WAIT, Multiplexing::REQUIRE_EAGER, Multiplexing::REQUIRE_WAIT], \true)) {
-            throw new InvalidArgumentException(\sprintf('The "multiplex" option must be null or a GuzzleHttp\Multiplexing::* constant; received %s.', \get_debug_type($multiplex)));
+            throw new \InvalidArgumentException(\sprintf('The "multiplex" option must be null or a GuzzleHttp\Multiplexing::* constant; received %s.', \get_debug_type($multiplex)));
         }
         if (\in_array($multiplex, [Multiplexing::REQUIRE_EAGER, Multiplexing::REQUIRE_WAIT], \true)) {
-            throw new RequestException('The stream handler cannot guarantee a multiplexed protocol; required multiplexing needs a cURL handler.', $request);
+            throw new ConnectException('The stream handler cannot guarantee a multiplexed protocol; required multiplexing needs a cURL handler.', $request);
+        }
+        if ($this->connectionCapsConfigured && !empty($options['stream'])) {
+            throw new \InvalidArgumentException('Enabling the "stream" request option on a stream handler configured with the "max_host_connections" or "max_total_connections" option is not supported because streamed connections cannot be capped.');
+        }
+        if (isset($options['on_trailers'])) {
+            throw new \InvalidArgumentException('Passing the "on_trailers" request option to the stream handler is not supported because the stream handler cannot observe trailers.');
         }
         $protocolVersion = $request->getProtocolVersion();
         if ('' === $protocolVersion) {
-            throw new RequestException('HTTP protocol version must not be empty.', $request);
-        }
-        if (1 !== \preg_match('/^\d+(?:\.\d+)?$/D', $protocolVersion)) {
-            throw new RequestException('HTTP protocol version must be a valid HTTP version number.', $request);
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/guzzle', '7.11', 'Sending a request with an empty protocol version is deprecated; guzzlehttp/guzzle 8.0 will reject empty protocol versions.');
+            $protocolVersion = '1.1';
+            $request = Psr7\Utils::modifyRequest($request, ['version' => $protocolVersion]);
         }
         if ('1.0' !== $protocolVersion && '1.1' !== $protocolVersion) {
-            throw new RequestException(sprintf('HTTP/%s is not supported by the stream handler.', $protocolVersion), $request);
+            throw new ConnectException(sprintf('HTTP/%s is not supported by the stream handler.', $protocolVersion), $request);
         }
-        if (isset($options['on_stats']) && !\is_callable($options['on_stats'])) {
-            throw new InvalidArgumentException('on_stats must be callable');
-        }
-        $startTime = isset($options['on_stats']) ? Clock::now() : null;
-        self::rejectUnsupportedRequestOptions($request, $options);
-        $this->rejectStreamingWithConnectionCaps($options);
+        $startTime = isset($options['on_stats']) ? Utils::currentTime() : null;
+        self::triggerUnsupportedRequestOptionDeprecations($request, $options);
         $this->assertTransportSharingSupported();
-        // The stream wrapper sends HEAD request bodies, unlike cURL's NOBODY
-        // path, so validate their framing normally.
-        $framing = RequestFraming::analyze($request->withoutHeader('Expect'));
-        $request = $framing->request;
         try {
-            self::assertRequestUriSupported($request, $options);
-            $body = $framing->materialize();
-            if ($framing->contentLength === null && ($body !== '' || \in_array($request->getMethod(), ['PUT', 'POST'], \true))) {
-                $request = $request->withHeader('Content-Length', (string) \strlen($body));
+            // Does not support the expect header.
+            $request = $request->withoutHeader('Expect');
+            // Append a content-length header if body size is zero to match
+            // the behavior of `CurlHandler`
+            if ((Psr7\Utils::caselessEquals('PUT', $request->getMethod()) || Psr7\Utils::caselessEquals('POST', $request->getMethod())) && 0 === $request->getBody()->getSize()) {
+                $request = $request->withHeader('Content-Length', '0');
             }
-            return $this->createResponse($request, $options, $this->createStream($request, $options, $body), $startTime);
+            return $this->createResponse($request, $options, $this->createStream($request, $options), $startTime);
         } catch (\InvalidArgumentException $e) {
             throw $e;
         } catch (\Exception $e) {
-            if ($this->isOnStatsException($e)) {
-                throw $e;
-            }
             if (!$e instanceof TransferException) {
-                $message = $e->getMessage();
-                if (self::isSendError($message)) {
-                    $e = self::isConnectTimeoutError($message) ? new NetworkTimeoutException($message, $request, $e) : new NetworkException($message, $request, $e);
-                } elseif (self::isConnectTimeoutError($message)) {
-                    $e = new ConnectTimeoutException($message, $request, $e);
-                } elseif (self::isConnectionError($message)) {
-                    $e = new ConnectException($message, $request, $e);
-                } elseif (self::isNetworkError($message)) {
-                    $e = new NetworkException($message, $request, $e);
-                } else {
-                    $e = new RequestException($message, $request, 0, $e);
-                }
+                $e = self::isConnectionError($e->getMessage()) ? new ConnectException($e->getMessage(), $request, $e) : new RequestException($e->getMessage(), $request, null, $e);
             }
             $this->invokeStats($options, $request, $startTime, null, $e);
-            /** @var PromiseInterface<ResponseInterface, mixed> */
             return P\Create::rejectionFor($e);
         }
-    }
-    private function isOnStatsException(\Throwable $e): bool
-    {
-        if ($this->onStatsException !== $e) {
-            return \false;
-        }
-        $this->onStatsException = null;
-        return \true;
-    }
-    private static function isConnectTimeoutError(string $message): bool
-    {
-        foreach (self::CONNECT_TIMEOUT_ERRORS as $timeoutError) {
-            if (Psr7\Utils::caselessContains($message, $timeoutError)) {
-                return \true;
-            }
-        }
-        return \false;
     }
     private static function isConnectionError(string $message): bool
     {
         foreach (self::CONNECTION_ERRORS as $connectionError) {
-            if (Psr7\Utils::caselessContains($message, $connectionError)) {
+            if (\false !== \strpos($message, $connectionError)) {
                 return \true;
             }
         }
         return \false;
     }
-    private static function isSendError(string $message): bool
-    {
-        // A failed write ("Send of N bytes failed ...") implies an established connection.
-        return Psr7\Utils::caselessContains($message, 'bytes failed with errno=');
-    }
-    private static function isNetworkError(string $message): bool
-    {
-        foreach (self::NETWORK_ERRORS as $networkError) {
-            if (Psr7\Utils::caselessContains($message, $networkError)) {
-                return \true;
-            }
-        }
-        return \false;
-    }
-    private function invokeStats(
-        #[\SensitiveParameter]
-        array $options,
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        ?float $startTime,
-        #[\SensitiveParameter]
-        ?ResponseInterface $response = null,
-        #[\SensitiveParameter]
-        ?\Throwable $error = null
-    ): void
+    private function invokeStats(array $options, RequestInterface $request, ?float $startTime, ?ResponseInterface $response = null, ?\Throwable $error = null): void
     {
         if (isset($options['on_stats'])) {
-            $stats = new TransferStats($request, $response, Clock::now() - $startTime, $error, []);
-            try {
-                $options['on_stats']($stats);
-            } catch (\Throwable $e) {
-                $this->onStatsException = $e;
-                throw $e;
-            }
+            $stats = new TransferStats($request, $response, Utils::currentTime() - $startTime, $error, []);
+            $options['on_stats']($stats);
         }
     }
     /**
      * @param resource $stream
-     *
-     * @return PromiseInterface<ResponseInterface, mixed>
      */
-    private function createResponse(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array $options,
-        $stream,
-        ?float $startTime
-    ): PromiseInterface
+    private function createResponse(RequestInterface $request, array $options, $stream, ?float $startTime): PromiseInterface
     {
         $hdrs = $this->lastHeaders;
         $this->lastHeaders = [];
-        $deadline = $this->lastDeadline;
-        $this->lastDeadline = null;
         try {
             [$ver, $status, $reason, $headers] = HeaderProcessor::parseHeaders($hdrs);
         } catch (\Throwable $e) {
             return $this->rejectResponseCreation($options, $request, $startTime, $e);
         }
-        $canHaveBody = HeaderProcessor::responseCanHaveBody($request->getMethod(), $status);
-        $framingFailure = null;
-        $declaredLength = null;
+        [$stream, $headers] = $this->checkDecode($options, $headers, $stream);
+        $stream = Psr7\Utils::streamFor($stream);
+        $sink = $stream;
+        if (!Psr7\Utils::caselessEquals('HEAD', $request->getMethod())) {
+            $sink = $this->createSink($stream, $options);
+        }
         try {
-            $declaredLength = HeaderProcessor::validateResponseFraming($request->getMethod(), $status, $headers);
-            if (empty($options['stream'])) {
-                HeaderProcessor::assertContentLengthWithinPlatformLimit($declaredLength);
-            }
-        } catch (\RuntimeException $e) {
-            $framingFailure = $e;
-        }
-        if ($framingFailure === null) {
-            try {
-                $headers = $this->decodeChunkedResponse($headers, $stream, $canHaveBody);
-            } catch (\RuntimeException $e) {
-                $framingFailure = $e;
-            }
-        }
-        $streamFactory = self::requireStreamFactory($options[RequestOptions::STREAM_FACTORY] ?? new Psr7\HttpFactory());
-        $responseFactory = self::requireResponseFactory($options[RequestOptions::RESPONSE_FACTORY] ?? new Psr7\HttpFactory());
-        // Wrap the transport resource with the configured stream factory, and
-        // decorate buffered transfers with the deadline source before optional
-        // content decoding layers an InflateStream on top, so every read that
-        // pulls from the transport observes the deadline.
-        $resource = $stream;
-        $stream = $streamFactory->createStreamFromResource($stream);
-        if ($framingFailure === null && $deadline !== null && empty($options['stream'])) {
-            $stream = self::createDeadlineSource($stream, $resource, $deadline, $options);
-        }
-        $encodedBody = null;
-        if ($framingFailure === null) {
-            [$stream, $headers, $encodedBody] = self::checkDecode($options, $headers, $stream, $declaredLength);
-        }
-        $sink = $framingFailure !== null || !$canHaveBody ? $streamFactory->createStream('') : $this->createSink($stream, $options);
-        try {
-            $response = $responseFactory->createResponse($status, $reason ?? '')->withProtocolVersion($ver);
-            foreach ($headers as $name => $value) {
-                $response = $response->withAddedHeader((string) $name, $value);
-            }
-            $response = $response->withBody($sink);
+            $response = new Psr7\Response($status, $headers, $sink, $ver, $reason);
         } catch (\Throwable $e) {
             return $this->rejectResponseCreation($options, $request, $startTime, $e);
         }
-        if ($framingFailure !== null) {
-            try {
-                $stream->close();
-            } catch (\Exception $e) {
-                // Best-effort release; a failing transport close must not
-                // mask the framing rejection.
-            }
-            $reason = $framingFailure instanceof \OverflowException ? new ResponseException($framingFailure->getMessage(), $request, $response, $framingFailure) : new ResponseTransferException($framingFailure->getMessage(), $request, $response, $framingFailure);
-            $this->invokeStats($options, $request, $startTime, $response, $reason);
-            /** @var PromiseInterface<ResponseInterface, mixed> */
-            return P\Create::rejectionFor($reason);
-        }
-        // The header phase inside fopen() can only bound the time between
-        // packets, so a header block that trickled in past the deadline is
-        // rejected here, once it is complete. The transport is closed so a
-        // streamed response cannot hold the connection open through the
-        // rejection.
-        if ($deadline !== null && Clock::now() >= $deadline) {
-            try {
-                $stream->close();
-            } catch (\Exception $e) {
-                // Best-effort release; a failing transport close must not
-                // mask the timeout rejection.
-            }
-            $reason = new ResponseTimeoutException('Timed out while receiving the response headers', $request, $response);
-            $this->invokeStats($options, $request, $startTime, $response, $reason);
-            /** @var PromiseInterface<ResponseInterface, mixed> */
-            return P\Create::rejectionFor($reason);
-        }
         if (isset($options['on_headers'])) {
             try {
-                $options['on_headers']($response, $request);
+                $options['on_headers']($response);
             } catch (\Throwable $e) {
-                $reason = new ResponseException('An error was encountered during the on_headers event', $request, $response, $e);
-                $this->invokeStats($options, $request, $startTime, $response, $reason);
-                /** @var PromiseInterface<ResponseInterface, mixed> */
-                return P\Create::rejectionFor($reason);
+                return P\Create::rejectionFor(new RequestException('An error was encountered during the on_headers event', $request, $response, $e));
             }
         }
-        if (!$canHaveBody) {
-            // RFC 9110 / RFC 9112 section 6.3: octets after the header section
-            // of a HEAD, 1xx, 204, 304, or CONNECT-2xx response are not part
-            // of this response's body. Never read them, and release the
-            // transport as soon as the headers are complete.
-            try {
-                $stream->close();
-            } catch (\Exception $e) {
-                // Best-effort release; a failing transport close must not fail
-                // a fully received no-content response.
-            }
-        } elseif ($sink !== $stream) {
-            try {
-                $this->drain($request, $response, $stream, $sink, $declaredLength, $encodedBody);
-            } catch (ResponseException $e) {
-                $this->invokeStats($options, $request, $startTime, $response, $e);
-                /** @var PromiseInterface<ResponseInterface, mixed> */
-                return P\Create::rejectionFor($e);
-            }
+        // Do not drain when the request is a HEAD request because they have
+        // no body.
+        if ($sink !== $stream) {
+            $this->drain($stream, $sink, $response->getHeaderLine('Content-Length'));
         }
         $this->invokeStats($options, $request, $startTime, $response, null);
-        /** @var PromiseInterface<ResponseInterface, mixed> */
-        return P\Create::promiseFor($response);
+        return new FulfilledPromise($response);
     }
-    /**
-     * @return PromiseInterface<ResponseInterface, mixed>
-     */
-    private function rejectResponseCreation(
-        #[\SensitiveParameter]
-        array $options,
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        ?float $startTime,
-        #[\SensitiveParameter]
-        \Throwable $previous
-    ): PromiseInterface
+    private function rejectResponseCreation(array $options, RequestInterface $request, ?float $startTime, \Throwable $previous): PromiseInterface
     {
-        $reason = new RequestException('An error was encountered while creating the response', $request, 0, $previous);
+        $reason = new RequestException('An error was encountered while creating the response', $request, null, $previous);
         $this->invokeStats($options, $request, $startTime, null, $reason);
-        /** @var PromiseInterface<ResponseInterface, mixed> */
         return P\Create::rejectionFor($reason);
     }
-    private function createSink(
-        StreamInterface $stream,
-        #[\SensitiveParameter]
-        array $options
-    ): StreamInterface
+    private function createSink(StreamInterface $stream, array $options): StreamInterface
     {
         if (!empty($options['stream'])) {
             return $stream;
         }
-        $streamFactory = self::requireStreamFactory($options[RequestOptions::STREAM_FACTORY] ?? new Psr7\HttpFactory());
-        $hasSink = isset($options['sink']);
-        $sink = $hasSink ? $options['sink'] : Psr7\Utils::tryFopen('php://temp', 'r+');
-        if ($hasSink && \is_resource($sink)) {
-            return self::streamForResourceSink(Psr7\Utils::streamFor($sink));
-        }
-        if (\is_string($sink)) {
-            return new Psr7\LazyOpenStream($sink, 'w+');
-        }
-        if (!\is_resource($sink)) {
-            return Psr7\Utils::streamFor($sink);
-        }
-        return $streamFactory->createStreamFromResource($sink);
+        $sink = $options['sink'] ?? Psr7\Utils::tryFopen('php://temp', 'r+');
+        return \is_string($sink) ? new Psr7\LazyOpenStream($sink, 'w+') : Psr7\Utils::streamFor($sink);
     }
     /**
-     * Decorates a caller-owned sink stream so that closing the response body
-     * detaches Guzzle's wrapper without closing the original PHP resource.
+     * @param resource $stream
      */
-    private static function streamForResourceSink(StreamInterface $stream): StreamInterface
+    private function checkDecode(array $options, array $headers, $stream): array
     {
-        return Psr7\FnStream::decorate($stream, ['close' => static function () use ($stream): void {
-            $stream->detach();
-        }]);
-    }
-    /**
-     * @param mixed $factory
-     */
-    private static function requireStreamFactory($factory): StreamFactoryInterface
-    {
-        if (!$factory instanceof StreamFactoryInterface) {
-            throw new InvalidArgumentException(\sprintf('%s must be an instance of %s', RequestOptions::STREAM_FACTORY, StreamFactoryInterface::class));
-        }
-        return $factory;
-    }
-    /**
-     * @param mixed $factory
-     */
-    private static function requireResponseFactory($factory): ResponseFactoryInterface
-    {
-        if (!$factory instanceof ResponseFactoryInterface) {
-            throw new InvalidArgumentException(\sprintf('%s must be an instance of %s', RequestOptions::RESPONSE_FACTORY, ResponseFactoryInterface::class));
-        }
-        return $factory;
-    }
-    /**
-     * Applies the HTTP wrapper's normal chunked-response handling.
-     *
-     * @param array<string, string[]> $headers
-     * @param resource                $stream
-     * @param bool                    $decodeBody Whether to attach the dechunk filter
-     *
-     * @return array<string, string[]>
-     *
-     * @throws \RuntimeException when the dechunk filter cannot be attached
-     */
-    private function decodeChunkedResponse(array $headers, $stream, bool $decodeBody): array
-    {
-        $decodedHeaders = $headers;
-        $decode = \false;
-        foreach ($headers as $name => $values) {
-            if (!Psr7\Utils::caselessEquals((string) $name, 'Transfer-Encoding')) {
-                continue;
-            }
-            $remaining = [];
-            foreach ($values as $value) {
-                // Match PHP's legacy auto_decode prefix check so moving the
-                // filter does not change which responses are dechunked.
-                if (Psr7\Utils::caselessEquals(\substr($value, 0, 7), 'chunked')) {
-                    $decode = \true;
-                } else {
-                    $remaining[] = $value;
-                }
-            }
-            if ($remaining === []) {
-                unset($decodedHeaders[$name]);
-            } else {
-                $decodedHeaders[$name] = $remaining;
-            }
-        }
-        if (!$decode) {
-            return $headers;
-        }
-        if ($decodeBody) {
-            $this->createResource(static function () use ($stream) {
-                return \stream_filter_append($stream, 'dechunk', \STREAM_FILTER_READ);
-            });
-        }
-        return $decodedHeaders;
-    }
-    /**
-     * @return array{0: StreamInterface, 1: array, 2: ?EncodedBodyStream}
-     */
-    private static function checkDecode(
-        #[\SensitiveParameter]
-        array $options,
-        array $headers,
-        StreamInterface $stream,
-        ?string $declaredLength
-    ): array
-    {
-        $encodedBody = null;
         // Automatically decode responses when instructed.
         if (isset($options['decode_content']) && $options['decode_content'] !== \false) {
             $normalizedKeys = Utils::normalizeHeaderKeys($headers);
             if (isset($normalizedKeys['content-encoding'])) {
                 $encoding = $headers[$normalizedKeys['content-encoding']];
                 if ($encoding[0] === 'gzip' || $encoding[0] === 'deflate') {
-                    if (empty($options['stream']) && $declaredLength !== null && $declaredLength !== '0') {
-                        $encodedBody = new EncodedBodyStream($stream, $declaredLength);
-                        $stream = $encodedBody;
-                    }
-                    $stream = new Psr7\InflateStream($stream);
+                    $stream = new Psr7\InflateStream(Psr7\Utils::streamFor($stream));
                     $headers['x-encoded-content-encoding'] = $headers[$normalizedKeys['content-encoding']];
                     // Remove content-encoding header
                     unset($headers[$normalizedKeys['content-encoding']]);
                     // The decoded length cannot be known without inflating the
                     // stream, so keep the original length for inspection and
                     // drop the now-unknown Content-Length header.
-                    $encodedContentLength = HeaderProcessor::removeHeader('Content-Length', $headers);
-                    if ($encodedContentLength !== []) {
-                        $headers['x-encoded-content-length'] = $encodedContentLength;
+                    if (isset($normalizedKeys['content-length'])) {
+                        $headers['x-encoded-content-length'] = $headers[$normalizedKeys['content-length']];
+                        unset($headers[$normalizedKeys['content-length']]);
                     }
                 }
             }
         }
-        return [$stream, $headers, $encodedBody];
+        return [$stream, $headers];
     }
     /**
      * Drains the source stream into the "sink" client option.
      *
+     * @param string $contentLength Header specifying the amount of
+     *                              data to read.
+     *
      * @throws \RuntimeException when the sink option is invalid.
      */
-    private function drain(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        ResponseInterface $response,
-        StreamInterface $source,
-        StreamInterface $sink,
-        ?string $declaredResponseBodyLength,
-        ?EncodedBodyStream $encodedBody = null
-    ): StreamInterface
+    private function drain(StreamInterface $source, StreamInterface $sink, string $contentLength): StreamInterface
     {
-        try {
-            // Buffered paths reject unrepresentable lengths before draining.
-            $declaredLength = HeaderProcessor::contentLengthToInt($declaredResponseBodyLength);
-            $declaredLength = $declaredLength !== null && $declaredLength > 0 ? $declaredLength : null;
-            $copyLimit = $encodedBody === null ? $declaredLength ?? -1 : -1;
-            try {
-                $target = $this->createResponseSink($request, $response, $sink);
-                // If a content-length header is provided, then stop reading once
-                // that number of bytes has been read. This can prevent infinitely
-                // reading from a stream when dealing with servers that do not
-                // honor Connection: Close headers.
-                $copied = Psr7\Utils::copyToStream($source, $target, $copyLimit);
-            } catch (ResponseException $e) {
-                throw $e;
-            } catch (TimeoutException $e) {
-                throw new ResponseTimeoutException('Timed out while transferring the response body', $request, $response, $e);
-            } catch (\OverflowException $e) {
-                throw new ResponseException($e->getMessage(), $request, $response, $e);
-            } catch (\Exception $e) {
-                // Any other response-body transfer failure surfaces as a
-                // ResponseTransferException carrying the response.
-                throw new ResponseTransferException($e->getMessage() !== '' ? $e->getMessage() : 'Failed while transferring the response body', $request, $response, $e);
-            }
-            $receivedLength = $encodedBody !== null ? $encodedBody->getBytesRead() : $copied;
-            if ($declaredLength !== null && $receivedLength < $declaredLength) {
-                throw new ResponseTransferException('Response body ended before the declared Content-Length was reached', $request, $response);
-            }
-            try {
-                if ($sink->isSeekable()) {
-                    $sink->rewind();
-                }
-            } catch (\Exception $e) {
-                throw new ResponseException($e->getMessage() !== '' ? $e->getMessage() : 'Failed to rewind the response body', $request, $response, $e);
-            }
-            return $sink;
-        } finally {
-            try {
-                $source->close();
-            } catch (\Exception $e) {
-                // Best-effort cleanup after the response body has been received.
-            }
-        }
-    }
-    private function createResponseSink(RequestInterface $request, ResponseInterface $response, StreamInterface $sink): StreamInterface
-    {
-        return Psr7\FnStream::decorate($sink, ['close' => static function (): void {
-        }, 'write' => static function (string $data) use ($request, $response, $sink): int {
-            try {
-                $written = $sink->write($data);
-            } catch (TimeoutException $e) {
-                throw new ResponseException('Timed out while writing the response body', $request, $response, $e);
-            } catch (\Exception $e) {
-                throw new ResponseException($e->getMessage() !== '' ? $e->getMessage() : 'Failed to write the response body', $request, $response, $e);
-            }
-            if ($written <= 0) {
-                throw new ResponseException('Unable to write to stream', $request, $response);
-            }
-            return $written;
-        }, 'getMetadata' => static function (?string $key = null) use ($sink) {
-            // Force timed_out to false so Utils::writeAll() can't reclassify a sink-write
-            // failure as a transport timeout. Sink write failures are ResponseException;
-            // source-read timeouts are ResponseTimeoutException.
-            if ($key === 'timed_out') {
-                return \false;
-            }
-            return $sink->getMetadata($key);
-        }]);
-    }
-    /**
-     * Decorates the transport stream so each buffered-body read observes the
-     * remaining wall-clock budget of the "timeout" request option, bounded
-     * by the "read_timeout" idle timeout when that is shorter. The transport
-     * is switched to non-blocking mode because filtered reads (chunked and
-     * compressed responses) otherwise block until a full buffer arrives,
-     * which would keep the deadline from being enforced between small pieces
-     * of data.
-     *
-     * @param resource $resource
-     */
-    private static function createDeadlineSource(
-        StreamInterface $stream,
-        $resource,
-        float $deadline,
-        #[\SensitiveParameter]
-        array $options
-    ): StreamInterface
-    {
-        $idleTimeout = isset($options['read_timeout']) ? Timeout::toMilliseconds($options['read_timeout'], 'read_timeout') : self::DEFAULT_IDLE_TIMEOUT_MS;
-        \stream_set_blocking($resource, \false);
-        return new DeadlineSourceStream($stream, $deadline, $idleTimeout > 0 ? $idleTimeout / 1000 : null);
+        // If a content-length header is provided, then stop reading once
+        // that number of bytes has been read. This can prevent infinitely
+        // reading from a stream when dealing with servers that do not honor
+        // Connection: Close headers.
+        Psr7\Utils::copyToStream($source, $sink, \strlen($contentLength) > 0 && (int) $contentLength > 0 ? (int) $contentLength : -1);
+        $sink->seek(0);
+        $source->close();
+        return $sink;
     }
     /**
      * Create a resource and check to ensure it was created successfully
      *
-     * @param callable(): (resource|false) $callback Callable that returns a stream resource, or false when resource creation fails.
+     * @param callable $callback Callable that returns stream resource
      *
      * @return resource
      *
-     * @throws \RuntimeException when the callback returns false or resource creation emits an error.
+     * @throws \RuntimeException on error
      */
     private function createResource(callable $callback)
     {
         $errors = [];
-        \set_error_handler(static function (int $_, string $msg, string $file, int $line) use (&$errors): bool {
+        \set_error_handler(static function ($_, $msg, $file, $line) use (&$errors): bool {
             $errors[] = ['message' => $msg, 'file' => $file, 'line' => $line];
             return \true;
         });
@@ -644,31 +286,41 @@ final class StreamHandler
             \restore_error_handler();
         }
         if (!$resource) {
-            $details = [];
+            $message = 'Error creating resource: ';
             foreach ($errors as $err) {
                 foreach ($err as $key => $value) {
-                    $details[] = \sprintf('[%s] %s', $key, Psr7\DiagnosticValue::escape((string) $value));
+                    $message .= "[{$key}] {$value}" . \PHP_EOL;
                 }
             }
-            $message = 'Error creating resource';
-            if ($details !== []) {
-                $message .= ': ' . \implode('; ', $details);
-            }
-            throw new \RuntimeException($message);
+            throw new \RuntimeException(\trim($message, " \n\r\t\x00\v"));
         }
         return $resource;
     }
     /**
      * @return resource
      */
-    private function createStream(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array $options,
-        string $body
-    )
+    private function createStream(RequestInterface $request, array $options)
     {
+        static $methods;
+        if (!$methods) {
+            $methods = \array_flip(\get_class_methods(__CLASS__));
+        }
+        $uri = $request->getUri();
+        $scheme = $uri->getScheme();
+        if ($scheme === '') {
+            throw new RequestException('URI must include a scheme and host. Use an absolute URI, a network-path reference starting with //, or configure a base_uri.', $request);
+        }
+        if (!\in_array($scheme, ['http', 'https'], \true)) {
+            throw new RequestException(\sprintf("The scheme '%s' is not supported.", $scheme), $request);
+        }
+        $protocols = Utils::normalizeProtocols($options['protocols'] ?? ['http', 'https']);
+        if (!\in_array($scheme, $protocols, \true)) {
+            throw new RequestException(\sprintf('The scheme "%s" is not allowed by the protocols request option.', $scheme), $request);
+        }
+        if ($uri->getHost() === '') {
+            throw new RequestException('URI must include a scheme and host. Use an absolute URI, a network-path reference starting with //, or configure a base_uri.', $request);
+        }
+        HostValidator::assertRequestHost($request);
         // HTTP/1.1 streams using the PHP stream wrapper require a
         // Connection: close header
         if ($request->getProtocolVersion() === '1.1' && !$request->hasHeader('Connection')) {
@@ -679,180 +331,171 @@ final class StreamHandler
             $options['verify'] = \true;
         }
         $params = [];
-        $context = $this->getDefaultContext($request, $body);
+        $context = $this->getDefaultContext($request);
         if (isset($options['on_headers']) && !\is_callable($options['on_headers'])) {
-            throw new InvalidArgumentException('on_headers must be callable');
+            throw new \InvalidArgumentException('on_headers must be callable');
         }
-        $idleTimeout = isset($options['read_timeout']) ? Timeout::toMilliseconds($options['read_timeout'], 'read_timeout') : self::DEFAULT_IDLE_TIMEOUT_MS;
-        $timeout = isset($options['timeout']) ? Timeout::toMilliseconds($options['timeout'], 'timeout') : 0;
-        self::assertTlsVersionRangeForOptions($request, $options);
-        $this->applyHandlerOptions($request, $context, $options, $params);
-        // Resolve the proxy unconditionally (option first, then environment),
-        // so an env-configured proxy applies even when no proxy option is set.
-        $this->applyProxy($request, $context, $options['proxy'] ?? null);
-        if (isset($options['stream_context'])) {
-            $streamContext = $options['stream_context'];
-            if (!\is_array($streamContext)) {
-                throw new InvalidArgumentException('stream_context must be an array');
+        self::assertTlsVersionRangeForOptions($options);
+        $proxyAuthorizationAdded = \false;
+        if (!empty($options)) {
+            foreach ($options as $key => $value) {
+                $method = "add_{$key}";
+                if (isset($methods[$method])) {
+                    if ($method === 'add_proxy') {
+                        $proxyAuthorizationAdded = $this->add_proxy($request, $context, $value, $params);
+                        continue;
+                    }
+                    $this->{$method}($request, $context, $value, $params);
+                }
             }
-            self::rejectConflictingStreamContextOptions($streamContext);
-            self::rejectUnsupportedStreamContextOptions($streamContext);
-            $context = \array_replace_recursive($context, $streamContext);
         }
-        $this->addDefaultTlsMinimum($request, $context);
-        // The context timeout governs connecting and the header-phase packet
-        // gaps: the idle timeout, tightened to the deadline when that is
-        // lower; -1 disables it so default_socket_timeout is never consulted.
-        if ($timeout > 0 && ($idleTimeout <= 0 || $timeout < $idleTimeout)) {
-            $context['http']['timeout'] = $timeout / 1000;
-        } elseif ($idleTimeout > 0) {
-            $context['http']['timeout'] = $idleTimeout / 1000;
-        } else {
-            $context['http']['timeout'] = -1;
+        if (isset($options['stream_context'])) {
+            if (!\is_array($options['stream_context'])) {
+                throw new \InvalidArgumentException('stream_context must be an array');
+            }
+            if ($proxyAuthorizationAdded && isset($options['stream_context']['http']) && \is_array($options['stream_context']['http']) && \array_key_exists('proxy', $options['stream_context']['http'])) {
+                throw new \InvalidArgumentException('stream_context.http.proxy cannot override a proxy after the stream handler has generated a Proxy-Authorization header; configure the final proxy with the "proxy" request option.');
+            }
+            self::triggerConflictingStreamContextOptionDeprecations($options['stream_context']);
+            self::triggerUnsupportedStreamContextOptionDeprecations($options['stream_context']);
+            $context = \array_replace_recursive($context, $options['stream_context']);
+        }
+        // Microsoft NTLM authentication only supported with curl handler
+        if (isset($options['auth'][2]) && 'ntlm' === $options['auth'][2]) {
+            throw new \InvalidArgumentException('Microsoft NTLM authentication only supported with curl handler');
         }
         $uri = $this->resolveHost($request, $options);
         $contextResource = $this->createResource(static function () use ($context, $params) {
             return \stream_context_create($context, $params);
         });
-        return $this->createResource(function () use ($uri, $contextResource, $idleTimeout, $timeout) {
-            $this->lastDeadline = $timeout > 0 ? Clock::now() + $timeout / 1000 : null;
-            // Blank the from ini setting for the transfer so ambient
-            // configuration cannot leak into a From header; the wrapper
-            // cannot omit the header, so a configured ini sends it empty.
-            $iniFrom = \function_exists('ini_set') ? \ini_set('from', '') : \false;
-            try {
-                $resource = @\fopen((string) $uri, 'r', \false, $contextResource);
-            } finally {
-                if ($iniFrom !== \false) {
-                    \ini_set('from', $iniFrom);
-                }
-            }
-            // PHP 8.5 deprecates the local $http_response_header variable.
+        return $this->createResource(function () use ($uri, $contextResource, $context, $options, $request) {
+            $resource = @\fopen((string) $uri, 'r', \false, $contextResource);
+            // See https://wiki.php.net/rfc/deprecations_php_8_5#deprecate_the_http_response_header_predefined_variable
             if (function_exists('http_get_last_response_headers')) {
                 $http_response_header = \http_get_last_response_headers();
             }
             $this->lastHeaders = $http_response_header ?? [];
             if (\false === $resource) {
-                return \false;
+                throw new ConnectException(sprintf('Connection refused for URI %s', Psr7\Utils::redactUserInfo($uri)), $request, null, $context);
             }
-            // Arm reads with the idle timeout, replacing the context
-            // value the deadline may have tightened; -1 disables it.
-            if ($idleTimeout > 0) {
-                $sec = \intdiv($idleTimeout, 1000);
-                $usec = $idleTimeout % 1000 * 1000;
+            if (isset($options['read_timeout'])) {
+                $readTimeout = $options['read_timeout'];
+                $sec = (int) $readTimeout;
+                $usec = ($readTimeout - $sec) * 100000;
                 \stream_set_timeout($resource, $sec, $usec);
-            } else {
-                \stream_set_timeout($resource, -1);
             }
             return $resource;
         });
     }
-    private static function assertRequestUriSupported(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array $options
-    ): void
-    {
-        $uri = $request->getUri();
-        $scheme = $uri->getScheme();
-        if ($scheme === '') {
-            throw new RequestException('URI must include a scheme and host. Use an absolute URI, a network-path reference starting with //, or configure a base_uri.', $request);
-        }
-        if (!\in_array($scheme, ['http', 'https'], \true)) {
-            throw new RequestException(\sprintf("The scheme '%s' is not supported.", Psr7\DiagnosticValue::escape($scheme)), $request);
-        }
-        $protocols = Utils::normalizeProtocols($options['protocols'] ?? ['http', 'https']);
-        if (!\in_array($scheme, $protocols, \true)) {
-            throw new RequestException(\sprintf('The scheme "%s" is not allowed by the protocols request option.', Psr7\DiagnosticValue::escape($scheme)), $request);
-        }
-        if ($uri->getHost() === '') {
-            throw new RequestException('URI must include a scheme and host. Use an absolute URI, a network-path reference starting with //, or configure a base_uri.', $request);
-        }
-        HostValidator::assertRequestHost($request);
-    }
-    private function applyHandlerOptions(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array &$context,
-        #[\SensitiveParameter]
-        array $options,
-        array &$params
-    ): void
-    {
-        foreach ($options as $key => $value) {
-            if ($key === 'crypto_method') {
-                $this->applyCryptoMethodOption($context, $value);
-            } elseif ($key === 'crypto_method_max') {
-                $this->applyCryptoMethodMaxOption($context, $value);
-            } elseif ($key === 'verify') {
-                $this->applyVerifyOption($context, $value);
-            } elseif ($key === 'cert') {
-                $this->applyCertOption($context, $value);
-            } elseif ($key === 'cert_type') {
-                $this->applyCertTypeOption($value);
-            } elseif ($key === 'ssl_key') {
-                $this->applySslKeyOption($context, $value);
-            } elseif ($key === 'ssl_key_type') {
-                $this->applySslKeyTypeOption($value);
-            } elseif ($key === 'progress') {
-                $this->applyProgressOption($value, $params);
-            } elseif ($key === 'debug') {
-                $this->applyDebugOption($request, $value, $params);
-            }
-        }
-    }
-    private function resolveHost(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array $options
-    ): UriInterface
+    private function resolveHost(RequestInterface $request, array $options): UriInterface
     {
         $uri = $request->getUri();
         $host = $uri->getHost();
-        $hostForIpCheck = \str_starts_with($host, '[') && \str_ends_with($host, ']') ? \substr($host, 1, -1) : $host;
+        // Fold a numeric IPv4 spelling to the dotted quad libcurl connects
+        // to, rather than leaving it to the platform resolver: macOS reads
+        // the zero-padded 0177 as decimal 177 where glibc, musl and FreeBSD
+        // read octal 127. The Host header is serialized from the request and
+        // stays as written; the TLS peer name follows the same fold.
+        $canonicalHost = self::canonicalConnectionHost($host);
+        if ($canonicalHost !== $host) {
+            $uri = $uri->withHost($canonicalHost);
+            $host = $canonicalHost;
+        }
+        $hostForIpCheck = $host !== '' && $host[0] === '[' && \substr($host, -1) === ']' ? \substr($host, 1, -1) : $host;
         if (isset($options['force_ip_resolve']) && !\filter_var($hostForIpCheck, \FILTER_VALIDATE_IP)) {
             if ('v4' === $options['force_ip_resolve']) {
                 $records = \dns_get_record($uri->getHost(), \DNS_A);
                 if (\false === $records || !isset($records[0]['ip'])) {
-                    throw new ConnectException(\sprintf("Could not resolve IPv4 address for host '%s'", Psr7\DiagnosticValue::escape($uri->getHost())), $request);
+                    throw new ConnectException(\sprintf("Could not resolve IPv4 address for host '%s'", $uri->getHost()), $request);
                 }
                 return $uri->withHost($records[0]['ip']);
             }
             if ('v6' === $options['force_ip_resolve']) {
                 $records = \dns_get_record($uri->getHost(), \DNS_AAAA);
                 if (\false === $records || !isset($records[0]['ipv6'])) {
-                    throw new ConnectException(\sprintf("Could not resolve IPv6 address for host '%s'", Psr7\DiagnosticValue::escape($uri->getHost())), $request);
+                    throw new ConnectException(\sprintf("Could not resolve IPv6 address for host '%s'", $uri->getHost()), $request);
                 }
                 return $uri->withHost('[' . $records[0]['ipv6'] . ']');
             }
         }
         return $uri;
     }
-    private function addDefaultTlsMinimum(RequestInterface $request, array &$context): void
+    /**
+     * Returns a numeric IPv4 spelling folded to the dotted quad libcurl's
+     * ipv4_normalize() produces, and every other host unchanged.
+     */
+    private static function canonicalConnectionHost(string $host): string
     {
-        if ('https' !== $request->getUri()->getScheme() || !isset($context['ssl']) || !\is_array($context['ssl'])) {
-            return;
+        $binary = self::numericIpv4ToBinary($host);
+        if ($binary === null) {
+            return $host;
         }
-        if (\array_key_exists('crypto_method', $context['ssl']) || \array_key_exists('min_proto_version', $context['ssl'])) {
-            return;
-        }
-        $context['ssl']['min_proto_version'] = \STREAM_CRYPTO_PROTO_TLSv1_2;
+        return (string) \inet_ntop($binary);
     }
-    private function getDefaultContext(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        string $body
-    ): array
+    /**
+     * Returns the four-byte binary form of a host that a transport reads as a
+     * numeric IPv4 address, or null when it reads it as a name.
+     *
+     * The shape test is HostValidator::isNumericIpv4Host(); this method adds
+     * the range checks that predicate omits: every part but the last must fit
+     * one octet, and the last must fit the octets the earlier parts left. A
+     * trailing root dot is not swallowed, unlike libcurl 8.21.0 and later,
+     * because assertRequestHost() rejects that spelling first.
+     */
+    private static function numericIpv4ToBinary(string $host): ?string
+    {
+        if (!HostValidator::isNumericIpv4Host($host)) {
+            return null;
+        }
+        $values = [];
+        foreach (\explode('.', $host) as $part) {
+            $values[] = self::numericIpv4PartValue($part);
+        }
+        // Every accepted value is a whole number no larger than 0xFFFFFFFF,
+        // which a float holds exactly, so the arithmetic below is correct on a
+        // 32-bit build too, where the widest part overflows an integer.
+        $address = (float) \array_pop($values);
+        $packed = '';
+        foreach ($values as $value) {
+            if ($value > 255.0) {
+                return null;
+            }
+            $packed .= \chr((int) $value);
+        }
+        $width = 4 - \count($values);
+        if ($address >= 256.0 ** $width) {
+            return null;
+        }
+        for ($shift = $width - 1; $shift >= 0; --$shift) {
+            $packed .= \chr((int) \fmod(\floor($address / 256.0 ** $shift), 256.0));
+        }
+        return $packed;
+    }
+    /**
+     * Returns the value of one accepted part as a float, so a part filling
+     * all four octets such as 2130706433 stays exact on every integer width.
+     */
+    private static function numericIpv4PartValue(string $part): float
+    {
+        if ($part[0] === '0' && isset($part[1]) && ($part[1] === 'x' || $part[1] === 'X')) {
+            return (float) \hexdec((string) \substr($part, 2));
+        }
+        if ($part[0] === '0') {
+            return (float) \octdec($part);
+        }
+        return (float) $part;
+    }
+    private function getDefaultContext(RequestInterface $request): array
     {
         $headers = '';
         foreach ($request->getHeaders() as $name => $value) {
-            // The first-class Proxy-Authorization field never enters the
-            // stream context header block: PHP streams have no proxy-only
-            // header channel, so applyProxy() rejects the field when a proxy
-            // is selected and it is omitted on direct and bypassed routes.
+            // A first-class Proxy-Authorization header is proxy-scoped. Keep
+            // it out of the origin context; add_proxy() adds one
+            // validated canonical line only when Guzzle selects a proxy; PHP
+            // extracts that line for CONNECT and removes it before sending the
+            // tunneled origin request. The caselessEquals() helper is
+            // locale-independent, unlike strcasecmp(), so a locale cannot
+            // make this match miss and re-leak the credential.
             if (Psr7\Utils::caselessEquals((string) $name, 'Proxy-Authorization')) {
                 continue;
             }
@@ -860,13 +503,8 @@ final class StreamHandler
                 $headers .= "{$name}: {$val}\r\n";
             }
         }
-        $context = ['http' => ['auto_decode' => \false, 'method' => $request->getMethod(), 'header' => $headers, 'protocol_version' => $request->getProtocolVersion(), 'ignore_errors' => \true, 'follow_location' => 0], 'ssl' => ['peer_name' => $request->getUri()->getHost()]];
-        // An empty context user_agent stops the HTTP stream wrapper from
-        // appending a User-Agent header from the user_agent ini setting, so a
-        // request without the header sends none, like the cURL handlers.
-        if (!$request->hasHeader('User-Agent')) {
-            $context['http']['user_agent'] = '';
-        }
+        $context = ['http' => ['method' => $request->getMethod(), 'header' => $headers, 'protocol_version' => $request->getProtocolVersion(), 'ignore_errors' => \true, 'follow_location' => 0], 'ssl' => ['peer_name' => self::canonicalConnectionHost($request->getUri()->getHost())]];
+        $body = (string) $request->getBody();
         if ('' !== $body) {
             $context['http']['content'] = $body;
             // Prevent the HTTP handler from adding a Content-Type header.
@@ -874,39 +512,19 @@ final class StreamHandler
                 $context['http']['header'] .= "Content-Type:\r\n";
             }
         }
-        $context['http']['header'] = \rtrim($context['http']['header'], "\r\n");
+        $context['http']['header'] = \rtrim($context['http']['header'], " \n\r\t\x00\v");
         return $context;
     }
-    private static function rejectUnsupportedRequestOptions(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array $options
-    ): void
+    private static function triggerUnsupportedRequestOptionDeprecations(RequestInterface $request, array $options): void
     {
-        if (\array_key_exists('curl', $options) && $options['curl'] !== null && $options['curl'] !== []) {
-            throw new InvalidArgumentException('Passing the "curl" request option to the stream handler is not supported because the stream handler ignores cURL options.');
+        if (\array_key_exists('curl', $options) && $options['curl'] !== null && $options['curl'] !== [] && !self::isCurlOptionGeneratedByAuth($options)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/guzzle', '7.11', 'Passing the "curl" request option to the stream handler is deprecated; guzzlehttp/guzzle 8.0 will reject this option because the stream handler ignores cURL options.');
         }
         if (\array_key_exists('expect', $options) && $options['expect'] !== \false && $request->hasHeader('Expect')) {
-            throw new InvalidArgumentException('Passing the "expect" request option to the stream handler is not supported when it adds an Expect header because the stream handler does not support Expect: 100-Continue.');
-        }
-        if (isset($options['on_trailers'])) {
-            throw new InvalidArgumentException('Passing the "on_trailers" request option to the stream handler is not supported because the stream handler cannot observe trailers.');
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/guzzle', '7.11', 'Passing the "expect" request option to the stream handler is deprecated when it adds an Expect header; guzzlehttp/guzzle 8.0 will reject this option because the stream handler does not support Expect: 100-Continue.');
         }
     }
-    private function rejectStreamingWithConnectionCaps(
-        #[\SensitiveParameter]
-        array $options
-    ): void
-    {
-        if ($this->connectionCapsConfigured && !empty($options['stream'])) {
-            throw new InvalidArgumentException('Enabling the "stream" request option on a stream handler configured with the "max_host_connections" or "max_total_connections" option is not supported because streamed connections cannot be capped.');
-        }
-    }
-    private static function rejectConflictingStreamContextOptions(
-        #[\SensitiveParameter]
-        array $streamContext
-    ): void
+    private static function triggerConflictingStreamContextOptionDeprecations(array $streamContext): void
     {
         $conflictingOptions = self::conflictingStreamContextOptions();
         foreach ($streamContext as $wrapper => $contextOptions) {
@@ -917,21 +535,17 @@ final class StreamHandler
                 if (!\is_string($option) || !\array_key_exists($option, $conflictingOptions[$wrapper])) {
                     continue;
                 }
-                $replacement = $conflictingOptions[$wrapper][$option];
-                throw new InvalidArgumentException(\sprintf('Passing stream_context.%s.%s in the "stream_context" request option is not supported because it conflicts with Guzzle-managed request handling. Use %s instead.', Psr7\DiagnosticValue::escape($wrapper), Psr7\DiagnosticValue::escape($option), $replacement));
+                \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/guzzle', '7.12', \sprintf('Passing stream_context.%s.%s in the "stream_context" request option is deprecated; guzzlehttp/guzzle 8.0 will reject this option because it conflicts with Guzzle-managed request handling. Use %s instead.', $wrapper, $option, $conflictingOptions[$wrapper][$option]));
             }
         }
     }
-    private static function rejectUnsupportedStreamContextOptions(
-        #[\SensitiveParameter]
-        array $streamContext
-    ): void
+    private static function triggerUnsupportedStreamContextOptionDeprecations(array $streamContext): void
     {
         $unsupportedOptions = self::unsupportedStreamContextOptions($streamContext);
         if ($unsupportedOptions === []) {
             return;
         }
-        throw new InvalidArgumentException(\sprintf('Passing PHP stream context options outside the built-in stream handler allow-list to the "stream_context" request option is not supported. Unsupported option%s: %s.', \count($unsupportedOptions) === 1 ? '' : 's', \implode(', ', $unsupportedOptions)));
+        \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/guzzle', '7.12', \sprintf('Passing PHP stream context options outside the built-in stream handler allow-list to the "stream_context" request option is deprecated; guzzlehttp/guzzle 8.0 will reject stream context options outside the allow-list. Deprecated option%s: %s.', \count($unsupportedOptions) === 1 ? '' : 's', \implode(', ', $unsupportedOptions)));
     }
     /**
      * @return string[]
@@ -948,15 +562,15 @@ final class StreamHandler
                         if (\is_string($wrapper) && \is_string($option) && isset($conflictingOptions[$wrapper]) && \array_key_exists($option, $conflictingOptions[$wrapper])) {
                             continue;
                         }
-                        $unsupportedOptions[] = \sprintf('stream_context.%s.%s', Psr7\DiagnosticValue::escape((string) $wrapper), Psr7\DiagnosticValue::escape((string) $option));
+                        $unsupportedOptions[] = \sprintf('stream_context.%s.%s', (string) $wrapper, (string) $option);
                     }
                 } else {
-                    $unsupportedOptions[] = \sprintf('stream_context.%s', Psr7\DiagnosticValue::escape((string) $wrapper));
+                    $unsupportedOptions[] = \sprintf('stream_context.%s', (string) $wrapper);
                 }
                 continue;
             }
             if (!\is_array($contextOptions)) {
-                $unsupportedOptions[] = \sprintf('stream_context.%s', Psr7\DiagnosticValue::escape($wrapper));
+                $unsupportedOptions[] = \sprintf('stream_context.%s', $wrapper);
                 continue;
             }
             foreach ($contextOptions as $option => $_) {
@@ -964,7 +578,7 @@ final class StreamHandler
                     continue;
                 }
                 if (!\is_string($option) || !\array_key_exists($option, $supportedOptions[$wrapper])) {
-                    $unsupportedOptions[] = \sprintf('stream_context.%s.%s', Psr7\DiagnosticValue::escape($wrapper), Psr7\DiagnosticValue::escape((string) $option));
+                    $unsupportedOptions[] = \sprintf('stream_context.%s.%s', $wrapper, (string) $option);
                 }
             }
         }
@@ -982,59 +596,64 @@ final class StreamHandler
      */
     private static function conflictingStreamContextOptions(): array
     {
-        return ['http' => ['auto_decode' => 'Guzzle response framing and decoding', 'content' => 'the request body', 'follow_location' => 'the "allow_redirects" request option', 'header' => 'the request headers', 'max_redirects' => 'the "allow_redirects" request option', 'method' => 'the request method', 'protocol_version' => 'the request protocol version', 'proxy' => 'the "proxy" request option', 'timeout' => 'the "timeout" and "read_timeout" request options'], 'ssl' => ['allow_self_signed' => 'the "verify" request option', 'cafile' => 'the "verify" request option', 'capath' => 'the "verify" request option', 'crypto_method' => 'the "crypto_method" request option', 'local_cert' => 'the "cert" request option', 'local_pk' => 'the "ssl_key" request option', 'max_proto_version' => 'the "crypto_method_max" request option', 'min_proto_version' => 'the "crypto_method" request option', 'passphrase' => 'the "cert" or "ssl_key" request option', 'peer_name' => 'the request URI', 'verify_peer' => 'the "verify" request option', 'verify_peer_name' => 'the "verify" request option']];
+        return ['http' => ['content' => 'the request body', 'follow_location' => 'the "allow_redirects" request option', 'header' => 'the request headers', 'max_redirects' => 'the "allow_redirects" request option', 'method' => 'the request method', 'protocol_version' => 'the request protocol version', 'proxy' => 'the "proxy" request option', 'timeout' => 'the "timeout" request option'], 'ssl' => ['allow_self_signed' => 'the "verify" request option', 'cafile' => 'the "verify" request option', 'capath' => 'the "verify" request option', 'crypto_method' => 'the "crypto_method" request option', 'local_cert' => 'the "cert" request option', 'local_pk' => 'the "ssl_key" request option', 'max_proto_version' => 'the "crypto_method_max" request option', 'min_proto_version' => 'the "crypto_method" request option', 'passphrase' => 'the "cert" or "ssl_key" request option', 'peer_name' => 'the request URI', 'verify_peer' => 'the "verify" request option', 'verify_peer_name' => 'the "verify" request option']];
     }
     private function assertTransportSharingSupported(): void
     {
-        if ($this->transportSharingMode === TransportSharing::PERSISTENT_REQUIRE) {
-            throw new InvalidArgumentException('The "transport_sharing" option requires persistent transport sharing, which is only available through cURL share handles.');
-        }
         if ($this->transportSharingMode === TransportSharing::HANDLER_REQUIRE) {
-            throw new InvalidArgumentException('The "transport_sharing" option requires transport sharing, but the stream handler does not support it.');
+            throw new \InvalidArgumentException('The "transport_sharing" option requires transport sharing, but the stream handler does not support it.');
         }
+    }
+    private static function isCurlOptionGeneratedByAuth(array $options): bool
+    {
+        if (!isset($options['curl']) || !\is_array($options['curl']) || !isset($options['auth'][2]) || !\is_string($options['auth'][2])) {
+            return \false;
+        }
+        if (!\defined('CURLOPT_HTTPAUTH') || !\defined('CURLOPT_USERPWD')) {
+            return \false;
+        }
+        $type = Psr7\Utils::asciiToLower($options['auth'][2]);
+        if ($type === 'digest') {
+            $httpAuth = \defined('CURLAUTH_DIGEST') ? \constant('CURLAUTH_DIGEST') : null;
+        } elseif ($type === 'ntlm') {
+            $httpAuth = \defined('CURLAUTH_NTLM') ? \constant('CURLAUTH_NTLM') : null;
+        } else {
+            return \false;
+        }
+        return $httpAuth !== null && \count($options['curl']) === 2 && isset($options['curl'][\CURLOPT_HTTPAUTH], $options['curl'][\CURLOPT_USERPWD]) && $options['curl'][\CURLOPT_HTTPAUTH] === $httpAuth;
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      *
      * @return array{0: string, 1: string|null}
      */
-    private static function normalizeTlsFileOption(
-        string $option,
-        #[\SensitiveParameter]
-        $value
-    ): array
+    private static function normalizeTlsFileOption(string $option, $value): array
     {
         $passphrase = null;
         if (\is_array($value)) {
             if (!isset($value[0]) || !\is_string($value[0])) {
-                throw new InvalidArgumentException(\sprintf('Invalid %s request option', $option));
+                throw new \InvalidArgumentException(\sprintf('Invalid %s request option', $option));
             }
             if (isset($value[1])) {
                 if (!\is_string($value[1])) {
-                    throw new InvalidArgumentException(\sprintf('Invalid %s request option', $option));
+                    throw new \InvalidArgumentException(\sprintf('Invalid %s request option', $option));
                 }
                 $passphrase = $value[1];
             }
             $value = $value[0];
         }
         if (!\is_string($value)) {
-            throw new InvalidArgumentException(\sprintf('Invalid %s request option', $option));
+            throw new \InvalidArgumentException(\sprintf('Invalid %s request option', $option));
         }
         return [$value, $passphrase];
     }
-    private static function setTlsPassphrase(
-        #[\SensitiveParameter]
-        array &$options,
-        #[\SensitiveParameter]
-        ?string $passphrase,
-        string $option
-    ): void
+    private static function setTlsPassphrase(array &$options, ?string $passphrase, string $option): void
     {
         if ($passphrase === null) {
             return;
         }
         if (isset($options['ssl']['passphrase']) && $options['ssl']['passphrase'] !== $passphrase) {
-            throw new InvalidArgumentException(\sprintf('Cannot use different passphrases for cert and ssl_key with the stream handler; %s conflicts with an existing TLS passphrase.', $option));
+            throw new \InvalidArgumentException(\sprintf('Cannot use different passphrases for cert and ssl_key with the stream handler; %s conflicts with an existing TLS passphrase.', $option));
         }
         $options['ssl']['passphrase'] = $passphrase;
     }
@@ -1044,242 +663,198 @@ final class StreamHandler
     private static function assertStreamTlsType(string $option, $value): void
     {
         if (!\is_string($value) || $value === '') {
-            throw new InvalidArgumentException(\sprintf('%s must be a non-empty string', $option));
+            throw new \InvalidArgumentException(\sprintf('%s must be a non-empty string', $option));
         }
         if (Psr7\Utils::asciiToUpper($value) !== 'PEM') {
-            throw new InvalidArgumentException(\sprintf('The stream handler only supports "PEM" for the %s request option.', $option));
+            throw new \InvalidArgumentException(\sprintf('The stream handler only supports "PEM" for the %s request option.', $option));
         }
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyProxy(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array &$context,
-        #[\SensitiveParameter]
-        $value
-    ): void
+    private function add_proxy(RequestInterface $request, array &$options, $value, array &$params): bool
     {
-        $proxy = ProxyEnv::resolveProxySelection($request->getUri(), $value);
-        $proxyUri = $proxy->getProxy();
-        if ($proxyUri === null) {
-            return;
-        }
-        // Validate the whole proxy authority up front (ProxyOptions leans on
-        // Psr7\Rfc3986), so a malformed proxy fails the same way on every
-        // handler. PHP's HTTP stream wrapper can only carry HTTP over a
-        // TCP-family socket, so reject any scheme it can never execute instead
-        // of letting PHP fail with a misleading "unable to find the socket
-        // transport" error. The supported set is a scheme-less value, http, or
-        // a TCP-family transport (tcp://, ssl://, tls://, tlsv1.*) the build has.
-        $scheme = ProxyOptions::proxyScheme($proxyUri);
-        if ($scheme === 'https') {
-            throw new InvalidArgumentException('HTTPS proxies are not supported by the stream handler.');
-        }
-        if (\in_array($scheme, ['socks4', 'socks4a', 'socks5', 'socks5h'], \true)) {
-            throw new InvalidArgumentException('SOCKS proxies are not supported by the stream handler.');
-        }
-        // Only http or a TCP-family raw transport (tcp, ssl, tls, tlsv1.*) can
-        // carry HTTP through the stream wrapper; udp/unix/udg/ftp/ws and typos
-        // cannot on any build, so reject them as a caller error rather than
-        // install an unusable proxy.
-        if ($scheme !== 'http' && !self::isRawTransportName($scheme)) {
-            throw new InvalidArgumentException(\sprintf('The "%s" proxy scheme is not supported by the stream handler.', Psr7\DiagnosticValue::escape($scheme)));
-        }
-        // A recognized SSL/TLS transport may still be absent from this build
-        // (tls:// without OpenSSL, tlsv1.3:// on OpenSSL < 1.1.1); that is
-        // build-specific, so it is a RequestException, distinct from the caller
-        // error above. http maps to tcp and tcp is always registered, so only
-        // the SSL/TLS family reaches the stream_get_transports() lookup.
-        if (!\in_array($scheme, ['http', 'tcp'], \true) && !\in_array($scheme, \stream_get_transports(), \true)) {
-            throw new RequestException(\sprintf('The "%s" proxy transport is not available in this PHP build.', Psr7\DiagnosticValue::escape($scheme)), $request);
-        }
-        $parsed = $this->parseProxy($proxyUri, $scheme);
-        // PHP streams do not expose separate proxy and origin header lists;
-        // the wrapper's CONNECT handling copies one textual match out of a
-        // generic user-header buffer and forwards the rest to the tunneled
-        // origin, so arbitrary first-class Proxy-Authorization values cannot
-        // be routed safely. Fail closed before any stream is created.
-        if ($request->hasHeader('Proxy-Authorization')) {
-            throw new InvalidArgumentException('Proxy-Authorization request headers are not supported through the stream handler; configure credentials in the proxy URI or use a cURL handler.');
-        }
-        $context['http']['proxy'] = $parsed['proxy'];
-        if ($parsed['auth']) {
-            if (!isset($context['http']['header'])) {
-                $context['http']['header'] = '';
+        $uri = null;
+        if (!\is_array($value)) {
+            $uri = $value;
+        } else {
+            $scheme = $request->getUri()->getScheme();
+            if (isset($value[$scheme])) {
+                if (!isset($value['no']) || !Utils::isUriInNoProxy($request->getUri(), $value['no'])) {
+                    $uri = $value[$scheme];
+                }
             }
-            $context['http']['header'] .= "\r\nProxy-Authorization: {$parsed['auth']}";
         }
+        if (!$uri) {
+            return \false;
+        }
+        $parsed = $this->parse_proxy($uri);
+        // PHP extracts and removes only one Proxy-Authorization line for a
+        // CONNECT tunnel. Serialize exactly one validated first-class value;
+        // more than one could leave a credential in the tunneled origin
+        // request. A first-class value, including an empty one, is
+        // authoritative over Basic credentials embedded in the proxy URI.
+        $managed = $request->getHeader('Proxy-Authorization');
+        if (\count($managed) > 1) {
+            throw new \InvalidArgumentException('The stream handler supports exactly one Proxy-Authorization request header value when a proxy is selected.');
+        }
+        if ($managed !== [] && \strpbrk($managed[0], "\r\n") !== \false) {
+            throw new \InvalidArgumentException('Proxy-Authorization request header values must not contain a carriage return or line feed.');
+        }
+        $options['http']['proxy'] = $parsed['proxy'];
+        if (($managed !== [] || $parsed['auth']) && !isset($options['http']['header'])) {
+            $options['http']['header'] = '';
+        }
+        if ($managed !== []) {
+            $options['http']['header'] .= "\r\nProxy-Authorization: {$managed[0]}";
+            return \true;
+        } elseif ($parsed['auth']) {
+            $options['http']['header'] .= "\r\nProxy-Authorization: {$parsed['auth']}";
+            return \true;
+        }
+        return \false;
     }
     /**
-     * Whether the scheme is a TCP-family transport name that can carry HTTP
-     * for a proxy (tcp, ssl, tls, tlsv1.*), regardless of build support.
+     * Parses the given proxy URL to make it compatible with the format PHP's stream context expects.
      */
-    private static function isRawTransportName(string $scheme): bool
+    private function parse_proxy(string $url): array
     {
-        return \in_array($scheme, ['tcp', 'ssl', 'tls'], \true) || \preg_match('/^tlsv\d+(?:\.\d+)?$/D', $scheme) === 1;
-    }
-    /**
-     * Parses the given proxy URL to make it compatible with the format PHP's
-     * stream context expects.
-     */
-    private function parseProxy(string $url, string $scheme): array
-    {
-        // applyProxy() has already validated the scheme, so only an http
-        // proxy needs translating to the tcp:// form the wrapper expects; a
-        // port-less proxy defaults to 1080 to match libcurl's HTTP default.
-        if ($scheme !== 'http') {
-            return ['proxy' => $url, 'auth' => null];
+        $parsed = \parse_url($url);
+        // parse_url() misreads scheme-less proxy authorities like
+        // "user:pass@host"; re-parse only those forms as HTTP.
+        $schemeLessAuthority = \strpos($url, '://') === \false && \strncmp($url, '//', 2) !== 0;
+        if ($schemeLessAuthority) {
+            if (\is_array($parsed) && !isset($parsed['scheme']) && isset($parsed['host'], $parsed['port'])) {
+                $parsed['scheme'] = 'http';
+            } elseif ((!\is_array($parsed) || !isset($parsed['host'])) && (\strpos($url, '@') !== \false || \strncmp($url, '[', 1) === 0)) {
+                $parsed = \parse_url('http://' . $url);
+            }
         }
-        $parsed = \parse_url(\strpos($url, '://') === \false ? 'http://' . $url : $url);
-        if (\is_array($parsed) && isset($parsed['host'])) {
-            $port = $parsed['port'] ?? 1080;
-            $user = $parsed['user'] ?? '';
-            $pass = $parsed['pass'] ?? '';
-            $auth = $user !== '' || $pass !== '' ? 'Basic ' . \base64_encode("{$user}:{$pass}") : null;
-            return ['proxy' => "tcp://{$parsed['host']}:{$port}", 'auth' => $auth];
+        if (\is_array($parsed) && isset($parsed['scheme']) && Psr7\Utils::caselessEquals($parsed['scheme'], 'http')) {
+            if (isset($parsed['host'], $parsed['port'])) {
+                $user = $parsed['user'] ?? '';
+                $pass = $parsed['pass'] ?? '';
+                $auth = $user !== '' || $pass !== '' ? 'Basic ' . \base64_encode("{$user}:{$pass}") : null;
+                return ['proxy' => "tcp://{$parsed['host']}:{$parsed['port']}", 'auth' => $auth];
+            }
         }
+        // Return proxy as-is.
         return ['proxy' => $url, 'auth' => null];
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyCryptoMethodOption(
-        #[\SensitiveParameter]
-        array &$context,
-        $value
-    ): void
+    private function add_timeout(RequestInterface $request, array &$options, $value, array &$params): void
     {
-        $context['ssl']['min_proto_version'] = TlsVersion::streamProtocolVersion('crypto_method', $value);
+        if ($value > 0) {
+            $options['http']['timeout'] = $value;
+        }
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyCryptoMethodMaxOption(
-        #[\SensitiveParameter]
-        array &$context,
-        $value
-    ): void
+    private function add_crypto_method(RequestInterface $request, array &$options, $value, array &$params): void
     {
-        $context['ssl']['max_proto_version'] = TlsVersion::streamProtocolVersion('crypto_method_max', $value);
+        if ($value === \STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT || $value === \STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT || $value === \STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT || defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT') && $value === \STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT) {
+            $options['http']['crypto_method'] = $value;
+            return;
+        }
+        throw new \InvalidArgumentException('Invalid crypto_method request option: unknown version provided');
     }
-    private static function assertTlsVersionRangeForOptions(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        array $options
-    ): void
+    /**
+     * @param mixed $value as passed via Request transfer options.
+     */
+    private function add_crypto_method_max(RequestInterface $request, array &$options, $value, array &$params): void
+    {
+        $options['ssl']['max_proto_version'] = TlsVersion::streamProtocolVersion('crypto_method_max', $value);
+    }
+    private static function assertTlsVersionRangeForOptions(array $options): void
     {
         if (!isset($options['crypto_method_max'])) {
             return;
         }
-        $cryptoMethod = $options['crypto_method'] ?? null;
-        if ($cryptoMethod === null && 'https' === $request->getUri()->getScheme()) {
-            $cryptoMethod = \STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
-        }
-        TlsVersion::assertRange($cryptoMethod, $options['crypto_method_max']);
+        TlsVersion::assertRange($options['crypto_method'] ?? null, $options['crypto_method_max']);
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyVerifyOption(
-        #[\SensitiveParameter]
-        array &$context,
-        $value
-    ): void
+    private function add_verify(RequestInterface $request, array &$options, $value, array &$params): void
     {
         if ($value === \false) {
-            $context['ssl']['verify_peer'] = \false;
-            $context['ssl']['verify_peer_name'] = \false;
+            $options['ssl']['verify_peer'] = \false;
+            $options['ssl']['verify_peer_name'] = \false;
             return;
         }
         if (\is_string($value)) {
-            $context['ssl']['cafile'] = $value;
+            $options['ssl']['cafile'] = $value;
             if (!\file_exists($value)) {
-                throw new \RuntimeException(\sprintf('SSL CA bundle not found: %s', Psr7\DiagnosticValue::escape($value)));
+                throw new \RuntimeException("SSL CA bundle not found: {$value}");
             }
         } elseif ($value !== \true) {
-            throw new InvalidArgumentException('Invalid verify request option');
+            throw new \InvalidArgumentException('Invalid verify request option');
         }
-        $context['ssl']['verify_peer'] = \true;
-        $context['ssl']['verify_peer_name'] = \true;
-        $context['ssl']['allow_self_signed'] = \false;
+        $options['ssl']['verify_peer'] = \true;
+        $options['ssl']['verify_peer_name'] = \true;
+        $options['ssl']['allow_self_signed'] = \false;
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyCertOption(
-        #[\SensitiveParameter]
-        array &$context,
-        #[\SensitiveParameter]
-        $value
-    ): void
+    private function add_cert(RequestInterface $request, array &$options, $value, array &$params): void
     {
         [$value, $passphrase] = self::normalizeTlsFileOption('cert', $value);
         if (!\file_exists($value)) {
-            throw new \RuntimeException(\sprintf('SSL certificate not found: %s', Psr7\DiagnosticValue::escape($value)));
+            throw new \RuntimeException("SSL certificate not found: {$value}");
         }
-        self::setTlsPassphrase($context, $passphrase, 'cert');
-        $context['ssl']['local_cert'] = $value;
+        self::setTlsPassphrase($options, $passphrase, 'cert');
+        $options['ssl']['local_cert'] = $value;
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyCertTypeOption($value): void
+    private function add_cert_type(RequestInterface $request, array &$options, $value, array &$params): void
     {
         self::assertStreamTlsType('cert_type', $value);
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applySslKeyOption(
-        #[\SensitiveParameter]
-        array &$context,
-        #[\SensitiveParameter]
-        $value
-    ): void
+    private function add_ssl_key(RequestInterface $request, array &$options, $value, array &$params): void
     {
         [$value, $passphrase] = self::normalizeTlsFileOption('ssl_key', $value);
         if (!\file_exists($value)) {
-            throw new \RuntimeException(\sprintf('SSL private key not found: %s', Psr7\DiagnosticValue::escape($value)));
+            throw new \RuntimeException("SSL private key not found: {$value}");
         }
-        self::setTlsPassphrase($context, $passphrase, 'ssl_key');
-        $context['ssl']['local_pk'] = $value;
+        self::setTlsPassphrase($options, $passphrase, 'ssl_key');
+        $options['ssl']['local_pk'] = $value;
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applySslKeyTypeOption($value): void
+    private function add_ssl_key_type(RequestInterface $request, array &$options, $value, array &$params): void
     {
         self::assertStreamTlsType('ssl_key_type', $value);
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyProgressOption($value, array &$params): void
+    private function add_progress(RequestInterface $request, array &$options, $value, array &$params): void
     {
         if (!\is_callable($value)) {
-            throw new InvalidArgumentException('progress client option must be callable');
+            throw new \InvalidArgumentException('progress client option must be callable');
         }
-        self::addNotification($params, static function ($code, $a, $b, $c, $transferred, $total) use ($value): void {
+        self::addNotification($params, static function ($code, $a, $b, $c, $transferred, $total) use ($value) {
             if ($code == \STREAM_NOTIFY_PROGRESS) {
                 // The upload progress cannot be determined. Use 0 for cURL compatibility:
                 // https://curl.se/libcurl/c/CURLOPT_PROGRESSFUNCTION.html
-                $value(TransferByteCounter::progressValueToInt($total), TransferByteCounter::progressValueToInt($transferred), 0, 0);
+                $value($total, $transferred, 0, 0);
             }
         });
     }
     /**
      * @param mixed $value as passed via Request transfer options.
      */
-    private function applyDebugOption(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        $value,
-        array &$params
-    ): void
+    private function add_debug(RequestInterface $request, array &$options, $value, array &$params): void
     {
         if ($value === \false) {
             return;
@@ -1307,7 +882,7 @@ final class StreamHandler
     }
     private static function callArray(array $functions): callable
     {
-        return static function (...$args) use ($functions): void {
+        return static function (...$args) use ($functions) {
             foreach ($functions as $fn) {
                 $fn(...$args);
             }

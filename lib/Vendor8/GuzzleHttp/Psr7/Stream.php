@@ -57,7 +57,7 @@ class Stream implements StreamInterface
         $this->seekable = $meta['seekable'];
         $this->readable = (bool) preg_match(self::READABLE_MODES, $meta['mode']);
         $this->writable = (bool) preg_match(self::WRITABLE_MODES, $meta['mode']);
-        $this->uri = $meta['uri'] ?? null;
+        $this->uri = $this->getMetadata('uri');
     }
     /**
      * Closes the stream when the destructed
@@ -166,12 +166,6 @@ class Stream implements StreamInterface
     }
     public function seek($offset, $whence = \SEEK_SET): void
     {
-        if (!\is_int($offset)) {
-            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $offset.', \get_debug_type($offset));
-        }
-        if (!\is_int($whence)) {
-            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $whence.', \get_debug_type($whence));
-        }
         $whence = (int) $whence;
         if (!isset($this->stream)) {
             throw new \RuntimeException('Stream is detached');
@@ -185,9 +179,6 @@ class Stream implements StreamInterface
     }
     public function read($length): string
     {
-        if (!\is_int($length)) {
-            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::read() is deprecated; guzzlehttp/psr7 3.0 requires int for $length.', \get_debug_type($length));
-        }
         if (!isset($this->stream)) {
             throw new \RuntimeException('Stream is detached');
         }
@@ -212,9 +203,6 @@ class Stream implements StreamInterface
     }
     public function write($string): int
     {
-        if (!\is_string($string)) {
-            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::write() is deprecated; guzzlehttp/psr7 3.0 requires string for $string.', \get_debug_type($string));
-        }
         if (!isset($this->stream)) {
             throw new \RuntimeException('Stream is detached');
         }
@@ -234,9 +222,6 @@ class Stream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        if ($key !== null && !\is_string($key)) {
-            \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::getMetadata() is deprecated; guzzlehttp/psr7 3.0 requires string|null for $key.', \get_debug_type($key));
-        }
         if (!isset($this->stream)) {
             return $key ? null : [];
         } elseif (!$key) {

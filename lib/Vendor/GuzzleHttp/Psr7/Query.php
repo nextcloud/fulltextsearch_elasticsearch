@@ -5,16 +5,13 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
 
 final class Query
 {
-    private function __construct()
-    {
-    }
     /**
      * Parse a query string into an associative array.
      *
-     * If multiple values are found for the same key, the value of that
-     * key-value pair becomes an array. This function does not parse nested PHP
-     * style arrays into an associative array. For example, `foo[a]=1&foo[b]=2`
-     * will be parsed into `['foo[a]' => '1', 'foo[b]' => '2']`.
+     * If multiple values are found for the same key, the value of that key
+     * value pair will become an array. This function does not parse nested
+     * PHP style arrays into an associative array (e.g., `foo[a]=1&foo[b]=2`
+     * will be parsed into `['foo[a]' => '1', 'foo[b]' => '2'])`.
      *
      * @param string   $str         Query string to parse
      * @param int|bool $urlEncoding How the query string is encoded
@@ -26,19 +23,15 @@ final class Query
             return $result;
         }
         if ($urlEncoding === \true) {
-            $decoder = function (string $value): string {
-                return \rawurldecode(str_replace('+', ' ', $value));
+            $decoder = function ($value) {
+                return rawurldecode(str_replace('+', ' ', (string) $value));
             };
         } elseif ($urlEncoding === \PHP_QUERY_RFC3986) {
-            $decoder = static function (string $value): string {
-                return \rawurldecode($value);
-            };
+            $decoder = 'rawurldecode';
         } elseif ($urlEncoding === \PHP_QUERY_RFC1738) {
-            $decoder = static function (string $value): string {
-                return \urldecode($value);
-            };
+            $decoder = 'urldecode';
         } else {
-            $decoder = function (string $str): string {
+            $decoder = function ($str) {
                 return $str;
             };
         }
@@ -58,11 +51,11 @@ final class Query
         return $result;
     }
     /**
-     * Build a query string from an array of key-value pairs.
+     * Build a query string from an array of key value pairs.
      *
      * This function can use the return value of `parse()` to build a query
      * string. This function does not modify the provided keys when an array is
-     * encountered, unlike `http_build_query()`.
+     * encountered (like `http_build_query()` would).
      *
      * @param array     $params           Query string parameters.
      * @param int|false $encoding         Set to false to not encode,
@@ -82,32 +75,33 @@ final class Query
                 return $str;
             };
         } elseif ($encoding === \PHP_QUERY_RFC3986) {
-            $encoder = static function (string $value): string {
-                return \rawurlencode($value);
-            };
+            $encoder = 'rawurlencode';
         } elseif ($encoding === \PHP_QUERY_RFC1738) {
-            $encoder = static function (string $value): string {
-                return \urlencode($value);
-            };
+            $encoder = 'urlencode';
         } else {
             throw new \InvalidArgumentException('Invalid type');
         }
+        $castBool = $treatBoolsAsInts ? static function ($v) {
+            return (int) $v;
+        } : static function ($v) {
+            return $v ? 'true' : 'false';
+        };
         $qs = '';
         foreach ($params as $k => $v) {
             $k = $encoder((string) $k);
             if (!is_array($v)) {
                 $qs .= $k;
-                $v = self::normalizeValue($v, $treatBoolsAsInts);
+                $v = is_bool($v) ? $castBool($v) : self::normalizeNonFiniteFloat($v);
                 if ($v !== null) {
-                    $qs .= '=' . $encoder($v);
+                    $qs .= '=' . $encoder((string) $v);
                 }
                 $qs .= '&';
             } else {
                 foreach ($v as $vv) {
                     $qs .= $k;
-                    $vv = self::normalizeValue($vv, $treatBoolsAsInts);
+                    $vv = is_bool($vv) ? $castBool($vv) : self::normalizeNonFiniteFloat($vv);
                     if ($vv !== null) {
-                        $qs .= '=' . $encoder($vv);
+                        $qs .= '=' . $encoder((string) $vv);
                     }
                     $qs .= '&';
                 }
@@ -116,25 +110,19 @@ final class Query
         return $qs ? (string) substr($qs, 0, -1) : '';
     }
     /**
+     * Converts non-finite floats to the strings PHP coerces them to, as
+     * implicit coercion of NAN emits a warning on PHP 8.5.
+     *
      * @param mixed $value
+     *
+     * @return mixed
      */
-    private static function normalizeValue($value, bool $treatBoolsAsInts): ?string
+    private static function normalizeNonFiniteFloat($value)
     {
-        if ($value === null) {
-            return null;
-        }
-        if (is_bool($value)) {
-            return $treatBoolsAsInts ? (string) (int) $value : ($value ? 'true' : 'false');
-        }
         if (is_float($value) && !is_finite($value)) {
-            throw new \InvalidArgumentException('Query string values must be finite; non-finite floats are not supported.');
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.12', 'Passing a non-finite float to Query::build() is deprecated; guzzlehttp/psr7 3.0 rejects non-finite floats.');
+            return is_nan($value) ? 'NAN' : ($value > 0 ? 'INF' : '-INF');
         }
-        if (is_scalar($value)) {
-            return (string) $value;
-        }
-        if (is_object($value) && method_exists($value, '__toString')) {
-            return $value->__toString();
-        }
-        throw new \InvalidArgumentException('Query string values must be scalar, null, or stringable objects');
+        return $value;
     }
 }

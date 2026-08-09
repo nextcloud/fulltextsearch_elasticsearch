@@ -1,10 +1,8 @@
 <?php
 
-declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Handler;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\RequestException;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * Rejects request hosts that a handler could resolve differently from the host
@@ -20,65 +18,114 @@ final class HostValidator
     /**
      * Asserts that a request names one unambiguous network host.
      *
-     * A handler reparses the URI but sends the Host header as given. The URI
-     * host must therefore be printable ASCII, free of percent escapes, a valid
-     * RFC 3986 host, and not numeric-looking parts followed by trailing dots.
-     * Every Host header value must be printable ASCII.
+     * The URI host and every Host header value must use printable ASCII without
+     * percent escapes. The URI host must also exclude authority delimiters and
+     * numeric-looking parts followed by trailing dots. Handlers reparse the URI
+     * but send the Host header as given, so ambiguous spellings can name
+     * different connection and request hosts.
      *
      * @throws RequestException
      */
-    public static function assertRequestHost(
-        #[\SensitiveParameter]
-        RequestInterface $request
-    ): void
+    public static function assertRequestHost(RequestInterface $request): void
     {
-        self::assertUriHost($request->getUri()->getHost(), $request);
+        $host = $request->getUri()->getHost();
+        self::assertUriHostValue($host, $request);
+        self::assertNoAuthorityDelimiter($host, $request);
+        self::assertNotADottedAddress($host, $request);
         foreach ($request->getHeader('Host') as $value) {
-            self::assertPrintableAscii((string) $value, 'The request Host header "%s" must contain only printable ASCII characters, because an intermediary or an origin server can otherwise read it as an authority that differs from the one the request names. An internationalized host name has an A-label form that this rule accepts.', $request);
+            self::assertHostHeaderValue((string) $value, $request);
         }
     }
     /**
-     * Only the URI host is reparsed for the connection. A Host header is sent
-     * verbatim and may carry a port, brackets, and an RFC 6874 zone identifier.
+     * @throws RequestException
+     */
+    private static function assertUriHostValue(string $value, RequestInterface $request): void
+    {
+        if (!self::isPrintableAscii($value)) {
+            throw new RequestException(\sprintf('The request URI host "%s" must contain only printable ASCII characters, because a handler can otherwise connect to a host that differs from the one the request names. An internationalized host name has an A-label form that this rule accepts.', self::escape($value)), $request);
+        }
+        if (\strpos($value, '%') !== \false) {
+            throw new RequestException(\sprintf('The request URI host "%s" must not contain a percent escape, because a handler can decode it and then connect to a host that differs from the one the request names.', self::escape($value)), $request);
+        }
+    }
+    /**
+     * The Host header is sent rather than reparsed for the connection, so its
+     * diagnostics describe a request authority the caller did not write.
      *
      * @throws RequestException
      */
-    private static function assertUriHost(
-        string $host,
-        #[\SensitiveParameter]
-        RequestInterface $request
-    ): void
+    private static function assertHostHeaderValue(string $value, RequestInterface $request): void
     {
-        self::assertPrintableAscii($host, 'The request URI host "%s" must contain only printable ASCII characters, because a handler can otherwise connect to a host that differs from the one the request names. An internationalized host name has an A-label form that this rule accepts.', $request);
-        if (\strpos($host, '%') !== \false) {
-            throw new RequestException(\sprintf('The request URI host "%s" must not contain a percent escape, because a handler decodes it and can then connect to a host that differs from the one the request names.', self::escape($host)), $request);
+        if (!self::isPrintableAscii($value)) {
+            throw new RequestException(\sprintf('The request Host header "%s" must contain only printable ASCII characters, because an intermediary or an origin server can otherwise read it as an authority that differs from the one the request names. An internationalized host name has an A-label form that this rule accepts.', self::escape($value)), $request);
         }
-        // GuzzleHttp\Psr7\Uri already enforces this predicate, so it only
-        // rejects invalid third-party UriInterface values.
-        if (!Psr7\Rfc3986::isValidHost($host)) {
-            throw new RequestException(\sprintf('The request URI host "%s" must be a valid RFC 3986 host, because a handler reparses the URI and can then connect to a host that differs from the one the request names.', self::escape($host)), $request);
-        }
-        // libcurl 8.21.0 drops a trailing dot from inet_aton-style numeric
-        // hosts before connecting, while other readers treat the input as a
-        // name. Test the shape rather than the range so malformed numeric
-        // values fail closed. rtrim() also covers multiple trailing dots if
-        // libcurl later relaxes its current guard. Plain shorthand stays
-        // accepted. HostIdentity uses a broader grammar for cookie matching.
-        //
-        // @see \GuzzleHttp\HostIdentity::canonicalHost()
-        if (\str_ends_with($host, '.') && self::isNumericIpv4Host(\rtrim($host, '.'))) {
-            throw new RequestException(\sprintf('The request URI host "%s" must not be written as one to four decimal, octal or hexadecimal parts followed by one or more trailing dots, because a handler can read that spelling as an IPv4 address and connect to that address while the rest of the process reads a name.', self::escape($host)), $request);
+        if (\strpos($value, '%') !== \false) {
+            throw new RequestException(\sprintf('The request Host header "%s" must not contain a percent escape, because an intermediary or an origin server can decode it and then read it as an authority that differs from the one the request names.', self::escape($value)), $request);
         }
     }
     /**
-     * Reports whether a host has libcurl's inet_aton-style shape: one to four
-     * decimal, 0-prefixed octal, or 0x-prefixed hexadecimal parts.
+     * Matches the accepted shape positively so a PCRE failure rejects.
+     */
+    private static function isPrintableAscii(string $value): bool
+    {
+        return \preg_match('/\A[\x21-\x7E]*\z/D', $value) === 1;
+    }
+    /**
+     * Rejects a delimiter the transport could treat as the end of the URI host.
+     *
+     * This mirrors GuzzleHttp\Psr7\Uri::assertValidHost() and only affects
+     * third-party UriInterface values. Host headers may carry a port and are
+     * sent verbatim.
+     *
+     * @throws RequestException
+     */
+    private static function assertNoAuthorityDelimiter(string $host, RequestInterface $request): void
+    {
+        $message = 'The request URI host "%s" must not contain a URI authority delimiter, because a handler reparses the URI and can then connect to a host that differs from the one the request names.';
+        // Match the accepted shape positively so a PCRE engine failure rejects.
+        if (\preg_match('/\A[^\/?#@\\\\]*\z/D', $host) !== 1) {
+            throw new RequestException(\sprintf($message, self::escape($host)), $request);
+        }
+        if (\strpos($host, '[') !== \false || \strpos($host, ']') !== \false) {
+            if (\strpos($host, '[') !== 0 || \substr($host, -1) !== ']') {
+                throw new RequestException(\sprintf($message, self::escape($host)), $request);
+            }
+            return;
+        }
+        if (\strpos($host, ':') !== \false) {
+            throw new RequestException(\sprintf($message, self::escape($host)), $request);
+        }
+    }
+    /**
+     * Rejects one to four numeric-looking parts followed by trailing dots.
+     *
+     * libcurl 8.21.0 drops a trailing dot from inet_aton-style numeric hosts
+     * before connecting, while other validators treat the input as a name.
+     * Testing the shape also rejects some out-of-range values that transports
+     * keep as names; isNumericIpv4Host() explains that fail-closed tradeoff.
+     * Plain numeric shorthand stays accepted.
+     *
+     * @throws RequestException
+     */
+    private static function assertNotADottedAddress(string $host, RequestInterface $request): void
+    {
+        if (\substr($host, -1) !== '.') {
+            return;
+        }
+        if (!self::isNumericIpv4Host(\rtrim($host, '.'))) {
+            return;
+        }
+        throw new RequestException(\sprintf('The request URI host "%s" must not be written as one to four decimal, octal or hexadecimal parts followed by one or more trailing dots, because a handler can read that spelling as an IPv4 address and connect to that address while the rest of the process reads a name.', self::escape($host)), $request);
+    }
+    /**
+     * Reports whether a value has the transport's inet_aton-style shape: one
+     * to four decimal, 0-prefixed octal, or 0x-prefixed hexadecimal parts.
      *
      * Range and 32-bit overflow checks are deliberately omitted. This may
      * reject a trailing-dot spelling the transport reads as a name, but avoids
-     * missing one it resolves as an address.
+     * missing one it resolves as an address. No PCRE is used.
      */
-    private static function isNumericIpv4Host(string $host): bool
+    public static function isNumericIpv4Host(string $host): bool
     {
         if ($host === '') {
             return \false;
@@ -106,36 +153,16 @@ final class HostValidator
         return \strspn($part, $digits) === \strlen($part);
     }
     /**
-     * @throws RequestException
-     */
-    private static function assertPrintableAscii(
-        string $value,
-        string $message,
-        #[\SensitiveParameter]
-        RequestInterface $request
-    ): void
-    {
-        // Match positively so a PCRE failure rejects.
-        if (\preg_match('/\A[\x21-\x7E]*\z/D', $value) !== 1) {
-            throw new RequestException(\sprintf($message, self::escape($value)), $request);
-        }
-    }
-    /**
      * Escapes non-printable bytes as uppercase \xNN for safe diagnostics.
-     *
-     * Psr7\DiagnosticValue is not used because it preserves valid non-ASCII
-     * UTF-8, including invisible characters rejected here.
+     * Printable delimiters and dots stay visible. The result is not a
+     * reversible encoding.
      */
     private static function escape(string $value): string
     {
         $escaped = '';
         for ($offset = 0, $length = \strlen($value); $offset < $length; ++$offset) {
             $byte = \ord($value[$offset]);
-            if ($byte >= 0x20 && $byte <= 0x7e) {
-                $escaped .= $value[$offset];
-                continue;
-            }
-            $escaped .= \sprintf('\x%02X', $byte);
+            $escaped .= $byte >= 0x21 && $byte <= 0x7e ? $value[$offset] : \sprintf('\x%02X', $byte);
         }
         return $escaped;
     }

@@ -1,57 +1,19 @@
 <?php
 
-declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Handler;
 
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\ProxyOptions;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\ProxySelection;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7;
-use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\UriInterface;
 /**
  * Resolves proxy configuration from the process environment with the same
- * semantics libcurl applies, shared by the built-in handlers: the cURL
- * handlers pin CURLOPT_PROXY and CURLOPT_NOPROXY explicitly so libcurl never
- * reads the environment itself, and the stream handler resolves the same way.
+ * semantics libcurl applies, so the cURL handlers can pin CURLOPT_PROXY and
+ * CURLOPT_NOPROXY explicitly and libcurl never reads the environment itself.
  *
  * @internal
  */
-final class ProxyEnv
+final class ProxyEnvironment
 {
     private function __construct()
     {
-    }
-    /**
-     * Resolves the proxy selection for a request, falling back to the proxy
-     * environment variables when the proxy request option makes no decision.
-     *
-     * The environment no_proxy list is tokenized the way libcurl tokenizes
-     * it and matched here with the same rules as the proxy option's "no"
-     * list, so behavior does not depend on the installed libcurl's matcher.
-     *
-     * @param mixed $proxyOption
-     */
-    public static function resolveProxySelection(
-        UriInterface $uri,
-        #[\SensitiveParameter]
-        $proxyOption
-    ): ProxySelection
-    {
-        $selection = ProxyOptions::resolve($uri, $proxyOption);
-        // Any option decision (proxy, bypassed, or disabled) is final; only
-        // a none() selection leaves room for the environment.
-        if ($selection->hasProxy() || $selection->shouldDisableProxy()) {
-            return $selection;
-        }
-        $envProxy = self::getProxyForScheme($uri->getScheme());
-        if ($envProxy === null) {
-            return $selection;
-        }
-        $noProxy = self::getNoProxy();
-        if ($noProxy !== null && ProxyOptions::isUriInNoProxy($uri, self::splitNoProxy($noProxy))) {
-            return ProxySelection::bypassed();
-        }
-        // $envProxy is never '' (empty env values are treated as unset).
-        return ProxySelection::proxy($envProxy);
     }
     /**
      * Resolves the proxy to use for the given request scheme.
@@ -100,8 +62,9 @@ final class ProxyEnv
     /**
      * Splits a no_proxy environment value into matchable entries.
      *
-     * Entries may be separated by commas or blanks, the way libcurl tokenizes
-     * the value.
+     * Mirrors libcurl's tokenization: entries may be separated by commas or
+     * blanks, and a single leading dot is ignored, so ".example.com" bypasses
+     * example.com and its subdomains exactly as a bare domain entry does.
      *
      * @return string[]
      */
@@ -113,6 +76,9 @@ final class ProxyEnv
             throw new \RuntimeException('Unable to split the no_proxy value: ' . \preg_last_error_msg());
         }
         foreach ($split as $entry) {
+            if ($entry !== '' && $entry[0] === '.') {
+                $entry = \substr($entry, 1);
+            }
             if ($entry !== '') {
                 $entries[] = $entry;
             }
