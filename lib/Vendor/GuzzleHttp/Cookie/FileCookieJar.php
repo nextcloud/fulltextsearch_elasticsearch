@@ -1,32 +1,21 @@
 <?php
 
-declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Cookie;
 
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\NonSerializableTrait;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7\DiagnosticValue;
+use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception\InvalidArgumentException;
 /**
  * Persists non-session cookies using a JSON formatted file
  */
 class FileCookieJar extends CookieJar
 {
-    use NonSerializableTrait;
     /**
      * @var string filename
      */
-    private string $filename;
+    private $filename;
     /**
      * @var bool Control whether to persist session cookies or not.
      */
-    private bool $storeSessionCookies;
-    /**
-     * @var bool Whether to save the cookie jar on destruction.
-     *
-     * Disabled by __wakeup() to prevent FileCookieJar from being used as a
-     * PHP object injection file-write gadget when an application unserializes
-     * attacker-controlled data.
-     */
-    private bool $autoSave = \false;
+    private $storeSessionCookies;
     /**
      * Create a new FileCookieJar object
      *
@@ -34,7 +23,7 @@ class FileCookieJar extends CookieJar
      * @param bool   $storeSessionCookies Set to true to store session cookies
      *                                    in the cookie jar.
      *
-     * @throws \RuntimeException if the file cannot be loaded or is invalid
+     * @throws \RuntimeException if the file cannot be found or created
      */
     public function __construct(string $cookieFile, bool $storeSessionCookies = \false)
     {
@@ -44,36 +33,20 @@ class FileCookieJar extends CookieJar
         if (\file_exists($cookieFile)) {
             $this->load($cookieFile);
         }
-        $this->autoSave = \true;
     }
     /**
      * Saves the file when shutting down
      */
     public function __destruct()
     {
-        if ($this->autoSave) {
-            $this->save($this->filename);
-        }
-    }
-    /**
-     * Disable automatic persistence after unserialization.
-     */
-    public function __wakeup(): void
-    {
-        $this->autoSave = \false;
-    }
-    public function __unserialize(array $data): void
-    {
-        $this->autoSave = \false;
-        throw new \LogicException(static::class . ' should never be unserialized');
+        $this->save($this->filename);
     }
     /**
      * Saves the cookies to a file.
      *
      * @param string $filename File to save
      *
-     * @throws \RuntimeException if the cookie data cannot be encoded or the
-     *                           file cannot be written
+     * @throws \RuntimeException if the file cannot be found or created
      */
     public function save(string $filename): void
     {
@@ -86,60 +59,50 @@ class FileCookieJar extends CookieJar
                 $json[] = $data;
             }
         }
-        try {
-            $jsonStr = \json_encode($json, \JSON_HEX_TAG | \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            throw new \RuntimeException('Unable to encode cookie data', 0, $e);
+        $jsonStr = \json_encode($json);
+        if (\JSON_ERROR_NONE !== \json_last_error()) {
+            throw new InvalidArgumentException('json_encode error: ' . \json_last_error_msg());
         }
+        /** @var non-empty-string $jsonStr */
         if (\false === \file_put_contents($filename, $jsonStr, \LOCK_EX)) {
-            throw new \RuntimeException(\sprintf('Unable to save file %s', DiagnosticValue::escape($filename)));
+            throw new \RuntimeException("Unable to save file {$filename}");
         }
-        // Best-effort: restrict the cookie file to the owner so persisted
-        // cookies are not world-readable.
-        @\chmod($filename, 0600);
     }
     /**
      * Load cookies from a JSON formatted file.
      *
      * Old cookies are kept unless overwritten by newly loaded ones.
-     * Cookie records are constructed before any are passed to setCookie().
      *
      * @param string $filename Cookie file to load.
      *
-     * @throws \RuntimeException if the file cannot be loaded or is invalid
+     * @throws \RuntimeException if the file cannot be loaded.
      */
     public function load(string $filename): void
     {
         $json = \file_get_contents($filename);
         if (\false === $json) {
-            throw new \RuntimeException(\sprintf('Unable to load file %s', DiagnosticValue::escape($filename)));
+            throw new \RuntimeException("Unable to load file {$filename}");
         }
         if ($json === '') {
             return;
         }
-        $message = \sprintf('Invalid cookie file: %s', DiagnosticValue::escape($filename));
-        try {
-            $data = \json_decode($json, \true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            throw new \RuntimeException($message, 0, $e);
+        $data = \json_decode($json, \true);
+        if (\JSON_ERROR_NONE !== \json_last_error()) {
+            throw new InvalidArgumentException('json_decode error: ' . \json_last_error_msg());
         }
-        // Associative decoding turns JSON objects into arrays, so inspect the root syntax too.
-        if (!\is_array($data) || \substr($json, \strspn($json, " \t\n\r"), 1) !== '[') {
-            throw new \RuntimeException($message);
-        }
-        $cookies = [];
-        foreach ($data as $cookie) {
-            if (!\is_array($cookie) || !\array_key_exists('HostOnly', $cookie) || !\is_bool($cookie['HostOnly'])) {
-                throw new \RuntimeException($message);
-            }
-            try {
+        if (\is_array($data)) {
+            $cookies = [];
+            foreach ($data as $cookie) {
+                if (!\is_array($cookie) || !\array_key_exists('HostOnly', $cookie) || !\is_bool($cookie['HostOnly'])) {
+                    throw new \RuntimeException("Invalid cookie file: {$filename}");
+                }
                 $cookies[] = new SetCookie($cookie);
-            } catch (\InvalidArgumentException $e) {
-                throw new \RuntimeException($message, 0, $e);
             }
-        }
-        foreach ($cookies as $cookie) {
-            $this->setCookie($cookie);
+            foreach ($cookies as $cookie) {
+                $this->setCookie($cookie);
+            }
+        } elseif (\is_scalar($data) && !empty($data)) {
+            throw new \RuntimeException("Invalid cookie file: {$filename}");
         }
     }
 }

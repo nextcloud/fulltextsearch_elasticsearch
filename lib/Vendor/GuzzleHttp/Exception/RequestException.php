@@ -1,65 +1,114 @@
 <?php
 
-declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception;
 
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\BodySummarizer;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\BodySummarizerInterface;
-use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7\DiagnosticValue;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Client\RequestExceptionInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
 /**
- * Base exception for request failures associated with a request.
+ * HTTP Request exception
  */
 class RequestException extends TransferException implements RequestExceptionInterface
 {
-    public function __construct(string $message, RequestInterface $request, int $code = 0, ?\Throwable $previous = null)
+    /**
+     * @var RequestInterface
+     */
+    private $request;
+    /**
+     * @var ResponseInterface|null
+     */
+    private $response;
+    /**
+     * @var array
+     */
+    private $handlerContext;
+    public function __construct(string $message, RequestInterface $request, ?ResponseInterface $response = null, ?\Throwable $previous = null, array $handlerContext = [])
     {
-        parent::__construct($message, $request, $code, $previous);
+        // Set the code of the exception if the response is set and not future.
+        $code = $response ? $response->getStatusCode() : 0;
+        parent::__construct($message, $code, $previous);
+        $this->request = $request;
+        $this->response = $response;
+        $this->handlerContext = $handlerContext;
+    }
+    /**
+     * Wrap non-RequestExceptions with a RequestException
+     *
+     * @deprecated since 7.11. Create a RequestException directly instead.
+     */
+    public static function wrapException(RequestInterface $request, \Throwable $e): RequestException
+    {
+        \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/guzzle', '7.11', '%s::wrapException() is deprecated and will be removed in 8.0. Create a %s directly instead.', self::class, self::class);
+        return $e instanceof RequestException ? $e : new RequestException($e->getMessage(), $request, null, $e);
     }
     /**
      * Factory method to create a new exception with a normalized error message
      *
      * @param RequestInterface             $request        Request sent
-     * @param ResponseInterface|null       $response       Response received, if any
+     * @param ResponseInterface            $response       Response received
      * @param \Throwable|null              $previous       Previous exception
+     * @param array                        $handlerContext Optional handler context
      * @param BodySummarizerInterface|null $bodySummarizer Optional body summarizer
      */
-    public static function create(
-        #[\SensitiveParameter]
-        RequestInterface $request,
-        #[\SensitiveParameter]
-        ?ResponseInterface $response = null,
-        #[\SensitiveParameter]
-        ?\Throwable $previous = null,
-        ?BodySummarizerInterface $bodySummarizer = null
-    ): self
+    public static function create(RequestInterface $request, ?ResponseInterface $response = null, ?\Throwable $previous = null, array $handlerContext = [], ?BodySummarizerInterface $bodySummarizer = null): self
     {
         if (!$response) {
-            return new self('Error completing request', $request, 0, $previous);
+            return new self('Error completing request', $request, null, $previous, $handlerContext);
         }
         $level = (int) \floor($response->getStatusCode() / 100);
         if ($level === 4) {
             $label = 'Client error';
+            $className = ClientException::class;
         } elseif ($level === 5) {
             $label = 'Server error';
+            $className = ServerException::class;
         } else {
             $label = 'Unsuccessful request';
+            $className = __CLASS__;
         }
         $uri = \OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7\Utils::redactUserInfo($request->getUri());
-        // Client error: `GET /` resulted in a `404 Not Found` response: <html> ... (truncated)
-        $message = \sprintf('%s: `%s %s` resulted in a `%s %s` response', $label, DiagnosticValue::escape($request->getMethod()), DiagnosticValue::escape($uri->__toString()), $response->getStatusCode(), DiagnosticValue::escape($response->getReasonPhrase()));
+        // Client Error: `GET /` resulted in a `404 Not Found` response:
+        // <html> ... (truncated)
+        $message = \sprintf('%s: `%s %s` resulted in a `%s %s` response', $label, $request->getMethod(), $uri->__toString(), $response->getStatusCode(), $response->getReasonPhrase());
         $summary = ($bodySummarizer ?? new BodySummarizer())->summarize($response);
         if ($summary !== null) {
-            $message .= \sprintf(': %s', DiagnosticValue::escape($summary));
+            $message .= ":\n{$summary}\n";
         }
-        if ($level === 4) {
-            return new ClientException($message, $request, $response, $previous);
-        }
-        if ($level === 5) {
-            return new ServerException($message, $request, $response, $previous);
-        }
-        return new ResponseException($message, $request, $response, $previous);
+        return new $className($message, $request, $response, $previous, $handlerContext);
+    }
+    /**
+     * Get the request that caused the exception
+     */
+    public function getRequest(): RequestInterface
+    {
+        return $this->request;
+    }
+    /**
+     * Get the associated response
+     */
+    public function getResponse(): ?ResponseInterface
+    {
+        return $this->response;
+    }
+    /**
+     * Check if a response was received
+     */
+    public function hasResponse(): bool
+    {
+        return $this->response !== null;
+    }
+    /**
+     * Get contextual information about the error from the underlying handler.
+     *
+     * The contents of this array will vary depending on which handler you are
+     * using. It may also be just an empty array. Relying on this data will
+     * couple you to a specific handler, but can give more debug information
+     * when needed.
+     */
+    public function getHandlerContext(): array
+    {
+        return $this->handlerContext;
     }
 }

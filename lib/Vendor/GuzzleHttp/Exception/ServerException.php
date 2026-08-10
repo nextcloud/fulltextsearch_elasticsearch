@@ -1,10 +1,9 @@
 <?php
 
-declare (strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Exception;
 
 /**
- * Exception thrown for HTTP responses with 5xx status codes.
+ * Exception when a server error is encountered (5xx codes)
  */
 class ServerException extends BadResponseException
 {

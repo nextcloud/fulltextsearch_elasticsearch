@@ -20,7 +20,7 @@ final class Header
         foreach ((array) $header as $value) {
             foreach (self::splitList($value) as $val) {
                 $part = [];
-                foreach (self::splitParameters($val) as $kvp) {
+                foreach (preg_split('/;(?=([^"]*"[^"]*")*[^"]*$)/', $val) ?: [] as $kvp) {
                     if (preg_match_all('/<[^>]+>|[^=]+/', $kvp, $matches)) {
                         $m = $matches[0];
                         if (isset($m[1])) {
@@ -38,39 +38,6 @@ final class Header
         return $params;
     }
     /**
-     * Split a header value into semicolon-separated parameters.
-     *
-     * @return string[]
-     */
-    private static function splitParameters(string $value): array
-    {
-        $values = [];
-        $start = 0;
-        $isQuoted = \false;
-        $isEscaped = \false;
-        for ($i = 0, $max = \strlen($value); $i < $max; ++$i) {
-            $char = $value[$i];
-            if ($isEscaped) {
-                $isEscaped = \false;
-                continue;
-            }
-            if ($isQuoted && $char === '\\') {
-                $isEscaped = \true;
-                continue;
-            }
-            if ($char === '"') {
-                $isQuoted = !$isQuoted;
-                continue;
-            }
-            if (!$isQuoted && $char === ';') {
-                $values[] = \substr($value, $start, $i - $start);
-                $start = $i + 1;
-            }
-        }
-        $values[] = \substr($value, $start);
-        return $values;
-    }
-    /**
      * Converts an array of header values that may contain comma separated
      * headers into an array of headers with no comma separated values.
      *
@@ -80,7 +47,6 @@ final class Header
      */
     public static function normalize($header): array
     {
-        \OCA\FullTextSearch_Elasticsearch\Vendor8\trigger_deprecation('guzzlehttp/psr7', '2.3', 'Header::normalize() is deprecated and will be removed in guzzlehttp/psr7 3.0. Use Header::splitList() instead.');
         $result = [];
         foreach ((array) $header as $value) {
             foreach (self::splitList($value) as $parsed) {
@@ -122,7 +88,7 @@ final class Header
                     continue;
                 }
                 if (!$isQuoted && $value[$i] === ',') {
-                    $v = \trim($v, " \n\r\t\x00\v");
+                    $v = \trim($v);
                     if ($v !== '') {
                         $result[] = $v;
                     }
@@ -141,7 +107,7 @@ final class Header
                 }
                 $v .= $value[$i];
             }
-            $v = \trim($v, " \n\r\t\x00\v");
+            $v = \trim($v);
             if ($v !== '') {
                 $result[] = $v;
             }

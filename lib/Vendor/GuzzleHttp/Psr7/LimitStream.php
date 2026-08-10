@@ -10,12 +10,12 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\StreamInterface;
 final class LimitStream implements StreamInterface
 {
     use StreamDecoratorTrait;
-    use NonSerializableStreamTrait;
     /** @var int Offset to start reading from */
-    private int $offset;
+    private $offset;
     /** @var int Limit the number of bytes that can be read */
-    private int $limit;
-    private StreamInterface $stream;
+    private $limit;
+    /** @var StreamInterface */
+    private $stream;
     /**
      * @param StreamInterface $stream Stream to wrap
      * @param int             $limit  Total number of bytes to allow to be read
@@ -39,7 +39,7 @@ final class LimitStream implements StreamInterface
         if ($this->limit === -1) {
             return \false;
         }
-        return $this->stream->tell() >= Integers::add($this->offset, $this->limit);
+        return $this->stream->tell() >= $this->offset + $this->limit;
     }
     /**
      * Returns the size of the limited subset of data
@@ -58,16 +58,21 @@ final class LimitStream implements StreamInterface
     /**
      * Allow for a bounded seek on the read limited stream
      */
-    public function seek(int $offset, int $whence = \SEEK_SET): void
+    public function seek($offset, $whence = \SEEK_SET): void
     {
+        if (!\is_int($offset)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $offset.', \get_debug_type($offset));
+        }
+        if (!\is_int($whence)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::seek() is deprecated; guzzlehttp/psr7 3.0 requires int for $whence.', \get_debug_type($whence));
+        }
         if ($whence !== \SEEK_SET || $offset < 0) {
             throw new \RuntimeException(sprintf('Cannot seek to offset %s with whence %s', $offset, $whence));
         }
-        $offset = Integers::add($this->offset, $offset);
+        $offset += $this->offset;
         if ($this->limit !== -1) {
-            $upperBound = Integers::add($this->offset, $this->limit);
-            if ($offset > $upperBound) {
-                $offset = $upperBound;
+            if ($offset > $this->offset + $this->limit) {
+                $offset = $this->offset + $this->limit;
             }
         }
         $this->stream->seek($offset);
@@ -88,35 +93,16 @@ final class LimitStream implements StreamInterface
      */
     public function setOffset(int $offset): void
     {
-        $offset = Integers::assertNonNegativeInteger($offset, 'Offset');
         $current = $this->stream->tell();
-        if ($current === $offset) {
-            $this->offset = $offset;
-            return;
-        }
-        // If the stream cannot seek to the offset position, then read to it.
-        if ($this->stream->isSeekable()) {
-            $this->stream->seek($offset);
-            $this->offset = $offset;
-            return;
-        }
-        if ($current > $offset) {
-            throw new \RuntimeException("Could not seek to stream offset {$offset}");
-        }
-        while ($current < $offset) {
-            if ($this->stream->eof()) {
-                $this->offset = $current;
-                return;
-            }
-            $result = $this->stream->read($offset - $current);
-            if ($result === '') {
-                if ($this->stream->eof()) {
-                    $this->offset = $current;
-                    return;
-                }
+        if ($current !== $offset) {
+            // If the stream cannot seek to the offset position, then read to it
+            if ($this->stream->isSeekable()) {
+                $this->stream->seek($offset);
+            } elseif ($current > $offset) {
                 throw new \RuntimeException("Could not seek to stream offset {$offset}");
+            } else {
+                $this->stream->read($offset - $current);
             }
-            $current = Integers::add($current, strlen($result));
         }
         $this->offset = $offset;
     }
@@ -129,19 +115,19 @@ final class LimitStream implements StreamInterface
      */
     public function setLimit(int $limit): void
     {
-        $this->limit = Integers::assertLimitInteger($limit, 'Limit');
+        $this->limit = $limit;
     }
-    public function read(int $length): string
+    public function read($length): string
     {
-        if ($length < 0) {
-            throw new \RuntimeException('Length parameter cannot be negative');
+        if (!\is_int($length)) {
+            \OCA\FullTextSearch_Elasticsearch\Vendor\trigger_deprecation('guzzlehttp/psr7', '2.11', 'Passing %s to StreamInterface::read() is deprecated; guzzlehttp/psr7 3.0 requires int for $length.', \get_debug_type($length));
         }
         if ($this->limit === -1) {
             return $this->stream->read($length);
         }
         // Check if the current position is less than the total allowed
         // bytes + original offset
-        $remaining = Integers::add($this->offset, $this->limit) - $this->stream->tell();
+        $remaining = $this->offset + $this->limit - $this->stream->tell();
         if ($remaining > 0) {
             // Only return the amount of requested data, ensuring that the byte
             // limit is not exceeded
