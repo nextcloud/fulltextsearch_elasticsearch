@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -7,7 +8,6 @@ declare(strict_types=1);
  */
 
 namespace OCA\FullTextSearch_Elasticsearch\Service;
-
 
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\QueryContentGenerationException;
@@ -18,7 +18,6 @@ use OCP\FullTextSearch\Model\ISearchRequest;
 use OCP\FullTextSearch\Model\ISearchRequestSimpleQuery;
 use stdClass;
 
-
 /**
  * Class SearchMappingService
  *
@@ -26,12 +25,10 @@ use stdClass;
  */
 class SearchMappingService {
 
-	public function __construct
-	(
-		private ConfigService $configService
+	public function __construct(
+		private ConfigService $configService,
 	) {
 	}
-
 
 	/**
 	 * @param ISearchRequest $request
@@ -45,13 +42,12 @@ class SearchMappingService {
 	public function generateSearchQuery(
 		ISearchRequest $request,
 		IDocumentAccess $access,
-		string $providerId
+		string $providerId,
 	): array {
 		$query['params'] = $this->generateSearchQueryParams($request, $access, $providerId);
 
 		return $query;
 	}
-
 
 	/**
 	 * @param ISearchRequest $request
@@ -65,7 +61,7 @@ class SearchMappingService {
 	public function generateSearchQueryParams(
 		ISearchRequest $request,
 		IDocumentAccess $access,
-		string $providerId
+		string $providerId,
 	): array {
 		$params = [
 			'index' => $this->configService->getElasticIndex(),
@@ -81,16 +77,16 @@ class SearchMappingService {
 
 		$bool['filter'][]['bool']['must'] = ['term' => ['provider' => $providerId]];
 		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryAccess($access);
-		$bool['filter'][]['bool']['should'] =
-			$this->generateSearchQueryTags('metatags', $request->getMetaTags());
+		$bool['filter'][]['bool']['should']
+			= $this->generateSearchQueryTags('metatags', $request->getMetaTags());
 
-		$bool['filter'][]['bool']['must'] =
-			$this->generateSearchQueryTags('subtags', $request->getSubTags(true));
+		$bool['filter'][]['bool']['must']
+			= $this->generateSearchQueryTags('subtags', $request->getSubTags(true));
 
-		$bool['filter'][]['bool']['must'] =
-			$this->generateSearchSimpleQuery($request->getSimpleQueries());
+		$bool['filter'][]['bool']['must']
+			= $this->generateSearchSimpleQuery($request->getSimpleQueries());
 
-//		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
+		//		$bool['filter'][]['bool']['should'] = $this->generateSearchQueryTags($request->getTags());
 
 		$this->generateSearchSince($bool, (int)$request->getOption('since'));
 
@@ -102,36 +98,33 @@ class SearchMappingService {
 		return $params;
 	}
 
-
 	/**
 	 * @param ISearchRequest $request
 	 * @param array $arr
 	 */
 	private function improveSearchQuerying(ISearchRequest $request, array &$arr): void {
-//		$this->improveSearchWildcardQueries($request, $arr);
+		//		$this->improveSearchWildcardQueries($request, $arr);
 		$this->improveSearchWildcardFilters($request, $arr);
 		$this->improveSearchRegexFilters($request, $arr);
 	}
 
-
-//	/**
-//	 * @param SearchRequest $request
-//	 * @param array $arr
-//	 */
-//	private function improveSearchWildcardQueries(SearchRequest $request, &$arr) {
-//
-//		$queries = $request->getWildcardQueries();
-//		foreach ($queries as $query) {
-//			$wildcards = [];
-//			foreach ($query as $entry) {
-//				$wildcards[] = ['wildcard' => $entry];
-//			}
-//
-//			array_push($arr['bool']['must']['bool']['should'], $wildcards);
-//		}
-//
-//	}
-
+	//	/**
+	//	 * @param SearchRequest $request
+	//	 * @param array $arr
+	//	 */
+	//	private function improveSearchWildcardQueries(SearchRequest $request, &$arr) {
+	//
+	//		$queries = $request->getWildcardQueries();
+	//		foreach ($queries as $query) {
+	//			$wildcards = [];
+	//			foreach ($query as $entry) {
+	//				$wildcards[] = ['wildcard' => $entry];
+	//			}
+	//
+	//			array_push($arr['bool']['must']['bool']['should'], $wildcards);
+	//		}
+	//
+	//	}
 
 	/**
 	 * @param ISearchRequest $request
@@ -149,7 +142,6 @@ class SearchMappingService {
 		}
 	}
 
-
 	/**
 	 * @param ISearchRequest $request
 	 * @param array $arr
@@ -165,7 +157,6 @@ class SearchMappingService {
 			$arr['bool']['filter'][]['bool']['should'] = $regex;
 		}
 	}
-
 
 	/**
 	 * @param ISearchRequest $request
@@ -193,7 +184,6 @@ class SearchMappingService {
 		return $this->generateSearchQueryFromQueryContent($request, $queryContent);
 	}
 
-
 	/**
 	 * @param string $word
 	 *
@@ -209,7 +199,6 @@ class SearchMappingService {
 		return $searchQueryContent;
 	}
 
-
 	/**
 	 * @param ISearchRequest $request
 	 * @param QueryContent[] $contents
@@ -224,8 +213,8 @@ class SearchMappingService {
 			}
 
 			if ($content->getShould() === 'must') {
-				$query[$content->getShould()][] =
-					['bool' => ['should' => $this->generateQueryContentFields($request, $content)]];
+				$query[$content->getShould()][]
+					= ['bool' => ['should' => $this->generateQueryContentFields($request, $content)]];
 			} else {
 				$query[$content->getShould()] = array_merge(
 					$query[$content->getShould()], $this->generateQueryContentFields($request, $content)
@@ -235,7 +224,6 @@ class SearchMappingService {
 
 		return $query;
 	}
-
 
 	/**
 	 * @param ISearchRequest $request
@@ -278,7 +266,6 @@ class SearchMappingService {
 		return $queryFields;
 	}
 
-
 	/**
 	 * @param IDocumentAccess $access
 	 *
@@ -301,7 +288,6 @@ class SearchMappingService {
 		return $query;
 	}
 
-
 	/**
 	 * @param ISearchRequest $request
 	 * @param string $field
@@ -320,7 +306,6 @@ class SearchMappingService {
 
 		return true;
 	}
-
 
 	/**
 	 * @param string $k
@@ -347,7 +332,6 @@ class SearchMappingService {
 
 		$bool['filter'][]['bool']['must'] = $query;
 	}
-
 
 	/**
 	 * @param ISearchRequestSimpleQuery[] $queries
@@ -399,7 +383,6 @@ class SearchMappingService {
 		return $simpleQuery;
 	}
 
-
 	/**
 	 * @param ISearchRequest $request
 	 *
@@ -420,7 +403,6 @@ class SearchMappingService {
 		];
 	}
 
-
 	/**
 	 * @param string $providerId
 	 * @param string $documentId
@@ -435,7 +417,6 @@ class SearchMappingService {
 		];
 	}
 
-
 	/**
 	 * @param ISearchRequest $request
 	 *
@@ -449,4 +430,3 @@ class SearchMappingService {
 		);
 	}
 }
-

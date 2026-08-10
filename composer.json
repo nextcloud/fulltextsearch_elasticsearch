@@ -28,12 +28,13 @@
     }
   },
   "scripts": {
-    "cs:check": "./vendor-bin/csfixer/vendor/bin/php-cs-fixer fix --dry-run --diff",
-    "cs:fix": "./vendor-bin/csfixer/vendor/bin/php-cs-fixer fix",
+    "cs:check": "php-cs-fixer fix --dry-run --diff",
+    "cs:fix": "php-cs-fixer fix",
     "psalm": "./vendor-bin/psalm/vendor/bin/psalm --threads=1",
     "psalm:update-baseline": "./vendor-bin/psalm/vendor/bin/psalm --threads=1 --update-baseline",
     "psalm:clear": "./vendor-bin/psalm/vendor/bin/psalm --clear-cache && psalm --clear-global-cache",
     "psalm:fix": "./vendor-bin/psalm/vendor/bin/psalm --alter --issues=InvalidReturnType,InvalidNullableReturnType,MissingParamType,InvalidFalsableReturnType",
+	"phpstan": "phpstan analyse -c phpstan.neon",
     "test": [
       "@test:unit"
     ],

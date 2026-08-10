@@ -11,7 +11,6 @@ namespace OCA\FullTextSearch_Elasticsearch\Command;
 
 use Exception;
 use OC\Core\Command\Base;
-use OCA\CloudFederationAPI\Config;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Configure extends Base {
 
 	public function __construct(
-		private ConfigService $configService
+		private ConfigService $configService,
 	) {
 		parent::__construct();
 	}
@@ -28,8 +27,8 @@ class Configure extends Base {
 	protected function configure() {
 		parent::configure();
 		$this->setName('fulltextsearch_elasticsearch:configure')
-			 ->addArgument('json', InputArgument::OPTIONAL, 'set config')
-			 ->setDescription('Configure the installation');
+			->addArgument('json', InputArgument::OPTIONAL, 'set config')
+			->setDescription('Configure the installation');
 	}
 
 	/**
@@ -41,11 +40,10 @@ class Configure extends Base {
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		if ($input->getArgument('json')) {
-			$this->configService->setConfig(json_decode($input->getArgument('json') ?? '', true) ?? []);
+			$this->configService->setConfig(json_decode($input->getArgument('json'), true));
 		}
 
 		$output->writeln(json_encode($this->configService->getConfig(), JSON_PRETTY_PRINT));
 		return self::SUCCESS;
 	}
 }
-

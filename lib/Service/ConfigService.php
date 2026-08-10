@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -8,13 +9,9 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
-
-use OCA\FullTextSearch_Elasticsearch\AppInfo\Application;
 use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
 use OCP\AppFramework\Services\IAppConfig;
-use OCP\IConfig;
-
 
 /**
  * Class ConfigService
@@ -23,11 +20,13 @@ use OCP\IConfig;
  */
 class ConfigService {
 	public function __construct(
-		private readonly IConfig $config,
 		private readonly IAppConfig $appConfig,
 	) {
 	}
 
+	/**
+	 * @return array<string, bool|int|string>
+	 */
 	public function getConfig(): array {
 		return [
 			ConfigLexicon::FIELDS_LIMIT => $this->appConfig->getAppValueInt(ConfigLexicon::FIELDS_LIMIT),
@@ -40,8 +39,8 @@ class ConfigService {
 	}
 
 	public function setConfig(array $save): void {
-		foreach(array_keys($save) as $k) {
-			switch($k) {
+		foreach (array_keys($save) as $k) {
+			switch ($k) {
 				case ConfigLexicon::FIELDS_LIMIT:
 					$this->appConfig->setAppValueInt($k, $save[$k]);
 					break;
@@ -73,4 +72,3 @@ class ConfigService {
 		return true;
 	}
 }
-
