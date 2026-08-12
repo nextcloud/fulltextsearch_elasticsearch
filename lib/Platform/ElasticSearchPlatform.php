@@ -389,25 +389,28 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	private function connectToElastic(array $hosts): void {
 		$hosts = array_map([$this, 'cleanHost'], $hosts);
-        if ($this->downgradingES) {
-            $cb = ClientBuilder8::create();
-        } else {
-            $cb = ClientBuilder::create();
-        }
+		if ($this->downgradingES) {
+			$cb = ClientBuilder8::create();
+		} else {
+			$cb = ClientBuilder::create();
+		}
 
-        $cb->setHosts($hosts)
-            ->setRetries(3);
+		$cb->setHosts($hosts)
+			->setRetries(3);
 
-        if ($this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED)) {
+		if ($this->appConfig->getAppValueBool(ConfigLexicon::ELASTIC_LOGGER_ENABLED)) {
 			$cb->setLogger($this->logger);
 		}
 
-		$cb->setSSLVerification(!$this->appConfig->getAppValueBool(ConfigLexicon::ALLOW_SELF_SIGNED_CERT));
-        $cb->setCABundle($this->certificateManager->getAbsoluteBundlePath());
+		$allowSelfSignedCert = $this->appConfig->getAppValueBool(ConfigLexicon::ALLOW_SELF_SIGNED_CERT);
+		$cb->setSSLVerification(!$allowSelfSignedCert);
+		if (!$allowSelfSignedCert) {
+			$cb->setCABundle($this->certificateManager->getAbsoluteBundlePath());
+		}
 		$this->configureAuthentication($cb, $hosts);
 
 		$this->client = $cb->build();
-        $this->confirmESVersion();
+		$this->confirmESVersion();
 	}
 
     /**
