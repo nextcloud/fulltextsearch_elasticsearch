@@ -8,7 +8,7 @@
     "classmap-authoritative": true,
     "autoloader-suffix": "FullTextSearch_Elasticsearch",
     "platform": {
-      "php": "8.2"
+      "php": "8.3"
     },
     "sort-packages": true,
     "allow-plugins": {
