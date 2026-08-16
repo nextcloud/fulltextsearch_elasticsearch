@@ -40,7 +40,7 @@ class Esql extends AbstractEndpoint
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
-     *     body: string|array<mixed>, // (REQUIRED) Use the `query` element to start a query. Use `columnar` to format the answer.. If body is a string must be a valid JSON.
+     *     body: string|array<mixed>, // (REQUIRED) Use the `query` element to start a query. Use `columnar` to format the answer. Use the `settings` object to supply per-query settings (e.g. `time_zone`) — the request-body equivalent of in-query `SET`.. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
@@ -166,6 +166,41 @@ class Esql extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
+     * Delete a non-materialized VIEW for ESQL.
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-esql-view-delete
+     * @group serverless
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     name: string, // (REQUIRED) The name of the view to delete
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function deleteView(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name'], $params);
+        $url = '/_query/view/' . $this->encode($params['name']);
+        $method = 'DELETE';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'esql.delete_view');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Get a specific running ES|QL query information
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-esql-get-query
@@ -201,6 +236,44 @@ class Esql extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
+     * Get a non-materialized VIEW for ESQL.
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-esql-view-get
+     * @group serverless
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     name?: string|array<string>, // A comma-separated list of view names
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     * } $params
+     *
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function getView(?array $params = null)
+    {
+        $params = $params ?? [];
+        if (isset($params['name'])) {
+            $url = '/_query/view/' . $this->encode($this->convertValue($params['name']));
+            $method = 'GET';
+        } else {
+            $url = '/_query/view';
+            $method = 'GET';
+        }
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'esql.get_view');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Get running ES|QL queries information
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-esql-list-queries
@@ -233,6 +306,42 @@ class Esql extends AbstractEndpoint
         return $this->client->sendRequest($request);
     }
     /**
+     * Creates a non-materialized VIEW for ESQL.
+     *
+     * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-esql-view-put
+     * @group serverless
+     * @internal This API is EXPERIMENTAL and may be changed or removed completely in a future release
+     *
+     * @param array{
+     *     name: string, // (REQUIRED) The name of the view to create or update
+     *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
+     *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
+     *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
+     *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+     *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
+     *     body: string|array<mixed>, // (REQUIRED) Use the `query` element to define the ES|QL query to use as a non-materialized VIEW.. If body is a string must be a valid JSON.
+     * } $params
+     *
+     * @throws MissingParameterException if a required parameter is missing
+     * @throws NoNodeAvailableException if all the hosts are offline
+     * @throws ClientResponseException if the status code of response is 4xx
+     * @throws ServerResponseException if the status code of response is 5xx
+     *
+     * @return Elasticsearch|Promise
+     */
+    public function putView(?array $params = null)
+    {
+        $params = $params ?? [];
+        $this->checkRequiredParameters(['name', 'body'], $params);
+        $url = '/_query/view/' . $this->encode($params['name']);
+        $method = 'PUT';
+        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
+        $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
+        $request = $this->addOtelAttributes($params, ['name'], $request, 'esql.put_view');
+        return $this->client->sendRequest($request);
+    }
+    /**
      * Run an ES|QL query
      *
      * @link https://www.elastic.co/docs/explore-analyze/query-filter/languages/esql-rest
@@ -248,7 +357,7 @@ class Esql extends AbstractEndpoint
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
      *     source?: string, // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
      *     filter_path?: string|array<string>, // A comma-separated list of filters used to reduce the response.
-     *     body: string|array<mixed>, // (REQUIRED) Use the `query` element to start a query. Use `columnar` to format the answer.. If body is a string must be a valid JSON.
+     *     body: string|array<mixed>, // (REQUIRED) Use the `query` element to start a query. Use `columnar` to format the answer. Use the `settings` object to supply per-query settings (e.g. `time_zone`) — the request-body equivalent of in-query `SET`.. If body is a string must be a valid JSON.
      * } $params
      *
      * @throws NoNodeAvailableException if all the hosts are offline
