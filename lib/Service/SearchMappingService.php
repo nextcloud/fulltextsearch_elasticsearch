@@ -369,6 +369,19 @@ class SearchMappingService {
 				$simpleQuery[] = ['wildcard' => [$query->getField() => $value]];
 			}
 
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_REGEX) {
+				$value = $query->getValues()[0];
+				$simpleQuery[] = ['regexp' => [$query->getField() => $value]];
+			}
+
+			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_ARRAY) {
+				$value = $query->getValues()[0];
+				if (!is_array($value)) {
+					$value = $query->getValues();
+				}
+				$simpleQuery[] = ['terms' => [$query->getField() => $value]];
+			}
+
 			if ($query->getType() === ISearchRequestSimpleQuery::COMPARE_TYPE_INT_EQ) {
 				$value = $query->getValues()[0];
 				$simpleQuery[] = ['term' => [$query->getField() => $value]];
@@ -449,4 +462,3 @@ class SearchMappingService {
 		);
 	}
 }
-
