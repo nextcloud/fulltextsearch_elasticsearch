@@ -10,7 +10,7 @@ namespace OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Promise;
  * immediately and ignore other callbacks.
  *
  * @template TValue = mixed
- * @template TReason = mixed
+ * @template TReason = never
  *
  * @implements PromiseInterface<TValue, TReason>
  *

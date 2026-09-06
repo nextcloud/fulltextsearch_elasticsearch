@@ -77,6 +77,7 @@ class Tasks extends AbstractEndpoint
      *     task_id: string, // (REQUIRED) Return the task with specified id (node_id:task_number)
      *     wait_for_completion?: bool, // If `true`, the request blocks until the task has completed.
      *     timeout?: int|string, // The period to wait for a response. If no response is received before the timeout expires, the request fails and returns an error. (DEFAULT: 30s)
+     *     follow_relocations?: bool, // Internal use only (DEFAULT: 1)
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -97,7 +98,7 @@ class Tasks extends AbstractEndpoint
         $this->checkRequiredParameters(['task_id'], $params);
         $url = '/_tasks/' . $this->encode($params['task_id']);
         $method = 'GET';
-        $url = $this->addQueryString($url, $params, ['wait_for_completion', 'timeout', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['wait_for_completion', 'timeout', 'follow_relocations', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['task_id'], $request, 'tasks.get');
