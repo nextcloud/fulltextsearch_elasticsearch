@@ -18,7 +18,7 @@ final class Create
      *
      * @param TValue|TPromise $value Promise or value.
      *
-     * @return ($value is PromiseInterface ? TPromise : FulfilledPromise<TValue, mixed>)
+     * @return ($value is PromiseInterface ? TPromise : FulfilledPromise<TValue, never>)
      */
     public static function promiseFor($value): PromiseInterface
     {
@@ -40,7 +40,7 @@ final class Create
      * promise for plain reasons.
      *
      * @template TReason
-     * @template TValue = mixed
+     * @template TValue = never
      * @template TPromise of PromiseInterface<mixed, mixed> = PromiseInterface<mixed, mixed>
      *
      * @param TReason|TPromise $reason Promise or reason.
