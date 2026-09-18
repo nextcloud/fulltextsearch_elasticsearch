@@ -496,6 +496,7 @@ class Security extends AbstractEndpoint
      * Create a service account token
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-security-create-service-token
+     * @group serverless
      *
      * @param array{
      *     namespace: string, // (REQUIRED) An identifier for the namespace
@@ -673,6 +674,7 @@ class Security extends AbstractEndpoint
      * Delete service account tokens
      *
      * @link https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-security-delete-service-token
+     * @group serverless
      *
      * @param array{
      *     namespace: string, // (REQUIRED) An identifier for the namespace
@@ -1053,6 +1055,7 @@ class Security extends AbstractEndpoint
      *
      * @param array{
      *     name?: string|array<string>, // A comma-separated list of role names
+     *     include_implicit?: bool, // If `true`, include privileges that are implicitly granted by registered `ImplicitPrivilegesProviders` alongside the explicitly configured privileges. Each implicit entry in the response is annotated with `implicitly_granted: true`.
      *     pretty?: bool, // Pretty format the returned JSON response. (DEFAULT: false)
      *     human?: bool, // Return human readable values for statistics. (DEFAULT: true)
      *     error_trace?: bool, // Include the stack trace of returned errors. (DEFAULT: false)
@@ -1076,7 +1079,7 @@ class Security extends AbstractEndpoint
             $url = '/_security/role';
             $method = 'GET';
         }
-        $url = $this->addQueryString($url, $params, ['pretty', 'human', 'error_trace', 'source', 'filter_path']);
+        $url = $this->addQueryString($url, $params, ['include_implicit', 'pretty', 'human', 'error_trace', 'source', 'filter_path']);
         $headers = ['Accept' => 'application/json'];
         $request = $this->createRequest($method, $url, $headers, $params['body'] ?? null);
         $request = $this->addOtelAttributes($params, ['name'], $request, 'security.get_role');
