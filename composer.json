@@ -39,7 +39,7 @@
       "@test:unit"
     ],
     "test:unit": "./vendor-bin/phpunit/vendor/bin/phpunit -c tests/unit/phpunit.xml",
-    "lint": "find . -name \\*.php -not -path './vendor/*' -not -path './vendor-bin/*' -not -path './lib/Vendor/*'  -print0 | xargs -0 -n1 php -l",
+    "lint": "find . -name \\*.php -not -path './vendor/*' -not -path './vendor-bin/*' -not -path './es8/vendor/*' -not -path './es8/vendor-bin/*' -not -path './lib/Vendor*/*' -not -path './tests/stubs/*' -print0 | xargs -0 -n1 php -l",
     "post-install-cmd": [
       "@composer bin all install --ignore-platform-reqs",
       "@php vendor/bin/php-scoper add-prefix --force",

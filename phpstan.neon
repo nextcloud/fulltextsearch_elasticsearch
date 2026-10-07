@@ -3,8 +3,8 @@
 parameters:
 	level: 4
 	phpVersion:
-		min: 80100
-		max: 80400
+		min: 80300
+		max: 80500
 	paths:
 		- lib
 		- templates
