@@ -12,6 +12,7 @@ use OCP\Config\Lexicon\Entry;
 use OCP\Config\Lexicon\ILexicon;
 use OCP\Config\Lexicon\Strictness;
 use OCP\Config\ValueType;
+use OCP\IAppConfig;
 
 /**
  * Config Lexicon for fulltextsearch_elasticsearch.
@@ -33,7 +34,7 @@ class ConfigLexicon implements ILexicon {
 	public function getAppConfigs(): array {
 		return [
 			new Entry(key: self::FIELDS_LIMIT, type: ValueType::INT, defaultRaw: 10000, definition: 'Maximum number of fields in the index map', lazy: true),
-			new Entry(key: self::ELASTIC_HOST, type: ValueType::STRING, defaultRaw: '', definition: 'Address of the elasticsearch', lazy: true),
+			new Entry(key: self::ELASTIC_HOST, type: ValueType::STRING, defaultRaw: '', definition: 'Address of the elasticsearch', lazy: true, flags: IAppConfig::FLAG_SENSITIVE),
 			new Entry(key: self::ELASTIC_INDEX, type: ValueType::STRING, defaultRaw: '', definition: 'Name of the index on elasticsearch', lazy: true),
 			new Entry(key: self::ELASTIC_LOGGER_ENABLED, type: ValueType::BOOL, defaultRaw: false, definition: 'Allow 3rd-party elasticsearch-php to write in nextcloud.log', lazy: true, note: 'Be aware that if your nextcloud log level is set to DEBUG (0), clear version of the credentials used to the remote elasticsearch could end up in your logs'),
 			new Entry(key: self::ANALYZER_TOKENIZER, type: ValueType::STRING, defaultRaw: 'standard', definition: 'used analyzer tokenizer', lazy: true),
