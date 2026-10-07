@@ -6,6 +6,10 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+if (PHP_SAPI !== 'cli') {
+	exit(1);
+}
+
 $sourceDirectory = $argv[1];
 $sourceDirectory = rtrim($sourceDirectory, '/') . '/';
 
