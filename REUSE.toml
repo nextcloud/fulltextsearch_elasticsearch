@@ -12,7 +12,7 @@ SPDX-FileCopyrightText = "2018 Nextcloud translators"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
 
 [[annotations]]
-path = ["composer.json", "composer.lock", "es8/composer.json", "es8/composer.lock"]
+path = ["composer.json", "composer.lock", "es8/composer.json", "es8/composer.lock", "vendor-bin/*/composer.json", "vendor-bin/*/composer.lock"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2017 Nextcloud GmbH and Nextcloud contributors"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
@@ -207,4 +207,28 @@ SPDX-License-Identifier = "MIT"
 path = ["vendor-bin/php-scoper/vendor/webmozart/assert/**", "es8/vendor-bin/php-scoper/vendor/webmozart/assert/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2014 Bernhard Schussek"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["tests/stubs/oc_**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2018 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["tests/stubs/doctrine_dbal_**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "none"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["tests/stubs/symfony_component_**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "none"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["tests/stubs/stecman_component_**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "none"
 SPDX-License-Identifier = "MIT"

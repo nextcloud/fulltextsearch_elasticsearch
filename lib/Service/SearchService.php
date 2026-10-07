@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -8,7 +9,12 @@ declare(strict_types=1);
 
 namespace OCA\FullTextSearch_Elasticsearch\Service;
 
-
+use Exception;
+use OC\FullTextSearch\Model\DocumentAccess;
+use OC\FullTextSearch\Model\IndexDocument;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\Exceptions\SearchQueryGenerationException;
+use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Client;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\ClientResponseException;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Elastic\Elasticsearch\Exception\MissingParameterException;
@@ -17,17 +23,10 @@ use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Client as Cli
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ClientResponseException as ClientResponseException8;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\MissingParameterException as MissingParameterException8;
 use OCA\FullTextSearch_Elasticsearch\Vendor8\Elastic\Elasticsearch\Exception\ServerResponseException as ServerResponseException8;
-use Exception;
-use OC\FullTextSearch\Model\DocumentAccess;
-use OC\FullTextSearch\Model\IndexDocument;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
-use OCA\FullTextSearch_Elasticsearch\Exceptions\SearchQueryGenerationException;
-use OCA\FullTextSearch_Elasticsearch\Tools\Traits\TArrayTools;
 use OCP\FullTextSearch\Model\IDocumentAccess;
 use OCP\FullTextSearch\Model\IIndexDocument;
 use OCP\FullTextSearch\Model\ISearchResult;
 use Psr\Log\LoggerInterface;
-
 
 /**
  * Class SearchService
@@ -39,7 +38,7 @@ class SearchService {
 
 	public function __construct(
 		private SearchMappingService $searchMappingService,
-		private LoggerInterface $logger
+		private LoggerInterface $logger,
 	) {
 	}
 
@@ -53,13 +52,13 @@ class SearchService {
 	public function searchRequest(
 		Client|Client8 $client,
 		ISearchResult $searchResult,
-		IDocumentAccess $access
+		IDocumentAccess $access,
 	): void {
 		try {
 			$this->logger->debug('New search request', ['searchResult' => $searchResult]);
 			$query = $this->searchMappingService->generateSearchQuery(
 				$searchResult->getRequest(), $access, $searchResult->getProvider()
-																   ->getId()
+					->getId()
 			);
 		} catch (SearchQueryGenerationException $e) {
 			return;
@@ -90,7 +89,6 @@ class SearchService {
 		$this->logger->debug('Search Result', ['searchResult' => $searchResult]);
 	}
 
-
 	/**
 	 * @param Client|Client8 $client
 	 * @param string $providerId
@@ -105,7 +103,7 @@ class SearchService {
 	public function getDocument(
 		Client|Client8 $client,
 		string $providerId,
-		string $documentId
+		string $documentId,
 	): IIndexDocument {
 		$query = $this->searchMappingService->getDocumentQuery($providerId, $documentId);
 		$result = $client->get($query);
@@ -121,7 +119,7 @@ class SearchService {
 		$index->setMetaTags($result['_source']['metatags']);
 		$index->setSubTags($result['_source']['subtags']);
 		$index->setTags($result['_source']['tags']);
-//		$index->setMore($result['_source']['more']);
+		//		$index->setMore($result['_source']['more']);
 		$index->setHash($result['_source']['hash']);
 		$index->setModifiedTime($result['_source']['lastModified'] ?? 0);
 		$index->setSource($result['_source']['source']);
@@ -135,7 +133,6 @@ class SearchService {
 
 		return $index;
 	}
-
 
 	/**
 	 * @param IndexDocument $index
@@ -167,7 +164,6 @@ class SearchService {
 		}
 	}
 
-
 	/**
 	 * @param ISearchResult $searchResult
 	 * @param array $result
@@ -186,7 +182,6 @@ class SearchService {
 		$searchResult->setTimedOut($result['timed_out']);
 	}
 
-
 	/**
 	 * @param array $entry
 	 * @param string $viewerId
@@ -197,7 +192,7 @@ class SearchService {
 		$access = new DocumentAccess();
 		$access->setViewerId($viewerId);
 
-		list($providerId, $documentId) = explode(':', $entry['_id'], 2);
+		[$providerId, $documentId] = explode(':', $entry['_id'], 2);
 		$document = new IndexDocument($providerId, $documentId);
 		$document->setAccess($access);
 		$document->setHash($this->get('hash', $entry['_source']));
@@ -215,13 +210,12 @@ class SearchService {
 		return $document;
 	}
 
-
 	private function parseSearchEntryExcerpts(array $highlights): array {
 		$result = [];
 		foreach (array_keys($highlights) as $source) {
 			foreach ($highlights[$source] as $highlight) {
-				$result[] =
-					[
+				$result[]
+					= [
 						'source' => $source,
 						'excerpt' => $highlight
 					];
@@ -231,4 +225,3 @@ class SearchService {
 		return $result;
 	}
 }
-
