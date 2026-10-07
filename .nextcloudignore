@@ -51,4 +51,4 @@
 vendor-bin/php-scoper/vendor/
 es8/vendor-bin/php-scoper/vendor
 lib-vendor-organizer.php
-
+scoper.inc.php

@@ -9,6 +9,10 @@ declare(strict_types=1);
 
 use Isolated\Symfony\Component\Finder\Finder;
 
+if (PHP_SAPI !== 'cli') {
+	exit(1);
+}
+
 // based on Arthur Schiwon blogpost:
 // https://arthur-schiwon.de/isolating-nextcloud-app-dependencies-php-scoper
 
