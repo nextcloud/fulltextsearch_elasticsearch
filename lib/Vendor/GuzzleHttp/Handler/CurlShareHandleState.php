@@ -75,6 +75,16 @@ final class CurlShareHandleState
         }
         throw new InvalidArgumentException(\sprintf('The "transport_sharing" %s option cannot require sharing with a custom "handle_factory" because Guzzle cannot ensure that the custom factory applies CURLOPT_SHARE.', $handlerName));
     }
+    /**
+     * Whether cURL can share both the DNS and SSL session cache state that
+     * required handler-lifetime sharing needs, checked without configuring a
+     * share handle so default handler selection can fall back to the stream
+     * handler instead.
+     */
+    public static function supportsHandlerRequireShare(): bool
+    {
+        return CurlVersion::supportsHandlerSharing() && CurlVersion::supportsSslSessionSharing() && \function_exists('curl_share_init') && \function_exists('curl_share_setopt') && \defined('CURLOPT_SHARE') && \defined('CURLSHOPT_SHARE') && \defined('CURL_LOCK_DATA_DNS') && \defined('CURL_LOCK_DATA_SSL_SESSION');
+    }
     private static function createHandlerShareOrNull(string $mode): ?self
     {
         try {
@@ -137,7 +147,7 @@ final class CurlShareHandleState
     }
     private static function supportsPersistentShare(): bool
     {
-        return CurlVersion::supportsConnectionSharing() && CurlVersion::supportsSslSessionSharing() && \function_exists('OCA\FullTextSearch_Elasticsearch\Vendor\curl_share_init_persistent') && \class_exists('OCA\FullTextSearch_Elasticsearch\Vendor\CurlSharePersistentHandle') && \defined('CURL_LOCK_DATA_DNS') && \defined('CURL_LOCK_DATA_CONNECT') && \defined('CURL_LOCK_DATA_SSL_SESSION');
+        return CurlVersion::supportsConnectionSharing() && CurlVersion::supportsSslSessionSharing() && \function_exists('curl_share_init_persistent') && \class_exists('CurlSharePersistentHandle') && \defined('CURL_LOCK_DATA_DNS') && \defined('CURL_LOCK_DATA_CONNECT') && \defined('CURL_LOCK_DATA_SSL_SESSION');
     }
     /**
      * @return int[]

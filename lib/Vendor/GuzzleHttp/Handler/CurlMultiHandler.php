@@ -168,16 +168,16 @@ final class CurlMultiHandler
             $this->options[\CURLMOPT_PIPELINING] = 0;
         }
         $connectionCapOption = self::firstConnectionCapOption($options);
-        if ($connectionCapOption !== null) {
+        if ($connectionCapOption !== null && !CurlVersion::supportsSharedPoolConnectionCaps()) {
             $persistentShareState = $transportSharing instanceof CurlShareHandleState && \in_array($sharingMode, [TransportSharing::PERSISTENT_PREFER, TransportSharing::PERSISTENT_REQUIRE], \true);
             if ($persistentShareState || $sharingMode === TransportSharing::PERSISTENT_REQUIRE) {
-                throw new InvalidArgumentException(\sprintf('%s cannot be combined with persistent transport sharing because libcurl does not reliably apply connection caps to shared connection pools.', $connectionCapOption));
+                throw new InvalidArgumentException(\sprintf('%s cannot be combined with persistent transport sharing because applying connection caps to shared connection pools requires libcurl %s or higher.', $connectionCapOption, CurlVersion::SHARED_POOL_CONNECTION_CAP_VERSION));
             }
             if ($sharingMode === TransportSharing::PERSISTENT_PREFER) {
-                // libcurl does not apply cURL multi connection caps to
-                // transfers using a shared connection pool, so the best
-                // honorable offer for preferred persistent sharing is a
-                // handler-lifetime share.
+                // libcurl below 8.22.0 does not apply cURL multi connection
+                // caps to transfers using a shared connection pool (curl
+                // #22265), so the best honorable offer for preferred persistent
+                // sharing is a handler-lifetime share.
                 $transportSharing = TransportSharing::HANDLER_PREFER;
                 $sharingMode = TransportSharing::HANDLER_PREFER;
             }
@@ -244,7 +244,7 @@ final class CurlMultiHandler
             P\Utils::queue()->run();
             // Never null: assigned below before any wait can invoke this.
             /** @var Promise<ResponseInterface, mixed> $promise */
-            if (!P\Is::pending($promise)) {
+            if ($easy->deferredSettled || !P\Is::pending($promise)) {
                 return;
             }
             // Neither path guarantees the transfer settled, and returning
@@ -1070,7 +1070,10 @@ final class CurlMultiHandler
     /**
      * @param resource|\CurlHandle $handle
      */
-    private function clearEasyHandleCallbacks($handle): void
+    private function clearEasyHandleCallbacks(
+        #[\SensitiveParameter]
+        $handle
+    ): void
     {
         curl_setopt($handle, \CURLOPT_HEADERFUNCTION, null);
         curl_setopt($handle, \CURLOPT_READFUNCTION, null);
@@ -1079,6 +1082,9 @@ final class CurlMultiHandler
         if (\defined('CURLOPT_PREREQFUNCTION')) {
             curl_setopt($handle, (int) \constant('CURLOPT_PREREQFUNCTION'), null);
         }
+        if (\defined('CURLOPT_SEEKFUNCTION')) {
+            curl_setopt($handle, (int) \constant('CURLOPT_SEEKFUNCTION'), null);
+        }
         if (\defined('CURLOPT_XFERINFOFUNCTION')) {
             curl_setopt($handle, (int) \constant('CURLOPT_XFERINFOFUNCTION'), null);
         }
@@ -1086,7 +1092,11 @@ final class CurlMultiHandler
     /**
      * @param resource|\CurlHandle $handle
      */
-    private function removeHandleFromMulti(int $id, $handle): void
+    private function removeHandleFromMulti(
+        int $id,
+        #[\SensitiveParameter]
+        $handle
+    ): void
     {
         // Removing a still-running transfer performs a final progress update
         // that can run a user progress callback, so removal is guarded like
@@ -1241,11 +1251,13 @@ final class CurlMultiHandler
                     $result = CurlFactory::finish($this, $entry['easy'], $this->factory);
                 } catch (\Throwable $e) {
                     if (P\Is::pending($entry['deferred'])) {
+                        $entry['easy']->deferredSettled = \true;
                         $entry['deferred']->reject($e);
                     }
                     continue;
                 }
                 if (P\Is::pending($entry['deferred'])) {
+                    $entry['easy']->deferredSettled = \true;
                     $entry['deferred']->resolve($result);
                 }
             }
