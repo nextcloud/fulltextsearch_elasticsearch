@@ -208,7 +208,9 @@ final class ProxyOptions
      *
      * This method will strip a port from the host if it is present. Domain
      * patterns are matched case-insensitively. Exact IP literal patterns are
-     * matched by their normalized binary address.
+     * matched by their normalized binary address, and a host or pattern
+     * written in the inet_aton() shorthand a transport reads as an address,
+     * such as 127.1 or 0x7f000001, is matched as that address.
      *
      * Areas are matched in the following cases:
      * 1. "*" (without quotes) always matches any hosts.
@@ -329,7 +331,7 @@ final class ProxyOptions
             }
             $host = $address;
         }
-        $packedIp = self::packIpAddress($host);
+        $packedIp = self::packHostAddress($host);
         if ($packedIp !== \false) {
             return ['type' => 'ip', 'value' => $packedIp, 'port' => $port];
         }
@@ -366,7 +368,7 @@ final class ProxyOptions
             $port = self::parseNoProxyPort(\substr($tail, 1));
             return $port === null ? null : [$host, $port];
         }
-        if (self::packIpAddress($area) !== \false) {
+        if (self::packHostAddress($area) !== \false) {
             return [$area, null];
         }
         $colon = \strrpos($area, ':');
@@ -407,6 +409,9 @@ final class ProxyOptions
         if ($network !== '' && $network[0] === '[' && \substr($network, -1) === ']') {
             $network = \substr($network, 1, -1);
         }
+        // A bare rule denotes a host identity, but a CIDR rule uses network
+        // configuration syntax, so the inet_aton() shorthand is not read as
+        // a network: 127/8 would name 0.0.0.127/8 rather than 127.0.0.0/8.
         $network = self::packIpAddress($network);
         if ($network === \false) {
             return null;
@@ -468,10 +473,24 @@ final class ProxyOptions
      */
     private static function packIpAddress(string $ip)
     {
-        if (!\filter_var($ip, \FILTER_VALIDATE_IP)) {
-            return \false;
+        if (\filter_var($ip, \FILTER_VALIDATE_IP)) {
+            return \inet_pton($ip);
         }
-        return \inet_pton($ip);
+        return \false;
+    }
+    /**
+     * @return string|false
+     */
+    private static function packHostAddress(string $host)
+    {
+        $packed = self::packIpAddress($host);
+        if ($packed !== \false) {
+            return $packed;
+        }
+        // A transport reads the inet_aton() shorthand as an address too, so a
+        // rule and a request host that name one address have to match
+        // whichever spelling each of them happens to use.
+        return HostIdentity::numericIpv4ToBinary($host) ?? \false;
     }
     private static function ipMatchesPrefix(string $address, string $network, int $prefix): bool
     {

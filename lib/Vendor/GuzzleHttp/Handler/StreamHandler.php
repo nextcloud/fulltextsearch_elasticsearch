@@ -25,6 +25,7 @@ use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\RequestOptions;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\TransferStats;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\TransportSharing;
 use OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Utils;
+use Openssl\Session;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\RequestInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseFactoryInterface;
 use OCA\FullTextSearch_Elasticsearch\Vendor\Psr\Http\Message\ResponseInterface;
@@ -38,9 +39,23 @@ final class StreamHandler
 {
     use NonSerializableTrait;
     private const KNOWN_CONSTRUCTOR_OPTIONS = ['max_host_connections' => \true, 'max_total_connections' => \true, 'transport_sharing' => \true];
+    /**
+     * Peers tracked by the TLS session cache, matching libcurl's share handle
+     * TLS session cache (25 peers, up to 2 sessions each).
+     */
+    private const TLS_SESSION_CACHE_MAX_KEYS = 25;
     private const CONNECTION_ERRORS = ['php_network_getaddresses:', 'getaddrinfo', 'gethostbyname failed', 'Unable to connect to', 'Connection refused', 'No connection could be made because the target machine actively refused it', 'connection attempt failed', 'connect() failed', 'Network is unreachable', 'No route to host', 'Host is unreachable', 'Host is down', 'Cannot connect to HTTPS server through proxy', 'Failed to enable crypto'];
     private const CONNECT_TIMEOUT_ERRORS = ['Connection timed out', 'Operation timed out', 'SSL: Handshake timed out', 'did not properly respond after a period of time'];
     private const NETWORK_ERRORS = ['SSL: Connection reset by peer', 'SSL: Broken pipe', 'unexpected eof while reading'];
+    // PHP's HTTP wrapper can collapse wrapper-level errors to OpenFailed.
+    // These codes classify only errors delivered directly to the context
+    // handler. NetworkRecvFailed is omitted because PHP currently emits it for
+    // handshake-time certificate policy failures.
+    private const STRUCTURED_NETWORK_ERROR_CODES = ['NetworkSendFailed'];
+    // SslNotSupported can be emitted directly by a transport that cannot
+    // enable crypto. Standard ext-openssl proxy failures are normally
+    // collapsed to OpenFailed and continue to use message classification.
+    private const STRUCTURED_CONNECTION_ERROR_CODES = ['SslNotSupported'];
     /**
      * Default idle timeout in milliseconds when the "read_timeout" option is
      * not set. Matches PHP's default_socket_timeout default, which the
@@ -52,6 +67,7 @@ final class StreamHandler
     private ?\Throwable $onStatsException = null;
     private string $transportSharingMode;
     private bool $connectionCapsConfigured = \false;
+    private ?StreamTlsSessionCache $sessionCache = null;
     /**
      * Accepts an associative array of options:
      *
@@ -154,17 +170,7 @@ final class StreamHandler
             }
             if (!$e instanceof TransferException) {
                 $message = $e->getMessage();
-                if (self::isSendError($message)) {
-                    $e = self::isConnectTimeoutError($message) ? new NetworkTimeoutException($message, $request, $e) : new NetworkException($message, $request, $e);
-                } elseif (self::isConnectTimeoutError($message)) {
-                    $e = new ConnectTimeoutException($message, $request, $e);
-                } elseif (self::isConnectionError($message)) {
-                    $e = new ConnectException($message, $request, $e);
-                } elseif (self::isNetworkError($message)) {
-                    $e = new NetworkException($message, $request, $e);
-                } else {
-                    $e = new RequestException($message, $request, 0, $e);
-                }
+                $e = self::createStreamFailureException($message, $request, $e, []);
             }
             $this->invokeStats($options, $request, $startTime, null, $e);
             /** @var PromiseInterface<ResponseInterface, mixed> */
@@ -207,6 +213,48 @@ final class StreamHandler
         foreach (self::NETWORK_ERRORS as $networkError) {
             if (Psr7\Utils::caselessContains($message, $networkError)) {
                 return \true;
+            }
+        }
+        return \false;
+    }
+    /**
+     * @param string[] $streamErrorCodes
+     */
+    private static function createStreamFailureException(
+        #[\SensitiveParameter]
+        string $message,
+        #[\SensitiveParameter]
+        RequestInterface $request,
+        #[\SensitiveParameter]
+        \Exception $previous,
+        array $streamErrorCodes
+    ): TransferException
+    {
+        if (self::isSendError($message) || self::hasStreamErrorCode($streamErrorCodes, self::STRUCTURED_NETWORK_ERROR_CODES)) {
+            return self::isConnectTimeoutError($message) ? new NetworkTimeoutException($message, $request, $previous) : new NetworkException($message, $request, $previous);
+        }
+        if (self::isConnectTimeoutError($message)) {
+            return new ConnectTimeoutException($message, $request, $previous);
+        }
+        if (self::hasStreamErrorCode($streamErrorCodes, self::STRUCTURED_CONNECTION_ERROR_CODES) || self::isConnectionError($message)) {
+            return new ConnectException($message, $request, $previous);
+        }
+        if (self::isNetworkError($message)) {
+            return new NetworkException($message, $request, $previous);
+        }
+        return new RequestException($message, $request, 0, $previous);
+    }
+    /**
+     * @param string[] $streamErrorCodes
+     * @param string[] $codes
+     */
+    private static function hasStreamErrorCode(array $streamErrorCodes, array $codes): bool
+    {
+        foreach ($streamErrorCodes as $streamErrorCode) {
+            foreach ($codes as $code) {
+                if ($streamErrorCode === $code) {
+                    return \true;
+                }
             }
         }
         return \false;
@@ -632,7 +680,11 @@ final class StreamHandler
      *
      * @throws \RuntimeException when the callback returns false or resource creation emits an error.
      */
-    private function createResource(callable $callback)
+    private function createResource(
+        callable $callback,
+        #[\SensitiveParameter]
+        ?UriInterface $diagnosticUri = null
+    )
     {
         $errors = [];
         \set_error_handler(static function (int $_, string $msg, string $file, int $line) use (&$errors): bool {
@@ -648,7 +700,8 @@ final class StreamHandler
             $details = [];
             foreach ($errors as $err) {
                 foreach ($err as $key => $value) {
-                    $details[] = \sprintf('[%s] %s', $key, Psr7\DiagnosticValue::escape((string) $value));
+                    $rendered = $key === 'message' && $diagnosticUri !== null ? UriDiagnostic::redactInMessage((string) $value, $diagnosticUri) : Psr7\DiagnosticValue::escape((string) $value);
+                    $details[] = \sprintf('[%s] %s', $key, $rendered);
                 }
             }
             $message = 'Error creating resource';
@@ -670,6 +723,9 @@ final class StreamHandler
         string $body
     )
     {
+        // Report a stream-open failure against the request passed here, not the
+        // Connection: close clone built for the wire.
+        $callerRequest = $request;
         // HTTP/1.1 streams using the PHP stream wrapper require a
         // Connection: close header
         if ($request->getProtocolVersion() === '1.1' && !$request->hasHeader('Connection')) {
@@ -681,6 +737,7 @@ final class StreamHandler
         }
         $params = [];
         $context = $this->getDefaultContext($request, $body);
+        $customSslContext = [];
         if (isset($options['on_headers']) && !\is_callable($options['on_headers'])) {
             throw new InvalidArgumentException('on_headers must be callable');
         }
@@ -699,8 +756,13 @@ final class StreamHandler
             self::rejectConflictingStreamContextOptions($streamContext);
             self::rejectUnsupportedStreamContextOptions($streamContext);
             $context = \array_replace_recursive($context, $streamContext);
+            $sslContext = $streamContext['ssl'] ?? null;
+            if (\is_array($sslContext)) {
+                $customSslContext = $sslContext;
+            }
         }
         $this->addDefaultTlsMinimum($request, $context);
+        $commitTlsSessions = $this->applyTlsSessionResumption($request, $context, $customSslContext);
         // The context timeout governs connecting and the header-phase packet
         // gaps: the idle timeout, tightened to the deadline when that is
         // lower; -1 disables it so default_socket_timeout is never consulted.
@@ -711,42 +773,102 @@ final class StreamHandler
         } else {
             $context['http']['timeout'] = -1;
         }
+        $streamErrorCodes = [];
+        $captureStreamErrors = \true;
+        $this->addStructuredStreamErrorHandler($context, $streamErrorCodes, $captureStreamErrors);
         $uri = $this->resolveHost($request, $options);
         $contextResource = $this->createResource(static function () use ($context, $params) {
             return \stream_context_create($context, $params);
         });
-        return $this->createResource(function () use ($uri, $contextResource, $idleTimeout, $timeout) {
-            $this->lastDeadline = $timeout > 0 ? Clock::now() + $timeout / 1000 : null;
-            // Blank the from ini setting for the transfer so ambient
-            // configuration cannot leak into a From header; the wrapper
-            // cannot omit the header, so a configured ini sends it empty.
-            $iniFrom = \function_exists('ini_set') ? \ini_set('from', '') : \false;
-            try {
-                $resource = @\fopen((string) $uri, 'r', \false, $contextResource);
-            } finally {
-                if ($iniFrom !== \false) {
-                    \ini_set('from', $iniFrom);
+        try {
+            $resource = $this->createResource(function () use ($uri, $contextResource, $idleTimeout, $timeout) {
+                $this->lastDeadline = $timeout > 0 ? Clock::now() + $timeout / 1000 : null;
+                // Blank the from ini setting for the transfer so ambient
+                // configuration cannot leak into a From header; the wrapper
+                // cannot omit the header, so a configured ini sends it empty.
+                $iniFrom = \function_exists('ini_set') ? \ini_set('from', '') : \false;
+                try {
+                    $resource = @\fopen((string) $uri, 'r', \false, $contextResource);
+                } finally {
+                    if ($iniFrom !== \false) {
+                        \ini_set('from', $iniFrom);
+                    }
+                }
+                // PHP 8.5 deprecates the local $http_response_header variable.
+                if (function_exists('http_get_last_response_headers')) {
+                    $http_response_header = \http_get_last_response_headers();
+                }
+                $this->lastHeaders = $http_response_header ?? [];
+                if (\false === $resource) {
+                    return \false;
+                }
+                // Arm reads with the idle timeout, replacing the context
+                // value the deadline may have tightened; -1 disables it.
+                if ($idleTimeout > 0) {
+                    $sec = \intdiv($idleTimeout, 1000);
+                    $usec = $idleTimeout % 1000 * 1000;
+                    \stream_set_timeout($resource, $sec, $usec);
+                } else {
+                    \stream_set_timeout($resource, -1);
+                }
+                return $resource;
+            }, $uri);
+        } catch (TransferException $e) {
+            // Notification callbacks run during fopen(); an exception a
+            // callback throws is already a fully-formed transfer failure for
+            // its own request, so it passes through unchanged instead of
+            // being reclassified against this request.
+            throw $e;
+        } catch (\RuntimeException $e) {
+            throw self::createStreamFailureException($e->getMessage(), $callerRequest, $e, $streamErrorCodes);
+        } finally {
+            $captureStreamErrors = \false;
+        }
+        if ($commitTlsSessions !== null) {
+            $commitTlsSessions();
+        }
+        return $resource;
+    }
+    /**
+     * @param string[] $streamErrorCodes
+     */
+    private function addStructuredStreamErrorHandler(
+        #[\SensitiveParameter]
+        array &$context,
+        array &$streamErrorCodes,
+        bool &$captureStreamErrors
+    ): void
+    {
+        if (!self::supportsStructuredStreamErrors()) {
+            return;
+        }
+        if (!isset($context['stream']) || !\is_array($context['stream'])) {
+            $context['stream'] = [];
+        }
+        $context['stream']['error_mode'] = \StreamErrorMode::Error;
+        $context['stream']['error_store'] = \StreamErrorStore::None;
+        /** @param \StreamError[] $errors */
+        $context['stream']['error_handler'] = static function (
+            #[\SensitiveParameter]
+            array $errors
+        ) use (&$streamErrorCodes, &$captureStreamErrors): void {
+            if (!$captureStreamErrors) {
+                return;
+            }
+            foreach ($errors as $error) {
+                $name = $error->code->name;
+                if (!\in_array($name, $streamErrorCodes, \true)) {
+                    $streamErrorCodes[] = $name;
                 }
             }
-            // PHP 8.5 deprecates the local $http_response_header variable.
-            if (function_exists('http_get_last_response_headers')) {
-                $http_response_header = \http_get_last_response_headers();
-            }
-            $this->lastHeaders = $http_response_header ?? [];
-            if (\false === $resource) {
-                return \false;
-            }
-            // Arm reads with the idle timeout, replacing the context
-            // value the deadline may have tightened; -1 disables it.
-            if ($idleTimeout > 0) {
-                $sec = \intdiv($idleTimeout, 1000);
-                $usec = $idleTimeout % 1000 * 1000;
-                \stream_set_timeout($resource, $sec, $usec);
-            } else {
-                \stream_set_timeout($resource, -1);
-            }
-            return $resource;
-        });
+        };
+    }
+    private static function supportsStructuredStreamErrors(): bool
+    {
+        // Any PHP 8.6 build qualifies, including pre-release and nightly
+        // builds; the class check keeps unstable builds that do not carry
+        // the final API fail-closed.
+        return \PHP_VERSION_ID >= 80600 && \class_exists(\StreamError::class, \false);
     }
     private static function assertRequestUriSupported(
         #[\SensitiveParameter]
@@ -864,6 +986,132 @@ final class StreamHandler
         }
         $context['ssl']['min_proto_version'] = \STREAM_CRYPTO_PROTO_TLSv1_2;
     }
+    /**
+     * Wires PHP 8.6+ TLS session resumption into the SSL context. Preferred
+     * sharing modes fall back to no sharing when a request cannot safely use
+     * Guzzle-managed sessions; HANDLER_REQUIRE fails loudly instead.
+     *
+     * New sessions are held temporarily and committed only after the HTTPS
+     * stream opens successfully. If PHP rejects peer verification or another
+     * stream-open step fails, any session reported during that attempt is
+     * discarded.
+     *
+     * @param array $customSslContext User-supplied stream_context['ssl']
+     *                                values.
+     */
+    private function applyTlsSessionResumption(
+        #[\SensitiveParameter]
+        RequestInterface $request,
+        #[\SensitiveParameter]
+        array &$context,
+        #[\SensitiveParameter]
+        array $customSslContext = []
+    ): ?\Closure
+    {
+        if (!$this->transportSharingRequested()) {
+            return null;
+        }
+        $uri = $request->getUri();
+        if ('https' !== $uri->getScheme()) {
+            $this->failRequiredTlsSharingForRequest($request, 'handler-lifetime TLS session sharing only applies to HTTPS requests.');
+            return null;
+        }
+        $host = $uri->getHost();
+        // PHP opens a proxy transport with the full stream context, so a TLS
+        // proxy handshake would consume origin-keyed session state; only a
+        // tcp:// proxy keeps TLS on the origin leg alone.
+        $proxy = $context['http']['proxy'] ?? null;
+        if (\is_string($proxy) && ProxyOptions::proxyScheme($proxy) !== 'tcp') {
+            $this->failRequiredTlsSharingForRequest($request, 'the proxy uses a TLS stream transport, which would mix proxy and origin TLS session state.');
+            return null;
+        }
+        if (!isset($context['ssl']) || !\is_array($context['ssl'])) {
+            $this->failRequiredTlsSharingForConfiguration('the final stream SSL context is not an array.');
+            return null;
+        }
+        $unsupported = StreamTlsSessionCache::unsupportedContextReason($context['ssl'], $customSslContext);
+        if ($unsupported !== null) {
+            $this->failRequiredTlsSharingForConfiguration($unsupported);
+            return null;
+        }
+        $cache = $this->sessionCache();
+        if ($cache === null) {
+            $this->failRequiredTlsSharingForConfiguration('PHP 8.6+ with the OpenSSL session API is required.');
+            return null;
+        }
+        $key = StreamTlsSessionCache::peerKey(self::canonicalConnectionHost($host), $uri->getPort() ?? 443, $context['ssl']);
+        $credentials = StreamTlsSessionCache::credentialFingerprint($context['ssl']);
+        $session = $cache->find($key, $credentials);
+        if ($session !== null) {
+            $context['ssl']['session_data'] = $session;
+        }
+        // Sessions captured before the stream opens are staged so handshakes
+        // that fail PHP's peer verification policy are never cached.
+        $accepted = \false;
+        $staged = [];
+        $context['ssl']['session_new_cb'] = static function (
+            #[\SensitiveParameter]
+            $stream,
+            #[\SensitiveParameter]
+            Session $session
+        ) use ($cache, $key, $credentials, &$accepted, &$staged): void {
+            if ($accepted) {
+                $cache->store($key, $credentials, $session);
+                return;
+            }
+            // A server can stream session tickets while withholding response
+            // headers; keep only as many staged sessions as the cache retains.
+            if (\count($staged) >= StreamTlsSessionCache::MAX_SESSIONS_PER_KEY) {
+                \array_shift($staged);
+            }
+            $staged[] = $session;
+        };
+        return static function () use ($cache, $key, $credentials, &$accepted, &$staged): void {
+            $accepted = \true;
+            foreach ($staged as $session) {
+                $cache->store($key, $credentials, $session);
+            }
+            $staged = [];
+        };
+    }
+    private function transportSharingRequested(): bool
+    {
+        return $this->transportSharingMode !== TransportSharing::NONE && $this->transportSharingMode !== TransportSharing::PERSISTENT_REQUIRE;
+    }
+    private function transportSharingRequired(): bool
+    {
+        return $this->transportSharingMode === TransportSharing::HANDLER_REQUIRE;
+    }
+    private function failRequiredTlsSharingForRequest(
+        #[\SensitiveParameter]
+        RequestInterface $request,
+        string $reason
+    ): void
+    {
+        if ($this->transportSharingRequired()) {
+            throw new RequestException('The "transport_sharing" option requires stream handler TLS session sharing, but ' . $reason, $request);
+        }
+    }
+    private function failRequiredTlsSharingForConfiguration(string $reason): void
+    {
+        if ($this->transportSharingRequired()) {
+            throw new InvalidArgumentException('The "transport_sharing" option requires stream handler TLS session sharing, but ' . $reason);
+        }
+    }
+    /**
+     * Returns this handler's TLS session cache, or null when the configured
+     * sharing mode shares nothing or the OpenSSL session API is unavailable.
+     * Persistent (process-wide) sharing is a cURL-only feature, so
+     * PERSISTENT_PREFER degrades to this per-handler cache while
+     * PERSISTENT_REQUIRE is rejected before sharing applies.
+     */
+    private function sessionCache(): ?StreamTlsSessionCache
+    {
+        if (!$this->transportSharingRequested() || !StreamTlsSessionCache::isSupported()) {
+            return null;
+        }
+        return $this->sessionCache ?? $this->sessionCache = new StreamTlsSessionCache(self::TLS_SESSION_CACHE_MAX_KEYS);
+    }
     private function getDefaultContext(
         #[\SensitiveParameter]
         RequestInterface $request,
@@ -899,6 +1147,18 @@ final class StreamHandler
         }
         $context['http']['header'] = \rtrim($context['http']['header'], "\r\n");
         return $context;
+    }
+    private function assertTransportSharingSupported(): void
+    {
+        // The stream handler cannot pool live connections or share state across
+        // handler instances; persistent sharing is cURL-only.
+        if ($this->transportSharingMode === TransportSharing::PERSISTENT_REQUIRE) {
+            throw new InvalidArgumentException('The "transport_sharing" option requires persistent transport sharing, which is only available through cURL share handles. The stream handler can only share handler-lifetime TLS sessions.');
+        }
+        // Handler-scoped sharing needs the PHP 8.6+ OpenSSL session API.
+        if ($this->transportSharingMode === TransportSharing::HANDLER_REQUIRE && !StreamTlsSessionCache::isSupported()) {
+            throw new InvalidArgumentException('The "transport_sharing" option requires handler-lifetime transport sharing, but the stream handler only supports it through TLS session resumption on PHP 8.6+ with the OpenSSL session API.');
+        }
     }
     private static function rejectUnsupportedRequestOptions(
         #[\SensitiveParameter]
@@ -1005,16 +1265,7 @@ final class StreamHandler
      */
     private static function conflictingStreamContextOptions(): array
     {
-        return ['http' => ['auto_decode' => 'Guzzle response framing and decoding', 'content' => 'the request body', 'follow_location' => 'the "allow_redirects" request option', 'header' => 'the request headers', 'max_redirects' => 'the "allow_redirects" request option', 'method' => 'the request method', 'protocol_version' => 'the request protocol version', 'proxy' => 'the "proxy" request option', 'timeout' => 'the "timeout" and "read_timeout" request options'], 'ssl' => ['allow_self_signed' => 'the "verify" request option', 'cafile' => 'the "verify" request option', 'capath' => 'the "verify" request option', 'crypto_method' => 'the "crypto_method" request option', 'local_cert' => 'the "cert" request option', 'local_pk' => 'the "ssl_key" request option', 'max_proto_version' => 'the "crypto_method_max" request option', 'min_proto_version' => 'the "crypto_method" request option', 'passphrase' => 'the "cert" or "ssl_key" request option', 'peer_name' => 'the request URI', 'verify_peer' => 'the "verify" request option', 'verify_peer_name' => 'the "verify" request option']];
-    }
-    private function assertTransportSharingSupported(): void
-    {
-        if ($this->transportSharingMode === TransportSharing::PERSISTENT_REQUIRE) {
-            throw new InvalidArgumentException('The "transport_sharing" option requires persistent transport sharing, which is only available through cURL share handles.');
-        }
-        if ($this->transportSharingMode === TransportSharing::HANDLER_REQUIRE) {
-            throw new InvalidArgumentException('The "transport_sharing" option requires transport sharing, but the stream handler does not support it.');
-        }
+        return ['http' => ['auto_decode' => 'Guzzle response framing and decoding', 'content' => 'the request body', 'follow_location' => 'the "allow_redirects" request option', 'header' => 'the request headers', 'max_redirects' => 'the "allow_redirects" request option', 'method' => 'the request method', 'protocol_version' => 'the request protocol version', 'proxy' => 'the "proxy" request option', 'timeout' => 'the "timeout" and "read_timeout" request options'], 'ssl' => ['allow_self_signed' => 'the "verify" request option', 'cafile' => 'the "verify" request option', 'capath' => 'the "verify" request option', 'crypto_method' => 'the "crypto_method" request option', 'local_cert' => 'the "cert" request option', 'local_pk' => 'the "ssl_key" request option', 'max_proto_version' => 'the "crypto_method_max" request option', 'min_proto_version' => 'the "crypto_method" request option', 'passphrase' => 'the "cert" or "ssl_key" request option', 'peer_name' => 'the request URI', 'verify_peer' => 'the "verify" request option', 'verify_peer_name' => 'the "verify" request option'], 'stream' => ['error_handler' => 'Guzzle stream error handling', 'error_mode' => 'Guzzle stream error handling', 'error_store' => 'Guzzle stream error handling']];
     }
     /**
      * @param mixed $value as passed via Request transfer options.

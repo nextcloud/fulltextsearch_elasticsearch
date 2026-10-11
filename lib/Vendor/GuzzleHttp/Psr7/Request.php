@@ -110,7 +110,7 @@ class Request implements RequestInterface
         if (($port = $uri->getPort()) !== null) {
             $host .= ':' . $port;
         }
-        $this->assertValue($host);
+        $this->assertValue('Host', $host);
         return $host;
     }
     private function setHostHeader(string $host): void

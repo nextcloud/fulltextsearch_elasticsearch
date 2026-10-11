@@ -61,6 +61,12 @@ final class CurlVersion
     // capability floor for the opaque share safeguards; Guzzle-managed
     // connection sharing is separately gated by CONNECTION_SHARING_VERSION.
     private const SHARE_CONNECTION_CACHE_VERSION = '7.57.0';
+    // curl 8.22.0 applies the cURL multi connection caps from the transfer's
+    // own multi handle to transfers using a share-owned connection pool, with
+    // safe eviction from such pools, and documents that contract (curl #22266);
+    // from 8.13.0 (df67269) until then, the limit check on share-owned pools
+    // always passed (curl #22265).
+    public const SHARED_POOL_CONNECTION_CAP_VERSION = '8.22.0';
     // curl 7.83.1 added proxy TLS-SRP to the connection-reuse match
     // (CVE-2022-27782); the proxy client certificate was matched from 7.52.0,
     // so proxy TLS credentials are trusted from 7.83.1 onwards.
@@ -173,6 +179,11 @@ final class CurlVersion
         if (!self::supportsConnectionSharing()) {
             throw new InvalidArgumentException(\sprintf('The "transport_sharing" option requires libcurl %s or higher for persistent connection sharing.', self::CONNECTION_SHARING_VERSION));
         }
+    }
+    public static function supportsSharedPoolConnectionCaps(): bool
+    {
+        $version = self::get();
+        return null !== $version && version_compare($version, self::SHARED_POOL_CONNECTION_CAP_VERSION, '>=');
     }
     public static function supportsShareConnectionCaches(): bool
     {

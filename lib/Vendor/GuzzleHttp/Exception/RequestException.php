@@ -47,9 +47,9 @@ class RequestException extends TransferException implements RequestExceptionInte
         } else {
             $label = 'Unsuccessful request';
         }
-        $uri = \OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7\Utils::redactUserInfo($request->getUri());
+        $uri = \OCA\FullTextSearch_Elasticsearch\Vendor\GuzzleHttp\Psr7\Utils::redactUriForMessage($request->getUri());
         // Client error: `GET /` resulted in a `404 Not Found` response: <html> ... (truncated)
-        $message = \sprintf('%s: `%s %s` resulted in a `%s %s` response', $label, DiagnosticValue::escape($request->getMethod()), DiagnosticValue::escape($uri->__toString()), $response->getStatusCode(), DiagnosticValue::escape($response->getReasonPhrase()));
+        $message = \sprintf('%s: `%s %s` resulted in a `%s %s` response', $label, DiagnosticValue::escape($request->getMethod()), $uri, $response->getStatusCode(), DiagnosticValue::escape($response->getReasonPhrase()));
         $summary = ($bodySummarizer ?? new BodySummarizer())->summarize($response);
         if ($summary !== null) {
             $message .= \sprintf(': %s', DiagnosticValue::escape($summary));
