@@ -159,7 +159,6 @@ class IndexMappingService {
 			'source' => $document->getSource(),
 			'title' => $document->getTitle(),
 			'parts' => $document->getParts(),
-			'combined' => ''
 		];
 		//		}
 
@@ -225,7 +224,6 @@ class IndexMappingService {
 						'type' => 'text',
 						'analyzer' => 'keyword',
 						'term_vector' => 'with_positions_offsets',
-						'copy_to' => 'combined'
 					],
 					'provider' => [
 						'type' => 'keyword'
@@ -246,7 +244,6 @@ class IndexMappingService {
 						'type' => 'text',
 						'analyzer' => 'analyzer',
 						'term_vector' => 'with_positions_offsets',
-						'copy_to' => 'combined'
 					],
 					'owner' => [
 						'fields' => [
@@ -286,11 +283,6 @@ class IndexMappingService {
 					'hash' => [
 						'type' => 'keyword'
 					],
-					'combined' => [
-						'type' => 'text',
-						'analyzer' => 'analyzer',
-						'term_vector' => 'with_positions_offsets'
-					]
 				]
 			]
 		];
