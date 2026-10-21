@@ -25,6 +25,7 @@ class ConfigLexicon implements ILexicon {
 	public const ELASTIC_LOGGER_ENABLED = 'elastic_logger_enabled';
 	public const ANALYZER_TOKENIZER = 'analyzer_tokenizer';
 	public const ALLOW_SELF_SIGNED_CERT = 'allow_self_signed_cert';
+	public const REINDEX_REQUIRED = 'reindex_required';
 
 	public function getStrictness(): Strictness {
 		return Strictness::NOTICE;
@@ -38,6 +39,7 @@ class ConfigLexicon implements ILexicon {
 			new Entry(key: self::ELASTIC_LOGGER_ENABLED, type: ValueType::BOOL, defaultRaw: false, definition: 'Allow 3rd-party elasticsearch-php to write in nextcloud.log', lazy: true, note: 'Be aware that if your nextcloud log level is set to DEBUG (0), clear version of the credentials used to the remote elasticsearch could end up in your logs'),
 			new Entry(key: self::ANALYZER_TOKENIZER, type: ValueType::STRING, defaultRaw: 'standard', definition: 'used analyzer tokenizer', lazy: true),
 			new Entry(key: self::ALLOW_SELF_SIGNED_CERT, type: ValueType::BOOL, defaultRaw: false, definition: 'allow self signed certificate', lazy: true),
+			new Entry(key: self::REINDEX_REQUIRED, type: ValueType::BOOL, defaultRaw: false, definition: 'the ingest pipeline was updated, existing documents must be indexed again', lazy: true),
 		];
 	}
 
