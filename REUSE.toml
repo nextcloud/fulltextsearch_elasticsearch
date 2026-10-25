@@ -208,3 +208,9 @@ path = ["vendor-bin/php-scoper/vendor/webmozart/assert/**", "es8/vendor-bin/php-
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2014 Bernhard Schussek"
 SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["tests/integration/data/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 Nextcloud GmbH and Nextcloud contributors"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
