@@ -1,0 +1,144 @@
+# SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Integration Elasticsearch
+
+on: pull_request
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-elasticsearch-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest-low
+    outputs:
+      php-version: ${{ steps.versions.outputs.php-available }}
+      server-max: ${{ steps.versions.outputs.branches-max }}
+    steps:
+      - name: Checkout app
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Get version matrix
+        id: versions
+        uses: icewind1991/nextcloud-version-matrix@8a7bac6300b2f0f3100088b297995a229558ddba # v1.3.2
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: matrix
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # The 9.x client is used by default, 8.x exercises the fallback to the 8.x client
+        elasticsearch-versions: ['8.19.23', '9.5.5']
+
+    name: Elasticsearch ${{ matrix.elasticsearch-versions }}
+
+    services:
+      elasticsearch:
+        image: elasticsearch:${{ matrix.elasticsearch-versions }}
+        ports:
+          - 9200:9200
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        options: >-
+          --health-cmd "curl -fs 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s'"
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 20
+
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          submodules: true
+          repository: nextcloud/server
+          ref: ${{ needs.matrix.outputs.server-max }}
+
+      - name: Checkout fulltextsearch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          repository: nextcloud/fulltextsearch
+          ref: ${{ needs.matrix.outputs.server-max }}
+          path: apps/fulltextsearch
+
+      - name: Checkout files_fulltextsearch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          repository: nextcloud/files_fulltextsearch
+          ref: ${{ needs.matrix.outputs.server-max }}
+          path: apps/files_fulltextsearch
+
+      - name: Checkout app
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          path: apps/fulltextsearch_elasticsearch
+
+      - name: Set up php ${{ needs.matrix.outputs.php-version }}
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
+        with:
+          php-version: ${{ needs.matrix.outputs.php-version }}
+          # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, sqlite, pdo_sqlite
+          coverage: none
+          ini-file: development
+          # Temporary workaround for missing pcntl_* in PHP 8.3
+          ini-values: disable_functions=
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up dependencies
+        working-directory: apps/fulltextsearch_elasticsearch
+        run: |
+          composer remove nextcloud/ocp --dev --no-scripts
+          composer i
+
+      - name: Set up Nextcloud
+        run: |
+          mkdir data
+          ./occ maintenance:install --verbose --database=sqlite --database-name=nextcloud --admin-user admin --admin-pass admin
+          ./occ app:enable --force fulltextsearch files_fulltextsearch fulltextsearch_elasticsearch
+
+      - name: Configure Full text search
+        run: |
+          ./occ fulltextsearch:configure '{"search_platform":"OCA\\FullTextSearch_Elasticsearch\\Platform\\ElasticSearchPlatform"}'
+          ./occ fulltextsearch_elasticsearch:configure '{"elastic_host":"http://localhost:9200","elastic_index":"nextcloud-ci"}'
+
+      - name: Run platform self-test
+        run: ./occ fulltextsearch:test
+
+      - name: Run Nextcloud
+        run: php -S localhost:8080 &
+
+      - name: Test files_fulltextsearch
+        run: apps/fulltextsearch_elasticsearch/tests/integration/files_fulltextsearch.sh
+
+      - name: Print logs
+        if: always()
+        run: cat data/nextcloud.log
+
+  summary:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest-low
+    needs: integration
+
+    if: always()
+
+    name: integration-elasticsearch-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.integration.result != 'success' }}; then exit 1; fi
