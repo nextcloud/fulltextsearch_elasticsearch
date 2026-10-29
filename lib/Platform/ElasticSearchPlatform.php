@@ -16,6 +16,7 @@ use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\AccessIsEmptyException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ClientException;
 use OCA\FullTextSearch_Elasticsearch\Exceptions\ConfigurationException;
+use OCA\FullTextSearch_Elasticsearch\Model\IngestPipelineStatus;
 use OCA\FullTextSearch_Elasticsearch\Service\ConfigService;
 use OCA\FullTextSearch_Elasticsearch\Service\IndexService;
 use OCA\FullTextSearch_Elasticsearch\Service\SearchService;
@@ -151,6 +152,21 @@ class ElasticSearchPlatform implements IFullTextSearchPlatform {
 	 */
 	public function initializeIndex() {
 		$this->indexService->initializeIndex($this->getClient());
+	}
+
+	/**
+	 * @throws ClientException
+	 */
+	public function getIngestPipelineStatus(): IngestPipelineStatus {
+		return $this->indexService->getIngestPipelineStatus($this->getClient());
+	}
+
+	/**
+	 * @throws ClientException
+	 * @throws ConfigurationException
+	 */
+	public function countDocumentsFromOutdatedPipeline(): int {
+		return $this->indexService->countDocumentsFromOutdatedPipeline($this->getClient());
 	}
 
 	/**

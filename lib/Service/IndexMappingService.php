@@ -30,6 +30,17 @@ use OCP\FullTextSearch\Model\IIndexDocument;
  */
 class IndexMappingService {
 
+	public const INGEST_PIPELINE_ID = 'attachment';
+
+	/**
+	 * Bump this whenever generateGlobalIngest() changes, so existing installations
+	 * get their pipeline updated on the next index run.
+	 */
+	public const INGEST_PIPELINE_VERSION = 1;
+
+	/** Set on every document processed by the current pipeline */
+	public const INGEST_PIPELINE_VERSION_FIELD = 'ingest_pipeline_version';
+
 	public function __construct(
 		private ConfigService $configService,
 		private readonly IAppConfig $appConfig,
@@ -125,7 +136,7 @@ class IndexMappingService {
 	public function onIndexingDocument(IIndexDocument $document, array &$arr): void {
 		if ($document->getContent() !== ''
 			&& $document->isContentEncoded() === IIndexDocument::ENCODED_BASE64) {
-			$arr['index']['pipeline'] = 'attachment';
+			$arr['index']['pipeline'] = self::INGEST_PIPELINE_ID;
 		}
 	}
 
@@ -290,6 +301,9 @@ class IndexMappingService {
 						'type' => 'text',
 						'analyzer' => 'analyzer',
 						'term_vector' => 'with_positions_offsets'
+					],
+					self::INGEST_PIPELINE_VERSION_FIELD => [
+						'type' => 'integer'
 					]
 				]
 			]
@@ -304,7 +318,7 @@ class IndexMappingService {
 	 * @return array
 	 */
 	public function generateGlobalIngest(bool $complete = true): array {
-		$params = ['id' => 'attachment'];
+		$params = ['id' => self::INGEST_PIPELINE_ID];
 
 		if ($complete === false) {
 			return $params;
@@ -312,6 +326,7 @@ class IndexMappingService {
 
 		$params['body'] = [
 			'description' => 'attachment',
+			'version' => self::INGEST_PIPELINE_VERSION,
 			'processors' => [
 				[
 					'attachment' => [
@@ -332,11 +347,37 @@ class IndexMappingService {
 						'field' => 'attachment.content',
 						'ignore_failure' => true
 					]
+				], [
+					'set' => [
+						'field' => self::INGEST_PIPELINE_VERSION_FIELD,
+						'value' => self::INGEST_PIPELINE_VERSION
+					]
 				]
 			]
 		];
 
 		return $params;
+	}
+
+	/**
+	 * Check that the pipeline has the expected structure: one processor per entry,
+	 * starting with the attachment processor.
+	 *
+	 * @param array $pipeline pipeline definition, as returned by Elasticsearch
+	 */
+	public function isIngestPipelineIncompatible(array $pipeline): bool {
+		$processors = $pipeline['processors'] ?? null;
+		if (!is_array($processors) || $processors === []) {
+			return true;
+		}
+
+		foreach ($processors as $processor) {
+			if (!is_array($processor) || count($processor) !== 1) {
+				return true;
+			}
+		}
+
+		return (($processors[0]['attachment']['remove_binary'] ?? false) !== true);
 	}
 
 	/**
