@@ -1,6 +1,13 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
+    "Elasticsearch content extraction" : "Extração de conteúdo do Elasticsearch",
+    "Elasticsearch is not configured." : "O Elasticsearch não está configurado.",
+    "_%n document needs to be indexed again to be searchable by its content. Run \"%s\"._::_%n documents need to be indexed again to be searchable by their content. Run \"%s\"._" : ["%n documento precisa ser indexado novamente para que possa ser pesquisado pelo conteúdo. Execute “%s”.","%n de documentos precisam ser indexados novamente para que possam ser pesquisados pelo conteúdo. Execute “%s”.","%n documentos precisam ser indexados novamente para que possam ser pesquisados pelo conteúdo. Execute “%s”."],
+    "Could not check the ingest pipeline on Elasticsearch: %s" : "Não foi possível verificar o pipeline de ingestão no Elasticsearch: %s",
+    "The ingest pipeline is missing on Elasticsearch, the content of documents cannot be indexed. Create it by running \"%s\"." : "O pipeline de ingestão não está presente no Elasticsearch; o conteúdo dos documentos não pode ser indexado. Crie-o executando “%s”.",
+    "The ingest pipeline on Elasticsearch is outdated. Update it and index all documents again by running \"%s\"." : "O pipeline de importação no Elasticsearch está desatualizado. Atualize-o e indexe todos os documentos novamente executando “%s”.",
+    "The ingest pipeline on Elasticsearch will be updated on the next run of \"%s\"." : "O pipeline de ingestão no Elasticsearch será atualizado na próxima execução de “%s”.",
     "Full text search - Elasticsearch Platform" : "Pesquisa em texto completo - Plataforma Elasticsearch",
     "Index using ElasticSearch" : "Indexar usando o ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extensão para o aplicativo _Full text search_ se comunicar com o ElasticSearch.",
