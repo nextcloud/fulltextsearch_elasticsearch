@@ -1,6 +1,13 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
+    "Elasticsearch content extraction" : "Elasticsearch içerik ayıklama",
+    "Elasticsearch is not configured." : "Elasticsearch yapılandırılmamış.",
+    "_%n document needs to be indexed again to be searchable by its content. Run \"%s\"._::_%n documents need to be indexed again to be searchable by their content. Run \"%s\"._" : ["İçeriklerinin aranabilmesi için %n belgenin yeniden dizine eklenmesi gerekiyor. \"%s\" komutunu yürütün.","İçeriklerinin aranabilmesi için %n belgenin yeniden dizine eklenmesi gerekiyor. \"%s\" komutunu yürütün."],
+    "Could not check the ingest pipeline on Elasticsearch: %s" : "Elasticsearch üzerinde giriş boru hattı denetlenemedi: %s",
+    "The ingest pipeline is missing on Elasticsearch, the content of documents cannot be indexed. Create it by running \"%s\"." : "Elasticsearch üzerinde giriş boru hattı eksik. Belgelerin içeriği dizine eklenemiyor. \"%s\" komutunu yürüterek dizini oluşturun.",
+    "The ingest pipeline on Elasticsearch is outdated. Update it and index all documents again by running \"%s\"." : "Elasticsearch üzerinde giriş boru hattı güncel değil. Güncelleyin ve \"%s\" komutunu yürüterek tüm belgeleri yeniden dizine ekleyin.",
+    "The ingest pipeline on Elasticsearch will be updated on the next run of \"%s\"." : "Elasticsearch üzerindeki giriş boru hattı, \"%s\" komutunun bir sonraki yürütülmesinde güncellenecek.",
     "Full text search - Elasticsearch Platform" : "Tam yazı arama - ElasticSearch platformu",
     "Index using ElasticSearch" : "ElasticSearch ile dizin oluşturulsun",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "ElasticSearch ile iletişim kuracak _Full text search_ uygulama eklentisi.",
