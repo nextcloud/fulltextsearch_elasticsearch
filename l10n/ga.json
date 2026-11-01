@@ -1,4 +1,10 @@
 { "translations": {
+    "Elasticsearch content extraction" : "Eastóscadh ábhair Elasticsearch",
+    "Elasticsearch is not configured." : "Níl Elasticsearch cumraithe.",
+    "Could not check the ingest pipeline on Elasticsearch: %s" : "Níorbh fhéidir an píblíne ionghabhála ar Elasticsearch a sheiceáil: %s",
+    "The ingest pipeline is missing on Elasticsearch, the content of documents cannot be indexed. Create it by running \"%s\"." : "Tá an píblíne ionghabhála ar iarraidh ar Elasticsearch; ní féidir ábhar na ndoiciméad a innéacsú. Cruthaigh í trí \"%s\" a rith.",
+    "The ingest pipeline on Elasticsearch is outdated. Update it and index all documents again by running \"%s\"." : "Tá an píblíne ionghabhála ar Elasticsearch as dáta. Déan í a nuashonrú agus na doiciméid go léir a innéacsú arís trí \"%s\" a rith.",
+    "The ingest pipeline on Elasticsearch will be updated on the next run of \"%s\"." : "Déanfar an píblíne ionghabhála ar Elasticsearch a nuashonrú an chéad uair eile a rithfear \"%s\".",
     "Full text search - Elasticsearch Platform" : "Cuardach téacs iomlán - Ardán Elasticsearch",
     "Index using ElasticSearch" : "Innéacs ag baint úsáide as ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Síneadh leis an aip _Full text search_ chun cumarsáid a dhéanamh le ElasticSearch.",
