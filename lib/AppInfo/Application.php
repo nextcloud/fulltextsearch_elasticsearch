@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\FullTextSearch_Elasticsearch\AppInfo;
 
 use OCA\FullTextSearch_Elasticsearch\ConfigLexicon;
+use OCA\FullTextSearch_Elasticsearch\SetupCheck\IngestPipelineSetupCheck;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -24,6 +25,7 @@ class Application extends App implements IBootstrap {
 
 	public function register(IRegistrationContext $context): void {
 		$context->registerConfigLexicon(ConfigLexicon::class);
+		$context->registerSetupCheck(IngestPipelineSetupCheck::class);
 	}
 
 	public function boot(IBootContext $context): void {

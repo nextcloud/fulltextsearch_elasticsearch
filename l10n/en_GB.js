@@ -1,6 +1,13 @@
 OC.L10N.register(
     "fulltextsearch_elasticsearch",
     {
+    "Elasticsearch content extraction" : "Elasticsearch content extraction",
+    "Elasticsearch is not configured." : "Elasticsearch is not configured.",
+    "_%n document needs to be indexed again to be searchable by its content. Run \"%s\"._::_%n documents need to be indexed again to be searchable by their content. Run \"%s\"._" : ["%n document needs to be indexed again to be searchable by its content. Run \"%s\".","%n documents need to be indexed again to be searchable by their content. Run \"%s\"."],
+    "Could not check the ingest pipeline on Elasticsearch: %s" : "Could not check the ingest pipeline on Elasticsearch: %s",
+    "The ingest pipeline is missing on Elasticsearch, the content of documents cannot be indexed. Create it by running \"%s\"." : "The ingest pipeline is missing on Elasticsearch, the content of documents cannot be indexed. Create it by running \"%s\".",
+    "The ingest pipeline on Elasticsearch is outdated. Update it and index all documents again by running \"%s\"." : "The ingest pipeline on Elasticsearch is outdated. Update it and index all documents again by running \"%s\".",
+    "The ingest pipeline on Elasticsearch will be updated on the next run of \"%s\"." : "The ingest pipeline on Elasticsearch will be updated on the next run of \"%s\".",
     "Full text search - Elasticsearch Platform" : "Full text search - Elasticsearch Platform",
     "Index using ElasticSearch" : "Index using ElasticSearch",
     "Extension to the _Full text search_ app to communicate with ElasticSearch." : "Extension to the _Full text search_ app to communicate with ElasticSearch.",
