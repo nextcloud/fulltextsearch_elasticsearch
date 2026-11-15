@@ -73,7 +73,7 @@ class MockHandler implements \Countable
             throw new \OutOfBoundsException('Mock queue is empty');
         }
         if (isset($options['delay']) && \is_numeric($options['delay'])) {
-            \usleep((int) $options['delay'] * 1000);
+            \usleep((int) ($options['delay'] * 1000));
         }
         $this->lastRequest = $request;
         $this->lastOptions = $options;
