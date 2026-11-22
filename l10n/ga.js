@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Elasticsearch content extraction" : "Eastóscadh ábhair Elasticsearch",
     "Elasticsearch is not configured." : "Níl Elasticsearch cumraithe.",
+    "_%n document needs to be indexed again to be searchable by its content. Run \"%s\"._::_%n documents need to be indexed again to be searchable by their content. Run \"%s\"._" : ["Caithfear an doiciméad %n a innéacsú arís chun go mbeifear in ann cuardach a dhéanamh air de réir a ábhair. Rith \"%s\".","Caithfear %n doiciméad a innéacsú arís chun gur féidir iad a chuardach de réir a n-ábhair. Rith \"%s\".","Caithfear %n doiciméad a innéacsú arís chun gur féidir iad a chuardach de réir a n-ábhair. Rith \"%s\".","Caithfear %n doiciméad a innéacsú arís chun gur féidir iad a chuardach de réir a n-ábhair. Rith \"%s\".","Caithfear %n doiciméad a innéacsú arís chun gur féidir iad a chuardach de réir a n-ábhair. Rith \"%s\"."],
     "Could not check the ingest pipeline on Elasticsearch: %s" : "Níorbh fhéidir an píblíne ionghabhála ar Elasticsearch a sheiceáil: %s",
     "The ingest pipeline is missing on Elasticsearch, the content of documents cannot be indexed. Create it by running \"%s\"." : "Tá an píblíne ionghabhála ar iarraidh ar Elasticsearch; ní féidir ábhar na ndoiciméad a innéacsú. Cruthaigh í trí \"%s\" a rith.",
     "The ingest pipeline on Elasticsearch is outdated. Update it and index all documents again by running \"%s\"." : "Tá an píblíne ionghabhála ar Elasticsearch as dáta. Déan í a nuashonrú agus na doiciméid go léir a innéacsú arís trí \"%s\" a rith.",
